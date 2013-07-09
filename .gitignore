@@ -1,0 +1,10 @@
+Release
+
+/Gui/*.suo
+obj
+*.sdf
+bin
+
+/*.suo
+
+*.user
