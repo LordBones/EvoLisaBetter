@@ -158,6 +158,31 @@ namespace GenArt.Core.Classes
 
         }
 
+        public void FillPolygonNative(DnaPoint[] points, byte[] canvas, Color color)
+        {
+            FindMinimalArea(points, out _minAreaOrigStart, out _minAreaOrigSize);
+
+            Init();
+
+            DrawPolygonBounds(points);
+
+            //DrawPatternFill();
+
+            FillAroundPolygon();
+
+            //PolygonPointTable ppt = new PolygonPointTable(this._minAreaForSeedHeight);
+
+            //GetPolygonRasterPoints(ppt, points);
+
+            //FillPolygonIntoCanvas(this._minArea, this._minAreaForSeedWidthAlocated, ppt);
+
+            //FillAroundPolygonBasicSeed();
+            //CopyFillPolygonIntoCanvasFast(canvas, this._maxWidth, color);
+            //CopyFillPolygonIntoCanvas(canvas, this._maxWidth, color);
+            CopyFillPolygonIntoCanvasNewRender(canvas, this._maxWidth, color);
+
+        }
+
         public void FillPolygon(Point[] points, byte[] canvas, Color color)
         {
             //Point [] points2 = new Point[] { new Point(0, 0), new Point(this._maxWidth - 1, this._maxHeight - 1) };

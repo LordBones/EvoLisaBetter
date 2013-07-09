@@ -223,13 +223,7 @@ namespace GenArt.Core.Classes
         {
             FastColorFill(data, Color.FromArgb(255, 0, 0, 0));
 
-            //for (int index = 0; index < data.Length; index += 4)
-            //{
-            //    data[index] = 0;
-            //    data[index+1] = 0;
-            //    data[index+2] = 0;
-            //    data[index+3] = 255;
-            //}
+            
             DnaPolygon [] dnaPolygons = drawing.Polygons;
             int polyCount = dnaPolygons.Length;
             for (int i = 0; i < polyCount; i++)
@@ -246,18 +240,27 @@ namespace GenArt.Core.Classes
             }
         }
 
-        //Render a polygon
-        //private static void Render(DnaPolygon polygon, Graphics g, int scale)
-        //{
-        //    //using (Brush brush = GetGdiBrush(polygon.Brush))
-        //    {
-        //        //Point[] points = GetGdiPoints(polygon.Points, scale);
-        //        //g.DrawLines(new Pen(polygon.Brush.Brush), points);
-        //        // g.FillPolygon(polygon.Brush.Brush, points);
-        //        //g.FillClosedCurve(polygon.Brush.Brush, points);
+        //Render a Drawing
+        public void RenderNative(DnaDrawing drawing, byte[] data, int width, int scale, Color background)
+        {
+            FastColorFill(data, Color.FromArgb(255, 0, 0, 0));
 
-        //    }
-        //}
+
+            DnaPolygon [] dnaPolygons = drawing.Polygons;
+            int polyCount = dnaPolygons.Length;
+            for (int i = 0; i < polyCount; i++)
+            {
+                DnaPolygon polygon = dnaPolygons[i];
+                //Point [] points = GetGdiPoints(polygon.Points, 1);
+
+                //Color color = Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue);
+                //this._drawPolygon.FillPolygon(points, data, color);
+                this._drawPolygon.FillPolygonNative(polygon.Points, data, polygon.Brush.BrushColor);
+                //  this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
+
+                //DrawLine(data, width, points, Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue));
+            }
+        }
 
 
         //Convert a list of DnaPoint to a list of System.Drawing.Point's

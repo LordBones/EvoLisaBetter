@@ -134,37 +134,35 @@ namespace GenArt.Classes
 
                 softwareRender = new SoftwareRender(sourceBitmap.Width, sourceBitmap.Height);
             }
-
             
-            //SoftwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
-
             softwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
 
+            error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
+            return error + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
 
-            //Bitmap bmp = new Bitmap(sourceBitmap.Width, sourceBitmap.Height, PixelFormat.Format32bppPArgb);
-            //var lockBmp = bmp.LockBits(new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
+        }
 
-            //unsafe
-            //{
-            //    byte * ll = (byte*)lockBmp.Scan0.ToPointer();
+        public static long GetDrawingFitnessSoftwareNative(DnaDrawing newDrawing, Bitmap sourceBitmap, byte[] sourceBitmapByte, Color background)
+        {
+            long error = 0;
 
-            //    for (int index = 0; index < drawCanvas.Length; index++)
-            //    {
-            //        *(ll + index) = drawCanvas[index];
-            //    }
-            //}
+            if (drawCanvas.Length != sourceBitmap.Width * sourceBitmap.Height * 4)
+            {
+                drawCanvas = new byte[sourceBitmap.Width * sourceBitmap.Height * 4];
 
-            //bmp.UnlockBits(lockBmp);
-            //bmp.Save("testsw.bmp", ImageFormat.Bmp);
-             
+                softwareRender = new SoftwareRender(sourceBitmap.Width, sourceBitmap.Height);
+            }
+
+
             
+            softwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
+
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
 
             GenArtCoreNative.Class1 nc = new GenArtCoreNative.Class1();
             error = nc.ComputeFittness(drawCanvas, sourceBitmapByte, drawCanvas.Length);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
-            //return error;
             return error + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
 
         }
