@@ -721,6 +721,27 @@ namespace GenArt.AST
             return Angle * 180 / System.Math.PI ;
         }
 
+        public long GetPixelSizePolygon()
+        {
+            if(this.Points.Length < 3)
+                return 0;
+
+            long minX = 0,minY = 0;
+            long maxX = 0,maxY = long.MaxValue;
+
+            for (int i = 0; i < 3; i++)
+            {
+                int x = this.Points[i].X;
+                int y = this.Points[i].Y;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+
+            return ((maxX - minX + 1) * (maxY - minY + 1)) / 2;
+        }
+
       
     }
 }

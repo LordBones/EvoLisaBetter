@@ -239,10 +239,10 @@ namespace GenArt.Core.AST
 
             DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
 
-            //newPopulation[0] = this._currentBest.Clone();
+            newPopulation[0] = this._currentBest.Clone();
             //newPopulation[0] = this._lastBest.Clone();
 
-            for (int index = 0; index < this._population.Length; index++)
+            for (int index = 1; index < this._population.Length; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, rouleteTable);

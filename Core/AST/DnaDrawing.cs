@@ -26,6 +26,19 @@ namespace GenArt.AST
             }
         }
 
+        public long GetSumSize
+        {
+            get
+            {
+                long sum = 0;
+                for (int i = 0; i < this.Polygons.Length; i++)
+                {
+                    sum += this.Polygons[i].GetPixelSizePolygon();
+                }
+                return sum;
+            }
+        }
+
         public DnaDrawing()
         {
             Polygons = new DnaPolygon[0];
@@ -330,6 +343,7 @@ namespace GenArt.AST
             int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
 
             int alpha = 254 - (Math.Min(avgSumDiff, 127) << 1);
+            alpha = 5+(32*alpha)/254;
 
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }

@@ -25,7 +25,7 @@
         
         public static int ActivePointsMax = 150;
         public static int ActivePointsMin;
-        public static int ActivePointsPerPolygonMax = 10;
+        public static int ActivePointsPerPolygonMax = 3;
         public static int ActivePointsPerPolygonMin = 3;
         public static int ActivePolygonsMax = 255;
         public static int ActivePolygonsMin;
@@ -426,7 +426,7 @@
         public void Reset()
         {
             ActiveAddPolygonMutationRate = 16;
-            ActiveRemovePolygonMutationRate = 8;
+            ActiveRemovePolygonMutationRate = 16;
             ActiveMovePolygonMutationRate = 8;
 
             ActiveAddPointMutationRate = 200;
@@ -453,13 +453,13 @@
             ActivePolygonsMax = 255;
             ActivePolygonsMin = 0;
 
-            ActivePointsPerPolygonMax = 10;
+            ActivePointsPerPolygonMax = 3;
             ActivePointsPerPolygonMin = 3;
 
             ActivePointsMax = 1500;
             ActivePointsMin = 0;
 
-            ActiveMovePointRangeMid = 100;
+            ActiveMovePointRangeMid = 30;
             ActiveMovePointRangeMin = 10;
 
             Discard();

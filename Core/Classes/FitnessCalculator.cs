@@ -162,8 +162,17 @@ namespace GenArt.Classes
             GenArtCoreNative.Class1 nc = new GenArtCoreNative.Class1();
             error = nc.ComputeFittness(drawCanvas, sourceBitmapByte, drawCanvas.Length);
 
+            long sizeCanvas = sourceBitmap.Width * sourceBitmap.Height;
+            long sumPolySize = newDrawing.GetSumSize;
+
+            long sizeError = 0;
+            if(sumPolySize > sizeCanvas)
+            {
+               sizeError = ((sumPolySize-sizeCanvas)*1000)/sizeCanvas;
+            }
+            
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
-            return error + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
+            return error + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1))+sizeError;
 
         }
 
