@@ -155,10 +155,10 @@ namespace GenArt.Core.AST
             UpdateStatsByFittness(fittness);
 
             //GenerateNewPopulationBasic();
-            GenerateNewPopulationRoulete(fittness);
-            //GenerateNewPopulationByMutation(fittness);
+            //GenerateNewPopulationRoulete(fittness);
+            GenerateNewPopulationByMutation(fittness);
 
-            MutatePopulation();
+            //MutatePopulation();
 
             this._generation++;
         }
@@ -239,8 +239,8 @@ namespace GenArt.Core.AST
 
             DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
 
-            newPopulation[0] = this._currentBest.Clone();
-            //newPopulation[0] = this._lastBest.Clone();
+            //newPopulation[0] = this._currentBest.Clone();
+            newPopulation[0] = this._lastBest.Clone();
 
             for (int index = 1; index < this._population.Length; index++)
             {
@@ -250,7 +250,7 @@ namespace GenArt.Core.AST
                 newPopulation[index] = this._population[indexParent1].Clone();
 
                 while (!newPopulation[index].IsDirty)
-                    newPopulation[index].Mutate();
+                    newPopulation[index].MutateBetter();
 
             }
 

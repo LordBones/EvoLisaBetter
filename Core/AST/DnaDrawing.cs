@@ -102,6 +102,17 @@ namespace GenArt.AST
 
         }
 
+        public void MutateBetter(byte[] _rawDestImage = null, int width = 0)
+        {
+            if(Tools.GetRandomNumber(0, 1000) >500)
+            AddPolygon(_rawDestImage, width);
+            else
+            RemovePolygon();
+            
+           
+
+        }
+
         public void MovePolygon()
         {
             if (Polygons.Length < 1)
