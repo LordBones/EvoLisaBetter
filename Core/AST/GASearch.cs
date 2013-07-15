@@ -250,7 +250,7 @@ namespace GenArt.Core.AST
                 newPopulation[index] = this._population[indexParent1].Clone();
 
                 while (!newPopulation[index].IsDirty)
-                    newPopulation[index].MutateBetter();
+                    newPopulation[index].MutateBetter(this._bitmapRaw, this._destImg.Width);
 
             }
 

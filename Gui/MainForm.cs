@@ -179,7 +179,7 @@ namespace GenArt
             SetupSourceColorMatrix();
 
 
-            GASearch gaSearch = new GASearch(10);
+            GASearch gaSearch = new GASearch(2);
             gaSearch.InitFirstPopulation(sourceBitmap,sourceColors);
 
             while (isRunning)

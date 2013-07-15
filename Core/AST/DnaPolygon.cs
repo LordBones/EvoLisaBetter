@@ -244,15 +244,7 @@ namespace GenArt.AST
             }
 
 
-            //if (Tools.WillMutate(5000))
-            //{
-            //    if (_rawDestImage != null)
-            //    {
-            //        Color tmpColor = DnaDrawing.GetColorByPolygonPoints(this.Points, _rawDestImage, width);
-            //        this.Brush.SetByColor(tmpColor);
-            //    }
-            //}
-            //else
+           
             {
                 if (Brush.Mutate(drawing))
                 {

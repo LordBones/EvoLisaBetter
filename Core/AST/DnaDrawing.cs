@@ -92,7 +92,7 @@ namespace GenArt.AST
                 AddPolygon(_rawDestImage,width);
 
             else if (Tools.WillMutate(Settings.ActiveMovePolygonMutationRate))
-                MovePolygon();
+                SwapPolygon();
             
             
             {
@@ -104,16 +104,29 @@ namespace GenArt.AST
 
         public void MutateBetter(byte[] _rawDestImage = null, int width = 0)
         {
-            if(Tools.GetRandomNumber(0, 1000) >500)
+            int mutateChange = Tools.GetRandomNumber(0, 1000);
+
+            if(mutateChange <250)
             AddPolygon(_rawDestImage, width);
+            else if (mutateChange < 500)
+                RemovePolygon();
+            else if (mutateChange < 750)
+                SwapPolygon();
+
             else
-            RemovePolygon();
+            {
+                while (!this.IsDirty)
+                {
+                    for (int index = 0; index < Polygons.Length; index++)
+                        Polygons[index].Mutate(this, _rawDestImage, width);
+                }
+            }
             
            
 
         }
 
-        public void MovePolygon()
+        public void SwapPolygon()
         {
             if (Polygons.Length < 1)
                 return;
@@ -286,6 +299,37 @@ namespace GenArt.AST
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }
 
+        public static Color GetColorByPolygonMiddle(DnaPoint[] points, byte[] _rawDestImage, int width)
+        {
+            int middleX = 0;
+            int middleY = 0;
+
+            for (int index = 0; index < points.Length; index++)
+            {
+                middleX += points[index].X;
+                middleY += points[index].Y;
+            }
+
+            middleX /= points.Length;
+            middleY /= points.Length;
+
+            int middleColorIndex = ((middleY * width) + middleX) << 2;
+
+            int sumRed = 0;
+            int sumGreen = 0;
+            int sumBlue = 0;
+
+            sumBlue += _rawDestImage[middleColorIndex];
+            sumGreen += _rawDestImage[middleColorIndex + 1];
+            sumRed += _rawDestImage[middleColorIndex + 2];
+            
+            int alpha = 0;
+            alpha = Tools.GetRandomNumber(5, 150);
+
+            return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
+        }
+
+
         public static Color GetColorByPolygonPoints(DnaPoint[] points, byte[] _rawDestImage, int width)
         {
             int middleX = 0;
@@ -371,7 +415,7 @@ namespace GenArt.AST
 
                     if (_rawDestImage != null)
                     {
-                        Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
+                        Color nearColor = GetColorByPolygonMiddle(newPolygon.Points, _rawDestImage, width);
                         newPolygon.Brush.SetByColor(nearColor);
                     }
                     //else
