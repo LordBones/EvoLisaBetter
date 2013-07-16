@@ -718,8 +718,8 @@ namespace GenArt.AST
             if(this.Points.Length < 3)
                 return 0;
 
-            long minX = 0,minY = 0;
-            long maxX = 0,maxY = long.MaxValue;
+            long minX = long.MaxValue,minY = long.MaxValue;
+            long maxX = 0,maxY = 0;
 
             for (int i = 0; i < 3; i++)
             {

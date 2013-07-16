@@ -101,7 +101,8 @@ namespace GenArt.Classes
             
             softwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
 
-            error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
+            //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
+            error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             long sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
 
@@ -206,19 +207,57 @@ namespace GenArt.Classes
                             int bg = *(currentPtr + 1) - *(origPtr + 1);
                             int bb = *(currentPtr + 2) - *(origPtr + 2);
 
-                            int tmpres = (int)Math.Sqrt((br * br + bg * bg + bb * bb) / 3) * 3;
+                            long tmpres = Tools.fastAbs(br) + Tools.fastAbs(bg) + Tools.fastAbs(bb);
+
                             result += tmpres;
                         
-                            //result += br * br + bg * bg + bb * bb;
-                            //result += tmp*tmp;
-                            //int br = *(currentPtr) ^ *(origPtr);
-                            //int bg = *(currentPtr + 1) ^ *(origPtr + 1);
-                            //int bb = *(currentPtr +2) ^ *(origPtr + 2);
+                          
+                            currentPtr += 4;
+                            origPtr += 4;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                orig.UnlockBits(bmdSRC);
+            }
 
-                            //result += br  +  bg +  bb;
+            return result;
+        }
+
+        private static long ComputeFittnessAdvance(byte[] current, Bitmap orig)
+        {
+            long result = 0;
+
+            BitmapData bmdSRC = orig.LockBits(new Rectangle(0, 0, orig.Width, orig.Height), ImageLockMode.ReadOnly,
+                                        PixelFormat.Format32bppPArgb);
+            try
+            {
+
+                unsafe
+                {
+                    fixed (byte * tmpcurrentPtr = current)
+                    {
+                        byte * currentPtr = tmpcurrentPtr;
+                        byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
+
+                        //int totalLength = (Tools.MaxWidth * Tools.MaxHeight * 4);
+                        byte * totalLength = currentPtr + (Tools.MaxWidth * Tools.MaxHeight * 4);
+                        int index = 0;
+
+                        while (currentPtr < totalLength)
+                        {
+                            int br = Tools.fastAbs(* (currentPtr) - *(origPtr));
+                            int bg = Tools.fastAbs( * (currentPtr + 1) - *(origPtr + 1));
+                            int bb = Tools.fastAbs( * (currentPtr + 2) - *(origPtr + 2));
 
 
-                            //index += 4;
+                            long tmpres = (br < bg)?  bg : br;
+                            tmpres = (tmpres < bb) ? bb : tmpres;
+
+                            result += tmpres*3;
+                        
                             currentPtr += 4;
                             origPtr += 4;
                         }

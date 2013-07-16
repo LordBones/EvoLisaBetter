@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using GenArt.AST;
 using GenArt.Classes;
 using GenArt.Core.Classes;
+using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt
 {

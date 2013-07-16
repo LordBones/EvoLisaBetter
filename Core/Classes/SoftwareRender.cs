@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt.Core.Classes
 {
@@ -13,11 +14,13 @@ namespace GenArt.Core.Classes
     {
         private Polygon _drawPolygon;
         private Polygon _drawPolygonCorrect;
+        private SWTriangle _drawTriangle;
 
         // format ukladani barev do pole je bgra
 
         public SoftwareRender(int canvasWidth, int canvasHeight)
         {
+            _drawTriangle = new SWTriangle(canvasWidth, canvasHeight);
             _drawPolygon = new Polygon(canvasWidth, canvasHeight);
             _drawPolygon.SetStartBufferSize(canvasWidth, canvasHeight);
             _drawPolygonCorrect = new Polygon(canvasWidth, canvasHeight);
@@ -229,12 +232,12 @@ namespace GenArt.Core.Classes
             for (int i = 0; i < polyCount; i++)
             {
                 DnaPolygon polygon = dnaPolygons[i];
-                //Point [] points = GetGdiPoints(polygon.Points, 1);
-
-                //Color color = Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue);
-                //this._drawPolygon.FillPolygon(points, data, color);
+               
                 this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
-              //  this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
+
+                //this._drawTriangle.RenderTriangle(polygon.Points[0],polygon.Points[1],polygon.Points[2],                 data, polygon.Brush.BrushColor);
+
+                //this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
                 //DrawLine(data, width, points, Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue));
             }

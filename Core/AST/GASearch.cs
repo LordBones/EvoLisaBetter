@@ -159,8 +159,8 @@ namespace GenArt.Core.AST
 
             for (int index = 0; index < this._population.Length; index++)
             {
-                fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destImg, this._destImgByte, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
+                fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 
             }

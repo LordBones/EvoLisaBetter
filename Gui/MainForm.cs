@@ -8,6 +8,7 @@ using GenArt.AST;
 using GenArt.Classes;
 using GenArt.Core.AST;
 using GenArt.Core.Classes;
+using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt
 {
@@ -133,33 +134,7 @@ namespace GenArt
             
         }
 
-        private void Test3d()
-        {
-            /*
-            D3DRender.Test();
-
-            DnaDrawing dna = GetNewInitializedDrawing();
-
-            for (int i =0; i < 100; i++)
-                dna.AddPolygon();
-            
-
-            
-            //while (!dna.IsDirty)
-            //    dna.Mutate();
-
-            Tools.MaxHeight = 200;
-            Tools.MaxWidth = 200;
-
-            Bitmap sourceBitmap = new Bitmap(200, 200, PixelFormat.Format32bppPArgb);
-
-            //long newErrorLevel = FitnessCalculator.GetDrawingFitnessWPF(newDrawing, sourceBitmap,Background);
-            long newErrorLevel = FitnessCalculator.GetDrawingFitness2(dna, sourceBitmap, Color.Black);
-            newErrorLevel = FitnessCalculator.GetDrawingFitnessSoftware(dna, sourceBitmap, Color.Black);
-            //long newErrorLevel = FitnessCalculator.GetDrawingFitness(newDrawing, sourceColors);
-            */
-            
-        }
+       
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -179,12 +154,12 @@ namespace GenArt
             SetupSourceColorMatrix();
 
 
-            GASearch gaSearch = new GASearch(2);
+            GASearch gaSearch = new GASearch(10);
             gaSearch.InitFirstPopulation(sourceBitmap,sourceColors);
 
             while (isRunning)
             {
-                //if (generation > 15000) break;
+                //if (generation > 1000) break;
 
                 gaSearch.ExecuteGeneration();
 

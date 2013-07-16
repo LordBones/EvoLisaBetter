@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
 
-namespace GenArt.Core.Classes
+namespace GenArt.Core.Classes.SWRenderLibrary
 {
     internal class SoftwareRenderLibrary
     {
