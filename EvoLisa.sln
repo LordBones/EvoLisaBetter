@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenArt", "Gui\GenArt.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenArt.Core", "Core\GenArt.Core.csproj", "{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenArt.CoreNative", "GenArt.CoreNative\GenArt.CoreNative.vcxproj", "{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenArt.CoreNativeWrape", "GenArt.CoreNative\GenArt.CoreNative.vcxproj", "{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,8 +68,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

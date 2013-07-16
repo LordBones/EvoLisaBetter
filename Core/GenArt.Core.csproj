@@ -76,7 +76,6 @@
     <Compile Include="AST\DnaPoint.cs" />
     <Compile Include="AST\DnaPolygon.cs" />
     <Compile Include="AST\GASearch.cs" />
-    <Compile Include="Classes\D3DRender.cs" />
     <Compile Include="Classes\FileUtil.cs" />
     <Compile Include="Classes\FitnessCalculator.cs" />
     <Compile Include="Classes\RederWPF.cs" />

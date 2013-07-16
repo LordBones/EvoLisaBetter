@@ -13,8 +13,6 @@ namespace GenArt.Core.AST
 {
     public class GASearch :IDisposable
     {
-        private D3DDnaRender D3DRender = null;
-
         private DnaDrawing _currentBest;
         private long _currentBestFittness;
         private DnaDrawing _lastBest;
@@ -113,14 +111,6 @@ namespace GenArt.Core.AST
 
         public void InitFirstPopulation(Bitmap destImg,byte [] bitmapRaw)
         {
-            if (this.D3DRender != null)
-            {
-                this.D3DRender.Dispose();
-                this.D3DRender = null;
-            }
-
-            this.D3DRender = new D3DDnaRender(destImg.Width, destImg.Height);
-
             this._generation = 0;
             this._destImg = destImg;
             this._bitmapRaw = bitmapRaw;
@@ -169,10 +159,9 @@ namespace GenArt.Core.AST
 
             for (int index = 0; index < this._population.Length; index++)
             {
-                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
+                fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destImg, this._destImgByte, Color.Black);
-                fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessD3D(this.D3DRender, this._population[index], this._destImg, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 
             }
 
@@ -515,11 +504,7 @@ namespace GenArt.Core.AST
 
         public void Dispose()
         {
-            if (this.D3DRender != null)
-            {
-                this.D3DRender.Dispose();
-                this.D3DRender = null;
-            }
+           
         }
     }
 }
