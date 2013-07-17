@@ -106,11 +106,11 @@ namespace GenArt.AST
         {
             int mutateChange = Tools.GetRandomNumber(0, 1000);
 
-            if(mutateChange <250)
+            if(mutateChange <100)
             AddPolygon(_rawDestImage, width);
-            else if (mutateChange < 500)
+            else if (mutateChange < 400)
                 RemovePolygon();
-            else if (mutateChange < 750)
+            else if (mutateChange < 600)
                 SwapPolygon();
 
             else
@@ -119,6 +119,9 @@ namespace GenArt.AST
                 {
                     for (int index = 0; index < Polygons.Length; index++)
                         Polygons[index].Mutate(this, _rawDestImage, width);
+
+                    if (Polygons.Length == 0)
+                        break;
                 }
             }
             
@@ -324,7 +327,7 @@ namespace GenArt.AST
             sumRed += _rawDestImage[middleColorIndex + 2];
             
             int alpha = 0;
-            alpha = Tools.GetRandomNumber(5, 150);
+            alpha = Tools.GetRandomNumber(1, 254);
 
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }

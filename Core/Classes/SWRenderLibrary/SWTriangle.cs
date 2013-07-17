@@ -23,9 +23,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             FillTriangleSimple(canvas, this._canvasWidth, p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y,color);
         }
 
-        private static void swap(ref int p1, ref int p2)
+        private static void swap<T>(ref T p1, ref T p2)
         {
-            int tmp =  p1;
+            T tmp =  p1;
             p1 = p2;
             p2 = tmp;
         }
@@ -61,7 +61,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             canvas[index] = (byte)((axrem + rem * canvas[index]) >> 16);
         }
 
-        private static void FillTriangleSimple(byte[] canvas, int canvasWidth, int x0, int y0, int x1, int y1, int x2, int y2, Color color)
+        private static void FillTriangleSimple(byte[] canvas, int canvasWidth, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
         {
             int colorRem = GetREM(color.A);
             int colorABRrem = GetAXREM(color.A,color.B);
@@ -74,18 +74,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             // sort the points vertically
             if (y1 > y2)
             {
-                swap(ref x1, ref x2);
-                swap(ref y1, ref y2);
+                swap<short>(ref x1, ref x2);
+                swap<short>(ref y1, ref y2);
             }
             if (y0 > y1)
             {
-                swap(ref x0, ref x1);
-                swap(ref y0, ref y1);
+                swap<short>(ref x0, ref x1);
+                swap<short>(ref y0, ref y1);
             }
             if (y1 > y2)
             {
-                swap(ref x1, ref x2);
-                swap(ref y1, ref y2);
+                swap<short>(ref x1, ref x2);
+                swap<short>(ref y1, ref y2);
             }
 
             double dx_far = Convert.ToDouble(x2 - x0) / (y2 - y0 + 1);
@@ -93,22 +93,27 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             double dx_low = Convert.ToDouble(x2 - x1) / (y2 - y1 + 1);
             double xf = x0;
             double xt = x0 + dx_upper; // if y0 == y1, special case
-            for (int y = y0; y <= (y2 > height - 1 ? height - 1 : y2); y++)
+            int ymax = (y2 > height - 1 ? height - 1 : y2);
+            for (int y = y0; y <= ymax; y++)
             {
                 if (y >= 0)
-                {
-                    for (int x = (xf > 0 ? Convert.ToInt32(xf) : 0); x <= (xt < width ? xt : width - 1); x++)
+                {   int canvasY = y * width;
+                    double xForMax = (xt < width ? xt : width - 1);
+                    for (int x = (xf > 0 ? (int)xf : 0); x <= xForMax; x++)
                     {
-                        int index = Convert.ToInt32(x + y * width)*4;
+                        int index = (x + canvasY) * 4;
                         //ApplyColor(canvas, index, color);
                         ApplyColor(canvas, index, colorABRrem, colorRem);
                         ApplyColor(canvas, index+1, colorAGRrem, colorRem);
                         ApplyColor(canvas, index+2, colorARRrem, colorRem);
 
                     }
-                    for (int x = (xf < width ? Convert.ToInt32(xf) : width - 1); x >= (xt > 0 ? xt : 0); x--)
+
+                    xForMax = (xt > 0 ? xt : 0);
+
+                    for (int x = (xf < width ? (int)xf : width - 1); x >= xForMax; x--)
                     {
-                        int index = Convert.ToInt32(x + y * width)*4;
+                        int index = (x + canvasY) * 4;
                         //ApplyColor(canvas, index, color);
                         ApplyColor(canvas, index, colorABRrem, colorRem);
                         ApplyColor(canvas, index + 1, colorAGRrem, colorRem);

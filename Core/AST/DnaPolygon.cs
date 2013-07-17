@@ -103,8 +103,8 @@ namespace GenArt.AST
                     lastPoint = point;
                 }
 
-                //IsNotSmallAngles(points)
-                if (!IsIntersect(points) )
+                //
+                if (!IsIntersect(points) && IsNotSmallAngles(points))
                 {
                     break;
                 }         

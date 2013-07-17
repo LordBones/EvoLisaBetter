@@ -27,6 +27,7 @@ namespace GenArt.Classes
                     Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
                     //g.DrawLines(new Pen(brush), points);
                     g.FillPolygon(brush, points);
+                    
                     //g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
 
                     //g.FillClosedCurve(polygon.Brush.Brush, points);

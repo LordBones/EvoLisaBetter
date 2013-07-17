@@ -38,7 +38,7 @@ namespace GenArt.AST
             Red = (byte)Tools.GetRandomNumber(0, 255);
             Green = (byte)Tools.GetRandomNumber(0, 255);
             Blue = (byte)Tools.GetRandomNumber(0, 255);
-            Alpha = 150;// (byte)Tools.GetRandomNumber(1, 254);
+            Alpha = (byte)Tools.GetRandomNumber(1, 254);
 
             //Red = 255;
             //Green = 0;
