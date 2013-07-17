@@ -68,6 +68,8 @@ namespace GenArt
             byte [] canvasCorrect = null;
             byte [] canvasTest = null;
 
+            SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
+
             Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
             polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
             Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
@@ -98,7 +100,11 @@ namespace GenArt
                 {
                     Point [] points = SoftwareRender.GetGdiPoints(dna.Polygons[index].Points, 1);
                     polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, dna.Polygons[index].Brush.BrushColor);
-                    polyTest.FillPolygon(points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+
+                    triangleTest.RenderTriangle(
+                        dna.Polygons[index].Points[0], dna.Polygons[index].Points[1], dna.Polygons[index].Points[2], canvasTest, dna.Polygons[index].Brush.BrushColor);
+
+                    //polyTest.FillPolygon(points, canvasTest, dna.Polygons[index].Brush.BrushColor);
 
                     bool canvasEqual = true;
                     for (int ieq = 0; ieq < canvasTest.Length; ieq++)
@@ -110,7 +116,7 @@ namespace GenArt
                         }
                     }
 
-                        if (//!polyTest.IsMinAreaDataEqual(polyTest) 
+                       /* if (//!polyTest.IsMinAreaDataEqual(polyTest) 
                             //|| 
                             !canvasEqual)
                         {
@@ -120,11 +126,11 @@ namespace GenArt
                             Console.Out.WriteLine("Test Fail");
                             end = true;
                             break;
-                        }
+                        }*/
 
                 }
 
-                if (end)
+                //if (end)
                     break;
             }
 

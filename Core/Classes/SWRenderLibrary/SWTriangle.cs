@@ -8,7 +8,7 @@ using GenArt.AST;
 
 namespace GenArt.Core.Classes.SWRenderLibrary
 {
-    internal class SWTriangle
+    public class SWTriangle
     {
         private int _canvasWidth, _canvasHeight;
 
@@ -30,6 +30,17 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             p2 = tmp;
         }
 
+        private static int GetREM(int alpha)
+        {
+            return 0x10000 - (0x10000 * alpha / 255);
+        }
+
+
+        private static int GetAXREM(int alpha, int colorChanel)
+        {
+            return (0x10000 * alpha / 255) * colorChanel;
+        }
+
         private static void ApplyColor(byte[] canvas, int index, Color color)
         {
             int canvasIndex = index * 4;
@@ -45,8 +56,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             canvas[canvasIndex + 2] = (byte)((arrem + rem * canvas[canvasIndex + 2]) >> 16);
         }
 
+        private static void ApplyColor(byte[] canvas, int index, int axrem, int rem)
+        {
+            canvas[index] = (byte)((axrem + rem * canvas[index]) >> 16);
+        }
+
         private static void FillTriangleSimple(byte[] canvas, int canvasWidth, int x0, int y0, int x1, int y1, int x2, int y2, Color color)
         {
+            int colorRem = GetREM(color.A);
+            int colorABRrem = GetAXREM(color.A,color.B);
+            int colorARRrem = GetAXREM(color.A,color.R);
+            int colorAGRrem = GetAXREM(color.A,color.G);
+
 
             int width = canvasWidth;
             int height = canvas.Length / canvasWidth;
@@ -77,9 +98,23 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 if (y >= 0)
                 {
                     for (int x = (xf > 0 ? Convert.ToInt32(xf) : 0); x <= (xt < width ? xt : width - 1); x++)
-                        ApplyColor(canvas, Convert.ToInt32(x + y * width), color);
+                    {
+                        int index = Convert.ToInt32(x + y * width)*4;
+                        //ApplyColor(canvas, index, color);
+                        ApplyColor(canvas, index, colorABRrem, colorRem);
+                        ApplyColor(canvas, index+1, colorAGRrem, colorRem);
+                        ApplyColor(canvas, index+2, colorARRrem, colorRem);
+
+                    }
                     for (int x = (xf < width ? Convert.ToInt32(xf) : width - 1); x >= (xt > 0 ? xt : 0); x--)
-                        ApplyColor(canvas, Convert.ToInt32(x + y * width), color);
+                    {
+                        int index = Convert.ToInt32(x + y * width)*4;
+                        //ApplyColor(canvas, index, color);
+                        ApplyColor(canvas, index, colorABRrem, colorRem);
+                        ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
+                        ApplyColor(canvas, index + 2, colorARRrem, colorRem);
+
+                    }
                 }
                 xf += dx_far;
                 if (y < y1)

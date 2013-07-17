@@ -233,9 +233,9 @@ namespace GenArt.Core.Classes
             {
                 DnaPolygon polygon = dnaPolygons[i];
                
-                this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
+                //this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
-                //this._drawTriangle.RenderTriangle(polygon.Points[0],polygon.Points[1],polygon.Points[2],                 data, polygon.Brush.BrushColor);
+                this._drawTriangle.RenderTriangle(polygon.Points[0],polygon.Points[1],polygon.Points[2],                 data, polygon.Brush.BrushColor);
 
                 //this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
