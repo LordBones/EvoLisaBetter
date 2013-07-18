@@ -152,10 +152,14 @@ namespace GenArt
         private void StartEvolutionNew()
         {
             SetupSourceColorMatrix();
+            EdgeDetector ed = new EdgeDetector(sourceBitmap);
+            ed.DetectEdges();
+            DnaPoint[] tmpEdgePoints = ed.GetAllEdgesPoints();
+            ed.SaveEdgesAsBitmap("ImageEdges.bmp");
 
 
             GASearch gaSearch = new GASearch(10);
-            gaSearch.InitFirstPopulation(sourceBitmap,sourceColors);
+            gaSearch.InitFirstPopulation(sourceBitmap, sourceColors, tmpEdgePoints);
 
             while (isRunning)
             {

@@ -45,7 +45,7 @@ namespace GenArt.AST
             UniqueID = GetNewUiqueId();
         }
 
-        public void Init()
+        public void Init(DnaPoint [] edgePoints = null)
         {
             //87,81 195,0 199,79
 
@@ -65,49 +65,72 @@ namespace GenArt.AST
             int countPoints = Math.Min(Settings.ActivePointsPerPolygonMax,3);
             DnaPoint [] points = new DnaPoint [countPoints];
 
-            var origin = new DnaPoint();
-            origin.Init();
-
-            while (true)
+            if (edgePoints == null)
             {
-                DnaPoint lastPoint = origin;
-                //int addX = 0;
-                //int addY = 0;
-                
-                for (int i = 0; i < countPoints; i++)
+
+                var origin = new DnaPoint();
+                origin.Init();
+
+                while (true)
                 {
-                    var point = new DnaPoint();
-                    int tmp = Tools.GetRandomNumber(1, 10);
+                    DnaPoint lastPoint = origin;
+                    //int addX = 0;
+                    //int addY = 0;
 
-                    point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
-                    tmp = Tools.GetRandomNumber(1, 10);
-                    point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
+                    for (int i = 0; i < countPoints; i++)
+                    {
+                        var point = new DnaPoint();
+                        int tmp = Tools.GetRandomNumber(1, 10);
 
-                    //if ((Tools.GetRandomNumber(0, 1000) > 500))
-                    //{
-                    //    point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
-                    //    point.Y = lastPoint.Y;
-                    //}
+                        point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
+                        tmp = Tools.GetRandomNumber(1, 10);
+                        point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
 
-                    //else
-                    //{
-                    //    point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
-                    //    point.X = lastPoint.X;
-                    //}
+                        //if ((Tools.GetRandomNumber(0, 1000) > 500))
+                        //{
+                        //    point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
+                        //    point.Y = lastPoint.Y;
+                        //}
 
-                    //point.X = Math.Min(Math.Max(0, origin.X + Tools.GetRandomNumber(-10, 10)), Tools.MaxWidth - 1);
-                    //point.Y = Math.Min(Math.Max(0, origin.Y + Tools.GetRandomNumber(-10, 10)), Tools.MaxHeight - 1);
+                        //else
+                        //{
+                        //    point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
+                        //    point.X = lastPoint.X;
+                        //}
+
+                        //point.X = Math.Min(Math.Max(0, origin.X + Tools.GetRandomNumber(-10, 10)), Tools.MaxWidth - 1);
+                        //point.Y = Math.Min(Math.Max(0, origin.Y + Tools.GetRandomNumber(-10, 10)), Tools.MaxHeight - 1);
 
 
-                    points[i] = point;
-                    lastPoint = point;
+                        points[i] = point;
+                        lastPoint = point;
+                    }
+
+                    //
+                    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                    {
+                        break;
+                    }
                 }
-
-                //
-                if (!IsIntersect(points) && IsNotSmallAngles(points))
+            }
+            else
+            {
+                while (true)
                 {
-                    break;
-                }         
+                    for (int i = 0; i < countPoints; i++)
+                    {
+                        
+                        int index = Tools.GetRandomNumber(0, edgePoints.Length-1);
+
+                        points[i] = edgePoints[index];
+                    }
+
+                    //
+                    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                    {
+                        break;
+                    }
+                }
             }
 
             this.Points = points;

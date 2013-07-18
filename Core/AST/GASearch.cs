@@ -23,6 +23,7 @@ namespace GenArt.Core.AST
         private Bitmap _destImg = new Bitmap(1,1);
         private byte [] _destImgByte = new byte[0];
         private byte [] _bitmapRaw = new byte[4];
+        private DnaPoint [] _edgePoints = null;
 
         #region property
         
@@ -109,12 +110,13 @@ namespace GenArt.Core.AST
             return Color.FromArgb(255, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
-        public void InitFirstPopulation(Bitmap destImg,byte [] bitmapRaw)
+        public void InitFirstPopulation(Bitmap destImg,byte [] bitmapRaw, DnaPoint [] edgePoints)
         {
             this._generation = 0;
             this._destImg = destImg;
             this._bitmapRaw = bitmapRaw;
             this._currentBestFittness = long.MaxValue;
+            this._edgePoints = edgePoints;
 
             CreateByteFieldFromDestImg();
 
@@ -239,7 +241,7 @@ namespace GenArt.Core.AST
                 newPopulation[index] = this._population[indexParent1].Clone();
 
                 while (!newPopulation[index].IsDirty)
-                    newPopulation[index].MutateBetter(this._bitmapRaw, this._destImg.Width);
+                    newPopulation[index].MutateBetter( this._bitmapRaw, this._destImg.Width, _edgePoints);
 
             }
 

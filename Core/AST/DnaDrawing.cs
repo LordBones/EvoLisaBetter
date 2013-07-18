@@ -102,12 +102,12 @@ namespace GenArt.AST
 
         }
 
-        public void MutateBetter(byte[] _rawDestImage = null, int width = 0)
+        public void MutateBetter(byte[] _rawDestImage = null, int width = 0, DnaPoint [] edgePoints = null)
         {
             int mutateChange = Tools.GetRandomNumber(0, 1000);
 
             if(mutateChange <100)
-            AddPolygon(_rawDestImage, width);
+            AddPolygon(_rawDestImage, width,edgePoints);
             else if (mutateChange < 400)
                 RemovePolygon();
             else if (mutateChange < 600)
@@ -407,14 +407,14 @@ namespace GenArt.AST
         }
 
 
-        public void AddPolygon(byte [] _rawDestImage = null, int width =0)
+        public void AddPolygon(byte [] _rawDestImage = null, int width =0, DnaPoint [] edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newPolygon = new DnaPolygon();
-                    newPolygon.Init();
+                    newPolygon.Init(edgePoints);
 
                     if (_rawDestImage != null)
                     {
