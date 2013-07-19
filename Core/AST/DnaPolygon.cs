@@ -169,17 +169,12 @@ namespace GenArt.AST
             
             Array.Copy(this.Points, result, Points.Length);
 
-            //for (int index = 0; index < this.Points.Length; index++)
-            //{
-            //    result[index] = this.Points[index];
-            //}
-
             return result;
         }
 
         public void Mutate(DnaDrawing drawing, byte [] _rawDestImage = null, int width = 0)
         {
-            RemovePointByChance(drawing);
+            /*RemovePointByChance(drawing);
 
 
 
@@ -267,7 +262,7 @@ namespace GenArt.AST
             }
 
 
-           
+           */
             {
                 if (Brush.Mutate(drawing))
                 {

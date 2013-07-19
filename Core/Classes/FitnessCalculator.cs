@@ -273,9 +273,9 @@ namespace GenArt.Classes
                             int bg = Tools.fastAbs(*(currentPtr + 1) - *(origPtr + 1));
                             int bb = Tools.fastAbs(*(currentPtr + 2) - *(origPtr + 2));
 
-                            br = (br > 64) ? br << 2 : br;
-                            bg = (bg > 64) ? bg << 2 : bg;
-                            bb = (bb > 64) ? bb << 2 : bb;
+                            //br = (br > 64) ? br << 2 : br;
+                            //bg = (bg > 64) ? bg << 2 : bg;
+                            //bb = (bb > 64) ? bb << 2 : bb;
 
 
                             long tmpres = br + bg + bb;
@@ -290,7 +290,7 @@ namespace GenArt.Classes
                             if (step >= Tools.MaxWidth)
                             {
                                 step = 0;
-                                result += partresult *partresult;
+                                result += partresult;// *partresult;
                                 partresult = 0;
 
                             }

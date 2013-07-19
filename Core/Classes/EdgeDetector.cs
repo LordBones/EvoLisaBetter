@@ -53,6 +53,7 @@ namespace GenArt.Core.Classes
             Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
             SetEdgesFrame();
             leftRunFindEdges();
+            DownRunFindEdges();
         }
 
         public DnaPoint [] GetAllEdgesPoints()
@@ -62,10 +63,14 @@ namespace GenArt.Core.Classes
             {
                 if (_edgesPoints[index] != 0)
                 {
-                    result.Add(new DnaPoint((short) (index % _originalBitmap.Width),(short) (index / _originalBitmap.Height)));
+                    result.Add(new DnaPoint((short) (index % _originalBitmap.Width),(short) (index / _originalBitmap.Width)));
                 }
             }
-            return result.ToArray() ;
+
+            if (result.Count == 0)
+                return null;
+            else
+              return result.ToArray() ;
         }
 
         /// <summary>
@@ -126,6 +131,53 @@ namespace GenArt.Core.Classes
                         edgeIndex++;
                     }
 
+                }
+            }
+            finally
+            {
+                _originalBitmap.UnlockBits(bmdSRC);
+            }
+        }
+
+        private void DownRunFindEdges()
+        {
+            BitmapData bmdSRC = _originalBitmap.LockBits(
+                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+
+            try
+            {
+
+                unsafe
+                {
+
+                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
+                    int origIndex = 0;
+                    int edgeIndex = 0;
+                    const int threshold = 32;
+                    int bmpRowLength = _originalBitmap.Width * 4;
+
+                    for (int x = 0; x < _originalBitmap.Width; x++)
+                    {
+                        origIndex = x * 4;
+                        edgeIndex = x;
+                        for (int y = 0; y < _originalBitmap.Height-1; y++)
+                        {
+                            int br = origPtr[origIndex] - origPtr[origIndex + bmpRowLength];
+                            int bg = origPtr[origIndex + 1] - origPtr[origIndex + bmpRowLength +1];
+                            int bb = origPtr[origIndex + 2] - origPtr[origIndex + bmpRowLength +2];
+
+                            if (!(Tools.fastAbs(br) < threshold &&
+                                Tools.fastAbs(bg) < threshold &&
+                                Tools.fastAbs(bb) < threshold))
+                            {
+                                _edgesPoints[edgeIndex] = 1;
+                            }
+
+                            edgeIndex += _originalBitmap.Width;
+                            origIndex += bmpRowLength;
+                        }
+                    }
                 }
             }
             finally
