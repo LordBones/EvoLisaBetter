@@ -30,7 +30,7 @@ namespace GenArt
         private TimeSpan repaintIntervall = new TimeSpan(0, 0, 0, 0, 0);
         private int repaintOnSelectedSteps = 3;
         private int selected;
-        private SettingsForm settingsForm;
+
         private byte [] sourceColors;
         private Bitmap sourceBitmap;
         private Color Background = Color.Black;
@@ -156,9 +156,12 @@ namespace GenArt
             ed.DetectEdges();
             DnaPoint[] tmpEdgePoints = ed.GetAllEdgesPoints();
             ed.SaveEdgesAsBitmap("ImageEdges.bmp");
+            ed.SaveBitmapHSL("bmpHSL_H.bmp", true, false, false);
+            ed.SaveBitmapHSL("bmpHSL_S.bmp", false, true, false);
+            ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
 
 
-            GASearch gaSearch = new GASearch(10);
+            GASearch gaSearch = new GASearch(20);
             gaSearch.InitFirstPopulation(sourceBitmap, sourceColors, tmpEdgePoints);
 
             while (isRunning)
@@ -512,17 +515,7 @@ namespace GenArt
             }
         }
 
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (settingsForm != null)
-                if (settingsForm.IsDisposed)
-                    settingsForm = null;
-
-            if (settingsForm == null)
-                settingsForm = new SettingsForm();
-
-            settingsForm.Show();
-        }
+       
 
         private void sourceImageToolStripMenuItem_Click(object sender, EventArgs e)
         {

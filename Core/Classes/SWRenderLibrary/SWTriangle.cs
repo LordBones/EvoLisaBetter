@@ -20,7 +20,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         public void RenderTriangle(DnaPoint p1, DnaPoint p2, DnaPoint p3, byte[] canvas, Color color)
         {
-            FillTriangleSimple(canvas, this._canvasWidth, p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y,color);
+            short x1 = p1.X;
+            short y1 = p1.Y;
+            short x2 = p2.X;
+            short y2 = p2.Y;
+            short x3 = p3.X;
+            short y3 = p3.Y;
+
+            FillTriangleSimple(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3,color);
         }
 
         private static void swap<T>(ref T p1, ref T p2)
