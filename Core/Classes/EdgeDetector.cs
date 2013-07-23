@@ -86,8 +86,8 @@ namespace GenArt.Core.Classes
         {
             Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
             SetEdgesFrame();
-            leftRunFindEdgesByHSL();
-            DownRunFindEdgesByHSL();
+            leftRunFindEdgesByHSLBetter();
+            DownRunFindEdgesByHSLBetter();
             //leftRunFindEdges();
 
             //DownRunFindEdges();
@@ -217,6 +217,49 @@ namespace GenArt.Core.Classes
             }
         }
 
+        private void leftRunFindEdgesByHSLBetter()
+        {
+            BitmapData bmdSRC = _originalBitmap.LockBits(
+                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+
+            try
+            {
+
+                unsafe
+                {
+
+                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
+                    int origIndex = 4;
+                    int edgeIndex = 1;
+                    const double threshold = 20.0;
+                    HSLColor startBlockColor = new HSLColor(
+                            origPtr[2], origPtr[1], origPtr[0]);
+
+                    while (edgeIndex < (_edgesPoints.Length - 1))
+                    {
+                        HSLColor hlsColor = new HSLColor(
+                            origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
+
+
+                        if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                        {
+                            _edgesPoints[edgeIndex] = 1;
+                            startBlockColor = hlsColor;
+                        }
+
+                        origIndex += 4;
+                        edgeIndex++;
+                    }
+
+                }
+            }
+            finally
+            {
+                _originalBitmap.UnlockBits(bmdSRC);
+            }
+        }
+
          private void DownRunFindEdgesByHSL()
         {
             BitmapData bmdSRC = _originalBitmap.LockBits(
@@ -263,6 +306,63 @@ namespace GenArt.Core.Classes
                 _originalBitmap.UnlockBits(bmdSRC);
             }
         }
+
+         private void DownRunFindEdgesByHSLBetter()
+         {
+             BitmapData bmdSRC = _originalBitmap.LockBits(
+                 new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
+                 ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+
+             try
+             {
+
+                 unsafe
+                 {
+
+                     byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
+                     int bmpRowLength = _originalBitmap.Width * 4;
+
+                     int origIndex = 0;
+                     int edgeIndex = 0;
+
+                     const double threshold = 20.0;
+                     
+
+                     for (int x = 0; x < _originalBitmap.Width; x++)
+                     {
+                         origIndex = x * 4;
+                         edgeIndex = x;
+
+                         HSLColor startBlockColor = new HSLColor(
+                            origPtr[origIndex+2], origPtr[origIndex + 1], origPtr[origIndex]);
+
+                         edgeIndex += _originalBitmap.Width;
+                         origIndex += bmpRowLength;
+
+                         for (int y = 1; y < _originalBitmap.Height - 1; y++)
+                         {
+                             HSLColor hlsColor = new HSLColor(
+                            origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
+
+
+                             if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                             {
+                                 _edgesPoints[edgeIndex] = 1;
+                                 startBlockColor = hlsColor;
+                             }
+
+                             edgeIndex += _originalBitmap.Width;
+                             origIndex += bmpRowLength;
+                         }
+                     }
+                 }
+             }
+             finally
+             {
+                 _originalBitmap.UnlockBits(bmdSRC);
+             }
+         }
+    
     
 
         private void DownRunFindEdges()

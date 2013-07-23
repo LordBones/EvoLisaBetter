@@ -182,7 +182,7 @@ namespace GenArt.Core.AST
                     WorstFittness = fittness[index];
                 }
 
-                if (fittness[index] < bestFittness)
+                if (fittness[index] < bestFittness )
                 {
                     bestFittness = fittness[index];
                     bestIndex = index;
@@ -230,8 +230,12 @@ namespace GenArt.Core.AST
 
             DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
 
-            //newPopulation[0] = this._currentBest.Clone();
-            newPopulation[0] = this._lastBest.Clone();
+            newPopulation[0] = this._currentBest.Clone();
+            //newPopulation[0] = this._lastBest.Clone();
+
+            while (!newPopulation[0].IsDirty)
+                newPopulation[0].MutateBetter(this._bitmapRaw, this._destImg.Width, _edgePoints);
+
 
             for (int index = 1; index < this._population.Length; index++)
             {

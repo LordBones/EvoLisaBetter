@@ -27,7 +27,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             short x3 = p3.X;
             short y3 = p3.Y;
 
-            FillTriangleSimple(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3,color);
+            //FillTriangleSimple(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3,color);
+            FillTriangleMy(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3, color);
+
         }
 
         private static void swap<T>(ref T p1, ref T p2)
@@ -135,5 +137,135 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     xt += dx_low;
             }
         }
+
+        private static void FillTriangleMy(byte[] canvas, int canvasWidth, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
+        {
+            // key is Y, value is List x values min 1 max 2
+            Dictionary<short,List<short>> rangePoints = new Dictionary<short, List<short>>();
+
+            DrawLine(rangePoints, canvasWidth, x0,y0,x1,y1);
+            DrawLine(rangePoints, canvasWidth, x1, y1, x2, y2);
+            DrawLine(rangePoints, canvasWidth, x2, y2, x0, y0);
+
+            int colorRem = GetREM(color.A);
+            int colorABRrem = GetAXREM(color.A, color.B);
+            int colorARRrem = GetAXREM(color.A, color.R);
+            int colorAGRrem = GetAXREM(color.A, color.G);
+
+            foreach (var item in rangePoints)
+            {
+                short y = item.Key;
+                List<short> points = item.Value;
+                if (points.Count == 1)
+                {
+                    int index = (y * canvasWidth + points[0]) * 4;
+                    ApplyColor(canvas, index, colorABRrem, colorRem);
+                    ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
+                    ApplyColor(canvas, index + 2, colorARRrem, colorRem);
+                }
+                else
+                {
+                    int index = (y * canvasWidth + points[0]) * 4;
+
+                    for (int i = points[0]; i <= points[1]; i++)
+                    {
+
+                        ApplyColor(canvas, index, colorABRrem, colorRem);
+                        ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
+                        ApplyColor(canvas, index + 2, colorARRrem, colorRem);
+
+                        index += 4;
+                    }
+                }
+            }
+        
+        }
+
+        public static void DrawLine(Dictionary<short,List<short>> rangePoints, int width, 
+            short x1, short y1, short x2, short y2)
+        {
+            
+
+            int x = x1;
+            int y = y1;
+            int w = x2 - x1;
+            int h = y2 - y1;
+            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+            if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
+            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
+            if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
+            int longest = Math.Abs(w);
+            int shortest = Math.Abs(h);
+            if (!(longest > shortest))
+            {
+                longest = Math.Abs(h);
+                shortest = Math.Abs(w);
+                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+            int numerator = longest >> 1;
+
+            for (int i=0; i <= longest; i++)
+            {
+                #region set pixel
+                short tmpY = (short)y;
+                short tmpX = (short)x;
+
+                if (!rangePoints.ContainsKey(tmpY))
+                {
+                    List<short> points = new List<short>();
+                    points.Add(tmpX);
+                    rangePoints.Add(tmpY, points);
+                }
+                else
+                {
+                    List<short> points = rangePoints[tmpY];
+                    short startP = points[0];
+                    
+
+                    if (points.Count == 1)
+                    {
+                        if (startP != tmpX)
+                        {
+                            if (startP < tmpX) points.Add(tmpX);
+                            else points.Insert(0, tmpX);
+                        }
+
+                    }
+                    else
+                    { // in list are 2 points, min and max point range
+                      // now update theese points
+                        short endP = points[1];
+                        if (startP != tmpX && endP != tmpX)
+                        {
+                            if (startP > tmpX) points[0] = tmpX;
+                            if (endP < tmpX) points[1] = tmpX;
+                        }
+                    }
+                }
+
+
+                #endregion
+
+
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x += dx1;
+                    y += dy1;
+                    //compY += mullY;
+                }
+                else
+                {
+                    x += dx2;
+                    y += dy2;
+                    //compY += mully2;
+                }
+            }
+
+        }
+
+
     }
 }
