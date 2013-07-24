@@ -166,7 +166,7 @@ namespace GenArt
 
             while (isRunning)
             {
-                //if (generation > 1000) break;
+                if (generation > 1000) break;
 
                 gaSearch.ExecuteGeneration();
 

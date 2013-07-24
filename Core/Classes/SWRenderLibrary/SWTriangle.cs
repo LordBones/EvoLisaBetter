@@ -154,7 +154,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             foreach (var item in rangePoints)
             {
-                short y = item.Key;
+                int y = item.Key;
                 List<short> points = item.Value;
                 if (points.Count == 1)
                 {
@@ -166,8 +166,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 else
                 {
                     int index = (y * canvasWidth + points[0]) * 4;
-
-                    for (int i = points[0]; i <= points[1]; i++)
+                    int endPoint = points[1] ;
+                    for (int i = points[0]; i <= endPoint ; i++)
                     {
 
                         ApplyColor(canvas, index, colorABRrem, colorRem);
@@ -184,7 +184,13 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         public static void DrawLine(Dictionary<short,List<short>> rangePoints, int width, 
             short x1, short y1, short x2, short y2)
         {
-            
+            //if (x1 > x2)
+            //{
+            //    short tmp = x1; x1 = x2; x2 = tmp;
+            //    tmp = y1; y1 = y2; y2 = tmp;
+
+            //}
+
 
             int x = x1;
             int y = y1;
