@@ -221,10 +221,11 @@ namespace GenArt.Core.Classes
             DrawLine(canvas, width, points[points.Length - 1], points[0], color);
         }
 
+        private readonly static Color _black = Color.FromArgb(255, 0, 0, 0); 
         //Render a Drawing
         public void Render(DnaDrawing drawing, byte[] data, int width, int scale, Color background)
         {
-            FastColorFill(data, Color.FromArgb(255, 0, 0, 0));
+            FastColorFill(data, _black);
 
             
             DnaPolygon [] dnaPolygons = drawing.Polygons;
@@ -232,10 +233,11 @@ namespace GenArt.Core.Classes
             for (int i = 0; i < polyCount; i++)
             {
                 DnaPolygon polygon = dnaPolygons[i];
-               
+                
                 //this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
-                this._drawTriangle.RenderTriangle(polygon.Points[0],polygon.Points[1],polygon.Points[2],                 data, polygon.Brush.BrushColor);
+                //this._drawTriangle.RenderTriangle(points[0],points[1],points[2], data, polygon.Brush.BrushColor);
+                this._drawTriangle.RenderTriangle(polygon.Points, data, polygon.Brush.BrushColor);
 
                 //this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 

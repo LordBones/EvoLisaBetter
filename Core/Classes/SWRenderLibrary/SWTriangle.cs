@@ -18,17 +18,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             this._canvasWidth = canvasWidth;
         }
 
-        public void RenderTriangle(DnaPoint p1, DnaPoint p2, DnaPoint p3, byte[] canvas, Color color)
+
+        public void RenderTriangle(DnaPoint [] points, byte[] canvas, Color color)
         {
-            short x1 = p1.X;
-            short y1 = p1.Y;
-            short x2 = p2.X;
-            short y2 = p2.Y;
-            short x3 = p3.X;
-            short y3 = p3.Y;
+            short x1 = points[0].X;
+            short y1 = points[0].Y;
+            short x2 = points[1].X;
+            short y2 = points[1].Y;
+            short x3 = points[2].X;
+            short y3 = points[2].Y;
 
             //FillTriangleSimple(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3,color);
-            FillTriangleMy(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -39,13 +40,13 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             p2 = tmp;
         }
 
-        private static int GetREM(int alpha)
+        private static int GetREM(byte alpha)
         {
             return 0x10000 - (0x10000 * alpha / 255);
         }
 
 
-        private static int GetAXREM(int alpha, int colorChanel)
+        private static int GetAXREM(byte alpha, byte colorChanel)
         {
             return (0x10000 * alpha / 255) * colorChanel;
         }
@@ -68,6 +69,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private static void ApplyColor(byte[] canvas, int index, int axrem, int rem)
         {
             canvas[index] = (byte)((axrem + rem * canvas[index]) >> 16);
+        }
+
+        private static byte ApplyColor(byte colorChanel, int axrem, int rem)
+        {
+            return (byte)((axrem + rem * colorChanel) >> 16);
         }
 
         private static void FillTriangleSimple(byte[] canvas, int canvasWidth, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
@@ -138,50 +144,74 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
-        private static void FillTriangleMy(byte[] canvas, int canvasWidth, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
+        private class pointRange
         {
-            // key is Y, value is List x values min 1 max 2
-            Dictionary<short,List<short>> rangePoints = new Dictionary<short, List<short>>();
+            public short Start;
+            public short End;
 
-            DrawLine(rangePoints, canvasWidth, x0,y0,x1,y1);
-            DrawLine(rangePoints, canvasWidth, x1, y1, x2, y2);
-            DrawLine(rangePoints, canvasWidth, x2, y2, x0, y0);
-
-            int colorRem = GetREM(color.A);
-            int colorABRrem = GetAXREM(color.A, color.B);
-            int colorARRrem = GetAXREM(color.A, color.R);
-            int colorAGRrem = GetAXREM(color.A, color.G);
-
-            foreach (var item in rangePoints)
+            public pointRange(short start, short end)
             {
-                int y = item.Key;
-                List<short> points = item.Value;
-                if (points.Count == 1)
-                {
-                    int index = (y * canvasWidth + points[0]) * 4;
-                    ApplyColor(canvas, index, colorABRrem, colorRem);
-                    ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
-                    ApplyColor(canvas, index + 2, colorARRrem, colorRem);
-                }
-                else
-                {
-                    int index = (y * canvasWidth + points[0]) * 4;
-                    int endPoint = points[1] ;
-                    for (int i = points[0]; i <= endPoint ; i++)
-                    {
+                this.End = end;
+                this.Start = start;
+            }
+        }
 
-                        ApplyColor(canvas, index, colorABRrem, colorRem);
-                        ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
-                        ApplyColor(canvas, index + 2, colorARRrem, colorRem);
+        private void FillTriangleMy(byte[] canvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
+        {
+            short minY = y0;
+            short maxY = y0;
 
-                        index += 4;
-                    }
+            if (minY > y1) minY = y1;
+            if (minY > y2) minY = y2;
+            if (maxY < y1) maxY = y1;
+            if (maxY < y2) maxY = y2;
+
+            int triangleHigh = maxY - minY + 1;
+
+            // key is Y, value is List x values min 1 max 2
+            pointRange [] rangePoints = new pointRange[triangleHigh];
+
+            DrawLine(rangePoints, minY, x0,y0,x1,y1);
+            DrawLine(rangePoints, minY, x1, y1, x2, y2);
+            DrawLine(rangePoints, minY, x2, y2, x0, y0);
+
+            byte colorA = color.A;
+            int colorRem = GetREM(colorA);
+            int colorABRrem = GetAXREM(colorA, color.B);
+            int colorARRrem = GetAXREM(colorA, color.R);
+            int colorAGRrem = GetAXREM(colorA, color.G);
+
+            //int indexY = minY * this._canvasWidth;
+            for (int y  = 0; y < rangePoints.Length; y++ )//, indexY += this._canvasWidth)
+            {
+                pointRange points = rangePoints[y];
+
+                //if (points == null) continue;
+
+
+
+                int index = ((minY + y)* this._canvasWidth + points.Start)*4;
+                int endPoint = points.End;
+                for (int i = points.Start; i <= endPoint; i++)
+                {
+
+                    //ApplyColor(canvas, index, colorABRrem, colorRem);
+                    //ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
+                    //ApplyColor(canvas, index + 2, colorARRrem, colorRem);
+
+                    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                    canvas[index+1] = ApplyColor(canvas[index+1], colorAGRrem, colorRem);
+                    canvas[index+2] = ApplyColor(canvas[index+2], colorARRrem, colorRem);
+
+                    index += 4;
                 }
+
+                //rangePoints[y] = null;
             }
         
         }
 
-        public static void DrawLine(Dictionary<short,List<short>> rangePoints, int width, 
+        private static void DrawLine(pointRange[] rangePoints, short minY,
             short x1, short y1, short x2, short y2)
         {
             //if (x1 > x2)
@@ -214,40 +244,25 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             for (int i=0; i <= longest; i++)
             {
                 #region set pixel
-                short tmpY = (short)y;
+                short tmpY = (short)(y-minY);
                 short tmpX = (short)x;
 
-                if (!rangePoints.ContainsKey(tmpY))
+                pointRange points = rangePoints[tmpY];
+
+                if (points == null)
                 {
-                    List<short> points = new List<short>();
-                    points.Add(tmpX);
-                    rangePoints.Add(tmpY, points);
+                    rangePoints[tmpY] = new pointRange(tmpX, tmpX);
                 }
                 else
                 {
-                    List<short> points = rangePoints[tmpY];
-                    short startP = points[0];
                     
+                    short startP = points.Start;
+                    short endP = points.End;
 
-                    if (points.Count == 1)
-                    {
-                        if (startP != tmpX)
-                        {
-                            if (startP < tmpX) points.Add(tmpX);
-                            else points.Insert(0, tmpX);
-                        }
 
-                    }
-                    else
-                    { // in list are 2 points, min and max point range
-                      // now update theese points
-                        short endP = points[1];
-                        if (startP != tmpX && endP != tmpX)
-                        {
-                            if (startP > tmpX) points[0] = tmpX;
-                            if (endP < tmpX) points[1] = tmpX;
-                        }
-                    }
+                    if (startP > tmpX) points.Start = tmpX;
+                    else if (endP < tmpX) points.End = tmpX;
+
                 }
 
 

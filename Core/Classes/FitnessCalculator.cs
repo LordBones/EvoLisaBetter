@@ -104,12 +104,12 @@ namespace GenArt.Classes
             error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
-            double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
+            //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
 
             //return (long)(error*sizeError) + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
 
-            double koef = 0.0;
-            koef = (newDrawing.Polygons.Length < 100) ? 1.0 : 1.0+(newDrawing.Polygons.Length-100) / 100.0;  
+            //double koef = 0.0;
+            //koef = (newDrawing.Polygons.Length < 100) ? 1.0 : 1.0+(newDrawing.Polygons.Length-100) / 100.0;  
 
             return (long)(error ) + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
 
