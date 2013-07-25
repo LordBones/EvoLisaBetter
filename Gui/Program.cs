@@ -28,20 +28,23 @@ namespace GenArt
             byte [] canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
             byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
+            SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
 
             Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
             polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
             Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
             polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
 
-            //for (int index =0; index < dna.Polygons.Length; index++)
+             for (int i = 0; i < 100000; i++)
+             {
+            for (int index =0; index < dna.Polygons.Length; index++)
             {
 
                 //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
-                for (int i = 0; i < 100000; i++)
-                {
-                    polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                }
+                
+                    //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
+                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, Color.PaleGreen);
+                
 
                 //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
                 {
@@ -52,6 +55,7 @@ namespace GenArt
                 }
 
             }
+             }
 
         }
 

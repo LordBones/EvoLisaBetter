@@ -71,7 +71,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             canvas[index] = (byte)((axrem + rem * canvas[index]) >> 16);
         }
 
-        private static byte ApplyColor(byte colorChanel, int axrem, int rem)
+        private static byte ApplyColor(int colorChanel, int axrem, int rem)
         {
             return (byte)((axrem + rem * colorChanel) >> 16);
         }
@@ -113,7 +113,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             {
                 if (y >= 0)
                 {   int canvasY = y * width;
-                    double xForMax = (xt < width ? xt : width - 1);
+                //int xfi = (int)xf;
+                    double xForMax = (xt < width ? xt : width -1);
                     for (int x = (xf > 0 ? (int)xf : 0); x <= xForMax; x++)
                     {
                         int index = (x + canvasY) * 4;
@@ -126,7 +127,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                     xForMax = (xt > 0 ? xt : 0);
 
-                    for (int x = (xf < width ? (int)xf : width - 1); x >= xForMax; x--)
+                    for (int x = (xf < width ? (int)xf : width -1); x >= xForMax; x--)
                     {
                         int index = (x + canvasY) * 4;
                         //ApplyColor(canvas, index, color);
@@ -191,22 +192,52 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
                 int index = ((minY + y)* this._canvasWidth + points.Start)*4;
+                int endIndex = ((minY + y) * this._canvasWidth + points.End) * 4;
                 int endPoint = points.End;
-                for (int i = points.Start; i <= endPoint; i++)
+
+                //int iteratorBy2 = (endPoint - points.Start + 1) / 2;
+
+                //for (int iter = 0; iter < iteratorBy2; iter++)
+                //{
+                //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
+
+                //    canvas[index + 4] = ApplyColor(canvas[index + 4], colorABRrem, colorRem);
+                //    canvas[index + 5] = ApplyColor(canvas[index + 5], colorAGRrem, colorRem);
+                //    canvas[index + 6] = ApplyColor(canvas[index + 6], colorARRrem, colorRem);
+
+                //    index += 8;
+                //}
+
+                //if(((endPoint - points.Start + 1)&1) == 1)
+                //{
+                //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
+                //}
+
+                while(index <= endIndex)
                 {
 
-                    //ApplyColor(canvas, index, colorABRrem, colorRem);
-                    //ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
-                    //ApplyColor(canvas, index + 2, colorARRrem, colorRem);
-
                     canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-                    canvas[index+1] = ApplyColor(canvas[index+1], colorAGRrem, colorRem);
-                    canvas[index+2] = ApplyColor(canvas[index+2], colorARRrem, colorRem);
+                    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
 
                     index += 4;
                 }
 
-                //rangePoints[y] = null;
+                //for (int i = points.Start; i <= endPoint; i++)
+                //{
+
+                //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
+
+                //    index += 4;
+                //}
+
+                rangePoints[y] = null;
             }
         
         }
