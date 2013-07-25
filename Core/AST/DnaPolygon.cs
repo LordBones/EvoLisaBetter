@@ -172,8 +172,37 @@ namespace GenArt.AST
             return result;
         }
 
-        public void Mutate(DnaDrawing drawing, byte [] _rawDestImage = null, int width = 0)
+        public void Mutate(DnaDrawing drawing, byte[] _rawDestImage = null, int width = 0, DnaPoint[] edgePoints = null)
         {
+
+            if (Tools.GetRandomNumber(0, 1000000) < 500000)
+            {
+                DnaPoint [] points = this.ClonePoints();
+
+                while (true)
+                {
+                    int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+
+
+                    if (edgePoints == null)
+                        points[pointIndex].MutateMiddle();
+                    else
+                    {
+                        int edgeIndex = Tools.GetRandomNumber(0, edgePoints.Length - 1);
+                        points[pointIndex] = edgePoints[edgeIndex];
+                    }
+
+                    if (IsNotSmallAngles(points) && !IsIntersect(points))
+                    {
+                        this.Points = points;
+                        drawing.SetDirty();
+                        break;
+                    }
+
+                    Array.Copy(this.Points, points, this.Points.Length);
+                }
+            }
+            else
             /*RemovePointByChance(drawing);
 
 
@@ -264,7 +293,7 @@ namespace GenArt.AST
 
            */
             {
-                if (Brush.Mutate(drawing))
+                if (Brush.MutateByHSL(drawing))
                 {
                     this.GenNewUidID();
                 }

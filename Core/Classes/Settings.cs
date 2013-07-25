@@ -450,7 +450,7 @@
             ActiveAlphaRangeMin = 10;
             ActiveAlphaRangeMax = 254;
 
-            ActivePolygonsMax = 255;
+            ActivePolygonsMax = 50;
             ActivePolygonsMin = 0;
 
             ActivePointsPerPolygonMax = 3;

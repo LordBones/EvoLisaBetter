@@ -161,12 +161,12 @@ namespace GenArt
             ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
 
 
-            GASearch gaSearch = new GASearch(20);
+            GASearch gaSearch = new GASearch(10);
             gaSearch.InitFirstPopulation(sourceBitmap, sourceColors, tmpEdgePoints);
 
             while (isRunning)
             {
-                if (generation > 1000) break;
+                //if (generation > 1000) break;
 
                 gaSearch.ExecuteGeneration();
 

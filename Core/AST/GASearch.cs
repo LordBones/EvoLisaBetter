@@ -126,7 +126,7 @@ namespace GenArt.Core.AST
 
                 for (int k =0; k < 10; k++)
                 {
-                    dna.AddPolygon(this._bitmapRaw,this._destImg.Width);
+                    dna.AddPolygon(this._bitmapRaw,this._destImg.Width,edgePoints);
                 
                 }
                 
@@ -223,7 +223,7 @@ namespace GenArt.Core.AST
 
         private void GenerateNewPopulationByMutation(long[] fittness)
         {
-            int maxNormalizeValue = fittness.Length * 1000;
+            int maxNormalizeValue = fittness.Length * 1000000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             int [] rouleteTable = RouletteTableNormalizeBetter(fittness, maxNormalizeValue);
 

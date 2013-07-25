@@ -195,29 +195,31 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 int endIndex = ((minY + y) * this._canvasWidth + points.End) * 4;
                 int endPoint = points.End;
 
-                //int iteratorBy2 = (endPoint - points.Start + 1) / 2;
+                
 
-                //for (int iter = 0; iter < iteratorBy2; iter++)
+                //while (index+15 <= endIndex)
                 //{
+
                 //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
                 //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
                 //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
 
-                //    canvas[index + 4] = ApplyColor(canvas[index + 4], colorABRrem, colorRem);
+                //    canvas[index+4] = ApplyColor(canvas[index+4], colorABRrem, colorRem);
                 //    canvas[index + 5] = ApplyColor(canvas[index + 5], colorAGRrem, colorRem);
                 //    canvas[index + 6] = ApplyColor(canvas[index + 6], colorARRrem, colorRem);
 
-                //    index += 8;
+                //    canvas[index + 8] = ApplyColor(canvas[index + 8], colorABRrem, colorRem);
+                //    canvas[index + 9] = ApplyColor(canvas[index + 9], colorAGRrem, colorRem);
+                //    canvas[index + 10] = ApplyColor(canvas[index + 10], colorARRrem, colorRem);
+
+                //    canvas[index + 12] = ApplyColor(canvas[index + 12], colorABRrem, colorRem);
+                //    canvas[index + 13] = ApplyColor(canvas[index + 13], colorAGRrem, colorRem);
+                //    canvas[index + 14] = ApplyColor(canvas[index + 14], colorARRrem, colorRem);
+
+                //    index += 16;
                 //}
 
-                //if(((endPoint - points.Start + 1)&1) == 1)
-                //{
-                //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-                //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-                //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-                //}
-
-                while(index <= endIndex)
+                while (index <= endIndex)
                 {
 
                     canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
@@ -226,6 +228,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                     index += 4;
                 }
+
 
                 //for (int i = points.Start; i <= endPoint; i++)
                 //{
@@ -258,15 +261,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int w = x2 - x1;
             int h = y2 - y1;
             int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-            if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
+            if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
             if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
-            if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
+
             int longest = Math.Abs(w);
             int shortest = Math.Abs(h);
             if (!(longest > shortest))
             {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
+                swap<int>(ref longest, ref shortest);
+                
                 if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
                 dx2 = 0;
             }
@@ -286,13 +289,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
                 else
                 {
-                    
-                    short startP = points.Start;
-                    short endP = points.End;
-
-
-                    if (startP > tmpX) points.Start = tmpX;
-                    else if (endP < tmpX) points.End = tmpX;
+                   
+                    if (points.Start > tmpX) points.Start = tmpX;
+                    else if (points.End < tmpX) points.End = tmpX;
 
                 }
 

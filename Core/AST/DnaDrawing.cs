@@ -182,6 +182,8 @@ namespace GenArt.AST
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
 
+                //if (index > 0)
+                //    Array.Copy(Polygons, polygons, index);
                 for (int i = 0; i < index; i++)
                     polygons[i] = Polygons[i];
 
@@ -435,9 +437,10 @@ namespace GenArt.AST
                     //Polygons.Insert(index, newPolygon);
 
                     DnaPolygon [] polygons = new DnaPolygon[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
 
-                    for (int index = 0; index < Polygons.Length; index++)
-                        polygons[index] = Polygons[index];
+                    //for (int index = 0; index < Polygons.Length; index++)
+                    //    polygons[index] = Polygons[index];
 
                     polygons[polygons.Length - 1] = newPolygon;
 
