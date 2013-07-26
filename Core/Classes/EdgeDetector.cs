@@ -85,7 +85,8 @@ namespace GenArt.Core.Classes
         public void DetectEdges()
         {
             Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
-            SetEdgesFrame();
+            //SetEdgesFrame();
+            SetCornerEdgesFrame();
             leftRunFindEdgesByHSLBetter();
             DownRunFindEdgesByHSLBetter();
             //leftRunFindEdges();
@@ -133,6 +134,19 @@ namespace GenArt.Core.Classes
                 indexrightLine += _originalBitmap.Width;
             }
 
+        }
+
+        /// <summary>
+        /// all points around image are set as edge points
+        /// </summary>
+        private void SetCornerEdgesFrame()
+        {
+            int indexLastLine = _edgesPoints.Length - _originalBitmap.Width;
+            _edgesPoints[0] = 1;
+            _edgesPoints[_originalBitmap.Width-1] = 1;
+            _edgesPoints[indexLastLine] = 1;
+            _edgesPoints[_originalBitmap.Width * _originalBitmap.Height-1] = 1;
+            
         }
 
         private void leftRunFindEdges()

@@ -118,7 +118,7 @@ namespace GenArt.AST
                 while (!this.IsDirty)
                 {
                     for (int index = 0; index < Polygons.Length; index++)
-                        Polygons[index].Mutate(this, _rawDestImage, width);
+                        Polygons[index].Mutate(this, _rawDestImage, width, edgePoints);
 
                     if (Polygons.Length == 0)
                         break;
