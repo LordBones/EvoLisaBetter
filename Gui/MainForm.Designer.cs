@@ -45,6 +45,8 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.picPattern = new System.Windows.Forms.PictureBox();
+            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.tsslFittnessError = new System.Windows.Forms.ToolStripStatusLabel();
             this.label5 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
@@ -63,14 +65,15 @@
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelAvgPoints = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.chbLastGen = new System.Windows.Forms.CheckBox();
             this.chbShowProgress = new System.Windows.Forms.CheckBox();
+            this.chbLastGen = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPattern)).BeginInit();
+            this.statusStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -184,7 +187,12 @@
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
-              // 
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -203,7 +211,7 @@
             this.splitContainer1.Panel2.AutoScroll = true;
             this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.pnlCanvas);
-            this.splitContainer1.Size = new System.Drawing.Size(1282, 556);
+            this.splitContainer1.Size = new System.Drawing.Size(1282, 534);
             this.splitContainer1.SplitterDistance = 660;
             this.splitContainer1.TabIndex = 21;
             // 
@@ -215,6 +223,22 @@
             this.picPattern.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picPattern.TabIndex = 3;
             this.picPattern.TabStop = false;
+            // 
+            // statusStrip2
+            // 
+            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsslFittnessError});
+            this.statusStrip2.Location = new System.Drawing.Point(0, 649);
+            this.statusStrip2.Name = "statusStrip2";
+            this.statusStrip2.Size = new System.Drawing.Size(1282, 22);
+            this.statusStrip2.TabIndex = 5;
+            this.statusStrip2.Text = "statusStrip2";
+            // 
+            // tsslFittnessError
+            // 
+            this.tsslFittnessError.Name = "tsslFittnessError";
+            this.tsslFittnessError.Size = new System.Drawing.Size(32, 17);
+            this.tsslFittnessError.Text = "Error";
             // 
             // label5
             // 
@@ -270,7 +294,7 @@
             this.toolStripStatusLabelPolygons,
             this.toolStripStatusLabel6,
             this.toolStripStatusLabelAvgPoints});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 649);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 627);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1282, 22);
             this.statusStrip1.TabIndex = 26;
@@ -366,20 +390,10 @@
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.btnStart);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 580);
+            this.panel1.Location = new System.Drawing.Point(0, 558);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1282, 69);
             this.panel1.TabIndex = 27;
-            // 
-            // chbLastGen
-            // 
-            this.chbLastGen.AutoSize = true;
-            this.chbLastGen.Location = new System.Drawing.Point(780, 20);
-            this.chbLastGen.Name = "chbLastGen";
-            this.chbLastGen.Size = new System.Drawing.Size(159, 17);
-            this.chbLastGen.TabIndex = 25;
-            this.chbLastGen.Text = "Show best in last generation";
-            this.chbLastGen.UseVisualStyleBackColor = true;
             // 
             // chbShowProgress
             // 
@@ -391,6 +405,16 @@
             this.chbShowProgress.Text = "Show progress";
             this.chbShowProgress.UseVisualStyleBackColor = true;
             // 
+            // chbLastGen
+            // 
+            this.chbLastGen.AutoSize = true;
+            this.chbLastGen.Location = new System.Drawing.Point(780, 20);
+            this.chbLastGen.Name = "chbLastGen";
+            this.chbLastGen.Size = new System.Drawing.Size(159, 17);
+            this.chbLastGen.TabIndex = 25;
+            this.chbLastGen.Text = "Show best in last generation";
+            this.chbLastGen.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -400,6 +424,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.statusStrip2);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -414,6 +439,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picPattern)).EndInit();
+            this.statusStrip2.ResumeLayout(false);
+            this.statusStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -462,6 +489,8 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.CheckBox chbLastGen;
         private System.Windows.Forms.CheckBox chbShowProgress;
+        private System.Windows.Forms.StatusStrip statusStrip2;
+        private System.Windows.Forms.ToolStripStatusLabel tsslFittnessError;
     }
 }
 

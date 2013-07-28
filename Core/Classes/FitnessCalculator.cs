@@ -46,10 +46,8 @@ namespace GenArt.Classes
 
             //rbmp.Save("testGDI.bmp", ImageFormat.Bmp);
             error = ComputeFittnessBasic2(rbmp, sourceBitmap);
-            double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
-
-
-            return (long)(error*sizeError) + ((newDrawing.PointCount + 1)*(newDrawing.PointCount + 1));
+          
+            return (long)(error) + ((newDrawing.PointCount + 1)*(newDrawing.PointCount + 1));
 
         }
 

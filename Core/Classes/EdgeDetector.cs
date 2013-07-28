@@ -85,7 +85,7 @@ namespace GenArt.Core.Classes
         public void DetectEdges()
         {
             Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
-            //SetEdgesFrame();
+            SetEdgesFrame();
             SetCornerEdgesFrame();
             leftRunFindEdgesByHSLBetter();
             DownRunFindEdgesByHSLBetter();
