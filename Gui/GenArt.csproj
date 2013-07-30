@@ -154,9 +154,7 @@
       <Name>GenArt.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\DataSources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\girlTest.JPG" />
   </ItemGroup>

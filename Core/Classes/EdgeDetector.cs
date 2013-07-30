@@ -14,11 +14,16 @@ namespace GenArt.Core.Classes
     {
         private Bitmap _originalBitmap = null;
         private byte [] _edgesPoints;
+        private short _edgePointsWidth;
+        private short _edgePointsHeight;
+
 
         public EdgeDetector(Bitmap bmp)
         {
             _originalBitmap = bmp;
             _edgesPoints = new byte[bmp.Width * bmp.Height];
+            _edgePointsHeight = (short)bmp.Height;
+            _edgePointsWidth = (short)bmp.Width;
         }
 
         public void SaveBitmapHSL(string filename, bool h, bool s, bool l)
@@ -244,26 +249,32 @@ namespace GenArt.Core.Classes
                 {
 
                     byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    int origIndex = 4;
-                    int edgeIndex = 1;
                     const double threshold = 20.0;
-                    HSLColor startBlockColor = new HSLColor(
-                            origPtr[2], origPtr[1], origPtr[0]);
-
-                    while (edgeIndex < (_edgesPoints.Length - 1))
+                    
+                    for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgePointsWidth)
                     {
-                        HSLColor hlsColor = new HSLColor(
+                        int endLineIndex = yIndex + this._edgePointsWidth;
+                        int origIndex = yIndex * 4;
+
+                        HSLColor startBlockColor = new HSLColor(
                             origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
-
-
-                        if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
-                        {
-                            _edgesPoints[edgeIndex] = 1;
-                            startBlockColor = hlsColor;
-                        }
-
                         origIndex += 4;
-                        edgeIndex++;
+
+                        for (int edgeIndex = yIndex+1; edgeIndex < endLineIndex; edgeIndex++)
+                        {
+                                HSLColor hlsColor = new HSLColor(
+                                    origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
+
+
+                                if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                                {
+                                    _edgesPoints[edgeIndex] = 1;
+                                    startBlockColor = hlsColor;
+                                }
+
+                                origIndex += 4;
+                            
+                        }
                     }
 
                 }

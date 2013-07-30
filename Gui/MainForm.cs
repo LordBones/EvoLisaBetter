@@ -359,7 +359,7 @@ namespace GenArt
             toolStripStatusLabelPolygons.Text = polygons.ToString();
             toolStripStatusLabelAvgPoints.Text = avg.ToString();
 
-            tsslFittnessError.Text =  string.Format("{0:E}", errorLevel/(double)(Tools.MaxHeight * Tools.MaxWidth * 3 * 255) );
+            tsslFittnessError.Text =  string.Format("{0:G}", (errorLevel/(double)(Tools.MaxHeight * Tools.MaxWidth * 3 * 255)) *100);
 
             
 
