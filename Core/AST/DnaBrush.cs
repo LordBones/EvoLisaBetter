@@ -129,6 +129,55 @@ namespace GenArt.AST
             return false;
         }
 
+        public bool MutateByHSL21(DnaDrawing drawing)
+        {
+            int colorPart = Tools.GetRandomNumber(1 * 256, 4 * 256) / 256;
+
+            HSLColor hslc = new HSLColor(Red, Green, Blue);
+
+            if (colorPart == 1)
+            {
+
+                hslc.Hue = Tools.GetRandomNumber(5, 255);
+
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+            }
+            else if (colorPart == 2)
+            {
+
+                hslc.Luminosity = Tools.GetRandomNumber(5, 255);
+
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+            }
+            else if (colorPart == 3)
+            {
+
+                hslc.Saturation = Tools.GetRandomNumber(5, 255);
+                
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+            }
+            else if (colorPart == 4)
+            {
+
+                Alpha = (byte)Tools.GetRandomNumber(5, 255);
+
+            }
+
+            drawing.SetDirty();
+
+            return true;
+        }
+
+
         public bool MutateByHSL2(DnaDrawing drawing)
         {
                 int colorPart = Tools.GetRandomNumber(1 *256, 4 * 256)/ 256;
@@ -138,8 +187,6 @@ namespace GenArt.AST
                 if (colorPart == 1)
                 {
             
-                    //Red = (byte)Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax);
-                    //Red = (byte)((Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax) + Red) / 2);
                     int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Hue;
 
                     if (tmp < 0) hslc.Hue = 0;
@@ -153,9 +200,7 @@ namespace GenArt.AST
                 }
                 else if (colorPart == 2)
                 {
-                    //Green = (byte)Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax);
-                    //Green = (byte)((Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax)+Green)/2);
-
+             
                     int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Luminosity;
 
                     if (tmp < 0) hslc.Luminosity = 0;
@@ -169,9 +214,7 @@ namespace GenArt.AST
                 }
                 else if (colorPart == 3)
                 {
-                    //Blue = (byte)Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax);
-                    //Blue = (byte)((Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax) + Blue)/2);
-
+             
                     int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Saturation;
 
                     if (tmp < 0) hslc.Saturation = 0;
@@ -186,9 +229,7 @@ namespace GenArt.AST
                 else if (colorPart == 4)
                 {
 
-                    //Alpha = (byte)Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax);
-                    //Alpha = (byte)((Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax) + Alpha)/2);
-
+     
                     int tmp = Tools.GetRandomNumber(1, 11) - 5 + Alpha;
 
                     if (tmp < 0) Alpha = 0;
@@ -203,15 +244,10 @@ namespace GenArt.AST
 
         public bool MutateByHSL(DnaDrawing drawing)
         {
-            //int colorPart = Tools.GetRandomNumber(1 * 256, 4 * 256) / 256;
-
-
-
+           
             if (Tools.GetRandomNumber(0,1000000) < 250000)
             {
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
-                //Red = (byte)Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax);
-                //Red = (byte)((Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax) + Red) / 2);
                 int tmp = Tools.GetRandomNumber(1, 21) - 10 + (int)hslc.Hue;
 
                 if (tmp < 0) hslc.Hue = 0;
@@ -225,8 +261,6 @@ namespace GenArt.AST
             }
             if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
-                //Green = (byte)Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax);
-                //Green = (byte)((Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax)+Green)/2);
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
                 int tmp = Tools.GetRandomNumber(1, 21) - 10 + (int)hslc.Luminosity;
 
@@ -242,9 +276,7 @@ namespace GenArt.AST
             if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
-                //Blue = (byte)Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax);
-                //Blue = (byte)((Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax) + Blue)/2);
-
+           
                 int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Saturation;
 
                 if (tmp < 0) hslc.Saturation = 0;
@@ -258,10 +290,6 @@ namespace GenArt.AST
             }
             if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
-
-                //Alpha = (byte)Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax);
-                //Alpha = (byte)((Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax) + Alpha)/2);
-
                 int tmp = Tools.GetRandomNumber(1, 11) - 5 + Alpha;
 
                 if (tmp < 0) Alpha = 0;

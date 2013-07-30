@@ -293,7 +293,7 @@ namespace GenArt.AST
 
            */
             {
-                if (Brush.MutateByHSL(drawing))
+                if (Brush.MutateByHSL2(drawing))
                 {
                     this.GenNewUidID();
                 }
