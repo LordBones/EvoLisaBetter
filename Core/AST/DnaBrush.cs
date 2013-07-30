@@ -129,172 +129,49 @@ namespace GenArt.AST
             return false;
         }
 
-        public bool MutateByHSL21(DnaDrawing drawing)
+
+        
+
+        public bool MutateByHSL(DnaDrawing drawing)
         {
-            int colorPart = Tools.GetRandomNumber(1 * 256, 4 * 256) / 256;
-
-            HSLColor hslc = new HSLColor(Red, Green, Blue);
-
-            if (colorPart == 1)
+            bool wasMutate = false;
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
-
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
                 hslc.Hue = Tools.GetRandomNumber(5, 255);
 
                 Color color = (Color)hslc;
                 Red = color.R;
                 Green = color.G;
                 Blue = color.B;
+                wasMutate = true;
             }
-            else if (colorPart == 2)
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
-
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
                 hslc.Luminosity = Tools.GetRandomNumber(5, 255);
 
                 Color color = (Color)hslc;
                 Red = color.R;
                 Green = color.G;
                 Blue = color.B;
+                wasMutate = true;
             }
-            else if (colorPart == 3)
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
-
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
                 hslc.Saturation = Tools.GetRandomNumber(5, 255);
-                
+
                 Color color = (Color)hslc;
                 Red = color.R;
                 Green = color.G;
                 Blue = color.B;
+                wasMutate = true;
             }
-            else if (colorPart == 4)
+            if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
             {
-
                 Alpha = (byte)Tools.GetRandomNumber(5, 255);
 
-            }
-
-            drawing.SetDirty();
-
-            return true;
-        }
-
-
-        public bool MutateByHSL2(DnaDrawing drawing)
-        {
-                int colorPart = Tools.GetRandomNumber(1 *256, 4 * 256)/ 256;
-
-                HSLColor hslc = new HSLColor(Red, Green, Blue);
-
-                if (colorPart == 1)
-                {
-            
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Hue;
-
-                    if (tmp < 0) hslc.Hue = 0;
-                    else if (tmp > 255) hslc.Hue = 255;
-                    else hslc.Hue = tmp;
-
-                    Color color = (Color)hslc;
-                    Red = color.R;
-                    Green = color.G;
-                    Blue = color.B;
-                }
-                else if (colorPart == 2)
-                {
-             
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Luminosity;
-
-                    if (tmp < 0) hslc.Luminosity = 0;
-                    else if (tmp > 255) hslc.Luminosity = 255;
-                    else hslc.Luminosity = (byte)tmp;
-
-                    Color color = (Color)hslc;
-                    Red = color.R;
-                    Green = color.G;
-                    Blue = color.B;
-                }
-                else if (colorPart == 3)
-                {
-             
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Saturation;
-
-                    if (tmp < 0) hslc.Saturation = 0;
-                    else if (tmp > 255) hslc.Saturation = 255;
-                    else hslc.Saturation = (byte)tmp;
-
-                    Color color = (Color)hslc;
-                    Red = color.R;
-                    Green = color.G;
-                    Blue = color.B;
-                }
-                else if (colorPart == 4)
-                {
-
-     
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + Alpha;
-
-                    if (tmp < 0) Alpha = 0;
-                    else if (tmp > 255) Alpha = 255;
-                    else Alpha = (byte)tmp;
-                }
-
-                drawing.SetDirty();
-
-                return true;
-        }
-
-        public bool MutateByHSL(DnaDrawing drawing)
-        {
-           
-            if (Tools.GetRandomNumber(0,1000000) < 250000)
-            {
-                HSLColor hslc = new HSLColor(Red, Green, Blue);
-                int tmp = Tools.GetRandomNumber(1, 21) - 10 + (int)hslc.Hue;
-
-                if (tmp < 0) hslc.Hue = 0;
-                else if (tmp > 255) hslc.Hue = 255;
-                else hslc.Hue = tmp;
-
-                Color color = (Color)hslc;
-                Red = color.R;
-                Green = color.G;
-                Blue = color.B;
-            }
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
-            {
-                HSLColor hslc = new HSLColor(Red, Green, Blue);
-                int tmp = Tools.GetRandomNumber(1, 21) - 10 + (int)hslc.Luminosity;
-
-                if (tmp < 0) hslc.Luminosity = 0;
-                else if (tmp > 255) hslc.Luminosity = 255;
-                else hslc.Luminosity = (byte)tmp;
-
-                Color color = (Color)hslc;
-                Red = color.R;
-                Green = color.G;
-                Blue = color.B;
-            }
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
-            {
-                HSLColor hslc = new HSLColor(Red, Green, Blue);
-           
-                int tmp = Tools.GetRandomNumber(1, 11) - 5 + (int)hslc.Saturation;
-
-                if (tmp < 0) hslc.Saturation = 0;
-                else if (tmp > 255) hslc.Saturation = 255;
-                else hslc.Saturation = (byte)tmp;
-
-                Color color = (Color)hslc;
-                Red = color.R;
-                Green = color.G;
-                Blue = color.B;
-            }
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
-            {
-                int tmp = Tools.GetRandomNumber(1, 11) - 5 + Alpha;
-
-                if (tmp < 0) Alpha = 0;
-                else if (tmp > 255) Alpha = 255;
-                else Alpha = (byte)tmp;
             }
 
             drawing.SetDirty();

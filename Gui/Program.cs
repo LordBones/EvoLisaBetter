@@ -84,7 +84,7 @@ namespace GenArt
                 DnaDrawing dna = new DnaDrawing();
                 dna.Init();
 
-                for (int i =0; i < 200; i++)
+                for (int i =0; i < 2; i++)
                     dna.AddPolygon();
 
 
@@ -98,7 +98,16 @@ namespace GenArt
                 canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
 
+                //Bitmap rbmp = new Bitmap(Tools.MaxWidth, Tools.MaxHeight, PixelFormat.Format32bppPArgb);
+                //Graphics g = Graphics.FromImage(rbmp);
 
+                //g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+                //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+                //g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+                //g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+                //g.Clear(Color.Black);
+                
                 bool end = false;
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
@@ -109,6 +118,15 @@ namespace GenArt
                         dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
 
                     //polyTest.FillPolygon(points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+
+                    //using (Brush brush = new SolidBrush(dna.Polygons[index].Brush.BrushColor))
+                    //{
+                        
+                    //    Point[] gdipoints = GetGdiPoints(dna.Polygons[index].Points, 1);
+                        
+                    //    g.FillPolygon(brush, gdipoints);
+                    //}
+                    
 
                     bool canvasEqual = true;
                     for (int ieq = 0; ieq < canvasTest.Length; ieq++)
@@ -134,9 +152,14 @@ namespace GenArt
 
                 }
 
+                //rbmp.Save("canvasTestswGDI.bmp");
                 //if (end)
                     break;
             }
+
+
+
+            
 
             Bitmap bmp = new Bitmap(CONST_Width, CONST_Height, PixelFormat.Format32bppPArgb);
             var lockBmp = bmp.LockBits(new Rectangle(0, 0, CONST_Width, CONST_Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
@@ -170,6 +193,17 @@ namespace GenArt
             bmp.UnlockBits(lockBmp);
             bmp.Save("canvasTestswCorrect.bmp", ImageFormat.Bmp);
 
+        }
+
+        private static Point[] GetGdiPoints(IList<DnaPoint> points, int scale)
+        {
+            Point[] pts = new Point[points.Count];
+            int i = 0;
+            foreach (DnaPoint pt in points)
+            {
+                pts[i++] = new Point(pt.X * scale, pt.Y * scale);
+            }
+            return pts;
         }
 
         /// <summary>

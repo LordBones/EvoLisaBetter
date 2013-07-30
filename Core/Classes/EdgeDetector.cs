@@ -90,13 +90,18 @@ namespace GenArt.Core.Classes
         public void DetectEdges()
         {
             Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
-            SetEdgesFrame();
-            SetCornerEdgesFrame();
             leftRunFindEdgesByHSLBetter();
             DownRunFindEdgesByHSLBetter();
+
+
             //leftRunFindEdges();
 
             //DownRunFindEdges();
+            ReduceOnePointNoise();
+            ReduceTwoPointNoise();
+            SetEdgesFrame();
+            //SetCornerEdgesFrame();
+            
         }
 
         public DnaPoint [] GetAllEdgesPoints()
@@ -152,6 +157,91 @@ namespace GenArt.Core.Classes
             _edgesPoints[indexLastLine] = 1;
             _edgesPoints[_originalBitmap.Width * _originalBitmap.Height-1] = 1;
             
+        }
+
+        private void ReduceOnePointNoise()
+        {
+            int upRowIndex = 0;
+            int midRowIndex = this._edgePointsWidth;
+            int downRowIndex = this._edgePointsWidth * 2;
+
+
+            for (int y = 1; y < this._edgePointsHeight - 1; y++)
+            {
+                int upIndex = upRowIndex+1;
+                int midIndex = midRowIndex+1;
+                int downIndex = downRowIndex+1;
+
+                for (int x = 1; x < this._edgePointsWidth - 1; x++)
+                {
+                    if (this._edgesPoints[upIndex - 1] == 0 && this._edgesPoints[upIndex] == 0 && this._edgesPoints[upIndex + 1] == 0 &&
+                        this._edgesPoints[midIndex - 1] == 0 && this._edgesPoints[midIndex] == 1 && this._edgesPoints[midIndex + 1] == 0 &&
+                        this._edgesPoints[downIndex - 1] == 0 && this._edgesPoints[downIndex] == 0 && this._edgesPoints[downIndex + 1] == 0
+                        )
+                    {
+                        this._edgesPoints[midIndex] = 0;
+                    }
+
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._edgePointsWidth;
+                midRowIndex += this._edgePointsWidth;
+                downRowIndex += this._edgePointsWidth;
+
+
+
+            }
+        }
+
+        private void ReduceTwoPointNoise()
+        {
+            int upRowIndex = 0;
+            int midRowIndex = this._edgePointsWidth;
+            int midRowIndex2 = this._edgePointsWidth*2;
+            int downRowIndex = this._edgePointsWidth * 3;
+
+
+            for (int y = 1; y < this._edgePointsHeight - 2; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int midIndex2 = midRowIndex2 + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._edgePointsWidth - 2; x++)
+                {
+                    if (this._edgesPoints[upIndex - 1] == 0 && this._edgesPoints[upIndex] == 0 && this._edgesPoints[upIndex + 1] == 0 && this._edgesPoints[upIndex + 2] == 0 &&
+                        this._edgesPoints[midIndex - 1] == 0 && 
+                        (this._edgesPoints[midIndex] == 1 || this._edgesPoints[midIndex + 1] == 1 || this._edgesPoints[midIndex2] == 1 || this._edgesPoints[midIndex2 + 1] == 1) && 
+                        this._edgesPoints[midIndex + 2] == 0 &&
+                        this._edgesPoints[midIndex2 - 1] == 0 &&  this._edgesPoints[midIndex2 + 2] == 0 &&
+                        this._edgesPoints[downIndex - 1] == 0 && this._edgesPoints[downIndex] == 0 && this._edgesPoints[downIndex + 1] == 0 && this._edgesPoints[downIndex + 2] == 0
+                        )
+                    {
+                        this._edgesPoints[midIndex] = 0; this._edgesPoints[midIndex+1] = 0;
+                        this._edgesPoints[midIndex2] = 0; this._edgesPoints[midIndex2 + 1] = 0;
+                    }
+
+
+                    upIndex++;
+                    midIndex++;
+                    midIndex2++;
+
+                    downIndex++;
+                }
+
+                upRowIndex += this._edgePointsWidth;
+                midRowIndex += this._edgePointsWidth;
+                midRowIndex2 += this._edgePointsWidth;
+                downRowIndex += this._edgePointsWidth;
+
+
+
+            }
         }
 
         private void leftRunFindEdges()
