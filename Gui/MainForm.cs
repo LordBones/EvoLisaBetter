@@ -166,7 +166,7 @@ namespace GenArt
 
             while (isRunning)
             {
-                //if (generation > 1000) break;
+                //if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -445,7 +445,7 @@ namespace GenArt
             Stop();
 
 
-            picPattern.Image = GenArt.Properties.Resources.ml1;
+            picPattern.Image = Bitmap.FromFile(GenArt.Properties.Resources.ml1);
 
             Tools.MaxHeight = picPattern.Height;
             Tools.MaxWidth = picPattern.Width;

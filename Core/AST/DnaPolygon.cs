@@ -117,12 +117,15 @@ namespace GenArt.AST
             {
                 while (true)
                 {
+                    int lastIndex = int.MaxValue;
+
                     for (int i = 0; i < countPoints; i++)
                     {
                         
-                        int index = Tools.GetRandomNumber(0, edgePoints.Length-1);
+                        int index = Tools.GetRandomNumber(0, edgePoints.Length-1, lastIndex);
 
                         points[i] = edgePoints[index];
+                        lastIndex = index;
                     }
 
                     //

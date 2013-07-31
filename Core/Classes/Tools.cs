@@ -42,6 +42,14 @@ namespace GenArt.Classes
             return random.Next(min, max);
         }
 
+        public static int GetRandomNumber(int min, int max, int ignore)
+        {
+            if(!(min <=ignore && ignore <= max)) return random.Next(min, max);
+
+            int tmp = random.Next(min, max-1);
+            return (tmp >= ignore)? tmp+1 : tmp;
+        }
+
         public static short GetRandomNumber(short min, short max)
         {
             return (short)random.Next(min, max);
