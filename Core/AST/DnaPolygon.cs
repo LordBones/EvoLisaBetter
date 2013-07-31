@@ -80,11 +80,11 @@ namespace GenArt.AST
                     for (int i = 0; i < countPoints; i++)
                     {
                         var point = new DnaPoint();
-                        int tmp = Tools.GetRandomNumber(1, 100);
+                        int tmp = Tools.GetRandomNumber(0, 20,10);
 
-                        point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
-                        tmp = Tools.GetRandomNumber(1, 100);
-                        point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
+                        point.X = (short)Math.Min(Math.Max(0, lastPoint.X + tmp -10), Tools.MaxWidth - 1);
+                        tmp = Tools.GetRandomNumber(0, 20,10);
+                        point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + tmp - 10), Tools.MaxHeight - 1);
 
                         //if ((Tools.GetRandomNumber(0, 1000) > 500))
                         //{

@@ -138,6 +138,63 @@ namespace GenArt.AST
             if (Tools.GetRandomNumber(0, 1000000) < 250000)
             {
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
+
+                int tmp = Tools.GetRandomNumber(0, 40, 20);
+                int hue = (int)hslc.Hue;
+                hslc.Hue = Math.Max(Math.Min(hue + tmp - 20, 255), 5);
+
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+                wasMutate = true;
+            }
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
+
+                int tmp = Tools.GetRandomNumber(0, 40, 20);
+                int lum = (int)hslc.Luminosity;
+                hslc.Luminosity = Math.Max(Math.Min(lum + tmp -20,255),5) ;
+
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+                wasMutate = true;
+            }
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
+
+                int tmp = Tools.GetRandomNumber(0, 40, 20);
+                int sat = (int)hslc.Saturation;
+                hslc.Saturation = Math.Max(Math.Min(sat + tmp - 20, 255), 5);
+
+
+                Color color = (Color)hslc;
+                Red = color.R;
+                Green = color.G;
+                Blue = color.B;
+                wasMutate = true;
+            }
+            if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
+            {
+                Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 40, 20) - 20, 255), 5); 
+
+            }
+
+            drawing.SetDirty();
+
+            return true;
+        }
+
+        public bool MutateByHSLRandom(DnaDrawing drawing)
+        {
+            bool wasMutate = false;
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                HSLColor hslc = new HSLColor(Red, Green, Blue);
                 hslc.Hue = Tools.GetRandomNumber(5, 255, (int)hslc.Hue);
 
                 Color color = (Color)hslc;
@@ -170,7 +227,7 @@ namespace GenArt.AST
             }
             if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
             {
-                Alpha = (byte)Tools.GetRandomNumber(5, 255,Alpha);
+                Alpha = (byte)Tools.GetRandomNumber(5, 255, Alpha);
 
             }
 

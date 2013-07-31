@@ -461,6 +461,7 @@ namespace GenArt.AST
                 {
                     var newPolygon = new DnaPolygon();
                     newPolygon.Init(edgePoints);
+                    //newPolygon.Init(null);
 
                     if (_rawDestImage != null)
                     {
@@ -468,9 +469,8 @@ namespace GenArt.AST
                         Color nearColor = GetColorByPolygonPointsMiddleEdgePoints(newPolygon.Points, _rawDestImage, width);
 
                         newPolygon.Brush.SetByColor(nearColor);
+                        //newPolygon.Brush.InitRandom();
                     }
-
-                    //newPolygon.InitTestPolygon();
 
                     //int index = Tools.GetRandomNumber(0, Polygons.Count);
 
@@ -480,6 +480,9 @@ namespace GenArt.AST
                     Array.Copy(Polygons, polygons, Polygons.Length);
 
                     polygons[polygons.Length - 1] = newPolygon;
+
+
+                    
 
                     Polygons = polygons;
 
