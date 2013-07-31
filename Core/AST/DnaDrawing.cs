@@ -377,9 +377,9 @@ namespace GenArt.AST
             int sumGreen = 0;
             int sumBlue = 0;
 
-            sumBlue += _rawDestImage[middleColorIndex];
-            sumGreen += _rawDestImage[middleColorIndex + 1];
-            sumRed += _rawDestImage[middleColorIndex + 2];
+            sumBlue += _rawDestImage[middleColorIndex]*points.Length;
+            sumGreen += _rawDestImage[middleColorIndex + 1] * points.Length;
+            sumRed += _rawDestImage[middleColorIndex + 2] * points.Length;
 
 
             int x = (points[0].X + points[points.Length - 1].X) / 2;
@@ -404,19 +404,19 @@ namespace GenArt.AST
                 sumRed += _rawDestImage[colorIndex + 2];
             }
 
-           
 
-            sumBlue /= points.Length + 1;
-            sumGreen /= points.Length + 1;
-            sumRed /= points.Length + 1;
+
+            sumBlue /= points.Length + points.Length;
+            sumGreen /= points.Length + points.Length;
+            sumRed /= points.Length + points.Length;
 
             int sumDiffRed = 0;
             int sumDiffGreen = 0;
             int sumDiffBlue = 0;
 
-            sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[middleColorIndex]);
-            sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[middleColorIndex + 1]);
-            sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[middleColorIndex + 2]);
+            sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[middleColorIndex]) * points.Length;
+            sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[middleColorIndex + 1]) * points.Length;
+            sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[middleColorIndex + 2]) * points.Length;
 
 
             x = (points[0].X + points[points.Length - 1].X) / 2;
@@ -438,9 +438,9 @@ namespace GenArt.AST
                 sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[colorIndex + 2]);
             }
 
-            sumDiffBlue = sumDiffBlue / (points.Length + 1);
-            sumDiffGreen = sumDiffGreen / (points.Length + 1);
-            sumDiffRed = sumDiffRed / (points.Length + 1);
+            sumDiffBlue = sumDiffBlue / (points.Length + points.Length);
+            sumDiffGreen = sumDiffGreen / (points.Length + points.Length);
+            sumDiffRed = sumDiffRed / (points.Length + points.Length);
 
             int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
             //int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
