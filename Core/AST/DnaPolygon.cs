@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using GenArt.Classes;
+using GenArt.Core.Classes;
 
 namespace GenArt.AST
 {
@@ -175,7 +176,7 @@ namespace GenArt.AST
             return result;
         }
 
-        public void Mutate(DnaDrawing drawing, byte[] _rawDestImage = null, int width = 0, DnaPoint[] edgePoints = null)
+        public void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, DnaPoint[] edgePoints = null)
         {
 
             if (Tools.GetRandomNumber(0, 1000000) < 500000)

@@ -86,21 +86,21 @@ namespace GenArt.Classes
         static byte [] drawCanvas = new byte[0];
         static SoftwareRender softwareRender;
 
-        public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, Bitmap sourceBitmap,byte [] sourceBitmapByte, Color background)
+        public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
         {
             long error = 0;
 
-            if (drawCanvas.Length != sourceBitmap.Width * sourceBitmap.Height * 4)
+            if (drawCanvas.Length !=  sourceImage.Data.Length)
             {
-                drawCanvas = new byte[sourceBitmap.Width * sourceBitmap.Height * 4];
+                drawCanvas = new byte[sourceImage.Data.Length];
 
-                softwareRender = new SoftwareRender(sourceBitmap.Width, sourceBitmap.Height);
+                softwareRender = new SoftwareRender(sourceImage.WidthPixel, sourceImage.HeightPixel);
             }
-            
-            softwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
+
+            softwareRender.Render(newDrawing, drawCanvas, sourceImage.WidthPixel, 1, background);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
-            error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
+            error = ComputeFittnessBasic(drawCanvas, sourceImage.Data);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);

@@ -20,9 +20,9 @@ namespace GenArt.Core.AST
         private long _lastWorstFitnessDiff;
         private int _generation = 0;
         private DnaDrawing [] _population;
-        private Bitmap _destImg = new Bitmap(1,1);
-        private byte [] _destImgByte = new byte[0];
-        private byte [] _bitmapRaw = new byte[4];
+        private CanvasBGRA _destCanvas = new CanvasBGRA(1,1);
+        
+        
         private DnaPoint [] _edgePoints = null;
 
         #region property
@@ -65,32 +65,6 @@ namespace GenArt.Core.AST
 
         }
 
-        private void CreateByteFieldFromDestImg()
-        {
-            this._destImgByte = new byte[_destImg.Width * _destImg.Height * 4];
-
-            BitmapData bmdSRC = _destImg.LockBits(new Rectangle(0, 0, _destImg.Width, _destImg.Height), ImageLockMode.ReadOnly,
-                                        PixelFormat.Format32bppPArgb);
-            try
-            {
-                // zkopiruje data do bajtoveho pole
-                // barvy se ukladaji rgba.
-                unsafe
-                {
-
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-
-                    for (int i = 0; i < this._destImgByte.Length; i++)
-                    {
-                        this._destImgByte[i] = *(origPtr + i);
-                    }
-                }
-            }
-            finally
-            {
-                _destImg.UnlockBits(bmdSRC);
-            }
-        }
 
         private Color GetColorByPolygonPoints(DnaPoint [] points)
         {
@@ -98,27 +72,40 @@ namespace GenArt.Core.AST
             int sumGreen = 0;
             int sumBlue = 0;
 
+            byte [] canvasData = this._destCanvas.Data;
 
             for (int index = 0; index < points.Length; index++)
             {
-                int colorIndex = ((points[index].Y * this._destImg.Width) + points[index].X) << 2;
-                sumRed += this._bitmapRaw[colorIndex];
-                sumGreen += this._bitmapRaw[colorIndex+1];
-                sumBlue += this._bitmapRaw[colorIndex+2];
+                int colorIndex = ((points[index].Y * this._destCanvas.WidthPixel) + points[index].X) << 2;
+                sumRed += canvasData[colorIndex];
+                sumGreen += canvasData[colorIndex + 1];
+                sumBlue += canvasData[colorIndex + 2];
             }
 
             return Color.FromArgb(255, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
-        public void InitFirstPopulation(Bitmap destImg,byte [] bitmapRaw, DnaPoint [] edgePoints)
+        private void CreateEdges(Bitmap destImg)
+        {
+            EdgeDetector ed = new EdgeDetector(destImg);
+            ed.DetectEdges();
+            this._edgePoints = ed.GetAllEdgesPoints();
+
+            ed.SaveEdgesAsBitmap("ImageEdges.bmp");
+            ed.SaveBitmapHSL("bmpHSL_H.bmp", true, false, false);
+            ed.SaveBitmapHSL("bmpHSL_S.bmp", false, true, false);
+            ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
+        }
+
+        public void InitFirstPopulation(Bitmap destImg)
         {
             this._generation = 0;
-            this._destImg = destImg;
-            this._bitmapRaw = bitmapRaw;
+            this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
+           
             this._currentBestFittness = long.MaxValue;
-            this._edgePoints = edgePoints;
+            CreateEdges(destImg);
 
-            CreateByteFieldFromDestImg();
+            this._destCanvas.EasyColorReduction();
 
             for (int i =0; i < this._population.Length; i++)
             {
@@ -126,15 +113,12 @@ namespace GenArt.Core.AST
 
                 for (int k =0; k < 10; k++)
                 {
-                    dna.AddPolygon(this._bitmapRaw,this._destImg.Width,edgePoints);
+                    dna.AddPolygon(this._destCanvas, this._edgePoints);
                 
                 }
                 
                 this._population[i] = dna;
-            }
-
-         
-           
+            }  
         }
 
 
@@ -162,7 +146,7 @@ namespace GenArt.Core.AST
             for (int index = 0; index < this._population.Length; index++)
             {
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
-                fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destImg, this._destImgByte, Color.Black);
+                fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 
             }
@@ -234,7 +218,7 @@ namespace GenArt.Core.AST
             //newPopulation[0] = this._lastBest.Clone();
 
             while (!newPopulation[0].IsDirty)
-                newPopulation[0].MutateBetter(this._bitmapRaw, this._destImg.Width, _edgePoints);
+                newPopulation[0].MutateBetter(this._destCanvas, _edgePoints);
 
 
             for (int index = 1; index < this._population.Length; index++)
@@ -245,7 +229,7 @@ namespace GenArt.Core.AST
                 newPopulation[index] = this._population[indexParent1].Clone();
 
                 while (!newPopulation[index].IsDirty)
-                    newPopulation[index].MutateBetter( this._bitmapRaw, this._destImg.Width, _edgePoints);
+                    newPopulation[index].MutateBetter(this._destCanvas, _edgePoints);
 
             }
 
@@ -502,7 +486,7 @@ namespace GenArt.Core.AST
             for (int index = 0; index < this._population.Length; index++)
             {
                 while(!this._population[index].IsDirty)
-                this._population[index].Mutate(this._bitmapRaw, this._destImg.Width);
+                    this._population[index].Mutate(this._destCanvas);
 
                 this._population[index].SetDirty();
             }

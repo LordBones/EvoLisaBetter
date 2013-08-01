@@ -12,19 +12,25 @@ namespace GenArt.Core.Classes
         protected int _width;
         protected int _height;
 
-        public Array2D(int width, int height)
+
+        public Array2D(int width, int height):
+            this(width,height,1)
         {
-            this.Data = new byte[width * height];
+        }
+
+        protected Array2D(int width, int height, int stride)
+        {
+            this.Data = new byte[width * height* stride];
             this._width = width;
             this._height = height;
         }
 
-        int Width
+        public int Width
         {
             get { return _width; }
         }
 
-        int Height
+        public int Height
         {
             get { return _height; }
         }

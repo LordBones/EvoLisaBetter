@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using GenArt.Classes;
 using System;
 using System.Drawing;
+using GenArt.Core.Classes;
 
 namespace GenArt.AST
 {
@@ -83,13 +84,13 @@ namespace GenArt.AST
         }
 
 
-        public void Mutate(byte [] _rawDestImage = null, int width = 0)
+        public void Mutate(CanvasBGRA destImage = null)
         {
             if (Tools.WillMutate(Settings.ActiveRemovePolygonMutationRate))
                 RemovePolygon();
             
             else if (Tools.WillMutate(Settings.ActiveAddPolygonMutationRate))
-                AddPolygon(_rawDestImage,width);
+                AddPolygon(destImage);
 
             else if (Tools.WillMutate(Settings.ActiveMovePolygonMutationRate))
                 SwapPolygon();
@@ -97,17 +98,18 @@ namespace GenArt.AST
             
             {
                 for (int index = 0; index < Polygons.Length; index++)
-                    Polygons[index].Mutate(this, _rawDestImage, width);
+                    Polygons[index].Mutate(this, destImage);
             }
 
         }
 
-        public void MutateBetter(byte[] _rawDestImage = null, int width = 0, DnaPoint [] edgePoints = null)
+        public void MutateBetter(CanvasBGRA destImage = null, DnaPoint [] edgePoints = null)
         {
+
             int mutateChange = Tools.GetRandomNumber(0, 1000);
 
             if(mutateChange <100)
-            AddPolygon(_rawDestImage, width,edgePoints);
+                AddPolygon(destImage, edgePoints);
             else if (mutateChange < 400)
                 RemovePolygon();
             else if (mutateChange < 600)
@@ -118,7 +120,7 @@ namespace GenArt.AST
                 while (!this.IsDirty)
                 {
                     for (int index = 0; index < Polygons.Length; index++)
-                        Polygons[index].Mutate(this, _rawDestImage, width, edgePoints);
+                        Polygons[index].Mutate(this,destImage, edgePoints);
 
                     if (Polygons.Length == 0)
                         break;
@@ -357,8 +359,10 @@ namespace GenArt.AST
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }
 
-        public static Color GetColorByPolygonPointsMiddleEdgePoints(DnaPoint[] points, byte[] _rawDestImage, int width)
+        public static Color GetColorByPolygonPointsMiddleEdgePoints(DnaPoint[] points, CanvasBGRA destImage)
         {
+            byte [] destImageData = destImage.Data;
+
             int middleX = 0;
             int middleY = 0;
 
@@ -371,25 +375,25 @@ namespace GenArt.AST
             middleX /= points.Length;
             middleY /= points.Length;
 
-            int middleColorIndex = ((middleY * width) + middleX) << 2;
+            int middleColorIndex = ((middleY * destImage.WidthPixel) + middleX) << 2;
 
             int sumRed = 0;
             int sumGreen = 0;
             int sumBlue = 0;
 
-            sumBlue += _rawDestImage[middleColorIndex]*points.Length;
-            sumGreen += _rawDestImage[middleColorIndex + 1] * points.Length;
-            sumRed += _rawDestImage[middleColorIndex + 2] * points.Length;
+            sumBlue += destImageData[middleColorIndex]*points.Length;
+            sumGreen += destImageData[middleColorIndex + 1] * points.Length;
+            sumRed += destImageData[middleColorIndex + 2] * points.Length;
 
 
             int x = (points[0].X + points[points.Length - 1].X) / 2;
             int y = (points[0].Y + points[points.Length - 1].Y) / 2;
 
 
-            int colorIndex = ((y * width) + x) << 2;
-            sumBlue += _rawDestImage[colorIndex];
-            sumGreen += _rawDestImage[colorIndex + 1];
-            sumRed += _rawDestImage[colorIndex + 2];
+            int colorIndex = ((y *destImage.WidthPixel) + x) << 2;
+            sumBlue += destImageData[colorIndex];
+            sumGreen += destImageData[colorIndex + 1];
+            sumRed += destImageData[colorIndex + 2];
            
 
             for (int index = 1; index < points.Length; index++)
@@ -398,10 +402,10 @@ namespace GenArt.AST
                 y = (points[index].Y + points[index - 1].Y)/2;
 
 
-                colorIndex = ((y * width) + x) << 2;
-                sumBlue += _rawDestImage[colorIndex];
-                sumGreen += _rawDestImage[colorIndex + 1];
-                sumRed += _rawDestImage[colorIndex + 2];
+                colorIndex = ((y * destImage.WidthPixel) + x) << 2;
+                sumBlue += destImageData[colorIndex];
+                sumGreen += destImageData[colorIndex + 1];
+                sumRed += destImageData[colorIndex + 2];
             }
 
 
@@ -414,28 +418,28 @@ namespace GenArt.AST
             int sumDiffGreen = 0;
             int sumDiffBlue = 0;
 
-            sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[middleColorIndex]) * points.Length;
-            sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[middleColorIndex + 1]) * points.Length;
-            sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[middleColorIndex + 2]) * points.Length;
+            sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[middleColorIndex]) * points.Length;
+            sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[middleColorIndex + 1]) * points.Length;
+            sumDiffRed = Tools.fastAbs(sumRed - destImageData[middleColorIndex + 2]) * points.Length;
 
 
             x = (points[0].X + points[points.Length - 1].X) / 2;
             y = (points[0].Y + points[points.Length - 1].Y) / 2;
 
-            colorIndex = ((y * width) + x) << 2;
-            sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[colorIndex]);
-            sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[colorIndex + 1]);
-            sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[colorIndex + 2]);
+            colorIndex = ((y * destImage.WidthPixel) + x) << 2;
+            sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[colorIndex]);
+            sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[colorIndex + 1]);
+            sumDiffRed = Tools.fastAbs(sumRed - destImageData[colorIndex + 2]);
 
             for (int index = 1; index < points.Length; index++)
             {
                 x = (points[index].X + points[index - 1].X) / 2;
                 y = (points[index].Y + points[index - 1].Y) / 2;
 
-                colorIndex = ((y * width) + x) << 2;
-                sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[colorIndex]);
-                sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[colorIndex + 1]);
-                sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[colorIndex + 2]);
+                colorIndex = ((y * destImage.WidthPixel) + x) << 2;
+                sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[colorIndex]);
+                sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[colorIndex + 1]);
+                sumDiffRed = Tools.fastAbs(sumRed - destImageData[colorIndex + 2]);
             }
 
             sumDiffBlue = sumDiffBlue / (points.Length + points.Length);
@@ -453,7 +457,7 @@ namespace GenArt.AST
         }
 
 
-        public void AddPolygon(byte [] _rawDestImage = null, int width =0, DnaPoint [] edgePoints = null)
+        public void AddPolygon(CanvasBGRA _rawDestImage = null, DnaPoint [] edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
@@ -466,7 +470,7 @@ namespace GenArt.AST
                     if (_rawDestImage != null)
                     {
                         //Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
-                        Color nearColor = GetColorByPolygonPointsMiddleEdgePoints(newPolygon.Points, _rawDestImage, width);
+                        Color nearColor = GetColorByPolygonPointsMiddleEdgePoints(newPolygon.Points, _rawDestImage);
 
                         newPolygon.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();

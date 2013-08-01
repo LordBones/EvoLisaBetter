@@ -31,7 +31,6 @@ namespace GenArt
         private int repaintOnSelectedSteps = 3;
         private int selected;
 
-        private byte [] sourceColors;
         private Bitmap sourceBitmap;
         private Color Background = Color.Black;
 
@@ -152,17 +151,11 @@ namespace GenArt
         private void StartEvolutionNew()
         {
             SetupSourceColorMatrix();
-            EdgeDetector ed = new EdgeDetector(sourceBitmap);
-            ed.DetectEdges();
-            DnaPoint[] tmpEdgePoints = ed.GetAllEdgesPoints();
-            ed.SaveEdgesAsBitmap("ImageEdges.bmp");
-            ed.SaveBitmapHSL("bmpHSL_H.bmp", true, false, false);
-            ed.SaveBitmapHSL("bmpHSL_S.bmp", false, true, false);
-            ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
+            
 
 
             GASearch gaSearch = new GASearch(10);
-            gaSearch.InitFirstPopulation(sourceBitmap, sourceColors, tmpEdgePoints);
+            gaSearch.InitFirstPopulation(sourceBitmap);
 
             while (isRunning)
             {
@@ -191,9 +184,7 @@ namespace GenArt
         //covnerts the source image to a Color[,] for faster lookup
         private void SetupSourceColorMatrix()
         {
-            sourceColors = new byte[Tools.MaxWidth*Tools.MaxHeight*4];
-            int colorIndex = 0;
-
+           
             var sourceImage = picPattern.Image as Bitmap;
 
             if (sourceImage == null)
@@ -219,15 +210,6 @@ namespace GenArt
                     sumR += c.R;
                     sumG += c.G;
                     sumB += c.B;
-                    
-                    sourceColors[colorIndex] = (byte)(c.B & 0xf0);
-                    
-                    colorIndex++;
-                    sourceColors[colorIndex] = (byte)(c.G & 0xf8);
-                    colorIndex++;
-                    sourceColors[colorIndex] = (byte)(c.R & 0xf0);
-                    colorIndex++;
-                    colorIndex++;
 
                 }
             }
