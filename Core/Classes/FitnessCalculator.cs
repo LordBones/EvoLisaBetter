@@ -99,7 +99,8 @@ namespace GenArt.Classes
             
             softwareRender.Render(newDrawing, drawCanvas, sourceBitmap.Width, 1, background);
 
-            error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
+            //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
+            error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
@@ -151,37 +152,6 @@ namespace GenArt.Classes
             }
 
             return 1;
-        }
-
-        private static long ComputeFittnessBasic(byte[] current, byte[] orig)
-        {
-            long result = 0;
-            int index = 0;
-            //while (index < current.Length)
-            //{
-            //    int br =  current[index] - orig[index];
-            //    int bg = current[index+1] - orig[index+1];
-            //    int bb = current[index+2] - orig[index+2];
-
-            //    int tmpres = (int)Math.Sqrt((br * br + bg * bg + bb * bb) / 3) * 3;
-            //    result += tmpres;
-
-            //    index += 4;
-            //}
-
-            while (index < current.Length)
-            {
-                int br = Math.Abs(current[index] - orig[index]);
-                int bg = Math.Abs(current[index + 1] - orig[index + 1]);
-                int bb = Math.Abs(current[index + 2] - orig[index + 2]);
-
-                int tmpres = br + bg + bb;
-                result += tmpres;
-
-                index += 4;
-            }
-
-            return result;
         }
 
         private static long ComputeFittnessBasic2(byte [] current, Bitmap orig)
@@ -302,6 +272,61 @@ namespace GenArt.Classes
             finally
             {
                 orig.UnlockBits(bmdSRC);
+            }
+
+            return result;
+        }
+
+        private static long ComputeFittnessBasic(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            unsafe
+            {
+                fixed (byte * tmpcurrentPtr = current)
+                fixed (byte * tmpOrigPtr = orig)
+                {
+                    byte * currentPtr = tmpcurrentPtr;
+                    byte * origPtr = tmpOrigPtr;
+
+                    //int totalLength = (Tools.MaxWidth * Tools.MaxHeight * 4);
+                    byte * totalLength = currentPtr + (Tools.MaxWidth * Tools.MaxHeight * 4);
+                    int index = 0;
+
+                    int step = 0;
+                    long partresult = 0;
+                    while (currentPtr < totalLength)
+                    {
+                        int br = Tools.fastAbs(*(currentPtr) - *(origPtr));
+                        int bg = Tools.fastAbs(*(currentPtr + 1) - *(origPtr + 1));
+                        int bb = Tools.fastAbs(*(currentPtr + 2) - *(origPtr + 2));
+
+                        //br = (br > 64) ? br << 2 : br;
+                        //bg = (bg > 64) ? bg << 2 : bg;
+                        //bb = (bb > 64) ? bb << 2 : bb;
+
+
+                        long tmpres = br + bg + bb;
+
+                        partresult += tmpres;
+
+
+                        currentPtr += 4;
+                        origPtr += 4;
+
+                        step++;
+                        if (step >= Tools.MaxWidth)
+                        {
+                            step = 0;
+                            result += partresult;// *partresult;
+                            partresult = 0;
+
+                        }
+                    }
+
+                    result += partresult * partresult;
+
+                }
             }
 
             return result;

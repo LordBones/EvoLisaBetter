@@ -186,56 +186,7 @@ namespace GenArt
             }
         }
 
-        private void StartEvolution()
-        {
-            SetupSourceColorMatrix();
-            if (currentDrawing == null)
-                currentDrawing = GetNewInitializedDrawing();
-            lastSelected = 0;
-
-            DnaDrawing newDrawing = null;
-
-            while (isRunning)
-            {
-                if (generation == 4000) break;
-
-                
-                    if (currentDrawing.Polygons.Length == 0)
-                    {
-                        for (int i =0; i < 100;i++ )
-                            currentDrawing.AddPolygon();
-                    }
-
-                    //if(newDrawing == null)
-                        newDrawing = currentDrawing.Clone();
-                
-                while(!newDrawing.IsDirty)
-                    newDrawing.Mutate();
-
-                if (newDrawing.IsDirty)
-                {
-                    generation++;
-
-                    //long newErrorLevel = FitnessCalculator.GetDrawingFitnessWPF(newDrawing, sourceBitmap,Background);
-                    long newErrorLevel = FitnessCalculator.GetDrawingFitness2(newDrawing, sourceBitmap, Background);
-                    //long newErrorLevel = FitnessCalculator.GetDrawingFitnessSoftware(newDrawing, sourceBitmap, Background);
-                    //long newErrorLevel = FitnessCalculator.GetDrawingFitness(newDrawing, sourceColors);
-
-                    if (newErrorLevel < errorLevel)
-                    {
-                        selected++;
-                        //lock (currentDrawing)
-                        {
-                            currentDrawing = newDrawing;
-                        }
-                        errorLevel = newErrorLevel;
-                    }
-
-                    //newDrawing = null;
-                }
-                //else, discard new drawing
-            }
-        }
+        
 
         //covnerts the source image to a Color[,] for faster lookup
         private void SetupSourceColorMatrix()
@@ -269,12 +220,12 @@ namespace GenArt
                     sumG += c.G;
                     sumB += c.B;
                     
-                    sourceColors[colorIndex] = c.B;
+                    sourceColors[colorIndex] = (byte)(c.B & 0xf0);
                     
                     colorIndex++;
-                    sourceColors[colorIndex] = c.G;
+                    sourceColors[colorIndex] = (byte)(c.G & 0xf8);
                     colorIndex++;
-                    sourceColors[colorIndex] = c.R;
+                    sourceColors[colorIndex] = (byte)(c.R & 0xf0);
                     colorIndex++;
                     colorIndex++;
 
