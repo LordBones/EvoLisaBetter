@@ -26,7 +26,11 @@ namespace GenArt
             const int CONST_Height = 200;
 
             byte [] canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
-            byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
+
+
+            //byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
+
+            CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
 
             SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
 
@@ -70,7 +74,7 @@ namespace GenArt
             Tools.MaxHeight = CONST_Height;
 
             byte [] canvasCorrect = null;
-            byte [] canvasTest = null;
+            CanvasBGRA canvasTest = null;
 
             SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
 
@@ -95,7 +99,7 @@ namespace GenArt
 
 
                 canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
-                canvasTest = new byte[CONST_Height * CONST_Width * 4];
+                canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
 
 
                 //Bitmap rbmp = new Bitmap(Tools.MaxWidth, Tools.MaxHeight, PixelFormat.Format32bppPArgb);
@@ -129,9 +133,9 @@ namespace GenArt
                     
 
                     bool canvasEqual = true;
-                    for (int ieq = 0; ieq < canvasTest.Length; ieq++)
+                    for (int ieq = 0; ieq < canvasTest.Data.Length; ieq++)
                     {
-                        if (canvasCorrect[ieq] != canvasTest[ieq])
+                        if (canvasCorrect[ieq] != canvasTest.Data[ieq])
                         {
                             canvasEqual = false;
                             break;
@@ -168,9 +172,9 @@ namespace GenArt
             {
                 byte * ll = (byte*)lockBmp.Scan0.ToPointer();
 
-                for (int index = 0; index < canvasTest.Length; index++)
+                for (int index = 0; index < canvasTest.Data.Length; index++)
                 {
-                    *(ll + index) = canvasTest[index];
+                    *(ll + index) = canvasTest.Data[index];
                 }
             }
 

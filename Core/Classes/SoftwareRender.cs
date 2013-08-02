@@ -57,54 +57,6 @@ namespace GenArt.Core.Classes
             }
         }
 
-        public static void FastColorFill(byte[] canvas, Color color)
-        {
-            if (canvas.Length < 4)
-                return;
-
-            unsafe
-            {
-                fixed (byte * tmpcurrentPtr = canvas)
-                {
-                    int canvasPixelCount = canvas.Length >> 2;
-
-
-                    ulong * currentPtr = (ulong*)(tmpcurrentPtr + 4);
-                    uint * startPtr = (uint*)(tmpcurrentPtr);
-                    uint colorForFill = (uint)((color.A << 24) + (color.B << 16) + (color.G << 8) + (color.R));
-                    ulong colorForFillLong = (((ulong)colorForFill) << 32) | colorForFill;
-
-                    *(startPtr) = colorForFill;
-
-
-                    //int totalLength = (Tools.MaxWidth * Tools.MaxHeight * 4);
-                    ulong * end = currentPtr + (canvasPixelCount >> 1);
-
-
-                    while (currentPtr < end)
-                    {
-                        if ((end - currentPtr) > 4)
-                        {
-                            *currentPtr = colorForFillLong;
-                            *(currentPtr + 1) = colorForFillLong;
-                            *(currentPtr + 2) = colorForFillLong;
-                            *(currentPtr + 3) = colorForFillLong;
-                            currentPtr += 4;
-                        }
-                        else
-                        {
-                            *currentPtr = colorForFillLong;
-                            currentPtr++;
-                        }
-                        //*(currentPtr) = colorForFillLong;
-                        //currentPtr++;
-                    }
-
-
-                }
-            }
-        }
-
         [DllImport("msvcrt")]
         public static extern IntPtr memset(int[] dest, int c, IntPtr count);
 
@@ -223,9 +175,9 @@ namespace GenArt.Core.Classes
 
         private readonly static Color _black = Color.FromArgb(255, 0, 0, 0); 
         //Render a Drawing
-        public void Render(DnaDrawing drawing, byte[] data, int width, int scale, Color background)
+        public void Render(DnaDrawing drawing, CanvasBGRA drawCanvas, int scale, Color background)
         {
-            FastColorFill(data, _black);
+            drawCanvas.FastClearColor(_black);
 
             
             DnaPolygon [] dnaPolygons = drawing.Polygons;
@@ -237,7 +189,7 @@ namespace GenArt.Core.Classes
                 //this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
                 //this._drawTriangle.RenderTriangle(points[0],points[1],points[2], data, polygon.Brush.BrushColor);
-                this._drawTriangle.RenderTriangle(polygon.Points, data, polygon.Brush.BrushColor);
+                this._drawTriangle.RenderTriangle(polygon.Points, drawCanvas, polygon.Brush.BrushColor);
 
                 //this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
@@ -246,10 +198,9 @@ namespace GenArt.Core.Classes
         }
 
         //Render a Drawing
-        public void RenderNative(DnaDrawing drawing, byte[] data, int width, int scale, Color background)
+        public void RenderNative(DnaDrawing drawing, CanvasBGRA drawCanvas, int scale, Color background)
         {
-            FastColorFill(data, Color.FromArgb(255, 0, 0, 0));
-
+            drawCanvas.FastClearColor(_black);
 
             DnaPolygon [] dnaPolygons = drawing.Polygons;
             int polyCount = dnaPolygons.Length;
@@ -260,7 +211,7 @@ namespace GenArt.Core.Classes
 
                 //Color color = Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue);
                 //this._drawPolygon.FillPolygon(points, data, color);
-                this._drawPolygon.FillPolygonNative(polygon.Points, data, polygon.Brush.BrushColor);
+                this._drawPolygon.FillPolygonNative(polygon.Points, drawCanvas.Data, polygon.Brush.BrushColor);
                 //  this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
                 //DrawLine(data, width, points, Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue));

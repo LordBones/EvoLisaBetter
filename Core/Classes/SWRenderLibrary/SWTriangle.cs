@@ -19,7 +19,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         }
 
 
-        public void RenderTriangle(DnaPoint [] points, byte[] canvas, Color color)
+        public void RenderTriangle(DnaPoint [] points, CanvasBGRA canvas, Color color)
         {
             short x1 = points[0].X;
             short y1 = points[0].Y;
@@ -157,8 +157,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
-        private void FillTriangleMy(byte[] canvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
+        private void FillTriangleMy(CanvasBGRA drawCanvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
         {
+            
+
             short minY = y0;
             short maxY = y0;
 
@@ -182,6 +184,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int colorARRrem = GetAXREM(colorA, color.R);
             int colorAGRrem = GetAXREM(colorA, color.G);
 
+            byte [] canvas = drawCanvas.Data;
+            int rowStartIndex = (minY) * drawCanvas.Width;
+
             //int indexY = minY * this._canvasWidth;
             for (int y  = 0; y < rangePoints.Length; y++ )//, indexY += this._canvasWidth)
             {
@@ -191,9 +196,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
 
-                int index = ((minY + y)* this._canvasWidth + points.Start)*4;
-                int endIndex = ((minY + y) * this._canvasWidth + points.End) * 4;
-                int endPoint = points.End;
+                int index = rowStartIndex + points.Start*4;
+                int endIndex = rowStartIndex + points.End * 4;
+
+                rangePoints[y] = null;
+                //int endPoint = points.End;
 
                 
 
@@ -218,7 +225,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //    index += 16;
                 //}
-
+                
                 while (index <= endIndex)
                 {
 
@@ -240,7 +247,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //    index += 4;
                 //}
 
-                rangePoints[y] = null;
+                
+                rowStartIndex += drawCanvas.Width;
             }
         
         }

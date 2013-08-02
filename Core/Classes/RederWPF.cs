@@ -15,6 +15,7 @@ namespace GenArt.Core.Classes
     {
         private static  DrawingVisual dv = new DrawingVisual();
         private static RenderTargetBitmap rtb  = new RenderTargetBitmap(1, 1, 0, 0, System.Windows.Media.PixelFormats.Pbgra32);
+        private static byte [] result = new byte[0];
         
 
         //Render a Drawing
@@ -22,7 +23,7 @@ namespace GenArt.Core.Classes
         {
             if(rtb.PixelWidth != width || rtb.PixelHeight != height)
             {
-                    
+                result = new byte[width * height * 4];
                 rtb = new RenderTargetBitmap(width, height, 0, 0, System.Windows.Media.PixelFormats.Pbgra32);
                 //BitmapSource bs = 
                 RenderOptions.SetBitmapScalingMode(rtb, BitmapScalingMode.LowQuality);
@@ -71,7 +72,7 @@ namespace GenArt.Core.Classes
 
                     sgc.Close();
                     sg.Freeze();
-
+                    
                     //Brush brush = new SolidColorBrush(Color.FromArgb(item.Brush.Alpha, item.Brush.Red, item.Brush.Green, item.Brush.Blue));
                     //brush.Freeze();
                     //ctx.DrawGeometry(brush, null, sg);
@@ -83,7 +84,7 @@ namespace GenArt.Core.Classes
             }
             
             rtb.Render(dv);
-            byte [] result = new byte[width * height * 4];
+            //byte [] result = new byte[width * height * 4];
             rtb.CopyPixels(result, width * 4, 0);
 
             return result;

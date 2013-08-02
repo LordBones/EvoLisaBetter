@@ -59,6 +59,54 @@ namespace GenArt.Core.Classes
             return canvas;
         }
 
+        public void FastClearColor(Color color)
+        {
+            if (this.Data.Length < 4)
+                return;
+
+            unsafe
+            {
+                fixed (byte * tmpcurrentPtr = this.Data)
+                {
+                    int canvasPixelCount = this.Data.Length >> 2;
+
+
+                    ulong * currentPtr = (ulong*)(tmpcurrentPtr + 4);
+                    uint * startPtr = (uint*)(tmpcurrentPtr);
+                    uint colorForFill = (uint)((color.A << 24) + (color.B << 16) + (color.G << 8) + (color.R));
+                    ulong colorForFillLong = (((ulong)colorForFill) << 32) | colorForFill;
+
+                    *(startPtr) = colorForFill;
+
+
+                    //int totalLength = (Tools.MaxWidth * Tools.MaxHeight * 4);
+                    ulong * end = currentPtr + (canvasPixelCount >> 1);
+
+
+                    while (currentPtr < end)
+                    {
+                        if ((end - currentPtr) > 4)
+                        {
+                            *currentPtr = colorForFillLong;
+                            *(currentPtr + 1) = colorForFillLong;
+                            *(currentPtr + 2) = colorForFillLong;
+                            *(currentPtr + 3) = colorForFillLong;
+                            currentPtr += 4;
+                        }
+                        else
+                        {
+                            *currentPtr = colorForFillLong;
+                            currentPtr++;
+                        }
+                        //*(currentPtr) = colorForFillLong;
+                        //currentPtr++;
+                    }
+
+
+                }
+            }
+        }
+
         public void EasyColorReduction()
         {
             int index = 0;
