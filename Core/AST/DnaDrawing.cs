@@ -120,16 +120,27 @@ namespace GenArt.AST
                 {
                     while (!this.IsDirty)
                     {
+                        if (Polygons.Length == 0)
+                            break;
+
                         //for (int index = 0; index < Polygons.Length; index++)
                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
-                        Polygons[index].Mutate(this, destImage, edgePoints);
-
-                        if (Polygons.Length == 0)
-                            break;
-                    }
+                        if (Tools.GetRandomNumber(0, 1000000) < 250000)
+                        {
+                            int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
+                            Polygons[index].Mutate(this, destImage, edgePoints);
+                        }
+                        else
+                        {
+                            int tindex = Tools.GetRandomNumber(0, Polygons.Length - 1);
+                            Polygons[tindex].Brush.MutateByHSL(this);
+                        }
+                     }
                 }
+
+                
+
             } while (Tools.GetRandomNumber(0,999) < 200);
             
            

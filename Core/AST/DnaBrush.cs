@@ -157,9 +157,9 @@ namespace GenArt.AST
             {
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
 
-                int tmp = Tools.GetRandomNumber(0, 80, 40);
+                int tmp = Tools.GetRandomNumber(0, 20, 10);
                 int sat = (int)hslc.Saturation;
-                hslc.Saturation = Math.Max(Math.Min(sat + tmp - 40, 255), 5);
+                hslc.Saturation = Math.Max(Math.Min(sat + tmp - 10, 255), 5);
 
 
                 Color color = (Color)hslc;
@@ -172,9 +172,9 @@ namespace GenArt.AST
             {
                 HSLColor hslc = new HSLColor(Red, Green, Blue);
 
-                int tmp = Tools.GetRandomNumber(0, 40, 20);
+                int tmp = Tools.GetRandomNumber(0, 20, 10);
                 int lum = (int)hslc.Luminosity;
-                hslc.Luminosity = Math.Max(Math.Min(lum + tmp - 20, 255), 5);
+                hslc.Luminosity = Math.Max(Math.Min(lum + tmp - 10, 255), 5);
 
                 Color color = (Color)hslc;
                 Red = color.R;
@@ -185,7 +185,7 @@ namespace GenArt.AST
 
             if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
             {
-                Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 40, 20) - 20, 255), 5); 
+                Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5); 
 
             }
 

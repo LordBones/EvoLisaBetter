@@ -38,7 +38,10 @@ namespace GenArt.Core.Classes
     {
         private CanvasBGRA _originalImage = null;
         private Array2D _edgesPoints;
-       
+
+        private const int CONST_Threshold = 25;
+        private const double CONST_ThresholdDouble = 25.0;
+
         public EdgeDetector(CanvasBGRA bmp)
         {
             _originalImage = bmp;
@@ -150,6 +153,26 @@ namespace GenArt.Core.Classes
             }
 
             result.EdgePoints = epoints.ToArray();
+
+            List<DnaPoint> epointsByX = new List<DnaPoint>();
+
+            for (int x = 0; x < _edgesPoints.Width; x++)
+            {
+                int index = x;
+                for (int y = 0; y < _edgesPoints.Height; y++)
+                {
+                    if (_edgesPoints.Data[index] != 0)
+                    {
+                        epointsByX.Add(new DnaPoint((short)(index % _edgesPoints.Width), (short)(index / _edgesPoints.Width)));
+                    }
+
+                    index += _edgesPoints.Width;
+                }
+
+                result.EdgePointsByX[x] = epointsByX.ToArray();
+                epointsByX.Clear();
+            }
+
 
             if (epoints.Count == 0)
                 return null;
@@ -289,17 +312,16 @@ namespace GenArt.Core.Classes
             byte [] origData = this._originalImage.Data;
             int origIndex = 0;
             int edgeIndex = 0;
-            const int threshold = 32;
-
+            
             while (edgeIndex < (_edgesPoints.Length - 1))
             {
                 int br = origData[origIndex] - origData[origIndex + 4];
                 int bg = origData[origIndex + 1] - origData[origIndex + 5];
                 int bb = origData[origIndex + 2] - origData[origIndex + 6];
 
-                if (!(Tools.fastAbs(br) < threshold &&
-                    Tools.fastAbs(bg) < threshold &&
-                    Tools.fastAbs(bb) < threshold))
+                if (!(Tools.fastAbs(br) < CONST_Threshold &&
+                    Tools.fastAbs(bg) < CONST_Threshold &&
+                    Tools.fastAbs(bb) < CONST_Threshold))
                 {
                     _edgesPoints.Data[edgeIndex] = 1;
                 }
@@ -316,7 +338,7 @@ namespace GenArt.Core.Classes
             byte [] origData = this._originalImage.Data;
             int origIndex = 0;
             int edgeIndex = 0;
-            const double threshold = 20.0;
+            
             while (edgeIndex < (_edgesPoints.Length - 1))
             {
                 HSLColor hlsColor = new HSLColor(
@@ -325,7 +347,7 @@ namespace GenArt.Core.Classes
                     origData[origIndex + 6], origData[origIndex + 5], origData[origIndex + 4]);
 
 
-                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
+                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > CONST_ThresholdDouble))
                 {
                     _edgesPoints.Data[edgeIndex] = 1;
                 }
@@ -342,7 +364,7 @@ namespace GenArt.Core.Classes
 
 
             byte [] origData = this._originalImage.Data;
-            const double threshold = 25.0;
+           
 
             for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgesPoints.Width)
             {
@@ -359,7 +381,7 @@ namespace GenArt.Core.Classes
                         origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
 
 
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > CONST_ThresholdDouble))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startBlockColor = hlsColor;
@@ -380,7 +402,7 @@ namespace GenArt.Core.Classes
             int edgeIndex = 0;
 
             int bmpRowLength = _originalImage.Width;
-            const double threshold = 128.0;
+            
             for (int x = 0; x < _originalImage.WidthPixel; x++)
             {
                 origIndex = x * 4;
@@ -393,7 +415,7 @@ namespace GenArt.Core.Classes
                         origData[origIndex + bmpRowLength], origData[origIndex + bmpRowLength + 1], origData[origIndex + bmpRowLength + 2]);
 
 
-                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
+                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > CONST_ThresholdDouble))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                     }
@@ -413,9 +435,6 @@ namespace GenArt.Core.Classes
             int origIndex = 0;
             int edgeIndex = 0;
 
-            const double threshold = 128.0;
-
-
             for (int x = 0; x < _originalImage.WidthPixel; x++)
             {
                 origIndex = x * 4;
@@ -433,7 +452,7 @@ namespace GenArt.Core.Classes
                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
 
 
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > CONST_ThresholdDouble))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startBlockColor = hlsColor;
@@ -456,7 +475,6 @@ namespace GenArt.Core.Classes
 
             int origIndex = 0;
             int edgeIndex = 0;
-            const int threshold = 32;
             int bmpRowLength = _originalImage.Width;
 
             for (int x = 0; x < _originalImage.WidthPixel; x++)
@@ -469,9 +487,9 @@ namespace GenArt.Core.Classes
                     int bg = origData[origIndex + 1] - origData[origIndex + bmpRowLength + 1];
                     int bb = origData[origIndex + 2] - origData[origIndex + bmpRowLength + 2];
 
-                    if (!(Tools.fastAbs(br) < threshold &&
-                        Tools.fastAbs(bg) < threshold &&
-                        Tools.fastAbs(bb) < threshold))
+                    if (!(Tools.fastAbs(br) < CONST_Threshold &&
+                        Tools.fastAbs(bg) < CONST_Threshold &&
+                        Tools.fastAbs(bb) < CONST_Threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                     }
