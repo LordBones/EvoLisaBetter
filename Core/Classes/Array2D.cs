@@ -13,14 +13,14 @@ namespace GenArt.Core.Classes
         protected int _height;
 
 
-        public Array2D(int width, int height):
-            this(width,height,1)
+        public Array2D(int width, int height) :
+            this(width, height, 1)
         {
         }
 
         protected Array2D(int width, int height, int stride)
         {
-            this.Data = new byte[width * height* stride];
+            this.Data = new byte[width * height * stride];
             this._width = width;
             this._height = height;
         }
@@ -34,5 +34,11 @@ namespace GenArt.Core.Classes
         {
             get { return _height; }
         }
+
+        public int Length
+        {
+            get { return this.Data.Length; }
+        }
+
     }
 }

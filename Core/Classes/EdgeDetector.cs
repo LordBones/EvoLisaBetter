@@ -10,39 +10,57 @@ using GenArt.Classes;
 
 namespace GenArt.Core.Classes
 {
+    public class ImageEdges
+    {
+        public int Width;
+        public int Height;
+        public DnaPoint [] [] EdgePointsByX;
+        public DnaPoint [][] EdgePointsByY;
+
+        public DnaPoint [] EdgePoints;
+
+        public ImageEdges(int imageWidth, int imageHeight)
+        {
+            this.Width = imageWidth;
+            this.Height = imageHeight;
+
+
+            EdgePoints = new DnaPoint[imageHeight * imageWidth];
+
+            EdgePointsByY = new DnaPoint[imageHeight][];
+            EdgePointsByX = new DnaPoint[imageWidth][];
+
+        }
+
+    }
+
     public class EdgeDetector
     {
-        private Bitmap _originalBitmap = null;
-        private byte [] _edgesPoints;
-        private short _edgePointsWidth;
-        private short _edgePointsHeight;
-
-
-        public EdgeDetector(Bitmap bmp)
+        private CanvasBGRA _originalImage = null;
+        private Array2D _edgesPoints;
+       
+        public EdgeDetector(CanvasBGRA bmp)
         {
-            _originalBitmap = bmp;
-            _edgesPoints = new byte[bmp.Width * bmp.Height];
-            _edgePointsHeight = (short)bmp.Height;
-            _edgePointsWidth = (short)bmp.Width;
+            _originalImage = bmp;
+            _edgesPoints = new Array2D(bmp.WidthPixel , bmp.HeightPixel);
         }
 
         public void SaveBitmapHSL(string filename, bool h, bool s, bool l)
         {
-            Bitmap bmp = new Bitmap(_originalBitmap.Width, _originalBitmap.Height, PixelFormat.Format32bppPArgb);
-            var lockBmp2 = bmp.LockBits(new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
-            var lockBmpOrig =_originalBitmap.LockBits(new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+            Bitmap bmp = new Bitmap(_originalImage.WidthPixel, _originalImage.HeightPixel, PixelFormat.Format32bppPArgb);
+            var lockBmp2 = bmp.LockBits(new Rectangle(0, 0, _originalImage.WidthPixel, _originalImage.HeightPixel), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
+            byte [] origData = this._originalImage.Data;
 
             unsafe
             {
                 byte * ll = (byte*)lockBmp2.Scan0.ToPointer();
-                byte * origPtr = (byte*)lockBmpOrig.Scan0.ToPointer();
-                int countPoints = _originalBitmap.Width * _originalBitmap.Height;
+                int countPoints = _originalImage.CountPixels;
                 int bmpIndex = 0;
                 for (int index = 0; index < countPoints; index++)
                 {
 
                     HSLColor hlsColor = new HSLColor(
-                        origPtr[bmpIndex+2],origPtr[bmpIndex+1],origPtr[bmpIndex]);
+                        origData[bmpIndex+2],origData[bmpIndex+1],origData[bmpIndex]);
                     
                     if(h)  ll[bmpIndex] = (byte)hlsColor.Hue;
                     else if (s) ll[bmpIndex] = (byte)hlsColor.Saturation;
@@ -56,14 +74,14 @@ namespace GenArt.Core.Classes
             }
 
             bmp.UnlockBits(lockBmp2);
-            _originalBitmap.UnlockBits(lockBmpOrig);
+           
             bmp.Save(filename, ImageFormat.Bmp);
         }
 
         public void SaveEdgesAsBitmap(string filename)
         {
-            Bitmap bmp = new Bitmap(_originalBitmap.Width, _originalBitmap.Height, PixelFormat.Format32bppPArgb);
-            var lockBmp2 = bmp.LockBits(new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
+            Bitmap bmp = new Bitmap(_originalImage.WidthPixel, _originalImage.HeightPixel, PixelFormat.Format32bppPArgb);
+            var lockBmp2 = bmp.LockBits(new Rectangle(0, 0, _originalImage.WidthPixel, _originalImage.HeightPixel), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
 
             unsafe
             {
@@ -71,7 +89,7 @@ namespace GenArt.Core.Classes
                 int bmpIndex = 0;
                 for (int index = 0; index <_edgesPoints.Length; index++)
                 {
-                    if(_edgesPoints[index] != 0)
+                    if(_edgesPoints.Data[index] != 0)
                     {
                         ll[bmpIndex] = 255;
                         ll[bmpIndex+1] = 0;
@@ -89,7 +107,7 @@ namespace GenArt.Core.Classes
 
         public void DetectEdges()
         {
-            Array.Clear(_edgesPoints, 0, _edgesPoints.Length);
+            Array.Clear(_edgesPoints.Data, 0, _edgesPoints.Length);
             leftRunFindEdgesByHSLBetter();
             DownRunFindEdgesByHSLBetter();
 
@@ -104,21 +122,39 @@ namespace GenArt.Core.Classes
             
         }
 
-        public DnaPoint [] GetAllEdgesPoints()
+        public ImageEdges GetAllEdgesPoints()
         {
-            List<DnaPoint> result = new List<DnaPoint>();
-            for (int index = 0; index < _edgesPoints.Length; index++)
+            ImageEdges result = new ImageEdges(this._edgesPoints.Width, this._edgesPoints.Height); 
+
+            List<DnaPoint> epoints = new List<DnaPoint>();
+            List<DnaPoint> epointsByY = new List<DnaPoint>();
+
+
+            int indexRow = 0;
+            for (int y = 0; y < _edgesPoints.Height; y++)
             {
-                if (_edgesPoints[index] != 0)
+                for (int x = 0; x < _edgesPoints.Width; x++)
                 {
-                    result.Add(new DnaPoint((short) (index % _originalBitmap.Width),(short) (index / _originalBitmap.Width)));
+                    int index = indexRow + x;
+                    if (_edgesPoints.Data[index] != 0)
+                    {
+                        epoints.Add(new DnaPoint((short)(index % _edgesPoints.Width), (short)(index / _edgesPoints.Width)));
+                        epointsByY.Add(new DnaPoint((short)(index % _edgesPoints.Width), (short)(index / _edgesPoints.Width)));
+                    }
                 }
+
+                result.EdgePointsByY[y] = epointsByY.ToArray();
+                epointsByY.Clear();
+
+                indexRow += this._edgesPoints.Width;
             }
 
-            if (result.Count == 0)
+            result.EdgePoints = epoints.ToArray();
+
+            if (epoints.Count == 0)
                 return null;
             else
-              return result.ToArray() ;
+              return result ;
         }
 
         /// <summary>
@@ -126,22 +162,24 @@ namespace GenArt.Core.Classes
         /// </summary>
         private void SetEdgesFrame()
         {
-            int indexLastLine = _edgesPoints.Length - _originalBitmap.Width ; 
-            for (int i = 0; i < _originalBitmap.Width; i++)
+            byte [] ep = this._edgesPoints.Data;
+
+            int indexLastLine = _edgesPoints.Length - _edgesPoints.Width;
+            for (int i = 0; i < _edgesPoints.Width; i++)
             {
-                _edgesPoints[i] = 1;
-                _edgesPoints[indexLastLine+i] = 1;
+                ep[i] = 1;
+                ep[indexLastLine + i] = 1;
             }
 
             int indexleftLine = 0;
-            int indexrightLine = _originalBitmap.Width - 1;
-            for (int i = 0; i < _originalBitmap.Height; i++)
+            int indexrightLine = _edgesPoints.Width - 1;
+            for (int i = 0; i < _edgesPoints.Height; i++)
             {
-                _edgesPoints[indexleftLine] = 1;
-                _edgesPoints[indexrightLine] = 1;
+                ep[indexleftLine] = 1;
+                ep[indexrightLine] = 1;
 
-                indexleftLine += _originalBitmap.Width;
-                indexrightLine += _originalBitmap.Width;
+                indexleftLine += _edgesPoints.Width;
+                indexrightLine += _edgesPoints.Width;
             }
 
         }
@@ -151,35 +189,36 @@ namespace GenArt.Core.Classes
         /// </summary>
         private void SetCornerEdgesFrame()
         {
-            int indexLastLine = _edgesPoints.Length - _originalBitmap.Width;
-            _edgesPoints[0] = 1;
-            _edgesPoints[_originalBitmap.Width-1] = 1;
-            _edgesPoints[indexLastLine] = 1;
-            _edgesPoints[_originalBitmap.Width * _originalBitmap.Height-1] = 1;
+            int indexLastLine = _edgesPoints.Length - _edgesPoints.Width;
+            _edgesPoints.Data[0] = 1;
+            _edgesPoints.Data[_edgesPoints.Width - 1] = 1;
+            _edgesPoints.Data[indexLastLine] = 1;
+            _edgesPoints.Data[_edgesPoints.Length - 1] = 1;
             
         }
 
         private void ReduceOnePointNoise()
         {
             int upRowIndex = 0;
-            int midRowIndex = this._edgePointsWidth;
-            int downRowIndex = this._edgePointsWidth * 2;
+            int midRowIndex = this._edgesPoints.Width;
+            int downRowIndex = this._edgesPoints.Width * 2;
 
+            byte [] ep = this._edgesPoints.Data;
 
-            for (int y = 1; y < this._edgePointsHeight - 1; y++)
+            for (int y = 1; y < this._edgesPoints.Height - 1; y++)
             {
                 int upIndex = upRowIndex+1;
                 int midIndex = midRowIndex+1;
                 int downIndex = downRowIndex+1;
 
-                for (int x = 1; x < this._edgePointsWidth - 1; x++)
+                for (int x = 1; x < this._edgesPoints.Width - 1; x++)
                 {
-                    if (this._edgesPoints[upIndex - 1] == 0 && this._edgesPoints[upIndex] == 0 && this._edgesPoints[upIndex + 1] == 0 &&
-                        this._edgesPoints[midIndex - 1] == 0 && this._edgesPoints[midIndex] == 1 && this._edgesPoints[midIndex + 1] == 0 &&
-                        this._edgesPoints[downIndex - 1] == 0 && this._edgesPoints[downIndex] == 0 && this._edgesPoints[downIndex + 1] == 0
+                    if (ep[upIndex - 1] == 0 && ep[upIndex] == 0 && ep[upIndex + 1] == 0 &&
+                        ep[midIndex - 1] == 0 && ep[midIndex] == 1 && ep[midIndex + 1] == 0 &&
+                        ep[downIndex - 1] == 0 && ep[downIndex] == 0 && ep[downIndex + 1] == 0
                         )
                     {
-                        this._edgesPoints[midIndex] = 0;
+                        ep[midIndex] = 0;
                     }
 
 
@@ -188,9 +227,9 @@ namespace GenArt.Core.Classes
                     downIndex++;
                 }
 
-                upRowIndex += this._edgePointsWidth;
-                midRowIndex += this._edgePointsWidth;
-                downRowIndex += this._edgePointsWidth;
+                upRowIndex += this._edgesPoints.Width;
+                midRowIndex += this._edgesPoints.Width;
+                downRowIndex += this._edgesPoints.Width;
 
 
 
@@ -200,30 +239,31 @@ namespace GenArt.Core.Classes
         private void ReduceTwoPointNoise()
         {
             int upRowIndex = 0;
-            int midRowIndex = this._edgePointsWidth;
-            int midRowIndex2 = this._edgePointsWidth*2;
-            int downRowIndex = this._edgePointsWidth * 3;
+            int midRowIndex = this._edgesPoints.Width;
+            int midRowIndex2 = this._edgesPoints.Width * 2;
+            int downRowIndex = this._edgesPoints.Width * 3;
 
+            byte [] ep = this._edgesPoints.Data;
 
-            for (int y = 1; y < this._edgePointsHeight - 2; y++)
+            for (int y = 1; y < this._edgesPoints.Height - 2; y++)
             {
                 int upIndex = upRowIndex + 1;
                 int midIndex = midRowIndex + 1;
                 int midIndex2 = midRowIndex2 + 1;
                 int downIndex = downRowIndex + 1;
 
-                for (int x = 1; x < this._edgePointsWidth - 2; x++)
+                for (int x = 1; x < this._edgesPoints.Width - 2; x++)
                 {
-                    if (this._edgesPoints[upIndex - 1] == 0 && this._edgesPoints[upIndex] == 0 && this._edgesPoints[upIndex + 1] == 0 && this._edgesPoints[upIndex + 2] == 0 &&
-                        this._edgesPoints[midIndex - 1] == 0 && 
-                        (this._edgesPoints[midIndex] == 1 || this._edgesPoints[midIndex + 1] == 1 || this._edgesPoints[midIndex2] == 1 || this._edgesPoints[midIndex2 + 1] == 1) && 
-                        this._edgesPoints[midIndex + 2] == 0 &&
-                        this._edgesPoints[midIndex2 - 1] == 0 &&  this._edgesPoints[midIndex2 + 2] == 0 &&
-                        this._edgesPoints[downIndex - 1] == 0 && this._edgesPoints[downIndex] == 0 && this._edgesPoints[downIndex + 1] == 0 && this._edgesPoints[downIndex + 2] == 0
+                    if (ep[upIndex - 1] == 0 && ep[upIndex] == 0 && ep[upIndex + 1] == 0 && ep[upIndex + 2] == 0 &&
+                        ep[midIndex - 1] == 0 && 
+                        (ep[midIndex] == 1 || ep[midIndex + 1] == 1 || ep[midIndex2] == 1 || ep[midIndex2 + 1] == 1) && 
+                        ep[midIndex + 2] == 0 &&
+                        ep[midIndex2 - 1] == 0 &&  ep[midIndex2 + 2] == 0 &&
+                        ep[downIndex - 1] == 0 && ep[downIndex] == 0 && ep[downIndex + 1] == 0 && ep[downIndex + 2] == 0
                         )
                     {
-                        this._edgesPoints[midIndex] = 0; this._edgesPoints[midIndex+1] = 0;
-                        this._edgesPoints[midIndex2] = 0; this._edgesPoints[midIndex2 + 1] = 0;
+                        ep[midIndex] = 0; ep[midIndex+1] = 0;
+                        ep[midIndex2] = 0; ep[midIndex2 + 1] = 0;
                     }
 
 
@@ -234,10 +274,10 @@ namespace GenArt.Core.Classes
                     downIndex++;
                 }
 
-                upRowIndex += this._edgePointsWidth;
-                midRowIndex += this._edgePointsWidth;
-                midRowIndex2 += this._edgePointsWidth;
-                downRowIndex += this._edgePointsWidth;
+                upRowIndex += this._edgesPoints.Width;
+                midRowIndex += this._edgesPoints.Width;
+                midRowIndex2 += this._edgesPoints.Width;
+                downRowIndex += this._edgesPoints.Width;
 
 
 
@@ -246,285 +286,201 @@ namespace GenArt.Core.Classes
 
         private void leftRunFindEdges()
         {
-            BitmapData bmdSRC = _originalBitmap.LockBits(
-                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height), 
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+            byte [] origData = this._originalImage.Data;
+            int origIndex = 0;
+            int edgeIndex = 0;
+            const int threshold = 32;
 
-            try
+            while (edgeIndex < (_edgesPoints.Length - 1))
             {
+                int br = origData[origIndex] - origData[origIndex + 4];
+                int bg = origData[origIndex + 1] - origData[origIndex + 5];
+                int bb = origData[origIndex + 2] - origData[origIndex + 6];
 
-                unsafe
+                if (!(Tools.fastAbs(br) < threshold &&
+                    Tools.fastAbs(bg) < threshold &&
+                    Tools.fastAbs(bb) < threshold))
                 {
-
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    int origIndex = 0;
-                    int edgeIndex = 0;
-                    const int threshold = 32;
-                    while (edgeIndex < (_edgesPoints.Length - 1))
-                    {
-                        int br = origPtr[origIndex] - origPtr[origIndex+4];
-                        int bg = origPtr[origIndex+1] - origPtr[origIndex + 5];
-                        int bb = origPtr[origIndex+2] - origPtr[origIndex + 6];
-
-                        if (!(Tools.fastAbs(br) < threshold &&
-                            Tools.fastAbs(bg) < threshold &&
-                            Tools.fastAbs(bb) < threshold))
-                        {
-                            _edgesPoints[edgeIndex] = 1;
-                        }
-
-                        origIndex += 4;
-                        edgeIndex++;
-                    }
-
+                    _edgesPoints.Data[edgeIndex] = 1;
                 }
-            }
-            finally
-            {
-                _originalBitmap.UnlockBits(bmdSRC);
+
+                origIndex += 4;
+                edgeIndex++;
             }
         }
 
         private void leftRunFindEdgesByHSL()
         {
-            BitmapData bmdSRC = _originalBitmap.LockBits(
-                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
 
-            try
+
+            byte [] origData = this._originalImage.Data;
+            int origIndex = 0;
+            int edgeIndex = 0;
+            const double threshold = 20.0;
+            while (edgeIndex < (_edgesPoints.Length - 1))
             {
+                HSLColor hlsColor = new HSLColor(
+                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
+                HSLColor hlsColor2 = new HSLColor(
+                    origData[origIndex + 6], origData[origIndex + 5], origData[origIndex + 4]);
 
-                unsafe
+
+                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
                 {
-
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    int origIndex = 0;
-                    int edgeIndex = 0;
-                    const double threshold = 20.0;
-                    while (edgeIndex < (_edgesPoints.Length - 1))
-                    {
-                        HSLColor hlsColor = new HSLColor(
-                            origPtr[origIndex+2], origPtr[origIndex + 1], origPtr[origIndex]);
-                        HSLColor hlsColor2 = new HSLColor(
-                            origPtr[origIndex + 6], origPtr[origIndex + 5], origPtr[origIndex+4]);
-
-                       
-                        if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
-                        {
-                            _edgesPoints[edgeIndex] = 1;
-                        }
-
-                        origIndex += 4;
-                        edgeIndex++;
-                    }
-
+                    _edgesPoints.Data[edgeIndex] = 1;
                 }
+
+                origIndex += 4;
+                edgeIndex++;
             }
-            finally
-            {
-                _originalBitmap.UnlockBits(bmdSRC);
-            }
+
+
         }
 
         private void leftRunFindEdgesByHSLBetter()
         {
-            BitmapData bmdSRC = _originalBitmap.LockBits(
-                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
 
-            try
+
+            byte [] origData = this._originalImage.Data;
+            const double threshold = 25.0;
+
+            for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgesPoints.Width)
             {
+                int endLineIndex = yIndex + this._edgesPoints.Width;
+                int origIndex = yIndex * 4;
 
-                unsafe
+                HSLColor startBlockColor = new HSLColor(
+                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
+                origIndex += 4;
+
+                for (int edgeIndex = yIndex + 1; edgeIndex < endLineIndex; edgeIndex++)
                 {
+                    HSLColor hlsColor = new HSLColor(
+                        origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
 
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    const double threshold = 20.0;
-                    
-                    for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgePointsWidth)
+
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
                     {
-                        int endLineIndex = yIndex + this._edgePointsWidth;
-                        int origIndex = yIndex * 4;
-
-                        HSLColor startBlockColor = new HSLColor(
-                            origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
-                        origIndex += 4;
-
-                        for (int edgeIndex = yIndex+1; edgeIndex < endLineIndex; edgeIndex++)
-                        {
-                                HSLColor hlsColor = new HSLColor(
-                                    origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
-
-
-                                if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
-                                {
-                                    _edgesPoints[edgeIndex] = 1;
-                                    startBlockColor = hlsColor;
-                                }
-
-                                origIndex += 4;
-                            
-                        }
+                        _edgesPoints.Data[edgeIndex] = 1;
+                        startBlockColor = hlsColor;
                     }
+
+                    origIndex += 4;
 
                 }
             }
-            finally
-            {
-                _originalBitmap.UnlockBits(bmdSRC);
-            }
         }
 
-         private void DownRunFindEdgesByHSL()
+        private void DownRunFindEdgesByHSL()
         {
-            BitmapData bmdSRC = _originalBitmap.LockBits(
-                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
 
-            try
+
+            byte [] origData = this._originalImage.Data;
+            int origIndex = 0;
+            int edgeIndex = 0;
+
+            int bmpRowLength = _originalImage.Width;
+            const double threshold = 128.0;
+            for (int x = 0; x < _originalImage.WidthPixel; x++)
             {
-
-                unsafe
+                origIndex = x * 4;
+                edgeIndex = x;
+                for (int y = 0; y < _originalImage.HeightPixel - 1; y++)
                 {
+                    HSLColor hlsColor = new HSLColor(
+                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
+                    HSLColor hlsColor2 = new HSLColor(
+                        origData[origIndex + bmpRowLength], origData[origIndex + bmpRowLength + 1], origData[origIndex + bmpRowLength + 2]);
 
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    int origIndex = 0;
-                    int edgeIndex = 0;
-                  
-                    int bmpRowLength = _originalBitmap.Width * 4;
-                    const double threshold = 20.0;
-                    for (int x = 0; x < _originalBitmap.Width; x++)
+
+                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
                     {
-                        origIndex = x * 4;
-                        edgeIndex = x;
-                        for (int y = 0; y < _originalBitmap.Height-1; y++)
-                        {
-                             HSLColor hlsColor = new HSLColor(
-                            origPtr[origIndex+2], origPtr[origIndex + 1], origPtr[origIndex]);
-                        HSLColor hlsColor2 = new HSLColor(
-                            origPtr[origIndex + bmpRowLength], origPtr[origIndex + bmpRowLength + 1], origPtr[origIndex + bmpRowLength + 2]);
-
-                          
-                            if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > threshold))
-                            {
-                                _edgesPoints[edgeIndex] = 1;
-                            }
-
-                            edgeIndex += _originalBitmap.Width;
-                            origIndex += bmpRowLength;
-                        }
+                        _edgesPoints.Data[edgeIndex] = 1;
                     }
+
+                    edgeIndex += _edgesPoints.Width;
+                    origIndex += bmpRowLength;
                 }
-            }
-            finally
-            {
-                _originalBitmap.UnlockBits(bmdSRC);
             }
         }
 
-         private void DownRunFindEdgesByHSLBetter()
-         {
-             BitmapData bmdSRC = _originalBitmap.LockBits(
-                 new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
-                 ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
+        private void DownRunFindEdgesByHSLBetter()
+        {
 
-             try
-             {
+            byte [] origData = this._originalImage.Data;
+            int bmpRowLength = _originalImage.Width;
 
-                 unsafe
-                 {
+            int origIndex = 0;
+            int edgeIndex = 0;
 
-                     byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                     int bmpRowLength = _originalBitmap.Width * 4;
-
-                     int origIndex = 0;
-                     int edgeIndex = 0;
-
-                     const double threshold = 20.0;
-                     
-
-                     for (int x = 0; x < _originalBitmap.Width; x++)
-                     {
-                         origIndex = x * 4;
-                         edgeIndex = x;
-
-                         HSLColor startBlockColor = new HSLColor(
-                            origPtr[origIndex+2], origPtr[origIndex + 1], origPtr[origIndex]);
-
-                         edgeIndex += _originalBitmap.Width;
-                         origIndex += bmpRowLength;
-
-                         for (int y = 1; y < _originalBitmap.Height - 1; y++)
-                         {
-                             HSLColor hlsColor = new HSLColor(
-                            origPtr[origIndex + 2], origPtr[origIndex + 1], origPtr[origIndex]);
+            const double threshold = 128.0;
 
 
-                             if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
-                             {
-                                 _edgesPoints[edgeIndex] = 1;
-                                 startBlockColor = hlsColor;
-                             }
+            for (int x = 0; x < _originalImage.WidthPixel; x++)
+            {
+                origIndex = x * 4;
+                edgeIndex = x;
 
-                             edgeIndex += _originalBitmap.Width;
-                             origIndex += bmpRowLength;
-                         }
-                     }
-                 }
-             }
-             finally
-             {
-                 _originalBitmap.UnlockBits(bmdSRC);
-             }
-         }
-    
-    
+                HSLColor startBlockColor = new HSLColor(
+                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
+
+                edgeIndex += this._edgesPoints.Width;
+                origIndex += bmpRowLength;
+
+                for (int y = 1; y < _originalImage.HeightPixel - 1; y++)
+                {
+                    HSLColor hlsColor = new HSLColor(
+                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
+
+
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > threshold))
+                    {
+                        _edgesPoints.Data[edgeIndex] = 1;
+                        startBlockColor = hlsColor;
+                    }
+
+                    edgeIndex += this._edgesPoints.Width;
+                    origIndex += bmpRowLength;
+                }
+            }
+
+        }
+
+
 
         private void DownRunFindEdges()
         {
-            BitmapData bmdSRC = _originalBitmap.LockBits(
-                new Rectangle(0, 0, _originalBitmap.Width, _originalBitmap.Height),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
 
-            try
+
+            byte [] origData = this._originalImage.Data;
+
+            int origIndex = 0;
+            int edgeIndex = 0;
+            const int threshold = 32;
+            int bmpRowLength = _originalImage.Width;
+
+            for (int x = 0; x < _originalImage.WidthPixel; x++)
             {
-
-                unsafe
+                origIndex = x * 4;
+                edgeIndex = x;
+                for (int y = 0; y < _originalImage.HeightPixel - 1; y++)
                 {
+                    int br = origData[origIndex] - origData[origIndex + bmpRowLength];
+                    int bg = origData[origIndex + 1] - origData[origIndex + bmpRowLength + 1];
+                    int bb = origData[origIndex + 2] - origData[origIndex + bmpRowLength + 2];
 
-                    byte * origPtr = (byte*)bmdSRC.Scan0.ToPointer();
-                    int origIndex = 0;
-                    int edgeIndex = 0;
-                    const int threshold = 32;
-                    int bmpRowLength = _originalBitmap.Width * 4;
-
-                    for (int x = 0; x < _originalBitmap.Width; x++)
+                    if (!(Tools.fastAbs(br) < threshold &&
+                        Tools.fastAbs(bg) < threshold &&
+                        Tools.fastAbs(bb) < threshold))
                     {
-                        origIndex = x * 4;
-                        edgeIndex = x;
-                        for (int y = 0; y < _originalBitmap.Height-1; y++)
-                        {
-                            int br = origPtr[origIndex] - origPtr[origIndex + bmpRowLength];
-                            int bg = origPtr[origIndex + 1] - origPtr[origIndex + bmpRowLength +1];
-                            int bb = origPtr[origIndex + 2] - origPtr[origIndex + bmpRowLength +2];
-
-                            if (!(Tools.fastAbs(br) < threshold &&
-                                Tools.fastAbs(bg) < threshold &&
-                                Tools.fastAbs(bb) < threshold))
-                            {
-                                _edgesPoints[edgeIndex] = 1;
-                            }
-
-                            edgeIndex += _originalBitmap.Width;
-                            origIndex += bmpRowLength;
-                        }
+                        _edgesPoints.Data[edgeIndex] = 1;
                     }
+
+                    edgeIndex += this._edgesPoints.Width;
+                    origIndex += bmpRowLength;
                 }
             }
-            finally
-            {
-                _originalBitmap.UnlockBits(bmdSRC);
-            }
+
         }
     }
 

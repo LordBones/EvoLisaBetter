@@ -19,11 +19,18 @@ namespace GenArt.Core.AST
         private long _lastBestFittness;
         private long _lastWorstFitnessDiff;
         private int _generation = 0;
+        private DnaDrawing [] _lastPopulation;
         private DnaDrawing [] _population;
+
         private CanvasBGRA _destCanvas = new CanvasBGRA(1,1);
-        
-        
-        private DnaPoint [] _edgePoints = null;
+
+
+        private ImageEdges _edgePoints = null;
+
+        private int [] _rouleteTable = new int[0];
+        private long [] _diffFittness = new long[0];
+        private long [] _fittness = new long[0];
+
 
         #region property
         
@@ -62,6 +69,11 @@ namespace GenArt.Core.AST
             //    popSize = 2;
 
              _population = new DnaDrawing[popSize];
+             _lastPopulation = new DnaDrawing[popSize];
+             _rouleteTable = new int[popSize];
+             _diffFittness = new long[popSize];
+             _fittness = new long[popSize];
+
 
         }
 
@@ -85,27 +97,32 @@ namespace GenArt.Core.AST
             return Color.FromArgb(255, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
-        private void CreateEdges(Bitmap destImg)
+        private static ImageEdges CreateEdges(CanvasBGRA destImg)
         {
             EdgeDetector ed = new EdgeDetector(destImg);
             ed.DetectEdges();
-            this._edgePoints = ed.GetAllEdgesPoints();
-
+            
             ed.SaveEdgesAsBitmap("ImageEdges.bmp");
             ed.SaveBitmapHSL("bmpHSL_H.bmp", true, false, false);
             ed.SaveBitmapHSL("bmpHSL_S.bmp", false, true, false);
             ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
+
+            return ed.GetAllEdgesPoints();
+
         }
 
         public void InitFirstPopulation(Bitmap destImg)
         {
             this._generation = 0;
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
-           
+
             this._currentBestFittness = long.MaxValue;
-            CreateEdges(destImg);
+
+            this._edgePoints = CreateEdges(this._destCanvas);
 
             this._destCanvas.EasyColorReduction();
+
+           
 
             for (int i =0; i < this._population.Length; i++)
             {
@@ -114,62 +131,58 @@ namespace GenArt.Core.AST
                 for (int k =0; k < 10; k++)
                 {
                     dna.AddPolygon(this._destCanvas, this._edgePoints);
-                
+
                 }
-                
+
                 this._population[i] = dna;
-            }  
+            }
         }
-
-
 
 
         public void ExecuteGeneration()
         {
-            long [] fittness = ComputeFittness();
+            ComputeFittness();
 
-            UpdateStatsByFittness(fittness);
+            UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();
-            //GenerateNewPopulationRoulete(fittness);
-            GenerateNewPopulationByMutation(fittness);
+            //GenerateNewPopulationRoulete();
+            GenerateNewPopulationByMutation();
 
             //MutatePopulation();
 
             this._generation++;
         }
 
-        private long [] ComputeFittness()
+        private void ComputeFittness()
         {
-            long [] fittness = new long[this._population.Length];
+            
 
             for (int index = 0; index < this._population.Length; index++)
             {
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
+                _fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
-                fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);
                 
             }
-
-            return fittness;
         }
 
-        private void UpdateStatsByFittness(long [] fittness)
+        private void UpdateStatsByFittness()
         {
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
             for (int index = 0; index < this._population.Length; index++)
             {
-                if (fittness[index] > WorstFittness)
+                if (_fittness[index] > WorstFittness)
                 {
-                    WorstFittness = fittness[index];
+                    WorstFittness = this._fittness[index];
                 }
 
-                if (fittness[index] < bestFittness )
+                if (this._fittness[index] < bestFittness )
                 {
-                    bestFittness = fittness[index];
+                    bestFittness = this._fittness[index];
                     bestIndex = index;
                 }
             }
@@ -206,42 +219,51 @@ namespace GenArt.Core.AST
             this._population = newPopulation;
         }
 
-        private void GenerateNewPopulationByMutation(long[] fittness)
+        private void GenerateNewPopulationByMutation()
         {
-            int maxNormalizeValue = fittness.Length * 1000000;
+            int maxNormalizeValue = this._fittness.Length * 1000000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            int [] rouleteTable = RouletteTableNormalizeBetter(fittness, maxNormalizeValue);
+            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+
+            DnaDrawing [] tmpPolulation = this._population;
+            this._population = this._lastPopulation;
+            this._lastPopulation = tmpPolulation;
+
+            
+                DnaDrawing dnaElite = this._currentBest.Clone();
+                //newPopulation[0] = this._currentBest.Clone();
+                //newPopulation[0] = this._lastBest.Clone();
+
+                while (!dnaElite.IsDirty)
+                    dnaElite.MutateBetter(this._destCanvas, _edgePoints);
 
 
-            DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
-
-            newPopulation[0] = this._currentBest.Clone();
-            //newPopulation[0] = this._lastBest.Clone();
-
-            while (!newPopulation[0].IsDirty)
-                newPopulation[0].MutateBetter(this._destCanvas, _edgePoints);
-
+                //DnaDrawing [] newPopulation = this._population;
+                this._population[0] = dnaElite;
+            
 
             for (int index = 1; index < this._population.Length; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
-                indexParent1 = RouletteVheelParrentIndex(indexParent1, rouleteTable);
+                indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
-                newPopulation[index] = this._population[indexParent1].Clone();
+                DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
 
-                while (!newPopulation[index].IsDirty)
-                    newPopulation[index].MutateBetter(this._destCanvas, _edgePoints);
+                while (!dna.IsDirty)
+                    dna.MutateBetter(this._destCanvas, _edgePoints);
+
+                this._population[index] = dna;
 
             }
 
-            this._population = newPopulation;
+            //this._population = newPopulation;
         }
 
-        private void GenerateNewPopulationRoulete(long[] fittness)
+        private void GenerateNewPopulationRoulete()
         {
-            int maxNormalizeValue = fittness.Length * 100000;
+            int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            int [] rouleteTable = RouletteTableNormalizeBetter(fittness, maxNormalizeValue);
+            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
             
             DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
 
@@ -263,30 +285,27 @@ namespace GenArt.Core.AST
             for (; index < this._population.Length; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
-                indexParent1 = RouletteVheelParrentIndex(indexParent1, rouleteTable);
+                indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
 
                 int indexParent2 = indexParent1;
 
                 while (indexParent1 == indexParent2)
-                    indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue), rouleteTable);
+                    indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue), this._rouleteTable);
 
                 //newPopulation[index] = CrossoverBasic(this._population[indexParent1], this._population[indexParent2]);
-                //newPopulation[index] = CrossoverOnePoint(this._population[indexParent1], this._population[indexParent2]);
-                newPopulation[index] = CrossoverOnePointUniqueCheck(this._population[indexParent1], this._population[indexParent2]);
+                newPopulation[index] = CrossoverOnePoint(this._population[indexParent1], this._population[indexParent2]);
             }
 
             this._population = newPopulation;
         }
 
-        private int[] RouletteTableNormalize(long[] fittness, int maxNormalizeValue)
+        private static void RouletteTableNormalize(long[] fittness, int[] rouleteTable, int maxNormalizeValue)
         {
             
             long sumFittness = 0;
             for (int index = 0; index < fittness.Length; index++)
                 sumFittness += fittness[index];
-
-            int [] rouleteTable = new int[fittness.Length];
 
             int lastRouleteValue = 0;
             for (int index = 0; index < fittness.Length; index++)
@@ -295,28 +314,24 @@ namespace GenArt.Core.AST
                 rouleteTable[index] = lastRouleteValue + tmp;
                 lastRouleteValue = lastRouleteValue + tmp;
             }
-
-            return rouleteTable;
         }
 
-        private int[] RouletteTableNormalizeBetter(long[] fittness, int maxNormalizeValue)
+        private static void RouletteTableNormalizeBetter(long[] fittness,int [] rouleteTable, long []diffFittness, int maxNormalizeValue)
         {
-            long [] diffFittness = new long[fittness.Length];
-
             long fittnessMax = 0;
 
             for (int index = 0; index < fittness.Length; index++)
                 if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
 
-            for (int index = 0; index < fittness.Length; index++)
-                diffFittness[index] = ((fittnessMax - fittness[index]+100) << 2) ;
-
             long sumFittness = 0;
-            for (int index = 0; index < diffFittness.Length; index++)
-                sumFittness += diffFittness[index];
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                long diffFit  = ((fittnessMax - fittness[index] + 100) << 2);
+                sumFittness += diffFit;
+                diffFittness[index] = diffFit;
+            }
 
-            int [] rouleteTable = new int[fittness.Length];
-
+           
             int lastRouleteValue = 0;
             for (int index = 0; index < diffFittness.Length; index++)
             {
@@ -324,8 +339,6 @@ namespace GenArt.Core.AST
                 rouleteTable[index] = lastRouleteValue + tmp;
                 lastRouleteValue = lastRouleteValue + tmp;
             }
-
-            return rouleteTable;
         }
 
         private int RouletteVheelParrentIndex(int value, int [] rouletteTable)
@@ -388,62 +401,6 @@ namespace GenArt.Core.AST
             for (int index = countCrossGenP2; index < parent2.Polygons.Length; index++)
             {
                 polygons[polygonsIndex++] =parent2.Polygons[index].Clone();
-            }
-
-            result.Polygons = polygons;
-
-            return result;
-        }
-
-        private DnaDrawing CrossoverOnePointUniqueCheck(DnaDrawing parent1, DnaDrawing parent2)
-        {
-            //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
-
-            double crossLine = 0.7;
-
-
-            int countCrossGenP1 = (int)(parent1.Polygons.Length * crossLine);
-            int countCrossGenP2 = (int)(parent2.Polygons.Length * (crossLine));
-            int newDnaSize = countCrossGenP1 + (parent2.Polygons.Length - countCrossGenP2 * 1);
-
-            DnaDrawing result = new DnaDrawing();
-
-            DnaPolygon [] polygons = new DnaPolygon[newDnaSize];
-            int polygonsIndex = 0;
-
-            int maxIndex = Math.Max(parent1.Polygons.Length, parent2.Polygons.Length);
-
-            HashSet<uint> uniqIds = new HashSet<uint>();
-
-            for (int index = 0; index < countCrossGenP1; index++)
-            {
-                DnaPolygon poly = parent1.Polygons[index].Clone();
-
-                if (!uniqIds.Contains(poly.UniqueID))
-                {
-                    polygons[polygonsIndex++] = parent1.Polygons[index].Clone();
-                    uniqIds.Add(poly.UniqueID);
-                }
-            }
-
-
-
-            for (int index = countCrossGenP2; index < parent2.Polygons.Length; index++)
-            {
-                DnaPolygon poly = parent2.Polygons[index].Clone();
-
-                if (!uniqIds.Contains(poly.UniqueID))
-                {
-                    polygons[polygonsIndex++] = parent2.Polygons[index].Clone();
-                    uniqIds.Add(poly.UniqueID);
-                }
-            }
-
-            if (polygonsIndex < polygons.Length)
-            {
-                DnaPolygon [] tmp = new DnaPolygon[polygonsIndex];
-                Array.Copy(polygons, tmp, tmp.Length);
-                polygons = tmp;
             }
 
             result.Polygons = polygons;

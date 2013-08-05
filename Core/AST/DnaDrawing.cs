@@ -103,29 +103,34 @@ namespace GenArt.AST
 
         }
 
-        public void MutateBetter(CanvasBGRA destImage = null, DnaPoint [] edgePoints = null)
+        public void MutateBetter(CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
-
-            int mutateChange = Tools.GetRandomNumber(0, 1000);
-
-            if(mutateChange <100)
-                AddPolygon(destImage, edgePoints);
-            else if (mutateChange < 400)
-                RemovePolygon();
-            else if (mutateChange < 600)
-                SwapPolygon();
-
-            else
+            do
             {
-                while (!this.IsDirty)
-                {
-                    for (int index = 0; index < Polygons.Length; index++)
-                        Polygons[index].Mutate(this,destImage, edgePoints);
+                int mutateChange = Tools.GetRandomNumber(0, 1000);
 
-                    if (Polygons.Length == 0)
-                        break;
+                if (mutateChange < 50 && Settings.ActivePolygonsMax > this.Polygons.Length)
+                    AddPolygon(destImage, edgePoints);
+                else if (mutateChange < 150)
+                    RemovePolygon();
+                else if (mutateChange < 250)
+                    SwapPolygon();
+
+                else
+                {
+                    while (!this.IsDirty)
+                    {
+                        //for (int index = 0; index < Polygons.Length; index++)
+                        //    Polygons[index].Mutate(this,destImage, edgePoints);
+
+                        int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
+                        Polygons[index].Mutate(this, destImage, edgePoints);
+
+                        if (Polygons.Length == 0)
+                            break;
+                    }
                 }
-            }
+            } while (Tools.GetRandomNumber(0,999) < 200);
             
            
 
@@ -457,7 +462,7 @@ namespace GenArt.AST
         }
 
 
-        public void AddPolygon(CanvasBGRA _rawDestImage = null, DnaPoint [] edgePoints = null)
+        public void AddPolygon(CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {

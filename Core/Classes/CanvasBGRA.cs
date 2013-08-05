@@ -34,6 +34,11 @@ namespace GenArt.Core.Classes
             get { return this._height / 4; }
         }
 
+        public int CountPixels
+        {
+            get { return this.HeightPixel * this.WidthPixel; }
+        }
+
 
         public static CanvasBGRA CreateCanvasFromBitmap(Bitmap bmp)
         {

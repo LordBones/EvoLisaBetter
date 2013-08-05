@@ -9,44 +9,17 @@ namespace GenArt.AST
     [Serializable]
     public class DnaPolygon
     {
-        private static uint _uniqueIdGen = 0;
-
         public DnaPoint [] Points; // { get; set; }
         public DnaBrush Brush;// { get; set; }
-        public uint UniqueID;
-
-
-        public DnaPolygon():
-            this(true)
+        
+        public DnaPolygon()
         {
 
         }
 
-        public DnaPolygon(bool genUniqueId)
-        {
-            if (genUniqueId)
-            {
-                UniqueID = GetNewUiqueId();
-            }
-        }
 
-        private static uint GetNewUiqueId()
-        {
-            if (_uniqueIdGen == uint.MaxValue)
-                _uniqueIdGen = 0;
 
-            uint ID = _uniqueIdGen;
-            _uniqueIdGen++;
-
-            return ID;
-        }
-
-        public void GenNewUidID()
-        {
-            UniqueID = GetNewUiqueId();
-        }
-
-        public void Init(DnaPoint [] edgePoints = null)
+        public void Init(ImageEdges edgePoints = null)
         {
             //87,81 195,0 199,79
 
@@ -123,9 +96,9 @@ namespace GenArt.AST
                     for (int i = 0; i < countPoints; i++)
                     {
                         
-                        int index = Tools.GetRandomNumber(0, edgePoints.Length-1, lastIndex);
+                        int index = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length-1, lastIndex);
 
-                        points[i] = edgePoints[index];
+                        points[i] = edgePoints.EdgePoints[index];
                         lastIndex = index;
                     }
 
@@ -155,11 +128,10 @@ namespace GenArt.AST
 
         public DnaPolygon Clone()
         {
-            var newPolygon = new DnaPolygon(false);
+            var newPolygon = new DnaPolygon();
             newPolygon.Points = new DnaPoint[Points.Length];
             newPolygon.Brush = Brush;
-            newPolygon.UniqueID = UniqueID;
-
+           
             Array.Copy(this.Points, newPolygon.Points, Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
@@ -176,34 +148,66 @@ namespace GenArt.AST
             return result;
         }
 
-        public void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, DnaPoint[] edgePoints = null)
+        public void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
 
             if (Tools.GetRandomNumber(0, 1000000) < 500000)
             {
                 DnaPoint [] points = this.ClonePoints();
 
-                while (true)
+                if ( Tools.GetRandomNumber(0, 1000000) < 750000)
                 {
                     int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                    int pointYIndex = Math.Max(edgePoints.Height - 1,
+                        Math.Min(0, Points[pointIndex].Y + Tools.GetRandomNumber(0, 20, 10) - 5));
 
-
-                    if (edgePoints == null)
-                        points[pointIndex].MutateMiddle();
-                    else
+                    if (edgePoints.EdgePointsByY.Length > 0)
                     {
-                        int edgeIndex = Tools.GetRandomNumber(0, edgePoints.Length - 1);
-                        points[pointIndex] = edgePoints[edgeIndex];
+                        DnaPoint [] rowEdges = edgePoints.EdgePointsByY[pointYIndex];
+
+                        if (rowEdges.Length == 1)
+                            points[pointIndex] = rowEdges[0];
+                        else
+                        {
+                            points[pointIndex] = rowEdges[Tools.GetRandomNumber(0,rowEdges.Length-1)];
+                        }
+
+                        if (IsNotSmallAngles(points) && !IsIntersect(points))
+                        {
+                            this.Points = points;
+                            drawing.SetDirty();
+                            //break;
+                        }
+
+                        //Array.Copy(this.Points, points, this.Points.Length);
+
                     }
 
-                    if (IsNotSmallAngles(points) && !IsIntersect(points))
+                }
+                else
+                {
+                    while (true)
                     {
-                        this.Points = points;
-                        drawing.SetDirty();
-                        break;
-                    }
+                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
 
-                    Array.Copy(this.Points, points, this.Points.Length);
+
+                        if (edgePoints == null)
+                            points[pointIndex].MutateMiddle();
+                        else
+                        {
+                            int edgeIndex = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length - 1);
+                            points[pointIndex] = edgePoints.EdgePoints[edgeIndex];
+                        }
+
+                        if (IsNotSmallAngles(points) && !IsIntersect(points))
+                        {
+                            this.Points = points;
+                            drawing.SetDirty();
+                            break;
+                        }
+
+                        Array.Copy(this.Points, points, this.Points.Length);
+                    }
                 }
             }
             else
@@ -297,10 +301,7 @@ namespace GenArt.AST
 
            */
             {
-                if (Brush.MutateByHSL(drawing))
-                {
-                    this.GenNewUidID();
-                }
+                Brush.MutateByHSL(drawing);
             }
 
 
