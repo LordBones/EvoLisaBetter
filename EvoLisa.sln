@@ -12,10 +12,12 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -25,6 +27,7 @@ Global
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|Win32.ActiveCfg = Debug|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|Win32.Build.0 = Debug|x86
+		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|x86.ActiveCfg = Debug|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Debug|x86.Build.0 = Debug|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +36,8 @@ Global
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|Win32.ActiveCfg = Release|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|Win32.Build.0 = Release|x86
+		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|x64.ActiveCfg = Release|x64
+		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|x64.Build.0 = Release|x64
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|x86.ActiveCfg = Release|x86
 		{1B071C96-9E78-40E4-A8AC-66FB065D61C8}.Release|x86.Build.0 = Release|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -41,6 +46,7 @@ Global
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|Win32.ActiveCfg = Debug|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|Win32.Build.0 = Debug|x86
+		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|x86.ActiveCfg = Debug|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Debug|x86.Build.0 = Debug|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,6 +55,8 @@ Global
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|Win32.ActiveCfg = Release|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|Win32.Build.0 = Release|x86
+		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|x64.ActiveCfg = Release|x64
+		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|x64.Build.0 = Release|x64
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|x86.ActiveCfg = Release|x86
 		{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}.Release|x86.Build.0 = Release|x86
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|Any CPU.ActiveCfg = Debug|Win32
@@ -56,6 +64,8 @@ Global
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|Win32.ActiveCfg = Debug|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|Win32.Build.0 = Debug|Win32
+		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|x64.ActiveCfg = Debug|x64
+		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|x64.Build.0 = Debug|x64
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|x86.ActiveCfg = Debug|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Debug|x86.Build.0 = Debug|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|Any CPU.ActiveCfg = Release|Win32
@@ -63,6 +73,8 @@ Global
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|Win32.ActiveCfg = Release|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|Win32.Build.0 = Release|Win32
+		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|x64.ActiveCfg = Release|x64
+		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|x64.Build.0 = Release|x64
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|x86.ActiveCfg = Release|Win32
 		{98EDAF6D-1EDE-424B-8F94-FC71AB0696D6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
