@@ -185,11 +185,42 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int colorAGRrem = GetAXREM(colorA, color.G);
 
             byte [] canvas = drawCanvas.Data;
+
+            //ParallelOptions po = new ParallelOptions();
+            //po.MaxDegreeOfParallelism = 1;
+            /*Parallel.For(0, rangePoints.Length-1, y =>
+            {
+                pointRange points = rangePoints[y];
+
+                //if (points == null) continue;
+
+
+                int prowStartIndex = (minY+y) * drawCanvas.Width;
+                int index = prowStartIndex + points.Start * 4;
+                int endIndex = prowStartIndex + points.End * 4;
+
+                rangePoints[y] = null;
+                //int endPoint = points.End;
+
+                while (index <= endIndex)
+                {
+
+                    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
+
+                    index += 4;
+                }
+
+                
+            });
+            */
             int rowStartIndex = (minY) * drawCanvas.Width;
 
             //int indexY = minY * this._canvasWidth;
             for (int y  = 0; y < rangePoints.Length; y++ )//, indexY += this._canvasWidth)
             {
+
                 pointRange points = rangePoints[y];
 
                 //if (points == null) continue;

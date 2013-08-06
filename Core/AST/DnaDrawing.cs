@@ -480,8 +480,8 @@ namespace GenArt.AST
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newPolygon = new DnaPolygon();
-                    newPolygon.Init(edgePoints);
-                    //newPolygon.Init(null);
+                    //newPolygon.Init(edgePoints);
+                    newPolygon.Init(null);
 
                     if (_rawDestImage != null)
                     {
