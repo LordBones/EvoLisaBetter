@@ -55,23 +55,23 @@ namespace GenArt.Classes
             return (short)random.Next(min, max);
         }
 
-        /*public static int GetRandomNumber(int min, int max)
-        {
-            return GetRandomNumber2(min, max);
-        }
+        //public static int GetRandomNumber(int min, int max)
+        //{
+        //    return GetRandomNumber2(min, max);
+        //}
 
-        public static int GetRandomNumber(int min, int max, int ignore)
-        {
-            if (!(min <= ignore && ignore <= max)) return GetRandomNumber2(min, max);
+        //public static int GetRandomNumber(int min, int max, int ignore)
+        //{
+        //    if (!(min <= ignore && ignore <= max)) return GetRandomNumber2(min, max);
 
-            int tmp = GetRandomNumber2(min, max - 1);
-            return (tmp >= ignore)? tmp+1 : tmp;
-        }
+        //    int tmp = GetRandomNumber2(min, max - 1);
+        //    return (tmp >= ignore)? tmp+1 : tmp;
+        //}
 
-        public static short GetRandomNumber(short min, short max)
-        {
-            return (short)GetRandomNumber2(min, max);
-        }*/
+        //public static short GetRandomNumber(short min, short max)
+        //{
+        //    return (short)GetRandomNumber2(min, max);
+        //}
 
 
         public static int MaxWidth = 200;

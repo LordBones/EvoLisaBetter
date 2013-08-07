@@ -238,27 +238,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 
 
-                //while (index+15 <= endIndex)
-                //{
-
-                //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-                //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-                //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-                //    canvas[index+4] = ApplyColor(canvas[index+4], colorABRrem, colorRem);
-                //    canvas[index + 5] = ApplyColor(canvas[index + 5], colorAGRrem, colorRem);
-                //    canvas[index + 6] = ApplyColor(canvas[index + 6], colorARRrem, colorRem);
-
-                //    canvas[index + 8] = ApplyColor(canvas[index + 8], colorABRrem, colorRem);
-                //    canvas[index + 9] = ApplyColor(canvas[index + 9], colorAGRrem, colorRem);
-                //    canvas[index + 10] = ApplyColor(canvas[index + 10], colorARRrem, colorRem);
-
-                //    canvas[index + 12] = ApplyColor(canvas[index + 12], colorABRrem, colorRem);
-                //    canvas[index + 13] = ApplyColor(canvas[index + 13], colorAGRrem, colorRem);
-                //    canvas[index + 14] = ApplyColor(canvas[index + 14], colorARRrem, colorRem);
-
-                //    index += 16;
-                //}
+           
                 //if (points.End - points.Start + 1 > 2)
                 {
                     nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);

@@ -31,6 +31,8 @@ namespace GenArt.Core.AST
         private long [] _diffFittness = new long[0];
         private long [] _fittness = new long[0];
 
+        private int _popSize=  1;
+
 
         #region property
         
@@ -68,11 +70,12 @@ namespace GenArt.Core.AST
             //if (popSize < 2)
             //    popSize = 2;
 
-             _population = new DnaDrawing[popSize];
-             _lastPopulation = new DnaDrawing[popSize];
-             _rouleteTable = new int[popSize];
-             _diffFittness = new long[popSize];
-             _fittness = new long[popSize];
+             _population = new DnaDrawing[popSize+1];
+             _lastPopulation = new DnaDrawing[popSize+1];
+             _rouleteTable = new int[popSize+1];
+             _diffFittness = new long[popSize+1];
+             _fittness = new long[popSize+1];
+             _popSize = popSize;
 
 
         }
@@ -117,9 +120,10 @@ namespace GenArt.Core.AST
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
 
             this._currentBestFittness = long.MaxValue;
+            this._lastBestFittness = long.MaxValue;
+
 
             this._edgePoints = CreateEdges(this._destCanvas);
-
             this._destCanvas.EasyColorReduction();
 
            
@@ -136,6 +140,9 @@ namespace GenArt.Core.AST
 
                 this._population[i] = dna;
             }
+
+            this._lastBest = this._population[_population.Length-1].Clone();
+            this._currentBest = this._lastBest.Clone();
         }
 
 
@@ -158,7 +165,7 @@ namespace GenArt.Core.AST
         {
             
 
-            for (int index = 0; index < this._population.Length; index++)
+            for (int index = 0; index < this._population.Length-1; index++)
             {
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 _fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -166,6 +173,8 @@ namespace GenArt.Core.AST
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);
                 
             }
+
+             
         }
 
         private void UpdateStatsByFittness()
@@ -173,7 +182,7 @@ namespace GenArt.Core.AST
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
-            for (int index = 0; index < this._population.Length; index++)
+            for (int index = 0; index < this._population.Length-1; index++)
             {
                 if (_fittness[index] > WorstFittness)
                 {
@@ -196,22 +205,28 @@ namespace GenArt.Core.AST
             this._lastBest = this._population[bestIndex];
             this._lastBestFittness = bestFittness;
 
+            // aplikovani pridani nejlepsiho do kolekce
+            _fittness[this._population.Length - 1] = this._currentBestFittness;
+            _population[this._population.Length - 1] = this._currentBest;
+            //_fittness[this._population.Length - 1] = this._lastBestFittness;
+            //_population[this._population.Length - 1] = this._lastBest;
+
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
         }
 
         private void GenerateNewPopulationBasic()
         {
-            DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
+            DnaDrawing [] newPopulation = new DnaDrawing[_popSize+1];
 
-            newPopulation[0] = this._currentBest.Clone();
+            newPopulation[this._population.Length] = this._currentBest.Clone();
 
             for (int index = 1; index < this._population.Length; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, this._population.Length - 1);
+                int indexParent1 = Tools.GetRandomNumber(0, this._population.Length);
                 int indexParent2 = indexParent1;
 
                 while(indexParent1 == indexParent2)
-                    indexParent2 = Tools.GetRandomNumber(0, this._population.Length - 1);
+                    indexParent2 = Tools.GetRandomNumber(0, this._population.Length);
 
                 newPopulation[index] = CrossoverBasic(this._population[indexParent1],this._population[indexParent2]);
             }
@@ -229,20 +244,7 @@ namespace GenArt.Core.AST
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
-            
-                DnaDrawing dnaElite = this._currentBest.Clone();
-                //newPopulation[0] = this._currentBest.Clone();
-                //newPopulation[0] = this._lastBest.Clone();
-
-                while (!dnaElite.IsDirty)
-                    dnaElite.MutateBetter(this._destCanvas, _edgePoints);
-
-
-                //DnaDrawing [] newPopulation = this._population;
-                this._population[0] = dnaElite;
-            
-
-            for (int index = 1; index < this._population.Length; index++)
+            for (int index = 0; index < _popSize; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
@@ -264,25 +266,13 @@ namespace GenArt.Core.AST
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
-            
-            DnaDrawing [] newPopulation = new DnaDrawing[this._population.Length];
 
-            int index = 0;
+            DnaDrawing [] tmpPolulation = this._population;
+            this._population = this._lastPopulation;
+            this._lastPopulation = tmpPolulation;
 
-            newPopulation[0] = this._currentBest.Clone();
-            //newPopulation[0] = this._lastBest.Clone();
-            index++;
-            //if ((this._generation & 0x1f) == 0)
-            //{
-            //    newPopulation[0] = this._currentBest.Clone();
-            //    index++;
-            //}
-
-            //int tmpEliteIndex = Tools.GetRandomNumber(0, maxNormalizeValue);
-            //tmpEliteIndex = RouletteVheelParrentIndex(tmpEliteIndex, rouleteTable);
-            //newPopulation[0] = this._population[tmpEliteIndex].Clone();
-
-            for (; index < this._population.Length; index++)
+           
+            for (int index = 0; index < _popSize; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
@@ -294,10 +284,18 @@ namespace GenArt.Core.AST
                     indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue), this._rouleteTable);
 
                 //newPopulation[index] = CrossoverBasic(this._population[indexParent1], this._population[indexParent2]);
-                newPopulation[index] = CrossoverOnePoint(this._population[indexParent1], this._population[indexParent2]);
+
+                DnaDrawing  dna = CrossoverOnePoint(this._lastPopulation[indexParent1], this._lastPopulation[indexParent2]);
+
+                while (!dna.IsDirty)
+                    dna.MutateBetter(this._destCanvas, _edgePoints);
+
+                this._population[index] = dna;
             }
 
-            this._population = newPopulation;
+           
+
+            
         }
 
         private static void RouletteTableNormalize(long[] fittness, int[] rouleteTable, int maxNormalizeValue)
@@ -377,7 +375,7 @@ namespace GenArt.Core.AST
         {
             //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
 
-            double crossLine = 0.7;
+            double crossLine = 0.3;
 
 
             int countCrossGenP1 = (int)(parent1.Polygons.Length * crossLine);
@@ -439,16 +437,16 @@ namespace GenArt.Core.AST
             return result;
         }
 
-        private void MutatePopulation()
-        {
-            for (int index = 0; index < this._population.Length; index++)
-            {
-                while(!this._population[index].IsDirty)
-                    this._population[index].Mutate(this._destCanvas);
+        //private void MutatePopulation()
+        //{
+        //    for (int index = 0; index < this._population.Length; index++)
+        //    {
+        //        while(!this._population[index].IsDirty)
+        //            this._population[index].Mutate(this._destCanvas);
 
-                this._population[index].SetDirty();
-            }
-        }
+        //        this._population[index].SetDirty();
+        //    }
+        //}
 
         public void Dispose()
         {
