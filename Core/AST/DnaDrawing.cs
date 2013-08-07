@@ -134,7 +134,7 @@ namespace GenArt.AST
                         else
                         {
                             int tindex = Tools.GetRandomNumber(0, Polygons.Length - 1);
-                            Polygons[tindex].Brush.MutateByHSL(this);
+                            Polygons[tindex].Brush.MutateRGBOld(this);
                         }
                      }
                 }
@@ -152,13 +152,32 @@ namespace GenArt.AST
             if (Polygons.Length < 1)
                 return;
 
+            //int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
+            //int index2 = Tools.GetRandomNumber(0, Polygons.Length - 1);
+
+            //DnaPolygon poly = Polygons[index];
+            //Polygons[index] = Polygons[index2];
+            //Polygons[index] = poly;
+
             int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
-            int index2 = Tools.GetRandomNumber(0, Polygons.Length - 1);
+            bool swapUp = Tools.GetRandomNumber(0,1000000) < 500000;
+
+            if (swapUp && index + 1 >= Polygons.Length) swapUp = false;
+            else if (!swapUp && index == 0) swapUp = true;
 
             DnaPolygon poly = Polygons[index];
-            Polygons[index] = Polygons[index2];
-            Polygons[index] = poly;
 
+            if (swapUp)
+            {
+                Polygons[index] = Polygons[index + 1];
+                Polygons[index + 1] = poly;
+            }
+            else
+            {
+                Polygons[index] = Polygons[index - 1];
+                Polygons[index - 1] = poly;
+           
+            }
 
             
 
@@ -480,8 +499,8 @@ namespace GenArt.AST
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newPolygon = new DnaPolygon();
-                    //newPolygon.Init(edgePoints);
-                    newPolygon.Init(null);
+                    newPolygon.Init(edgePoints);
+                    //newPolygon.Init(null);
 
                     if (_rawDestImage != null)
                     {

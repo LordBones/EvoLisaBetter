@@ -11,11 +11,21 @@ namespace GenArtCoreNative {
 	{
 
 		private:
-		__int64 _fastcall computeFittness(unsigned char * curr, unsigned char * orig, int length);
+		__int64 computeFittness(unsigned char * curr, unsigned char * orig, int length);
+
+        void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
+
 		
 
 		// TODO: Add your methods for this class here.
 	public :
+        void RowApplyColor(array<System::Byte>^ canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+            FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+        }
+
 		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig, int length)
 		{
 			__int64 result = 0;

@@ -69,7 +69,7 @@ namespace GenArt.AST
                        };
         }
 
-        public bool Mutate(DnaDrawing drawing)
+        public bool MutateRGBOld(DnaDrawing drawing)
         {
             if (Tools.WillMutate(Settings.ActiveRedMutationRate))
             {
@@ -78,47 +78,23 @@ namespace GenArt.AST
                 if (colorPart == 1)
                 {
 
-                    //Red = (byte)Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax);
-                    //Red = (byte)((Tools.GetRandomNumber(Settings.ActiveRedRangeMin, Settings.ActiveRedRangeMax) + Red) / 2);
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + Red;
+                    int tmp = Tools.GetRandomNumber(0, 20, 10);
 
-                    if (tmp < 0) Red = 0;
-                    else if (tmp > 255) Red = 255;
-                    else Red = (byte)tmp;
+                    Red = (byte)Math.Max(Math.Min(Red + tmp - 10, 255), 5);
                 }
                 else if (colorPart == 2)
                 {
-                    //Green = (byte)Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax);
-                    //Green = (byte)((Tools.GetRandomNumber(Settings.ActiveGreenRangeMin, Settings.ActiveGreenRangeMax)+Green)/2);
-
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + Green;
-
-                    if (tmp < 0) Green = 0;
-                    else if (tmp > 255) Green = 255;
-                    else Green = (byte)tmp;
+                    int tmp = Tools.GetRandomNumber(0, 20, 10);
+                    Green = (byte)Math.Max(Math.Min(Green + tmp - 10, 255), 5);
                 }
                 else if (colorPart == 3)
                 {
-                    //Blue = (byte)Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax);
-                    //Blue = (byte)((Tools.GetRandomNumber(Settings.ActiveBlueRangeMin, Settings.ActiveBlueRangeMax) + Blue)/2);
-
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + Blue;
-
-                    if (tmp < 0) Blue = 0;
-                    else if (tmp > 255) Blue = 255;
-                    else Blue = (byte)tmp;
+                    int tmp = Tools.GetRandomNumber(0, 20, 10);
+                    Blue = (byte)Math.Max(Math.Min(Blue + tmp - 10, 255), 5);
                 }
                 else if (colorPart == 4)
                 {
-
-                    //Alpha = (byte)Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax);
-                    //Alpha = (byte)((Tools.GetRandomNumber(Settings.ActiveAlphaRangeMin, Settings.ActiveAlphaRangeMax) + Alpha)/2);
-
-                    int tmp = Tools.GetRandomNumber(1, 11) - 5 + Alpha;
-
-                    if (tmp < 0) Alpha = 0;
-                    else if (tmp > 255) Alpha = 255;
-                    else Alpha = (byte)tmp;
+                    Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 }
                 
                 drawing.SetDirty();
@@ -129,7 +105,45 @@ namespace GenArt.AST
             return false;
         }
 
+        public bool MutateByRGB(DnaDrawing drawing)
+        {
+            bool wasMutate = false;
+            //HSLColor hslct = new HSLColor(Red, Green, Blue);
 
+
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                int tmp = Tools.GetRandomNumber(0, 20, 10);
+                
+                Red = (byte)Math.Max(Math.Min(Red + tmp - 10, 255), 5);
+                wasMutate = true;
+            }
+
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                int tmp = Tools.GetRandomNumber(0, 20, 10);
+                Green = (byte)Math.Max(Math.Min(Green + tmp - 10, 255), 5);
+
+                wasMutate = true;
+            }
+            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            {
+                int tmp = Tools.GetRandomNumber(0, 20, 10);
+                Blue = (byte)Math.Max(Math.Min(Blue + tmp - 10, 255), 5);
+
+                wasMutate = true;
+            }
+
+            if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
+            {
+                Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
+
+            }
+
+            drawing.SetDirty();
+
+            return true;
+        }
         
 
         public bool MutateByHSL(DnaDrawing drawing)

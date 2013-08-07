@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArtCoreNative;
 
 namespace GenArt.Core.Classes.SWRenderLibrary
 {
     public class SWTriangle
     {
         private int _canvasWidth, _canvasHeight;
+        private Class1 nativeFunc = new Class1();
 
         public SWTriangle(int canvasWidth, int canvasHeight)
         {
@@ -216,7 +218,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             });
             */
             int rowStartIndex = (minY) * drawCanvas.Width;
-
+            
+                
             //int indexY = minY * this._canvasWidth;
             for (int y  = 0; y < rangePoints.Length; y++ )//, indexY += this._canvasWidth)
             {
@@ -256,16 +259,22 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //    index += 16;
                 //}
-                
-                while (index <= endIndex)
+                //if (points.End - points.Start + 1 > 2)
                 {
-
-                    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-                    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-                    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-                    index += 4;
+                    nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
                 }
+                //else
+                /*{
+                    while (index <= endIndex)
+                    {
+
+                        canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
+                        canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
+                        canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
+
+                        index += 4;
+                    }
+                }*/
 
 
                 //for (int i = points.Start; i <= endPoint; i++)

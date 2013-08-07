@@ -151,11 +151,12 @@ namespace GenArt.AST
         public void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
 
-                DnaPoint [] points = this.ClonePoints();
+                DnaPoint [] points = this.Points;
 
                 if ( Tools.GetRandomNumber(0, 1000000) < 750000)
                 {
                     int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                    DnaPoint oldPoint = points[pointIndex];
 
 
                     if (Tools.GetRandomNumber(0, 1000000) < 500000 && edgePoints.EdgePointsByY.Length > 0)
@@ -174,11 +175,11 @@ namespace GenArt.AST
 
                         if (IsNotSmallAngles(points) && !IsIntersect(points))
                         {
-                            this.Points = points;
                             drawing.SetDirty();
                             //break;
                         }
 
+                        points[pointIndex] = oldPoint;
                         //Array.Copy(this.Points, points, this.Points.Length);
 
                     }
@@ -198,10 +199,12 @@ namespace GenArt.AST
 
                         if (IsNotSmallAngles(points) && !IsIntersect(points))
                         {
-                            this.Points = points;
                             drawing.SetDirty();
                             //break;
                         }
+
+                        points[pointIndex] = oldPoint;
+                        
                     }
 
                 }
@@ -210,7 +213,8 @@ namespace GenArt.AST
                     while (true)
                     {
                         int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-
+                        
+                        DnaPoint oldPoint = points[pointIndex];
 
                         if (edgePoints == null)
                             points[pointIndex].MutateMiddle();
@@ -222,12 +226,13 @@ namespace GenArt.AST
 
                         if (IsNotSmallAngles(points) && !IsIntersect(points))
                         {
-                            this.Points = points;
+                           
                             drawing.SetDirty();
                             break;
                         }
 
-                        Array.Copy(this.Points, points, this.Points.Length);
+                        points[pointIndex] = oldPoint;
+                        //Array.Copy(this.Points, points, this.Points.Length);
                     }
                 }
             
@@ -340,7 +345,7 @@ namespace GenArt.AST
             }
             else
             {
-                Brush.Mutate(drawing);
+                Brush.MutateRGBOld(drawing);
             }
 
             #region move point with test intersect
@@ -753,6 +758,10 @@ namespace GenArt.AST
         
         }
 
+
+        private const double CONST_ANGLE = System.Math.PI * (10 / 180.0);
+        private const double CONST_ANGLE_Inverse = System.Math.PI * 2 - CONST_ANGLE;
+
         private static bool LinesHasMinimalAngle(int x1, int y1, int x2, int y2, int middleX, int middleY)
         {
             //return true;
@@ -768,11 +777,44 @@ namespace GenArt.AST
                 throw new Exception("Error");
             }
 
-            return angle >= 10.0d && (angle <= (360.0d - 10.0d));
+            return angle >= CONST_ANGLE && (angle <= CONST_ANGLE_Inverse);
+            //return true;
 
         }
 
+
+
         public static double PointsAngle2(double px1, double py1, double px2, double py2)
+        {
+            Double Angle = Math.Atan2(py1 - 0, px1 - 0) - Math.Atan2(py2 - 0, px2 - 0);
+
+            return Angle;
+        }
+
+
+        private static bool LinesHasMinimalAngleDegree(int x1, int y1, int x2, int y2, int middleX, int middleY)
+        {
+            //return true;
+            double px1 = x1 - middleX;
+            double py1 = y1 - middleY;
+            double px2 = x2 - middleX;
+            double py2 = y2 - middleY;
+
+            double angle = Math.Abs(PointsAngle2Degree(px1, py1, px2, py2));
+
+            if (angle < 0.0d)
+            {
+                throw new Exception("Error");
+            }
+
+            return angle >= 10.0d && (angle <= (360.0d - 10.0d));
+            //return true;
+
+        }
+
+        
+
+        public static double PointsAngle2Degree(double px1, double py1, double px2, double py2)
         {
             Double Angle = Math.Atan2(py1 - 0, px1 - 0) - Math.Atan2(py2 - 0, px2 - 0);
 
