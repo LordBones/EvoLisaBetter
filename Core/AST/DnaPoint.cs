@@ -22,8 +22,8 @@ namespace GenArt.AST
 
         public void Init()
         {
-            X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth-1);
-            Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight - 1);
+            X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth);
+            Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight);
         }
 
         //public DnaPoint Clone()
@@ -38,8 +38,8 @@ namespace GenArt.AST
 
         public void MutateWholeRange()
         {
-            X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth - 1);
-            Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight - 1);
+            X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth );
+            Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight );
         }
 
         public void MutateMiddle()

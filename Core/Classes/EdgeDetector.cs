@@ -36,6 +36,38 @@ namespace GenArt.Core.Classes
 
         }
 
+        public DnaPoint GetRandomBorderPoint()
+        {
+            //get random end line on border canvas
+
+            int pointX = 0;
+            int pointY = 0;
+
+            int tmpRnd = Tools.GetRandomNumber(1, 5);
+            if (tmpRnd == 1)
+            {
+                pointX = Tools.GetRandomNumber(0, this.Width);
+                pointY = 0;
+            }
+            else if (tmpRnd == 2)
+            {
+                pointX = this.Width - 1;
+                pointY = Tools.GetRandomNumber(0, this.Height);
+            }
+            else if (tmpRnd == 3)
+            {
+                pointX = Tools.GetRandomNumber(0, this.Width);
+                pointY = this.Height - 1;
+            }
+            else if (tmpRnd == 4)
+            {
+                pointX = 0;
+                pointY = Tools.GetRandomNumber(0, this.Height);
+            }
+
+            return new DnaPoint((short)pointX, (short)pointY);
+        }
+
         /// <summary>
         /// vraci prvni nalezenou hranu na definovane usecce mimo prvniho bodu
         /// pokud nic nenajde vraci null

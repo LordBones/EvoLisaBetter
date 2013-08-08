@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.pnlCanvas = new GenArt.Canvas();
             this.label1 = new System.Windows.Forms.Label();
             this.btnStart = new System.Windows.Forms.Button();
             this.tmrRedraw = new System.Windows.Forms.Timer(this.components);
@@ -38,11 +37,8 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sourceImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dNAToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dNAToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.picPattern = new System.Windows.Forms.PictureBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
@@ -67,6 +63,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.chbShowProgress = new System.Windows.Forms.CheckBox();
             this.chbLastGen = new System.Windows.Forms.CheckBox();
+            this.pnlCanvas = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -77,17 +74,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).BeginInit();
             this.SuspendLayout();
-            // 
-            // pnlCanvas
-            // 
-            this.pnlCanvas.BackColor = System.Drawing.Color.Black;
-            this.pnlCanvas.Location = new System.Drawing.Point(6, 16);
-            this.pnlCanvas.Name = "pnlCanvas";
-            this.pnlCanvas.Padding = new System.Windows.Forms.Padding(5);
-            this.pnlCanvas.Size = new System.Drawing.Size(600, 609);
-            this.pnlCanvas.TabIndex = 1;
-            this.pnlCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlCanvas_Paint);
             // 
             // label1
             // 
@@ -125,8 +113,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.toolsToolStripMenuItem});
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1282, 24);
@@ -145,8 +132,7 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sourceImageToolStripMenuItem,
-            this.dNAToolStripMenuItem});
+            this.sourceImageToolStripMenuItem});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "Open";
@@ -157,13 +143,6 @@
             this.sourceImageToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.sourceImageToolStripMenuItem.Text = "Source Image";
             this.sourceImageToolStripMenuItem.Click += new System.EventHandler(this.sourceImageToolStripMenuItem_Click);
-            // 
-            // dNAToolStripMenuItem
-            // 
-            this.dNAToolStripMenuItem.Name = "dNAToolStripMenuItem";
-            this.dNAToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.dNAToolStripMenuItem.Text = "DNA";
-            this.dNAToolStripMenuItem.Click += new System.EventHandler(this.dNAToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
@@ -179,19 +158,6 @@
             this.dNAToolStripMenuItem1.Size = new System.Drawing.Size(99, 22);
             this.dNAToolStripMenuItem1.Text = "DNA";
             this.dNAToolStripMenuItem1.Click += new System.EventHandler(this.dNAToolStripMenuItem1_Click);
-            // 
-            // toolsToolStripMenuItem
-            // 
-            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.optionsToolStripMenuItem});
-            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
-            this.toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // optionsToolStripMenuItem
-            // 
-            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(67, 22);
             // 
             // splitContainer1
             // 
@@ -209,8 +175,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.AutoScroll = true;
-            this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.pnlCanvas);
+            this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Size = new System.Drawing.Size(1282, 534);
             this.splitContainer1.SplitterDistance = 660;
             this.splitContainer1.TabIndex = 21;
@@ -415,6 +381,15 @@
             this.chbLastGen.Text = "Show best in last generation";
             this.chbLastGen.UseVisualStyleBackColor = true;
             // 
+            // pnlCanvas
+            // 
+            this.pnlCanvas.Location = new System.Drawing.Point(6, 16);
+            this.pnlCanvas.Name = "pnlCanvas";
+            this.pnlCanvas.Size = new System.Drawing.Size(269, 167);
+            this.pnlCanvas.TabIndex = 9;
+            this.pnlCanvas.TabStop = false;
+            this.pnlCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlCanvas_Paint);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -446,6 +421,7 @@
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -453,7 +429,7 @@
 
         #endregion
 
-        private Canvas pnlCanvas;
+        
         private System.Windows.Forms.PictureBox picPattern;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnStart;
@@ -461,11 +437,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem sourceImageToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem dNAToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dNAToolStripMenuItem1;
         private System.Windows.Forms.SplitContainer splitContainer1;
@@ -491,6 +463,8 @@
         private System.Windows.Forms.CheckBox chbShowProgress;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsslFittnessError;
+        private System.Windows.Forms.ToolStripMenuItem sourceImageToolStripMenuItem;
+        private System.Windows.Forms.PictureBox pnlCanvas;
     }
 }
 

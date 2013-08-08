@@ -39,14 +39,23 @@ namespace GenArt.Classes
         }
         public static int GetRandomNumber(int min, int max)
         {
-            return random.Next(min, max);
+            //int dif = max - min;
+            //if (dif < 10000)
+            //{
+            //    int newVal = random.Next(255,((dif+1)<<8)-1) >> 8;
+            //    return min + newVal;
+            //}
+            //else
+            {
+                return random.Next(min, max);
+            }
         }
 
         public static int GetRandomNumber(int min, int max, int ignore)
         {
-            if(!(min <=ignore && ignore <= max)) return random.Next(min, max);
+            if (!(min <= ignore && ignore <= max)) return GetRandomNumber(min, max);
 
-            int tmp = random.Next(min, max-1);
+            int tmp = GetRandomNumber(min, max - 1);
             return (tmp >= ignore)? tmp+1 : tmp;
         }
 

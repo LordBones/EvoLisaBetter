@@ -236,7 +236,7 @@ namespace GenArt.Core.AST
 
         private void GenerateNewPopulationByMutation()
         {
-            int maxNormalizeValue = this._fittness.Length * 1000000;
+            int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
 
@@ -246,7 +246,7 @@ namespace GenArt.Core.AST
 
             for (int index = 0; index < _popSize; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
+                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue+1);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
@@ -274,14 +274,14 @@ namespace GenArt.Core.AST
            
             for (int index = 0; index < _popSize; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue);
+                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue+1);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
 
                 int indexParent2 = indexParent1;
 
                 while (indexParent1 == indexParent2)
-                    indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue), this._rouleteTable);
+                    indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue+1), this._rouleteTable);
 
                 //newPopulation[index] = CrossoverBasic(this._population[indexParent1], this._population[indexParent2]);
 

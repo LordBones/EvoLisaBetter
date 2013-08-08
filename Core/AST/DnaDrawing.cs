@@ -107,13 +107,13 @@ namespace GenArt.AST
         {
             do
             {
-                int mutateChange = Tools.GetRandomNumber(0, 10000);
+                int mutateChange = Tools.GetRandomNumber(0, 1001);
 
-                if (mutateChange < 500 && Settings.ActivePolygonsMax > this.Polygons.Length)
+                if (mutateChange < 50 && Settings.ActivePolygonsMax > this.Polygons.Length)
                     AddPolygon(destImage, edgePoints);
-                else if (mutateChange < 1000)
+                else if (mutateChange < 100)
                     RemovePolygon();
-                else if (mutateChange < 2500)
+                else if (mutateChange < 150)
                     SwapPolygon();
 
                 else
@@ -126,14 +126,14 @@ namespace GenArt.AST
                         //for (int index = 0; index < Polygons.Length; index++)
                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        if (Tools.GetRandomNumber(0, 1000000) < 500000)
+                        if (Tools.GetRandomNumber(0,2) < 1)
                         {
-                            int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
+                            int index = Tools.GetRandomNumber(0, Polygons.Length);
                             Polygons[index].Mutate(this, destImage, edgePoints);
                         }
                         else
                         {
-                            int tindex = Tools.GetRandomNumber(0, Polygons.Length - 1);
+                            int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                             Polygons[tindex].Brush.MutateRGBOld(this);
                         }
                      }
@@ -141,7 +141,7 @@ namespace GenArt.AST
 
                 
 
-            } while (Tools.GetRandomNumber(0,10000) < 2000);
+            } while (Tools.GetRandomNumber(1,11) <= 5);
             
            
 
@@ -159,8 +159,8 @@ namespace GenArt.AST
             //Polygons[index] = Polygons[index2];
             //Polygons[index] = poly;
 
-            int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
-            bool swapUp = Tools.GetRandomNumber(0,1000000) < 500000;
+            int index = Tools.GetRandomNumber(0, Polygons.Length);
+            bool swapUp = Tools.GetRandomNumber(0,2) < 1;
 
             if (swapUp && index + 1 >= Polygons.Length) swapUp = false;
             else if (!swapUp && index == 0) swapUp = true;
@@ -321,7 +321,7 @@ namespace GenArt.AST
             sumRed += _rawDestImage[middleColorIndex + 2];
             
             int alpha = 0;
-            alpha = Tools.GetRandomNumber(1, 254);
+            alpha = Tools.GetRandomNumber(1, 256);
 
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }

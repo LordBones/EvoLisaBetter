@@ -89,18 +89,98 @@ namespace GenArt.AST
             }
             else
             {
-                while (true)
+                //while (true)
+                //{
+                //    int lastIndex = int.MaxValue;
+
+                //    for (int i = 0; i < countPoints; i++)
+                //    {
+                        
+                //        int index = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length-1, lastIndex);
+
+                //        points[i] = edgePoints.EdgePoints[index];
+                //        lastIndex = index;
+                //    }
+
+                //    //
+                //    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                //    {
+                //        break;
+                //    }
+                //}
+
+                /*while (true)
                 {
                     int lastIndex = int.MaxValue;
 
-                    for (int i = 0; i < countPoints; i++)
-                    {
-                        
-                        int index = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length-1, lastIndex);
+                    int index = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length - 1, lastIndex);
 
-                        points[i] = edgePoints.EdgePoints[index];
-                        lastIndex = index;
+                    DnaPoint ? result = null;
+                    
+                    DnaPoint startPoint = edgePoints.EdgePoints[index];
+                    points[0] = startPoint;
+
+                    while (!result.HasValue)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        result = edgePoints.GetFirstEdgeOnLineDirection(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
                     }
+
+                    points[1] = result.Value;
+                    result = null;
+
+                    while (!result.HasValue)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        result = edgePoints.GetFirstEdgeOnLineDirection(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
+                    }
+
+                    points[2] = result.Value;
+
+                    //
+                    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                    {
+                        break;
+                    }
+                }*/
+
+                int startX = Tools.GetRandomNumber(1, edgePoints.Width);
+                int startY = Tools.GetRandomNumber(1, edgePoints.Height);
+
+                while (true)
+                {
+                    
+
+                    
+
+                    DnaPoint ? result = null;
+
+                    while (!result.HasValue)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                    }
+
+                    points[0] = result.Value;
+                    result = null;
+
+
+                    while (!result.HasValue)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                    }
+
+                    points[1] = result.Value;
+                    result = null;
+
+                    while (!result.HasValue)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                    }
+
+                    points[2] = result.Value;
 
                     //
                     if (!IsIntersect(points) && IsNotSmallAngles(points))
@@ -157,37 +237,13 @@ namespace GenArt.AST
                 {
                     while (true)
                     {
-                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                        int pointIndex = Tools.GetRandomNumber(0, points.Length);
                         DnaPoint oldPoint = points[pointIndex];
 
                         //get random end line on border canvas
-                       
-                        int pointX = 0;
-                        int pointY = 0;
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
 
-                        int tmpRnd = Tools.GetRandomNumber(1<<8, (5<<8)-1)>>8;
-                        if (tmpRnd == 1)
-                        {
-                            pointX = Tools.GetRandomNumber(0, destImage.WidthPixel - 1);
-                            pointY = 0;
-                        }
-                        else if (tmpRnd == 2)
-                        {
-                            pointX = destImage.WidthPixel - 1;
-                            pointY = Tools.GetRandomNumber(0, destImage.HeightPixel - 1);
-                        }
-                        else if (tmpRnd == 3)
-                        {
-                            pointX = Tools.GetRandomNumber(0, destImage.WidthPixel - 1);
-                            pointY = destImage.HeightPixel - 1;
-                        }
-                        else if (tmpRnd == 4)
-                        {
-                            pointX = 0;
-                            pointY = Tools.GetRandomNumber(0, destImage.HeightPixel - 1);
-                        }
-
-                        DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, pointX, pointY);
+                        DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
 
                         if (resultPoint.HasValue)
                         {
@@ -235,14 +291,14 @@ namespace GenArt.AST
            
         }
 
-        public void MutateOld(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public void Mutateold(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
 
             DnaPoint [] points = this.Points;
 
             if (Tools.GetRandomNumber(0, 1000000) < 750000)
             {
-                int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                int pointIndex = Tools.GetRandomNumber(0, points.Length);
                 DnaPoint oldPoint = points[pointIndex];
 
 
@@ -257,7 +313,7 @@ namespace GenArt.AST
                         points[pointIndex] = rowEdges[0];
                     else
                     {
-                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
+                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length)];
                     }
 
                     if (IsNotSmallAngles(points) && !IsIntersect(points))
@@ -281,7 +337,7 @@ namespace GenArt.AST
                         points[pointIndex] = rowEdges[0];
                     else
                     {
-                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
+                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length)];
                     }
 
                     if (IsNotSmallAngles(points) && !IsIntersect(points))
@@ -299,7 +355,7 @@ namespace GenArt.AST
             {
                 while (true)
                 {
-                    int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                    int pointIndex = Tools.GetRandomNumber(0, points.Length);
 
                     DnaPoint oldPoint = points[pointIndex];
 
@@ -307,7 +363,7 @@ namespace GenArt.AST
                         points[pointIndex].MutateMiddle();
                     else
                     {
-                        int edgeIndex = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length - 1);
+                        int edgeIndex = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length);
                         points[pointIndex] = edgePoints.EdgePoints[edgeIndex];
                     }
 
@@ -380,7 +436,7 @@ namespace GenArt.AST
                 {
                     DnaPoint [] points = new DnaPoint[this.Points.Length - 1];
 
-                    int newPointIndex = Tools.GetRandomNumber(0, this.Points.Length - 1);
+                    int newPointIndex = Tools.GetRandomNumber(0, this.Points.Length);
 
                     for (int repeat = 0; repeat < this.Points.Length;repeat++ )
                     {
@@ -686,7 +742,7 @@ namespace GenArt.AST
 
                         DnaPoint newPoint = new DnaPoint();
 
-                        int index = Tools.GetRandomNumber(1, points.Count - 1);
+                        int index = Tools.GetRandomNumber(1, points.Count);
 
                         DnaPoint prev = points[index - 1];
                         DnaPoint next = points[index];

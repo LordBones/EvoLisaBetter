@@ -2,6 +2,9 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using GenArt.AST;
@@ -42,6 +45,14 @@ namespace GenArt
             
 
             InitializeComponent();
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.Opaque, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+ 
+
+
             Text = FitnessCalculator.kk;
             Settings = Serializer.DeserializeSettings();
             if (Settings == null)
@@ -415,51 +426,64 @@ namespace GenArt
             lastRepaint = DateTime.Now;
         }
 
-        private void OpenDNA()
-        {
-            Stop();
-
-            DnaDrawing drawing = Serializer.DeserializeDnaDrawing(FileUtil.GetOpenFileName(FileUtil.DnaExtension));
-            if (drawing != null)
-            {
-                if (currentDrawing == null)
-                    currentDrawing = GetNewInitializedDrawing();
-
-                lock (currentDrawing)
-                {
-                    currentDrawing = drawing;
-                    guiDrawing = currentDrawing.Clone();
-                }
-                pnlCanvas.Invalidate();
-                lastRepaint = DateTime.Now;
-            }
-        }
+        
 
         private void SaveDNA()
         {
             string fileName = FileUtil.GetSaveFileName(FileUtil.DnaExtension);
             if (string.IsNullOrEmpty(fileName) == false && currentDrawing != null)
             {
-                DnaDrawing clone = null;
-                lock (currentDrawing)
+                if (currentDrawing != null)
                 {
-                    clone = currentDrawing.Clone();
+                    SaveDNAAsSVG(currentDrawing,new Rectangle(0,0, sourceBitmap.Width,sourceBitmap.Height),Color.Black, fileName);
                 }
-                if (clone != null)
-                    Serializer.Serialize(clone, fileName);
+               
             }
         }
 
+        static private void SaveDNAAsSVG(DnaDrawing dna, Rectangle background, Color bgColor, string fileName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("<?xml version=\"1.0\" standalone=\"no\"?>");
+            sb.AppendLine("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
+            sb.AppendLine();
+            sb.AppendLine("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
+
+            // addbackground
+            sb.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{3}\"" +
+                " style=\"fill:rgb({4},{5},{6});fill-opacity:{7};\"/>",
+                background.X, background.Y, background.Width, background.Height, bgColor.R, bgColor.G, bgColor.B,
+                (bgColor.A / 255.0).ToString("{0:0.###}", CultureInfo.InvariantCulture));
+            sb.AppendLine();
+
+            foreach (var item in dna.Polygons)
+            {
+                StringBuilder sbPoints = new StringBuilder();
+                sbPoints.AppendFormat("{0},{1} ", item.Points[0].X,item.Points[0].Y);
+                sbPoints.AppendFormat("{0},{1} ", item.Points[1].X,item.Points[1].Y);
+                sbPoints.AppendFormat("{0},{1} ", item.Points[2].X,item.Points[2].Y);
+
+                sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",                    sbPoints.ToString(), item.Brush.Red,item.Brush.Green, item.Brush.Blue,
+                    (item.Brush.Alpha / 255.0).ToString("0.###",CultureInfo.InvariantCulture));                sb.AppendLine();
+            }
+
+            sb.AppendLine("</svg>");
+
+
+            byte [] text = UTF8Encoding.UTF8.GetBytes(sb.ToString());
+
+            using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            {
+                fs.Write(text, 0, text.Length);
+            }
+
+        }
        
 
         private void sourceImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenImage();
-        }
-
-        private void dNAToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenDNA();
         }
 
         private void dNAToolStripMenuItem1_Click(object sender, EventArgs e)

@@ -36,10 +36,10 @@ namespace GenArt.AST
        
         public void InitRandom()
         {
-            Red = (byte)Tools.GetRandomNumber(0, 255);
-            Green = (byte)Tools.GetRandomNumber(0, 255);
-            Blue = (byte)Tools.GetRandomNumber(0, 255);
-            Alpha = (byte)Tools.GetRandomNumber(1, 254);
+            Red = (byte)Tools.GetRandomNumber(0, 256);
+            Green = (byte)Tools.GetRandomNumber(0, 256);
+            Blue = (byte)Tools.GetRandomNumber(0, 256);
+            Alpha = (byte)Tools.GetRandomNumber(1, 256);
 
             //Red = 255;
             //Green = 0;
@@ -72,7 +72,7 @@ namespace GenArt.AST
         public bool MutateRGBOld(DnaDrawing drawing)
         {
             
-                int colorPart = Tools.GetRandomNumber(1<<8, (5<<8)-1)>> 8;
+                int colorPart = Tools.GetRandomNumber(1, 5);
 
                 if (colorPart == 1)
                 {
@@ -109,7 +109,7 @@ namespace GenArt.AST
             //HSLColor hslct = new HSLColor(Red, Green, Blue);
 
 
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            if (Tools.GetRandomNumber(0, 101) < 25)
             {
                 int tmp = Tools.GetRandomNumber(0, 20, 10);
                 
@@ -117,14 +117,14 @@ namespace GenArt.AST
                 wasMutate = true;
             }
 
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            if (Tools.GetRandomNumber(0, 101) < 25)
             {
                 int tmp = Tools.GetRandomNumber(0, 20, 10);
                 Green = (byte)Math.Max(Math.Min(Green + tmp - 10, 255), 5);
 
                 wasMutate = true;
             }
-            if (Tools.GetRandomNumber(0, 1000000) < 250000)
+            if (Tools.GetRandomNumber(0, 101) < 25)
             {
                 int tmp = Tools.GetRandomNumber(0, 20, 10);
                 Blue = (byte)Math.Max(Math.Min(Blue + tmp - 10, 255), 5);
@@ -132,7 +132,7 @@ namespace GenArt.AST
                 wasMutate = true;
             }
 
-            if (Tools.GetRandomNumber(0, 1000000) < 250000 || !wasMutate)
+            if (Tools.GetRandomNumber(1, 101) <= 25 || !wasMutate)
             {
                 //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 Alpha = (byte)Tools.GetRandomNumber(5, 255,Alpha);
