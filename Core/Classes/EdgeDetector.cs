@@ -12,12 +12,15 @@ namespace GenArt.Core.Classes
 {
     public class ImageEdges
     {
+        public byte CONST_EdgesPoints2D_Edge = 1;
+
         public int Width;
         public int Height;
         public DnaPoint [] [] EdgePointsByX;
         public DnaPoint [][] EdgePointsByY;
 
         public DnaPoint [] EdgePoints;
+        public Array2D EdgesPoints2D;
 
         public ImageEdges(int imageWidth, int imageHeight)
         {
@@ -26,12 +29,77 @@ namespace GenArt.Core.Classes
 
 
             EdgePoints = new DnaPoint[imageHeight * imageWidth];
+            EdgesPoints2D = new Array2D(imageWidth, imageHeight);
 
             EdgePointsByY = new DnaPoint[imageHeight][];
             EdgePointsByX = new DnaPoint[imageWidth][];
 
         }
 
+        /// <summary>
+        /// vraci prvni nalezenou hranu na definovane usecce mimo prvniho bodu
+        /// pokud nic nenajde vraci null
+        /// </summary>
+        /// <param name="startX"></param>
+        /// <param name="startY"></param>
+        /// <param name="endX"></param>
+        /// <param name="endY"></param>
+        /// <returns></returns>
+        public DnaPoint? GetFirstEdgeOnLineDirection(int startX, int startY, int endX, int endY)
+        {
+            int x = startX;
+            int y = startY;
+            int w = endX - startX;
+            int h = endY - startY;
+            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+            if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
+            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
+
+            int longest = Math.Abs(w);
+            int shortest = Math.Abs(h);
+            if (!(longest > shortest))
+            {
+                int tmp = longest;
+                longest = shortest;
+                shortest = tmp;
+
+                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+            int numerator = longest >> 1;
+
+            for (int i=0; i <= longest; i++)
+            {
+                if (y != startY && x != startX)
+                {
+                    #region test first edge
+                    int index = (y * this.Width + x);
+
+                    if (this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                        return new Nullable<DnaPoint>(new DnaPoint((short)x, (short)y));
+
+                    #endregion
+                }
+
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x += dx1;
+                    y += dy1;
+                    //compY += mullY;
+                }
+                else
+                {
+                    x += dx2;
+                    y += dy2;
+                    //compY += mully2;
+                }
+            }
+
+            return null;
+
+        }
     }
 
     public class EdgeDetector
@@ -173,6 +241,7 @@ namespace GenArt.Core.Classes
                 epointsByX.Clear();
             }
 
+            Array.Copy(this._edgesPoints.Data, result.EdgesPoints2D.Data, result.EdgesPoints2D.Length);
 
             if (epoints.Count == 0)
                 return null;

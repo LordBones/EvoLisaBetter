@@ -153,62 +153,59 @@ namespace GenArt.AST
 
                 DnaPoint [] points = this.Points;
 
-                if ( Tools.GetRandomNumber(0, 1000000) < 750000)
+                //if ( Tools.GetRandomNumber(0, 1000000) < 750000)
                 {
-                    int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-                    DnaPoint oldPoint = points[pointIndex];
-
-
-                    if (Tools.GetRandomNumber(0, 1000000) < 500000 && edgePoints.EdgePointsByY.Length > 0)
+                    while (true)
                     {
-                        int pointYIndex = Math.Max(edgePoints.Height - 1,
-                        Math.Min(0, Points[pointIndex].Y + Tools.GetRandomNumber(0, 20, 10) - 5));
+                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                        DnaPoint oldPoint = points[pointIndex];
 
-                        DnaPoint [] rowEdges = edgePoints.EdgePointsByY[pointYIndex];
+                        //get random end line on border canvas
+                       
+                        int pointX = 0;
+                        int pointY = 0;
 
-                        if (rowEdges.Length == 1)
-                            points[pointIndex] = rowEdges[0];
-                        else
+                        int tmpRnd = Tools.GetRandomNumber(1<<8, (5<<8)-1)>>8;
+                        if (tmpRnd == 1)
                         {
-                            points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
+                            pointX = Tools.GetRandomNumber(0, destImage.WidthPixel - 1);
+                            pointY = 0;
+                        }
+                        else if (tmpRnd == 2)
+                        {
+                            pointX = destImage.WidthPixel - 1;
+                            pointY = Tools.GetRandomNumber(0, destImage.HeightPixel - 1);
+                        }
+                        else if (tmpRnd == 3)
+                        {
+                            pointX = Tools.GetRandomNumber(0, destImage.WidthPixel - 1);
+                            pointY = destImage.HeightPixel - 1;
+                        }
+                        else if (tmpRnd == 4)
+                        {
+                            pointX = 0;
+                            pointY = Tools.GetRandomNumber(0, destImage.HeightPixel - 1);
                         }
 
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
+                        DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, pointX, pointY);
+
+                        if (resultPoint.HasValue)
                         {
-                            drawing.SetDirty();
-                            //break;
+                            points[pointIndex] = resultPoint.Value;
+
+                            if (IsNotSmallAngles(points) && !IsIntersect(points))
+                            {
+                                drawing.SetDirty();
+                                break;
+                            }
                         }
 
                         points[pointIndex] = oldPoint;
-                        //Array.Copy(this.Points, points, this.Points.Length);
-
                     }
-                    else
-                    {
-                        int pointXIndex = Math.Max(edgePoints.Width - 1,
-                        Math.Min(0, Points[pointIndex].X + Tools.GetRandomNumber(0, 20, 10) - 5));
 
-                        DnaPoint [] rowEdges = edgePoints.EdgePointsByX[pointXIndex];
-
-                        if (rowEdges.Length == 1)
-                            points[pointIndex] = rowEdges[0];
-                        else
-                        {
-                            points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
-                        }
-
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
-                        {
-                            drawing.SetDirty();
-                            //break;
-                        }
-
-                        points[pointIndex] = oldPoint;
-                        
-                    }
 
                 }
-                else
+                /*else
                 {
                     while (true)
                     {
@@ -234,97 +231,97 @@ namespace GenArt.AST
                         points[pointIndex] = oldPoint;
                         //Array.Copy(this.Points, points, this.Points.Length);
                     }
-                }
-            
-           // else
-            /*RemovePointByChance(drawing);
+                }*/
+           
+        }
 
+        public void MutateOld(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        {
 
+            DnaPoint [] points = this.Points;
 
-            if (Tools.WillMutate(Settings.ActiveAddPointMutationRate))
-                AddPoint(drawing);
-
+            if (Tools.GetRandomNumber(0, 1000000) < 750000)
             {
-                #region move point with test intersect
+                int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
+                DnaPoint oldPoint = points[pointIndex];
 
 
-                DnaPoint [] points = this.ClonePoints();
-                //DnaBrush brush = new DnaBrush();
-                bool genNewUidID = false;
-                bool pointsWasChange = false;
-                bool changeColor = false;
-
-                //if (Tools.WillMutate(Settings.ActiveMovePointMaxMutationRate))
-                //{
-                //    int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-                //    points[pointIndex].MutateWholeRange();
-                //    pointsWasChange = true;
-                //    changeColor = false;
-                //}
-                //else 
-                if (Tools.WillMutate(Settings.ActiveMovePointMidMutationRate))
+                if (Tools.GetRandomNumber(0, 1000000) < 500000 && edgePoints.EdgePointsByY.Length > 0)
                 {
-                    while (true)
+                    int pointYIndex = Math.Max(edgePoints.Height - 1,
+                    Math.Min(0, Points[pointIndex].Y + Tools.GetRandomNumber(0, 20, 10) - 5));
+
+                    DnaPoint [] rowEdges = edgePoints.EdgePointsByY[pointYIndex];
+
+                    if (rowEdges.Length == 1)
+                        points[pointIndex] = rowEdges[0];
+                    else
                     {
-                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-                        points[pointIndex].MutateMiddle();
-
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
-                        {
-                            genNewUidID = true;
-                            pointsWasChange = true;
-                            break;
-                        }
-
-                        Array.Copy(this.Points, points, this.Points.Length);
+                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
                     }
-                }
 
-                else if (Tools.WillMutate(Settings.ActiveMovePointMinMutationRate))
-                {
-                    while (true)
+                    if (IsNotSmallAngles(points) && !IsIntersect(points))
                     {
-                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-                        points[pointIndex].MutateSmall();
-
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
-                        {
-                            pointsWasChange = true;
-                            break;
-                        }
-
-                        Array.Copy(this.Points, points, this.Points.Length);
+                        drawing.SetDirty();
+                        //break;
                     }
+
+                    points[pointIndex] = oldPoint;
+                    //Array.Copy(this.Points, points, this.Points.Length);
 
                 }
-
-
-
-                if (pointsWasChange)
+                else
                 {
-                    this.Points = points;
+                    int pointXIndex = Math.Max(edgePoints.Width - 1,
+                    Math.Min(0, Points[pointIndex].X + Tools.GetRandomNumber(0, 20, 10) - 5));
 
-                    if (changeColor)
+                    DnaPoint [] rowEdges = edgePoints.EdgePointsByX[pointXIndex];
+
+                    if (rowEdges.Length == 1)
+                        points[pointIndex] = rowEdges[0];
+                    else
                     {
-                        if (_rawDestImage != null)
-                        {
-                            Color tmpColor = DnaDrawing.GetColorByPolygonPoints(this.Points, _rawDestImage, width);
-                            this.Brush.SetByColor(tmpColor);
-                        }
+                        points[pointIndex] = rowEdges[Tools.GetRandomNumber(0, rowEdges.Length - 1)];
                     }
 
-                    if (genNewUidID)
-                        this.UniqueID = DnaPolygon.GetNewUiqueId();
+                    if (IsNotSmallAngles(points) && !IsIntersect(points))
+                    {
+                        drawing.SetDirty();
+                        //break;
+                    }
 
-
-                    drawing.SetDirty();
+                    points[pointIndex] = oldPoint;
 
                 }
 
-                #endregion
             }
-            */
+            else
+            {
+                while (true)
+                {
+                    int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
 
+                    DnaPoint oldPoint = points[pointIndex];
+
+                    if (edgePoints == null)
+                        points[pointIndex].MutateMiddle();
+                    else
+                    {
+                        int edgeIndex = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length - 1);
+                        points[pointIndex] = edgePoints.EdgePoints[edgeIndex];
+                    }
+
+                    if (IsNotSmallAngles(points) && !IsIntersect(points))
+                    {
+
+                        drawing.SetDirty();
+                        break;
+                    }
+
+                    points[pointIndex] = oldPoint;
+                    //Array.Copy(this.Points, points, this.Points.Length);
+                }
+            }
 
         }
 

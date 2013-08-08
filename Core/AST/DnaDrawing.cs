@@ -107,13 +107,13 @@ namespace GenArt.AST
         {
             do
             {
-                int mutateChange = Tools.GetRandomNumber(0, 1000);
+                int mutateChange = Tools.GetRandomNumber(0, 10000);
 
-                if (mutateChange < 50 && Settings.ActivePolygonsMax > this.Polygons.Length)
+                if (mutateChange < 500 && Settings.ActivePolygonsMax > this.Polygons.Length)
                     AddPolygon(destImage, edgePoints);
-                else if (mutateChange < 150)
+                else if (mutateChange < 1000)
                     RemovePolygon();
-                else if (mutateChange < 250)
+                else if (mutateChange < 2500)
                     SwapPolygon();
 
                 else
@@ -126,7 +126,7 @@ namespace GenArt.AST
                         //for (int index = 0; index < Polygons.Length; index++)
                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        if (Tools.GetRandomNumber(0, 1000000) < 250000)
+                        if (Tools.GetRandomNumber(0, 1000000) < 500000)
                         {
                             int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
                             Polygons[index].Mutate(this, destImage, edgePoints);
@@ -141,7 +141,7 @@ namespace GenArt.AST
 
                 
 
-            } while (Tools.GetRandomNumber(0,999) < 200);
+            } while (Tools.GetRandomNumber(0,10000) < 2000);
             
            
 
