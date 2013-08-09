@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using GenArt.AST;
 using GenArt.Classes;
 using GenArt.Core.Classes;
+using GenArt.Core.Classes.SWRenderLibrary;
+using GenArtCoreNative;
 
 namespace GenArt.Core.AST
 {
@@ -24,6 +26,7 @@ namespace GenArt.Core.AST
 
         private CanvasBGRA _destCanvas = new CanvasBGRA(1,1);
 
+        private Class1 _nativeFunc = new Class1();
 
         private ImageEdges _edgePoints = null;
 
@@ -33,9 +36,14 @@ namespace GenArt.Core.AST
 
         private int _popSize=  1;
 
+        #region CanvasForRender
+
+        DNARenderer _dnaRender = new DNARenderer(1,1); 
+        
+        #endregion
 
         #region property
-        
+
 
         public DnaDrawing CurrentBest
         {
@@ -122,6 +130,7 @@ namespace GenArt.Core.AST
             this._currentBestFittness = long.MaxValue;
             this._lastBestFittness = long.MaxValue;
 
+            _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
 
             this._edgePoints = CreateEdges(this._destCanvas);
             this._destCanvas.EasyColorReduction();
@@ -163,18 +172,22 @@ namespace GenArt.Core.AST
 
         private void ComputeFittness()
         {
-            
-
             for (int index = 0; index < this._population.Length-1; index++)
             {
-                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
-                _fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);
-                
-            }
+                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareTriangle);
 
-             
+                //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
+
+                long bloat = (this._population[index].PointCount + 1) * (this._population[index].PointCount + 1);
+
+                _fittness[index] = fittness+ bloat;
+
+                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
+                //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
+            }    
         }
 
         private void UpdateStatsByFittness()

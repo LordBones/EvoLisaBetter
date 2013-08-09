@@ -32,7 +32,7 @@ namespace GenArt
 
             CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
 
-            SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
+            SWTriangle triangleTest = new SWTriangle();
 
             Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
             polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
@@ -76,7 +76,7 @@ namespace GenArt
             byte [] canvasCorrect = null;
             CanvasBGRA canvasTest = null;
 
-            SWTriangle triangleTest = new SWTriangle(CONST_Width, CONST_Height);
+            SWTriangle triangleTest = new SWTriangle();
 
             Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
             polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);

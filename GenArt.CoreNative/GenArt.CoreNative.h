@@ -26,7 +26,7 @@ namespace GenArtCoreNative {
             FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
         }
 
-		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig, int length)
+		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
 
@@ -45,7 +45,7 @@ namespace GenArtCoreNative {
 
 			}*/
 
-			result += computeFittness(pinCurr,pinOrig,length);
+            result += computeFittness(pinCurr,pinOrig,orig->Length);
 			
 
 			/*for(int index = 0;index < length;index+=4)

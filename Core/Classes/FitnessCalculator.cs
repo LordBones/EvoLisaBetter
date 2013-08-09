@@ -7,11 +7,41 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using GenArt.AST;
 using GenArt.Core.Classes;
+using GenArtCoreNative;
 
 namespace GenArt.Classes
 {
     public static class FitnessCalculator
     {
+        #region new fittness methods
+
+        public static long ComputeFittness_Basic(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            int index = 0;
+            while (index < orig.Length)
+            {
+                int br = Tools.fastAbs(current[index] - orig[index]);
+                int bg = Tools.fastAbs(current[index + 1] - orig[index + 1]);
+                int bb = Tools.fastAbs(current[index + 2] - orig[index + 2]);
+
+                long tmpres = br + bg + bb;
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+
+
+            return result;
+        }
+
+        #endregion
+
+
+
         public static string kk = Assembly.GetEntryAssembly().GetName().Version.ToString();
 
         private static Bitmap rbmp = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
@@ -85,6 +115,7 @@ namespace GenArt.Classes
 
         static CanvasBGRA drawCanvas = new CanvasBGRA(1, 1);
         static SoftwareRender softwareRender;
+        static Class1 nativeFunc = new Class1();
 
         public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
         {
@@ -102,7 +133,8 @@ namespace GenArt.Classes
             long error = 0;
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
-            error = ComputeFittnessBasic(drawCanvas.Data, sourceImage.Data);
+            //error = ComputeFittnessBasic(drawCanvas.Data, sourceImage.Data);
+            error = nativeFunc.ComputeFittness(drawCanvas.Data, sourceImage.Data);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
@@ -132,7 +164,7 @@ namespace GenArt.Classes
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
 
             GenArtCoreNative.Class1 nc = new GenArtCoreNative.Class1();
-            error = nc.ComputeFittness(drawCanvas.Data, sourceImage.Data, sourceImage.Data.Length);
+            error = nc.ComputeFittness(drawCanvas.Data, sourceImage.Data);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             return (int)(error) + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
@@ -236,39 +268,7 @@ namespace GenArt.Classes
                 index += 4;
             }
 
-            /*
-            unsafe
-            {
-                fixed (byte * tmpcurrentPtr = current)
-                fixed (byte * tmpOrigPtr = orig)
-                {
-                    byte * currentPtr = tmpcurrentPtr;
-                    byte * origPtr = tmpOrigPtr;
-
-                    //int totalLength = (Tools.MaxWidth * Tools.MaxHeight * 4);
-                    byte * totalLength = currentPtr + current.Length;
-                    int index = 0;
-
-                    while (currentPtr < totalLength)
-                    {
-                        int br = Tools.fastAbs(*(currentPtr) - *(origPtr));
-                        int bg = Tools.fastAbs(*(currentPtr + 1) - *(origPtr + 1));
-                        int bb = Tools.fastAbs(*(currentPtr + 2) - *(origPtr + 2));
-
-                        //br = (br > 64) ? br << 2 : br;
-                        //bg = (bg > 64) ? bg << 2 : bg;
-                        //bb = (bb > 64) ? bb << 2 : bb;
-
-
-                        long tmpres = br + bg + bb;
-
-                        result += tmpres;
-
-                        currentPtr += 4;
-                        origPtr += 4;
-                    }
-                }
-            }*/
+            
 
             return result;
         }

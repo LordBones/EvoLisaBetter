@@ -106,6 +106,7 @@
     <Compile Include="Classes\Serializer.cs" />
     <Compile Include="Classes\Settings.cs" />
     <Compile Include="Classes\SoftwareRender.cs" />
+    <Compile Include="Classes\SWRenderLibrary\DNARenderer.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWPolygon.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWTriangle.cs" />
     <Compile Include="Classes\Tools.cs" />

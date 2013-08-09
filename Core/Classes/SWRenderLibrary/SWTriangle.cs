@@ -11,13 +11,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 {
     public class SWTriangle
     {
-        private int _canvasWidth, _canvasHeight;
+        
         private Class1 nativeFunc = new Class1();
 
-        public SWTriangle(int canvasWidth, int canvasHeight)
+        public SWTriangle()
         {
-            this._canvasHeight = canvasHeight;
-            this._canvasWidth = canvasWidth;
         }
 
 

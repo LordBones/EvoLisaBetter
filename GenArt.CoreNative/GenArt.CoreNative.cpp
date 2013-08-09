@@ -4,6 +4,12 @@
 
 #include "GenArt.CoreNative.h"
 
+int FastAbs(int data)
+{
+    int topbitreplicated = data >> 31;
+    return (data ^ topbitreplicated) - topbitreplicated;  
+}
+
 __int64 GenArtCoreNative::Class1::computeFittness(unsigned char * curr, unsigned char * orig, int length)
 		{
 			__int64 result = 0;
@@ -19,16 +25,34 @@ __int64 GenArtCoreNative::Class1::computeFittness(unsigned char * curr, unsigned
 
 			}*/
 
-			for(int index = 0;index < length;index+=4)
+			/*for(int index = 0;index < length;index+=4)
 			{
-				int br = abs(curr[index] - orig[index]);
-                int bg = abs(curr[index+1] - orig[index+1]);
-                int bb = abs(curr[index+2] - orig[index+2]);
+				int br = FastAbs(curr[index] - orig[index]);
+                int bg = FastAbs(curr[index+1] - orig[index+1]);
+                int bb = FastAbs(curr[index+2] - orig[index+2]);
 
-				int tmpres = br + bg + bb;
+                br = br*2126;
+                bg = bg*7152;
+                bb = bb*722;
+				int tmpres = ((br + bg + bb)/10000);
                 result += tmpres;
 
+			}*/
+
+            for(int index = 0;index < length;index+=4)
+			{
+				int br = FastAbs(curr[index] - orig[index]);
+                int bg = FastAbs(curr[index+1] - orig[index+1]);
+                int bb = FastAbs(curr[index+2] - orig[index+2]);
+
+                result += br+bg+bb;
+                
+				//int tmpres = (br + bg + bb);
+                //result += tmpres;
+
 			}
+
+            
 			
 
 			return result;

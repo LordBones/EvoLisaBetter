@@ -37,6 +37,7 @@ namespace GenArt.Classes
             return (int)newDelta;
             
         }
+
         public static int GetRandomNumber(int min, int max)
         {
             //int dif = max - min;
@@ -56,7 +57,7 @@ namespace GenArt.Classes
             if (!(min <= ignore && ignore <= max)) return GetRandomNumber(min, max);
 
             int tmp = GetRandomNumber(min, max - 1);
-            return (tmp >= ignore)? tmp+1 : tmp;
+            return (tmp >= ignore) ? tmp + 1 : tmp;
         }
 
         public static short GetRandomNumber(short min, short max)
@@ -74,7 +75,7 @@ namespace GenArt.Classes
         //    if (!(min <= ignore && ignore <= max)) return GetRandomNumber2(min, max);
 
         //    int tmp = GetRandomNumber2(min, max - 1);
-        //    return (tmp >= ignore)? tmp+1 : tmp;
+        //    return (tmp >= ignore) ? tmp + 1 : tmp;
         //}
 
         //public static short GetRandomNumber(short min, short max)

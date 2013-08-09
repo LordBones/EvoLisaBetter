@@ -20,7 +20,7 @@ namespace GenArt.Core.Classes
 
         public SoftwareRender(int canvasWidth, int canvasHeight)
         {
-            _drawTriangle = new SWTriangle(canvasWidth, canvasHeight);
+            _drawTriangle = new SWTriangle();
             _drawPolygon = new Polygon(canvasWidth, canvasHeight);
             _drawPolygon.SetStartBufferSize(canvasWidth, canvasHeight);
             _drawPolygonCorrect = new Polygon(canvasWidth, canvasHeight);
