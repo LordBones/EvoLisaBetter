@@ -24,14 +24,14 @@ namespace GenArt.Core.Classes
 
         
 
-        public int WidthPixel
+        public short WidthPixel
         {
-            get { return this._width / 4; }
+            get { return (short)(this._width / 4); }
         }
 
-        public int HeightPixel
+        public short HeightPixel
         {
-            get { return this._height / 4; }
+            get { return (short)(this._height / 4); }
         }
 
         public int CountPixels

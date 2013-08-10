@@ -11,8 +11,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 {
     public class SWTriangle
     {
-        
-        private Class1 nativeFunc = new Class1();
+
+        private static NativeFunctions nativeFunc = new NativeFunctions();
 
         public SWTriangle()
         {
@@ -28,8 +28,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             short x3 = points[2].X;
             short y3 = points[2].Y;
 
-            //FillTriangleSimple(canvas, this._canvasWidth, x1, y1, x2, y2, x3, y3,color);
-            FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
+            //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -127,7 +127,13 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                     xForMax = (xt > 0 ? xt : 0);
 
-                    for (int x = (xf < width ? (int)xf : width -1); x >= xForMax; x--)
+                    int xx = (xf < width ? (int)xf : width - 1);
+                    int index2 = ((int)xForMax + canvasY) * 4;
+                    int endIndex = ((int)xx + canvasY) * 4;
+
+                    nativeFunc.RowApplyColor(canvas, index2, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
+
+                    /*for (int x = (xf < width ? (int)xf : width -1); x >= xForMax; x--)
                     {
                         int index = (x + canvasY) * 4;
                         //ApplyColor(canvas, index, color);
@@ -135,7 +141,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
                         ApplyColor(canvas, index + 2, colorARRrem, colorRem);
 
-                    }
+                    }*/
                 }
                 xf += dx_far;
                 if (y < y1)

@@ -98,18 +98,18 @@
     <Compile Include="Classes\Array2D.cs" />
     <Compile Include="Classes\CanvasBGRA.cs" />
     <Compile Include="Classes\EdgeDetector.cs" />
-    <Compile Include="Classes\FileUtil.cs" />
+    <Compile Include="Classes\Misc\FileUtil.cs" />
     <Compile Include="Classes\FitnessCalculator.cs" />
-    <Compile Include="Classes\HSLColor.cs" />
+    <Compile Include="Classes\Misc\HSLColor.cs" />
+    <Compile Include="Classes\MatchStatistics.cs" />
     <Compile Include="Classes\RederWPF.cs" />
     <Compile Include="Classes\Renderer.cs" />
-    <Compile Include="Classes\Serializer.cs" />
-    <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\Misc\Settings.cs" />
     <Compile Include="Classes\SoftwareRender.cs" />
     <Compile Include="Classes\SWRenderLibrary\DNARenderer.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWPolygon.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWTriangle.cs" />
-    <Compile Include="Classes\Tools.cs" />
+    <Compile Include="Classes\Misc\Tools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

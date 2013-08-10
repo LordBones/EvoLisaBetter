@@ -161,6 +161,10 @@
       <Project>{E4DF4818-A171-41E0-9AC4-4FDB8AF6482A}</Project>
       <Name>GenArt.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GenArt.CoreNative\GenArt.CoreNative.vcxproj">
+      <Project>{98edaf6d-1ede-424b-8f94-fc71ab0696d6}</Project>
+      <Name>GenArt.CoreNativeWrape</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

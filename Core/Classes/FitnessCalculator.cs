@@ -72,7 +72,7 @@ namespace GenArt.Classes
             }
 
 
-            Renderer.Render(newDrawing, g, 1, background);
+            Renderer.Render(newDrawing, g, 1);
 
             //rbmp.Save("testGDI.bmp", ImageFormat.Bmp);
             error = ComputeFittnessBasic(sourceImage.Data, rbmp);
@@ -115,7 +115,7 @@ namespace GenArt.Classes
 
         static CanvasBGRA drawCanvas = new CanvasBGRA(1, 1);
         static SoftwareRender softwareRender;
-        static Class1 nativeFunc = new Class1();
+        static NativeFunctions nativeFunc = new NativeFunctions();
 
         public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
         {
@@ -163,7 +163,7 @@ namespace GenArt.Classes
             long error = 0;
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
 
-            GenArtCoreNative.Class1 nc = new GenArtCoreNative.Class1();
+            GenArtCoreNative.NativeFunctions nc = new GenArtCoreNative.NativeFunctions();
             error = nc.ComputeFittness(drawCanvas.Data, sourceImage.Data);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);

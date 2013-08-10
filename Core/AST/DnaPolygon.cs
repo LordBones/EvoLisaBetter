@@ -165,10 +165,12 @@ namespace GenArt.AST
                     result = null;
 
 
-                    while (!result.HasValue)
+                    while (!result.HasValue  )
                     {
                         DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
                         result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        if (result.HasValue && DnaPoint.Compare(result.Value, points[0]))
+                            result = null;
                     }
 
                     points[1] = result.Value;
@@ -178,12 +180,16 @@ namespace GenArt.AST
                     {
                         DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
                         result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+
+                        if (result.HasValue && (DnaPoint.Compare(result.Value, points[0]) || DnaPoint.Compare(result.Value, points[1])) )
+                            result = null;
                     }
 
                     points[2] = result.Value;
 
                     //
-                    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                    if (//!IsIntersect(points) &&
+                        IsNotSmallAngles(points))
                     {
                         break;
                     }
@@ -245,11 +251,25 @@ namespace GenArt.AST
 
                         DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
 
+                        // zamezeni generovani bodu ktery uz je vrcholem trojuhelniku
                         if (resultPoint.HasValue)
                         {
+                            bool p1 = DnaPoint.Compare(resultPoint.Value, points[0]);
+                            bool p2 = DnaPoint.Compare(resultPoint.Value, points[1]);
+                            bool p3 = DnaPoint.Compare(resultPoint.Value, points[2]);
+
+                            if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
+                                 resultPoint = null;
+                        }
+
+                        if (resultPoint.HasValue)
+                        {
+                            
+
                             points[pointIndex] = resultPoint.Value;
 
-                            if (IsNotSmallAngles(points) && !IsIntersect(points))
+                            if (IsNotSmallAngles(points) && 
+                                !IsIntersect(points))
                             {
                                 drawing.SetDirty();
                                 break;

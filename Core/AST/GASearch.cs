@@ -26,7 +26,7 @@ namespace GenArt.Core.AST
 
         private CanvasBGRA _destCanvas = new CanvasBGRA(1,1);
 
-        private Class1 _nativeFunc = new Class1();
+        private NativeFunctions _nativeFunc = new NativeFunctions();
 
         private ImageEdges _edgePoints = null;
 
@@ -139,7 +139,7 @@ namespace GenArt.Core.AST
 
             for (int i =0; i < this._population.Length; i++)
             {
-                DnaDrawing dna = new DnaDrawing();
+                DnaDrawing dna = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
                 for (int k =0; k < 10; k++)
                 {
@@ -181,7 +181,7 @@ namespace GenArt.Core.AST
 
                 long bloat = (this._population[index].PointCount + 1) * (this._population[index].PointCount + 1);
 
-                _fittness[index] = fittness+ bloat;
+                _fittness[index] = fittness + bloat;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -365,7 +365,7 @@ namespace GenArt.Core.AST
 
         private DnaDrawing CrossoverBasic(DnaDrawing parent1, DnaDrawing parent2)
         {
-            DnaDrawing result = new DnaDrawing();
+            DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
             List<DnaPolygon> polygons = new List<DnaPolygon>();
             int maxIndex = Math.Max(parent1.Polygons.Length,parent2.Polygons.Length);
@@ -395,7 +395,7 @@ namespace GenArt.Core.AST
             int countCrossGenP2 = (int)(parent2.Polygons.Length * (crossLine));
             int newDnaSize = countCrossGenP1 + (parent2.Polygons.Length- countCrossGenP2*1);
 
-            DnaDrawing result = new DnaDrawing();
+            DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
             DnaPolygon [] polygons = new DnaPolygon[newDnaSize];
             int polygonsIndex = 0;
@@ -426,7 +426,7 @@ namespace GenArt.Core.AST
             double crossLine = 0.3;
 
 
-            DnaDrawing result = new DnaDrawing();
+            DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
             List<DnaPolygon> polygons = new List<DnaPolygon>();
             int maxIndex = Math.Max(parent2.Polygons.Length, parent2.Polygons.Length);

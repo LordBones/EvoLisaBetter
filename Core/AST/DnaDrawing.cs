@@ -7,13 +7,19 @@ using GenArt.Core.Classes;
 
 namespace GenArt.AST
 {
-    [Serializable]
     public class DnaDrawing
     {
         public DnaPolygon [] Polygons;// { get; set; }
+        private short _maxWidth = 0;
+        private short _maxHeight = 0;
 
-        [XmlIgnore]
+        public DnaBrush BackGround; 
+
         public bool IsDirty { get; private set; }
+
+        public short Width { get{return _maxWidth;} }
+        public short Height { get{return _maxHeight;} }
+
 
         public int PointCount
         {
@@ -40,9 +46,13 @@ namespace GenArt.AST
             }
         }
 
-        public DnaDrawing()
+        public DnaDrawing(short maxWidth, short maxHeight)
         {
             Polygons = new DnaPolygon[0];
+            BackGround = new DnaBrush(255, 0, 0, 0);
+            BackGround.InitRandomWithoutAlpha();
+            _maxHeight = maxHeight;
+            _maxWidth = maxWidth;
         }
 
         public void SetDirty()
@@ -53,6 +63,8 @@ namespace GenArt.AST
         public void Init()
         {
             Polygons = new DnaPolygon[Settings.ActivePolygonsMin];
+            BackGround = new DnaBrush(255, 0, 0, 0);
+            BackGround.InitRandomWithoutAlpha();
 
             for (int i = 0; i < Settings.ActivePolygonsMin; i++)
                 AddPolygon();
@@ -74,8 +86,9 @@ namespace GenArt.AST
 
         public DnaDrawing Clone()
         {
-            var drawing = new DnaDrawing();
+            var drawing = new DnaDrawing(this._maxWidth,this._maxHeight);
             drawing.Polygons = new DnaPolygon[Polygons.Length];
+            drawing.BackGround = BackGround;
 
             for (int index = 0; index < Polygons.Length; index++)
                 drawing.Polygons[index] = Polygons[index].Clone();
@@ -109,12 +122,20 @@ namespace GenArt.AST
             {
                 int mutateChange = Tools.GetRandomNumber(0, 1001);
 
-                if (mutateChange < 50 && Settings.ActivePolygonsMax > this.Polygons.Length)
+                if (mutateChange < 50)
+                {
+                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                        RemovePolygon();
                     AddPolygon(destImage, edgePoints);
+                }
                 else if (mutateChange < 100)
                     RemovePolygon();
                 else if (mutateChange < 150)
                     SwapPolygon();
+                else if (mutateChange < 250)
+                {
+                    BackGround.MutateRGBOldWithoutAlpha(this);
+                }
 
                 else
                 {
@@ -126,7 +147,7 @@ namespace GenArt.AST
                         //for (int index = 0; index < Polygons.Length; index++)
                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        if (Tools.GetRandomNumber(0,2) < 1)
+                        if (Tools.GetRandomNumber(0, 2) < 1)
                         {
                             int index = Tools.GetRandomNumber(0, Polygons.Length);
                             Polygons[index].Mutate(this, destImage, edgePoints);
@@ -136,7 +157,7 @@ namespace GenArt.AST
                             int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                             Polygons[tindex].Brush.MutateRGBOld(this);
                         }
-                     }
+                    }
                 }
 
                 
@@ -149,7 +170,7 @@ namespace GenArt.AST
 
         public void SwapPolygon()
         {
-            if (Polygons.Length < 1)
+            if (Polygons.Length < 2)
                 return;
 
             //int index = Tools.GetRandomNumber(0, Polygons.Length - 1);

@@ -35,7 +35,9 @@ namespace GenArt
         private int selected;
 
         private Bitmap sourceBitmap;
-        private Color Background = Color.Black;
+        private CanvasBGRA sourceBitmapAsCanvas;
+
+        DNARenderer _dnaRender;
 
         private Thread thread;
 
@@ -54,29 +56,34 @@ namespace GenArt
 
 
             Text = FitnessCalculator.kk;
-            Settings = Serializer.DeserializeSettings();
-            if (Settings == null)
-                Settings = new Settings();
+            
+            Settings = new Settings();
 
             //Test();
             //TestSoftwareRenderPolygon();
             //TestBenchmark();
 
-            InitImage();
+            
+
+            InitImage(Bitmap.FromFile(Path.Combine(Application.StartupPath,GenArt.Properties.Resources.ml1)));
 
            
         }
 
         private void TestBenchmark()
         {
-            DnaDrawing dna = GetNewInitializedDrawing();
+            const int CONST_Width = 1000;
+            const int CONST_Height = 1000;
+
+
+            DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
+            dna.Init();
+
 
             for (int i =0; i < 100; i++)
                 dna.AddPolygon();
 
-            const int CONST_Width = 1000;
-            const int CONST_Height = 1000;
-
+          
             byte [] canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
             byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
@@ -109,13 +116,16 @@ namespace GenArt
 
         private void TestSoftwareRenderPolygon()
         {
-            DnaDrawing dna = GetNewInitializedDrawing();
+            const int CONST_Width = 200;
+            const int CONST_Height = 200;
+
+            DnaDrawing dna = new DnaDrawing(CONST_Width,CONST_Height);
+            dna.Init();
 
             for (int i =0; i < 100; i++)
                 dna.AddPolygon();
 
-            const int CONST_Width = 200;
-            const int CONST_Height = 200;
+            
 
             byte [] canvasCorrect = new byte[CONST_Height*CONST_Width*4];
             byte [] canvasTest = new byte[CONST_Height*CONST_Width*4];
@@ -151,20 +161,8 @@ namespace GenArt
 
         }
 
-        private static DnaDrawing GetNewInitializedDrawing()
-        {
-            var drawing = new DnaDrawing();
-            drawing.Init();
-            return drawing;
-        }
-
-
         private void StartEvolutionNew()
         {
-            SetupSourceColorMatrix();
-            
-
-
             GASearch gaSearch = new GASearch(10);
             gaSearch.InitFirstPopulation(sourceBitmap);
 
@@ -193,7 +191,7 @@ namespace GenArt
         
 
         //covnerts the source image to a Color[,] for faster lookup
-        private void SetupSourceColorMatrix()
+        private Bitmap ConvertImageIntoPARGB()
         {
            
             var sourceImage = picPattern.Image as Bitmap;
@@ -201,33 +199,14 @@ namespace GenArt
             if (sourceImage == null)
                 throw new NotSupportedException("A source image of Bitmap format must be provided");
 
-            sourceBitmap = new Bitmap(Tools.MaxWidth, Tools.MaxHeight, PixelFormat.Format32bppPArgb);
+            Bitmap sourceBitmap = new Bitmap(Tools.MaxWidth, Tools.MaxHeight, PixelFormat.Format32bppPArgb);
 
             using (Graphics g = Graphics.FromImage(sourceBitmap))
             {
                 g.DrawImage(sourceImage, new Rectangle(0,0,Tools.MaxWidth, Tools.MaxHeight), 0, 0, Tools.MaxWidth, Tools.MaxHeight,  GraphicsUnit.Pixel);
             }
 
-            long sumR = 0;
-            long sumG =0;
-            long sumB = 0;
-
-            for (int y = 0; y < Tools.MaxHeight; y++)
-            {
-                for (int x = 0; x < Tools.MaxWidth; x++)
-                {
-                    
-                    Color c = sourceImage.GetPixel(x, y);
-                    sumR += c.R;
-                    sumG += c.G;
-                    sumB += c.B;
-
-                }
-            }
-
-            long countPixels = Tools.MaxWidth* Tools.MaxHeight;
-
-            Background = Color.FromArgb((int)(sumR / countPixels), (int)(sumG / countPixels), (int)(sumB / countPixels));
+            return sourceBitmap;
         }
 
 
@@ -287,6 +266,8 @@ namespace GenArt
 
         private void tmrRedraw_Tick(object sender, EventArgs e)
         {
+
+
             if (currentDrawing == null)
                 return;
 
@@ -303,8 +284,7 @@ namespace GenArt
             toolStripStatusLabelPolygons.Text = polygons.ToString();
             toolStripStatusLabelAvgPoints.Text = avg.ToString();
 
-            tsslFittnessError.Text =  string.Format("{0:G}", (errorLevel/(double)(Tools.MaxHeight * Tools.MaxWidth * 3 * 255)) *100);
-
+            
             
 
 
@@ -339,6 +319,30 @@ namespace GenArt
                 lastSelected = selected;
             }
 
+            _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.SoftwareTriangle);
+            MatchStatistics ms = new MatchStatistics();
+            ms.ComputeImageMatchStat(sourceBitmapAsCanvas, _dnaRender.Canvas);
+
+            tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}"+
+                "       avg: {2:###.000} / {3:###.000}" +
+                "       R: {4:###.000} / {5:####.000},"+
+                "       G: {6:####.000} / {7:####.000},"+
+                "       B: {8:####.000} / {9:####.000}",
+
+                //" R avg: {1:###.000} stdev:{2:####.000}, G avg: {3:####.000} stdev:{4:####.000}," +
+                //" B avg: {5:####.000} stdev:{6:####.000},   Old:{7:G}",
+                (ms.ChDiff_AvgB+ms.ChDiff_AvgG+ms.ChDiff_AvgR),
+                (ms.ChDiff_StdDevB+ms.ChDiff_StdDevG+ms.ChDiff_StdDevR),
+                (ms.ChDiff_AvgB+ms.ChDiff_AvgG+ms.ChDiff_AvgR)/3,
+                (ms.ChDiff_StdDevB+ms.ChDiff_StdDevG+ms.ChDiff_StdDevR)/3,
+                ms.ChDiff_AvgR, ms.ChDiff_StdDevR,ms.ChDiff_AvgG,ms.ChDiff_StdDevG,
+                ms.ChDiff_AvgB, ms.ChDiff_StdDevB);
+                
+                
+                
+         
+
+
             double speed = (generation - lastGenetation) / (DateTime.Now - last).TotalSeconds;
 
             this.Text = "speed: " + string.Format("{0:######.000}", speed) +
@@ -356,7 +360,7 @@ namespace GenArt
 
             if (guiDrawing == null)
             {
-                e.Graphics.Clear(Background);
+                e.Graphics.Clear(Color.Black);
                 return;
             }
 
@@ -378,21 +382,25 @@ namespace GenArt
                  backGraphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
                  backGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
                 
-                Renderer.Render(guiDrawing, backGraphics, trackBarScale.Value,Background);
+                Renderer.Render(guiDrawing, backGraphics, trackBarScale.Value);
 
                 e.Graphics.DrawImage(backBuffer, 0, 0);
             }
         }
 
-        private void InitImage()
+        private void InitImage(Image img)
         {
             Stop();
 
-
-            picPattern.Image = Bitmap.FromFile(GenArt.Properties.Resources.ml1);
-
+            picPattern.Image = img;
+            
             Tools.MaxHeight = picPattern.Height;
             Tools.MaxWidth = picPattern.Width;
+
+            sourceBitmap = ConvertImageIntoPARGB();
+            sourceBitmapAsCanvas = CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap);
+
+            _dnaRender = new DNARenderer(Tools.MaxWidth, Tools.MaxHeight);
 
             SetCanvasSize();
 
@@ -401,20 +409,11 @@ namespace GenArt
 
         private void OpenImage()
         {
-            Stop();
-
             string fileName = FileUtil.GetOpenFileName(FileUtil.ImgExtension);
             if (string.IsNullOrEmpty(fileName))
                 return;
 
-            picPattern.Image = Image.FromFile(fileName);
-
-            Tools.MaxHeight = picPattern.Height;
-            Tools.MaxWidth = picPattern.Width;
-
-            SetCanvasSize();
-
-            splitContainer1.SplitterDistance = picPattern.Width + 30;
+            InitImage(Image.FromFile(fileName));
         }
 
         private void SetCanvasSize()
@@ -435,26 +434,49 @@ namespace GenArt
             {
                 if (currentDrawing != null)
                 {
-                    SaveDNAAsSVG(currentDrawing,new Rectangle(0,0, sourceBitmap.Width,sourceBitmap.Height),Color.Black, fileName);
+                    SaveDNAAsSVG(currentDrawing,CanvasBGRA.CreateCanvasFromBitmap(this.sourceBitmap)  , fileName);
                 }
                
             }
         }
 
-        static private void SaveDNAAsSVG(DnaDrawing dna, Rectangle background, Color bgColor, string fileName)
+        static private void SaveDNAAsSVG(DnaDrawing dna, CanvasBGRA sourceImage, string fileName)
         {
+            DNARenderer _dnaRender = new DNARenderer(dna.Width, dna.Height);
+            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.SoftwareTriangle);
+            MatchStatistics ms = new MatchStatistics();
+            ms.ComputeImageMatchStat(sourceImage, _dnaRender.Canvas);
+
+            string line1 = string.Format("Avg: {0:###.000} / {1:###.000}  Sum: {2:###.000} / {3:###.000}  (avg/stdev)",
+                (ms.ChDiff_AvgB + ms.ChDiff_AvgG + ms.ChDiff_AvgR)/3,
+                (ms.ChDiff_StdDevB + ms.ChDiff_StdDevG + ms.ChDiff_StdDevR)/3,
+                (ms.ChDiff_AvgB + ms.ChDiff_AvgG + ms.ChDiff_AvgR) , 
+                (ms.ChDiff_StdDevB + ms.ChDiff_StdDevG + ms.ChDiff_StdDevR) ); 
+            // 12 mezer
+            string line2 = string.Format("R  : {0:###.000} / {1:####.000}",ms.ChDiff_AvgR, ms.ChDiff_StdDevR);
+            string line3 = string.Format("G  : {0:###.000} / {1:####.000}", ms.ChDiff_AvgG, ms.ChDiff_StdDevG);
+            string line4 = string.Format("B  : {0:###.000} / {1:####.000}", ms.ChDiff_AvgB, ms.ChDiff_StdDevB);
+
+             
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("<?xml version=\"1.0\" standalone=\"no\"?>");
             sb.AppendLine("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
             sb.AppendLine();
+         
             sb.AppendLine("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">");
-
+            sb.AppendLine("<g font-family=\"courier\" font-size=\"16\" >");
+            sb.AppendLine("<text x=\"5\" y=\"20\" fill=\"black\"><tspan xml:space=\"preserve\">" + line1 + "</tspan></text>");
+            sb.AppendLine("<text x=\"5\" y=\"40\" fill=\"black\"><tspan xml:space=\"preserve\">" + line2 + "</tspan></text>");
+            sb.AppendLine("<text x=\"5\" y=\"60\" fill=\"black\"><tspan xml:space=\"preserve\">" + line3 + "</tspan></text>");
+            sb.AppendLine("<text x=\"5\" y=\"80\" fill=\"black\"><tspan xml:space=\"preserve\">" + line4 + "</tspan></text>");
+            sb.AppendLine("</g>");
             // addbackground
+            sb.AppendLine("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" y=\"90\" >");
             sb.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{3}\"" +
                 " style=\"fill:rgb({4},{5},{6});fill-opacity:{7};\"/>",
-                background.X, background.Y, background.Width, background.Height, bgColor.R, bgColor.G, bgColor.B,
-                (bgColor.A / 255.0).ToString("{0:0.###}", CultureInfo.InvariantCulture));
+                0, 0, dna.Width, dna.Height, dna.BackGround.Red, dna.BackGround.Green, dna.BackGround.Blue,
+                (dna.BackGround.Alpha / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
             sb.AppendLine();
 
             foreach (var item in dna.Polygons)
@@ -467,7 +489,7 @@ namespace GenArt
                 sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",                    sbPoints.ToString(), item.Brush.Red,item.Brush.Green, item.Brush.Blue,
                     (item.Brush.Alpha / 255.0).ToString("0.###",CultureInfo.InvariantCulture));                sb.AppendLine();
             }
-
+            sb.AppendLine("</svg>");
             sb.AppendLine("</svg>");
 
 
@@ -479,21 +501,20 @@ namespace GenArt
             }
 
         }
-       
-
-        private void sourceImageToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenImage();
-        }
-
-        private void dNAToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            SaveDNA();
-        }
 
         private void trackBarScale_Scroll(object sender, EventArgs e)
         {
             SetCanvasSize();
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            OpenImage();
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+            SaveDNA();
         }
 
         

@@ -54,7 +54,7 @@ namespace GenArt.Classes
 
         public static int GetRandomNumber(int min, int max, int ignore)
         {
-            if (!(min <= ignore && ignore <= max)) return GetRandomNumber(min, max);
+            if (!(min <= ignore && ignore < max)) return GetRandomNumber(min, max);
 
             int tmp = GetRandomNumber(min, max - 1);
             return (tmp >= ignore) ? tmp + 1 : tmp;
@@ -72,7 +72,7 @@ namespace GenArt.Classes
 
         //public static int GetRandomNumber(int min, int max, int ignore)
         //{
-        //    if (!(min <= ignore && ignore <= max)) return GetRandomNumber2(min, max);
+        //    if (!(min <= ignore && ignore < max)) return GetRandomNumber2(min, max);
 
         //    int tmp = GetRandomNumber2(min, max - 1);
         //    return (tmp >= ignore) ? tmp + 1 : tmp;

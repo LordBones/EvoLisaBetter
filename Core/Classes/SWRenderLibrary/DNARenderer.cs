@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArtCoreNative;
 
 namespace GenArt.Core.Classes.SWRenderLibrary
 {
@@ -14,6 +15,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private SWTriangle _drawTriangle;
 
         public enum RenderType{WPF,GDI,SoftwareUniversalPolygon, SoftwareTriangle};
+
+        NativeFunctions nativefunc = new NativeFunctions();
 
         public CanvasBGRA Canvas
         {
@@ -35,7 +38,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
         {
-            _drawCanvas.FastClearColor(_black);
+            nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
+            //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
 
             DnaPolygon [] dnaPolygons = dna.Polygons;
             int polyCount = dnaPolygons.Length;

@@ -41,13 +41,14 @@ namespace GenArt.AST
             Blue = (byte)Tools.GetRandomNumber(0, 256);
             Alpha = (byte)Tools.GetRandomNumber(1, 256);
 
-            //Red = 255;
-            //Green = 0;
-            //Blue = 0;
-            //Alpha = 255;
+       
+        }
 
-            //Alpha = 255;
-
+        public void InitRandomWithoutAlpha()
+        {
+            Red = (byte)Tools.GetRandomNumber(0, 256);
+            Green = (byte)Tools.GetRandomNumber(0, 256);
+            Blue = (byte)Tools.GetRandomNumber(0, 256);
         }
 
         public void SetByColor(Color color)
@@ -72,7 +73,7 @@ namespace GenArt.AST
         public bool MutateRGBOld(DnaDrawing drawing)
         {
             
-                int colorPart = Tools.GetRandomNumber(1, 5);
+                int colorPart = Tools.GetRandomNumber(1, 7);
 
                 if (colorPart == 1)
                 {
@@ -91,10 +92,10 @@ namespace GenArt.AST
                     int tmp = Tools.GetRandomNumber(0, 20, 10);
                     Blue = (byte)Math.Max(Math.Min(Blue + tmp - 10, 255), 5);
                 }
-                else if (colorPart == 4)
+                else if (colorPart >= 4)
                 {
                     //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
-                    Alpha = (byte)Tools.GetRandomNumber(0, 255, Alpha);
+                    Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
                 }
                 
                 drawing.SetDirty();
@@ -102,6 +103,36 @@ namespace GenArt.AST
                 return true;
             
         }
+
+        public bool MutateRGBOldWithoutAlpha(DnaDrawing drawing)
+        {
+
+            int colorPart = Tools.GetRandomNumber(1, 4);
+
+            if (colorPart == 1)
+            {
+
+                int tmp = Tools.GetRandomNumber(0, 12, 6);
+
+                Red = (byte)Math.Max(Math.Min(Red + tmp - 6, 255), 5);
+            }
+            else if (colorPart == 2)
+            {
+                int tmp = Tools.GetRandomNumber(0, 12, 6);
+                Green = (byte)Math.Max(Math.Min(Green + tmp - 6, 255), 5);
+            }
+            else if (colorPart == 3)
+            {
+                int tmp = Tools.GetRandomNumber(0, 12, 6);
+                Blue = (byte)Math.Max(Math.Min(Blue + tmp - 6, 255), 5);
+            }
+
+            drawing.SetDirty();
+
+            return true;
+
+        }
+
 
         public bool MutateByRGB(DnaDrawing drawing)
         {

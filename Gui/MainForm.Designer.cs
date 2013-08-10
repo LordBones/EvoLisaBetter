@@ -33,14 +33,9 @@
             this.btnStart = new System.Windows.Forms.Button();
             this.tmrRedraw = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.sourceImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dNAToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.picPattern = new System.Windows.Forms.PictureBox();
+            this.pnlCanvas = new System.Windows.Forms.PictureBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.tsslFittnessError = new System.Windows.Forms.ToolStripStatusLabel();
             this.label5 = new System.Windows.Forms.Label();
@@ -63,18 +58,20 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.chbShowProgress = new System.Windows.Forms.CheckBox();
             this.chbLastGen = new System.Windows.Forms.CheckBox();
-            this.pnlCanvas = new System.Windows.Forms.PictureBox();
-            this.menuStrip1.SuspendLayout();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPattern)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).BeginInit();
             this.statusStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).BeginInit();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -110,60 +107,11 @@
             this.label2.TabIndex = 7;
             this.label2.Text = "Generated image";
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1282, 24);
-            this.menuStrip1.TabIndex = 14;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.saveToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sourceImageToolStripMenuItem});
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            // 
-            // sourceImageToolStripMenuItem
-            // 
-            this.sourceImageToolStripMenuItem.Name = "sourceImageToolStripMenuItem";
-            this.sourceImageToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.sourceImageToolStripMenuItem.Text = "Source Image";
-            this.sourceImageToolStripMenuItem.Click += new System.EventHandler(this.sourceImageToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.dNAToolStripMenuItem1});
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.saveToolStripMenuItem.Text = "Save";
-            // 
-            // dNAToolStripMenuItem1
-            // 
-            this.dNAToolStripMenuItem1.Name = "dNAToolStripMenuItem1";
-            this.dNAToolStripMenuItem1.Size = new System.Drawing.Size(99, 22);
-            this.dNAToolStripMenuItem1.Text = "DNA";
-            this.dNAToolStripMenuItem1.Click += new System.EventHandler(this.dNAToolStripMenuItem1_Click);
-            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 40);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -177,7 +125,7 @@
             this.splitContainer1.Panel2.AutoScroll = true;
             this.splitContainer1.Panel2.Controls.Add(this.pnlCanvas);
             this.splitContainer1.Panel2.Controls.Add(this.label2);
-            this.splitContainer1.Size = new System.Drawing.Size(1282, 534);
+            this.splitContainer1.Size = new System.Drawing.Size(1282, 512);
             this.splitContainer1.SplitterDistance = 660;
             this.splitContainer1.TabIndex = 21;
             // 
@@ -190,21 +138,32 @@
             this.picPattern.TabIndex = 3;
             this.picPattern.TabStop = false;
             // 
+            // pnlCanvas
+            // 
+            this.pnlCanvas.Location = new System.Drawing.Point(6, 16);
+            this.pnlCanvas.Name = "pnlCanvas";
+            this.pnlCanvas.Size = new System.Drawing.Size(269, 167);
+            this.pnlCanvas.TabIndex = 9;
+            this.pnlCanvas.TabStop = false;
+            this.pnlCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlCanvas_Paint);
+            // 
             // statusStrip2
             // 
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslFittnessError});
-            this.statusStrip2.Location = new System.Drawing.Point(0, 649);
+            this.statusStrip2.Location = new System.Drawing.Point(0, 646);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(1282, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(1282, 25);
             this.statusStrip2.TabIndex = 5;
             this.statusStrip2.Text = "statusStrip2";
             // 
             // tsslFittnessError
             // 
+            this.tsslFittnessError.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.tsslFittnessError.ForeColor = System.Drawing.Color.Black;
             this.tsslFittnessError.Name = "tsslFittnessError";
-            this.tsslFittnessError.Size = new System.Drawing.Size(32, 17);
-            this.tsslFittnessError.Text = "Error";
+            this.tsslFittnessError.Size = new System.Drawing.Size(41, 20);
+            this.tsslFittnessError.Text = "error";
             // 
             // label5
             // 
@@ -260,83 +219,96 @@
             this.toolStripStatusLabelPolygons,
             this.toolStripStatusLabel6,
             this.toolStripStatusLabelAvgPoints});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 627);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 621);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1282, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1282, 25);
+            this.statusStrip1.Stretch = false;
             this.statusStrip1.TabIndex = 26;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel1.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(43, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(53, 20);
             this.toolStripStatusLabel1.Text = "Fitness";
             // 
             // toolStripStatusLabelFitness
             // 
             this.toolStripStatusLabelFitness.AutoSize = false;
             this.toolStripStatusLabelFitness.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabelFitness.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelFitness.Name = "toolStripStatusLabelFitness";
-            this.toolStripStatusLabelFitness.Size = new System.Drawing.Size(183, 17);
+            this.toolStripStatusLabelFitness.Size = new System.Drawing.Size(166, 20);
             this.toolStripStatusLabelFitness.Spring = true;
             // 
             // toolStripStatusLabel2
             // 
+            this.toolStripStatusLabel2.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(65, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(82, 20);
             this.toolStripStatusLabel2.Text = "Generation";
             // 
             // toolStripStatusLabelGeneration
             // 
             this.toolStripStatusLabelGeneration.AutoSize = false;
+            this.toolStripStatusLabelGeneration.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabelGeneration.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelGeneration.Name = "toolStripStatusLabelGeneration";
-            this.toolStripStatusLabelGeneration.Size = new System.Drawing.Size(183, 17);
+            this.toolStripStatusLabelGeneration.Size = new System.Drawing.Size(166, 20);
             this.toolStripStatusLabelGeneration.Spring = true;
             // 
             // toolStripStatusLabel3
             // 
+            this.toolStripStatusLabel3.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(51, 17);
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(66, 20);
             this.toolStripStatusLabel3.Text = "Selected";
             // 
             // toolStripStatusLabelSelected
             // 
             this.toolStripStatusLabelSelected.AutoSize = false;
+            this.toolStripStatusLabelSelected.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelSelected.Name = "toolStripStatusLabelSelected";
-            this.toolStripStatusLabelSelected.Size = new System.Drawing.Size(183, 17);
+            this.toolStripStatusLabelSelected.Size = new System.Drawing.Size(166, 20);
             this.toolStripStatusLabelSelected.Spring = true;
             // 
             // toolStripStatusLabel4
             // 
+            this.toolStripStatusLabel4.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(40, 17);
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(49, 20);
             this.toolStripStatusLabel4.Text = "Points";
             // 
             // toolStripStatusLabelPoints
             // 
             this.toolStripStatusLabelPoints.AutoSize = false;
+            this.toolStripStatusLabelPoints.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelPoints.Name = "toolStripStatusLabelPoints";
-            this.toolStripStatusLabelPoints.Size = new System.Drawing.Size(183, 17);
+            this.toolStripStatusLabelPoints.Size = new System.Drawing.Size(166, 20);
             this.toolStripStatusLabelPoints.Spring = true;
             // 
             // toolStripStatusLabel5
             // 
+            this.toolStripStatusLabel5.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(56, 17);
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(69, 20);
             this.toolStripStatusLabel5.Text = "Polygons";
             // 
             // toolStripStatusLabelPolygons
             // 
             this.toolStripStatusLabelPolygons.AutoSize = false;
+            this.toolStripStatusLabelPolygons.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelPolygons.Name = "toolStripStatusLabelPolygons";
-            this.toolStripStatusLabelPolygons.Size = new System.Drawing.Size(183, 17);
+            this.toolStripStatusLabelPolygons.Size = new System.Drawing.Size(166, 20);
             this.toolStripStatusLabelPolygons.Spring = true;
             // 
             // toolStripStatusLabel6
             // 
+            this.toolStripStatusLabel6.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(95, 17);
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(118, 20);
             this.toolStripStatusLabel6.Text = "Points / polygon";
             // 
             // toolStripStatusLabelAvgPoints
@@ -356,7 +328,7 @@
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.btnStart);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 558);
+            this.panel1.Location = new System.Drawing.Point(0, 552);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1282, 69);
             this.panel1.TabIndex = 27;
@@ -381,14 +353,36 @@
             this.chbLastGen.Text = "Show best in last generation";
             this.chbLastGen.UseVisualStyleBackColor = true;
             // 
-            // pnlCanvas
+            // toolStrip1
             // 
-            this.pnlCanvas.Location = new System.Drawing.Point(6, 16);
-            this.pnlCanvas.Name = "pnlCanvas";
-            this.pnlCanvas.Size = new System.Drawing.Size(269, 167);
-            this.pnlCanvas.TabIndex = 9;
-            this.pnlCanvas.TabStop = false;
-            this.pnlCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlCanvas_Paint);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButton1,
+            this.toolStripButton2});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.MinimumSize = new System.Drawing.Size(0, 40);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1282, 40);
+            this.toolStrip1.TabIndex = 10;
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton1.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(95, 37);
+            this.toolStripButton1.Text = "Open Image";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButton2.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(44, 37);
+            this.toolStripButton2.Text = "Save";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // MainForm
             // 
@@ -397,16 +391,13 @@
             this.ClientSize = new System.Drawing.Size(1282, 671);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.statusStrip2);
-            this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Genetic Vectorizer by Roger Alsing ";
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -414,6 +405,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picPattern)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).EndInit();
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).EndInit();
@@ -421,7 +413,8 @@
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).EndInit();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -435,11 +428,6 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Timer tmrRedraw;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem dNAToolStripMenuItem1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label8;
@@ -463,8 +451,10 @@
         private System.Windows.Forms.CheckBox chbShowProgress;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsslFittnessError;
-        private System.Windows.Forms.ToolStripMenuItem sourceImageToolStripMenuItem;
         private System.Windows.Forms.PictureBox pnlCanvas;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton toolStripButton2;
     }
 }
 

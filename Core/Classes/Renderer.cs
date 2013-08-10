@@ -10,9 +10,9 @@ namespace GenArt.Classes
     {
        
         //Render a Drawing
-        public static void Render(DnaDrawing drawing,Graphics g,int scale, Color background)
+        public static void Render(DnaDrawing drawing,Graphics g,int scale)
         {
-            g.Clear(Color.Black);
+            g.Clear(drawing.BackGround.BrushColor);
             //g.Clear(background);
 
             for (int index = 0;index < drawing.Polygons.Length;index++)

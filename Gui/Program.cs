@@ -9,21 +9,39 @@ using GenArt.AST;
 using GenArt.Classes;
 using GenArt.Core.Classes;
 using GenArt.Core.Classes.SWRenderLibrary;
+using GenArtCoreNative;
 
 namespace GenArt
 {
     static class Program
     {
+        private static void TestBenchmarkColorFill()
+        {
+            const int CONST_LoopCount = 1000;
+            CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
+            NativeFunctions nativeFunc = new NativeFunctions();
+
+            for (int i = 0; i < CONST_LoopCount; i++)
+            {
+                nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
+            }
+
+            Console.Out.WriteLine("points fill: {0} Mpoints", (canvas.CountPixels * CONST_LoopCount) / 1000000);
+        }
+
+
         private static void TestBenchmark()
         {
-            DnaDrawing dna = new DnaDrawing();
+            const int CONST_Width = 200;
+            const int CONST_Height = 200;
+
+            DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
             
             for (int i =0; i < 100; i++)
                 dna.AddPolygon();
 
-            const int CONST_Width = 200;
-            const int CONST_Height = 200;
+            
 
             byte [] canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
 
@@ -85,7 +103,7 @@ namespace GenArt
 
             for (int repeat = 0; repeat < 1000; repeat++)
             {
-                DnaDrawing dna = new DnaDrawing();
+                DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
                 dna.Init();
 
                 for (int i =0; i < 2; i++)
@@ -233,6 +251,17 @@ namespace GenArt
             else
             {
                 
+                if (args[0] == "benchfill")
+                {
+                    TimeSpan ts = Process.GetCurrentProcess().UserProcessorTime;
+
+                    TestBenchmarkColorFill();
+
+                    ts = Process.GetCurrentProcess().UserProcessorTime - ts;
+
+                    Console.Out.WriteLine("time: {0}.{1:d3}", (int)ts.TotalSeconds, ts.Milliseconds);
+                    
+                }
                 if (args[0] == "bench")
                 {
 

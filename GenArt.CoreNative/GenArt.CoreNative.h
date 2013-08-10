@@ -4,14 +4,20 @@
 #include <math.h>
 #include <vcclr.h> 
 using namespace System;
+using namespace System::Drawing;
 
 namespace GenArtCoreNative {
 
-	public ref class Class1
+	public ref class NativeFunctions
 	{
 
 		private:
+
+	    void _ClearFieldByColor(unsigned char * curr, int length, int color);
+
 		__int64 computeFittness(unsigned char * curr, unsigned char * orig, int length);
+		__int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
+
 
         void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
 
@@ -19,6 +25,15 @@ namespace GenArtCoreNative {
 
 		// TODO: Add your methods for this class here.
 	public :
+
+		void ClearFieldByColor(array<System::Byte>^ canvas, int color)
+		{
+			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+			_ClearFieldByColor(pinCanvas, canvas->Length, color);
+
+		}
+
         void RowApplyColor(array<System::Byte>^ canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
@@ -45,8 +60,10 @@ namespace GenArtCoreNative {
 
 			}*/
 
-            result += computeFittness(pinCurr,pinOrig,orig->Length);
-			
+            result = computeFittness(pinCurr,pinOrig,orig->Length);
+
+			//result = computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
+
 
 			/*for(int index = 0;index < length;index+=4)
 			{
