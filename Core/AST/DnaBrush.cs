@@ -78,19 +78,19 @@ namespace GenArt.AST
                 if (colorPart == 1)
                 {
 
-                    int tmp = Tools.GetRandomNumber(0, 20, 10);
+                    int tmp = Tools.GetRandomNumber(0, 10, 5);
 
-                    Red = (byte)Math.Max(Math.Min(Red + tmp - 10, 255), 5);
+                    Red = (byte)Math.Max(Math.Min(Red + tmp - 5, 255), 0);
                 }
                 else if (colorPart == 2)
                 {
-                    int tmp = Tools.GetRandomNumber(0, 20, 10);
-                    Green = (byte)Math.Max(Math.Min(Green + tmp - 10, 255), 5);
+                    int tmp = Tools.GetRandomNumber(0, 10, 5);
+                    Green = (byte)Math.Max(Math.Min(Green + tmp - 5, 255), 0);
                 }
                 else if (colorPart == 3)
                 {
-                    int tmp = Tools.GetRandomNumber(0, 20, 10);
-                    Blue = (byte)Math.Max(Math.Min(Blue + tmp - 10, 255), 5);
+                    int tmp = Tools.GetRandomNumber(0, 10, 5);
+                    Blue = (byte)Math.Max(Math.Min(Blue + tmp - 5, 255), 0);
                 }
                 else if (colorPart >= 4)
                 {
@@ -114,17 +114,17 @@ namespace GenArt.AST
 
                 int tmp = Tools.GetRandomNumber(0, 12, 6);
 
-                Red = (byte)Math.Max(Math.Min(Red + tmp - 6, 255), 5);
+                Red = (byte)Math.Max(Math.Min(Red + tmp - 6, 255), 0);
             }
             else if (colorPart == 2)
             {
                 int tmp = Tools.GetRandomNumber(0, 12, 6);
-                Green = (byte)Math.Max(Math.Min(Green + tmp - 6, 255), 5);
+                Green = (byte)Math.Max(Math.Min(Green + tmp - 6, 255), 0);
             }
             else if (colorPart == 3)
             {
                 int tmp = Tools.GetRandomNumber(0, 12, 6);
-                Blue = (byte)Math.Max(Math.Min(Blue + tmp - 6, 255), 5);
+                Blue = (byte)Math.Max(Math.Min(Blue + tmp - 6, 255), 0);
             }
 
             drawing.SetDirty();

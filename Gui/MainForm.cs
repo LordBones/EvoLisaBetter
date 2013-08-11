@@ -36,6 +36,7 @@ namespace GenArt
 
         private Bitmap sourceBitmap;
         private CanvasBGRA sourceBitmapAsCanvas;
+        private ImageEdges SourceBitmapEdges;
 
         DNARenderer _dnaRender;
 
@@ -163,7 +164,7 @@ namespace GenArt
 
         private void StartEvolutionNew()
         {
-            GASearch gaSearch = new GASearch(10);
+            GASearch gaSearch = new GASearch(20);
             gaSearch.InitFirstPopulation(sourceBitmap);
 
             while (isRunning)
@@ -357,18 +358,13 @@ namespace GenArt
         {
             //if (isRunning && !this.chbShowProgress.Checked)
             //    return;
-
-            if (guiDrawing == null)
-            {
-                e.Graphics.Clear(Color.Black);
-                return;
-            }
+            e.Graphics.Clear(Color.Black);
 
 
             using (
                 var backBuffer = new Bitmap(trackBarScale.Value*picPattern.Width, trackBarScale.Value*picPattern.Height,
                                             PixelFormat.Format32bppPArgb))
-            using (Graphics backGraphics = Graphics.FromImage(backBuffer))
+            using (Graphics backGraphics = Graphics.FromImage(backBuffer)) 
             {
                 e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
                 e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
@@ -381,10 +377,22 @@ namespace GenArt
                 backGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
                  backGraphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
                  backGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-                
-                Renderer.Render(guiDrawing, backGraphics, trackBarScale.Value);
 
-                e.Graphics.DrawImage(backBuffer, 0, 0);
+                 if ((guiDrawing != null))
+                 {
+                     Renderer.Render(guiDrawing, backGraphics, trackBarScale.Value);
+                     e.Graphics.DrawImage(backBuffer, 0, 0);
+
+                 }
+                
+                DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
+                for (int index = 0; index < edgePoints.Length; index++)
+                {
+                    DnaPoint point = edgePoints[index];
+                    e.Graphics.FillRectangle(new SolidBrush(Color.White),
+                        point.X * trackBarScale.Value, point.Y * trackBarScale.Value, 1 * trackBarScale.Value, 1 * trackBarScale.Value);
+                }
+
             }
         }
 
@@ -399,12 +407,16 @@ namespace GenArt
 
             sourceBitmap = ConvertImageIntoPARGB();
             sourceBitmapAsCanvas = CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap);
+            EdgeDetector edgeDetector = new EdgeDetector(CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap));
+            edgeDetector.DetectEdges();
+            SourceBitmapEdges = edgeDetector.GetAllEdgesPoints();
 
             _dnaRender = new DNARenderer(Tools.MaxWidth, Tools.MaxHeight);
 
             SetCanvasSize();
 
             splitContainer1.SplitterDistance = picPattern.Width + 30;
+            pnlCanvas.Invalidate();
         }
 
         private void OpenImage()

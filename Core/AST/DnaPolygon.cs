@@ -124,6 +124,8 @@ namespace GenArt.AST
                     {
                         DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
                         result = edgePoints.GetFirstEdgeOnLineDirection(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
+                        if (result.HasValue && DnaPoint.Compare(result.Value, points[0]))
+                            result = null;
                     }
 
                     points[1] = result.Value;
@@ -133,6 +135,9 @@ namespace GenArt.AST
                     {
                         DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
                         result = edgePoints.GetFirstEdgeOnLineDirection(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
+
+                        if (result.HasValue && (DnaPoint.Compare(result.Value, points[0]) || DnaPoint.Compare(result.Value, points[1])))
+                            result = null;
                     }
 
                     points[2] = result.Value;
@@ -144,6 +149,7 @@ namespace GenArt.AST
                     }
                 }*/
 
+                
                 int startX = Tools.GetRandomNumber(1, edgePoints.Width);
                 int startY = Tools.GetRandomNumber(1, edgePoints.Height);
 
@@ -271,6 +277,9 @@ namespace GenArt.AST
                             if (IsNotSmallAngles(points) && 
                                 !IsIntersect(points))
                             {
+                                // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
+                                this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+
                                 drawing.SetDirty();
                                 break;
                             }

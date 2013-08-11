@@ -100,6 +100,9 @@ namespace GenArt.Core.Classes
             }
             int numerator = longest >> 1;
 
+            int lastPointX = x;
+            int lastPointY = y;
+
             for (int i=0; i <= longest; i++)
             {
                 if (y != startY && x != startX)
@@ -110,22 +113,41 @@ namespace GenArt.Core.Classes
                     if (this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
                         return new Nullable<DnaPoint>(new DnaPoint((short)x, (short)y));
 
+                    #region test edge
+                    // dojdeli soucasne k posunu po ose x a y, test okolnich dvou bodu zdali nejsou hranove
+                    if (lastPointX != x && lastPointY != y)
+                    {
+                        index = (y * this.Width + lastPointX);
+                        if(this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                            return new Nullable<DnaPoint>(new DnaPoint((short)lastPointX, (short)y));
+
+                        index = (lastPointY * this.Width + x);
+                        if (this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                            return new Nullable<DnaPoint>(new DnaPoint((short)x, (short)lastPointY));
+
+                    }
+
+                    #endregion
+
                     #endregion
                 }
 
                 numerator += shortest;
+
+                // zapamatovani predchoziho bodu
+                lastPointX = x;
+                lastPointY = y;
+
                 if (!(numerator < longest))
                 {
                     numerator -= longest;
                     x += dx1;
                     y += dy1;
-                    //compY += mullY;
                 }
                 else
                 {
                     x += dx2;
                     y += dy2;
-                    //compY += mully2;
                 }
             }
 

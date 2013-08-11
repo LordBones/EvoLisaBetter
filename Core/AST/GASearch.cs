@@ -221,6 +221,7 @@ namespace GenArt.Core.AST
             // aplikovani pridani nejlepsiho do kolekce
             _fittness[this._population.Length - 1] = this._currentBestFittness;
             _population[this._population.Length - 1] = this._currentBest;
+
             //_fittness[this._population.Length - 1] = this._lastBestFittness;
             //_population[this._population.Length - 1] = this._lastBest;
 

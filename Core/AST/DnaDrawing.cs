@@ -118,11 +118,17 @@ namespace GenArt.AST
 
         public void MutateBetter(CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
+            /// k mutaci pozadi dochazi pouze jednou 
+            if (Tools.GetRandomNumber(0, 10) == 9)
+                BackGround.MutateRGBOldWithoutAlpha(this);
+
             do
             {
                 int mutateChange = Tools.GetRandomNumber(0, 1001);
 
-                if (mutateChange < 50)
+
+
+                if (mutateChange < 50 )
                 {
                     if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                         RemovePolygon();
@@ -132,10 +138,10 @@ namespace GenArt.AST
                     RemovePolygon();
                 else if (mutateChange < 150)
                     SwapPolygon();
-                else if (mutateChange < 250)
+                /*else if (mutateChange < 250)
                 {
                     BackGround.MutateRGBOldWithoutAlpha(this);
-                }
+                }*/
 
                 else
                 {
@@ -147,7 +153,7 @@ namespace GenArt.AST
                         //for (int index = 0; index < Polygons.Length; index++)
                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        if (Tools.GetRandomNumber(0, 2) < 1)
+                        if (Tools.GetRandomNumber(0, 3) >= 1)
                         {
                             int index = Tools.GetRandomNumber(0, Polygons.Length);
                             Polygons[index].Mutate(this, destImage, edgePoints);
