@@ -50,7 +50,6 @@ namespace GenArt.AST
         {
             Polygons = new DnaPolygon[0];
             BackGround = new DnaBrush(255, 0, 0, 0);
-            BackGround.InitRandomWithoutAlpha();
             _maxHeight = maxHeight;
             _maxWidth = maxWidth;
         }
@@ -122,55 +121,55 @@ namespace GenArt.AST
             if (Tools.GetRandomNumber(0, 10) == 9)
                 BackGround.MutateRGBOldWithoutAlpha(this);
 
-            do
-            {
-                int mutateChange = Tools.GetRandomNumber(0, 1001);
+             do
+             {
+                 int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
 
-                if (mutateChange < 50 )
-                {
-                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                        RemovePolygon();
-                    AddPolygon(destImage, edgePoints);
-                }
-                else if (mutateChange < 100)
-                    RemovePolygon();
-                else if (mutateChange < 150)
-                    SwapPolygon();
-                /*else if (mutateChange < 250)
-                {
-                    BackGround.MutateRGBOldWithoutAlpha(this);
-                }*/
+                 if (mutateChange < 50)
+                 {
+                     if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                         RemovePolygon();
+                     AddPolygon(destImage, edgePoints);
+                 }
+                 else if (mutateChange < 100)
+                     RemovePolygon();
+                 else if (mutateChange < 150)
+                     SwapPolygon();
+               
 
-                else
-                {
-                    while (!this.IsDirty)
-                    {
-                        if (Polygons.Length == 0)
-                            break;
+                 else
+                 {
+                     while (!this.IsDirty)
+                     {
+                         if (Polygons.Length == 0)
+                             break;
 
-                        //for (int index = 0; index < Polygons.Length; index++)
-                        //    Polygons[index].Mutate(this,destImage, edgePoints);
+                         //for (int index = 0; index < Polygons.Length; index++)
+                         //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                        if (Tools.GetRandomNumber(0, 3) >= 1)
-                        {
-                            int index = Tools.GetRandomNumber(0, Polygons.Length);
-                            Polygons[index].Mutate(this, destImage, edgePoints);
-                        }
-                        else
-                        {
-                            int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                            Polygons[tindex].Brush.MutateRGBOld(this);
-                        }
-                    }
-                }
+                         if (Tools.GetRandomNumber(0, 3) >= 1)
+                         {
+                             int index = Tools.GetRandomNumber(0, Polygons.Length);
+                             Polygons[index].Mutate(this, destImage, edgePoints);
+                         }
+                         else
+                         {
+                             int tindex = Tools.GetRandomNumber(0, Polygons.Length);
+                             DnaBrush brush = Polygons[tindex].Brush;
+                             brush.MutateRGBOld(this);
+                             Polygons[tindex].Brush = brush;
+                             //Polygons[tindex].Brush.MutateRGBOld(this);
+                         }
+                     }
+                 }
 
                 
 
-            } while (Tools.GetRandomNumber(1,11) <= 5);
-            
-           
+             } while (Tools.GetRandomNumber(1,11) <= 5);
+
+
 
         }
 

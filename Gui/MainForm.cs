@@ -20,6 +20,8 @@ namespace GenArt
         public static Settings Settings;
         private DnaDrawing currentDrawing;
         private DnaDrawing lastDrawing = null;
+        private object DrawingLock = new object();
+
         private long lastErrorLevel = long.MaxValue;
         private long lastWorstErrorLevelDiff = 0;
 
@@ -44,9 +46,8 @@ namespace GenArt
 
         public MainForm()
         {
-           
+            Tools.ClearPseudoRandom();
             
-
             InitializeComponent();
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.Opaque, true);
@@ -164,7 +165,8 @@ namespace GenArt
 
         private void StartEvolutionNew()
         {
-            GASearch gaSearch = new GASearch(20);
+            Tools.ClearPseudoRandom();
+            GASearch gaSearch = new GASearch(10);
             gaSearch.InitFirstPopulation(sourceBitmap);
 
             while (isRunning)
@@ -182,9 +184,12 @@ namespace GenArt
                 if(gaSearch.CurrentBestFittness < errorLevel)
                 {
                     selected++;
-                    
-                    currentDrawing = gaSearch.CurrentBest;
-                    errorLevel = gaSearch.CurrentBestFittness;
+
+                    lock (DrawingLock)
+                    {
+                        currentDrawing = gaSearch.CurrentBest;
+                        errorLevel = gaSearch.CurrentBestFittness;
+                    }
                 }              
             }
         }
@@ -260,11 +265,16 @@ namespace GenArt
             btnStart.Text = "Start";
             isRunning = false;
             tmrRedraw.Enabled = false;
+            this.Text = Tools.randomCall.ToString();
+
+            if(guiDrawing != null)
+                StatRefresh(guiDrawing);
+
         }
 
         DateTime last = DateTime.Now;
         long lastGenetation = 0;
-
+        
         private void tmrRedraw_Tick(object sender, EventArgs e)
         {
 
@@ -272,8 +282,16 @@ namespace GenArt
             if (currentDrawing == null)
                 return;
 
-            int polygons = currentDrawing.Polygons.Length;
-            int points = currentDrawing.PointCount;
+            int polygons = 0;
+            int points = 0;
+
+            lock (DrawingLock)
+            {
+                polygons = currentDrawing.Polygons.Length;
+                points = currentDrawing.PointCount;
+
+            }
+
             double avg = 0;
             if (polygons != 0)
                 avg = points/polygons;
@@ -300,7 +318,7 @@ namespace GenArt
 
             if (shouldRepaint)
             {
-                lock (currentDrawing)
+                lock (DrawingLock)
                 {
                     if (chbLastGen.Checked)
                     {
@@ -320,30 +338,8 @@ namespace GenArt
                 lastSelected = selected;
             }
 
-            _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.SoftwareTriangle);
-            MatchStatistics ms = new MatchStatistics();
-            ms.ComputeImageMatchStat(sourceBitmapAsCanvas, _dnaRender.Canvas);
-
-            tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}"+
-                "       avg: {2:###.000} / {3:###.000}" +
-                "       R: {4:###.000} / {5:####.000},"+
-                "       G: {6:####.000} / {7:####.000},"+
-                "       B: {8:####.000} / {9:####.000}",
-
-                //" R avg: {1:###.000} stdev:{2:####.000}, G avg: {3:####.000} stdev:{4:####.000}," +
-                //" B avg: {5:####.000} stdev:{6:####.000},   Old:{7:G}",
-                (ms.ChDiff_AvgB+ms.ChDiff_AvgG+ms.ChDiff_AvgR),
-                (ms.ChDiff_StdDevB+ms.ChDiff_StdDevG+ms.ChDiff_StdDevR),
-                (ms.ChDiff_AvgB+ms.ChDiff_AvgG+ms.ChDiff_AvgR)/3,
-                (ms.ChDiff_StdDevB+ms.ChDiff_StdDevG+ms.ChDiff_StdDevR)/3,
-                ms.ChDiff_AvgR, ms.ChDiff_StdDevR,ms.ChDiff_AvgG,ms.ChDiff_StdDevG,
-                ms.ChDiff_AvgB, ms.ChDiff_StdDevB);
-                
-                
-                
+            StatRefresh(guiDrawing);
          
-
-
             double speed = (generation - lastGenetation) / (DateTime.Now - last).TotalSeconds;
 
             this.Text = "speed: " + string.Format("{0:######.000}", speed) +
@@ -385,13 +381,13 @@ namespace GenArt
 
                  }
                 
-                DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
-                for (int index = 0; index < edgePoints.Length; index++)
-                {
-                    DnaPoint point = edgePoints[index];
-                    e.Graphics.FillRectangle(new SolidBrush(Color.White),
-                        point.X * trackBarScale.Value, point.Y * trackBarScale.Value, 1 * trackBarScale.Value, 1 * trackBarScale.Value);
-                }
+                //DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
+                //for (int index = 0; index < edgePoints.Length; index++)
+                //{
+                //    DnaPoint point = edgePoints[index];
+                //    e.Graphics.FillRectangle(new SolidBrush(Color.White),
+                //        point.X * trackBarScale.Value, point.Y * trackBarScale.Value, 1 * trackBarScale.Value, 1 * trackBarScale.Value);
+                //}
 
             }
         }
@@ -444,9 +440,12 @@ namespace GenArt
             string fileName = FileUtil.GetSaveFileName(FileUtil.DnaExtension);
             if (string.IsNullOrEmpty(fileName) == false && currentDrawing != null)
             {
-                if (currentDrawing != null)
+                lock (DrawingLock)
                 {
-                    SaveDNAAsSVG(currentDrawing,CanvasBGRA.CreateCanvasFromBitmap(this.sourceBitmap)  , fileName);
+                    if (currentDrawing != null)
+                    {
+                        SaveDNAAsSVG(currentDrawing, CanvasBGRA.CreateCanvasFromBitmap(this.sourceBitmap), fileName);
+                    }
                 }
                
             }
@@ -498,8 +497,11 @@ namespace GenArt
                 sbPoints.AppendFormat("{0},{1} ", item.Points[1].X,item.Points[1].Y);
                 sbPoints.AppendFormat("{0},{1} ", item.Points[2].X,item.Points[2].Y);
 
-                sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",                    sbPoints.ToString(), item.Brush.Red,item.Brush.Green, item.Brush.Blue,
-                    (item.Brush.Alpha / 255.0).ToString("0.###",CultureInfo.InvariantCulture));                sb.AppendLine();
+                sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",
+                    sbPoints.ToString(), item.Brush.Red,item.Brush.Green, item.Brush.Blue,
+                    (item.Brush.Alpha / 255.0).ToString("0.###",CultureInfo.InvariantCulture));
+                sb.AppendLine();
+
             }
             sb.AppendLine("</svg>");
             sb.AppendLine("</svg>");
@@ -512,6 +514,29 @@ namespace GenArt
                 fs.Write(text, 0, text.Length);
             }
 
+        }
+
+        private void StatRefresh(DnaDrawing guiDrawing)
+        {
+            _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.SoftwareTriangle);
+            MatchStatistics ms = new MatchStatistics();
+            ms.ComputeImageMatchStat(sourceBitmapAsCanvas, _dnaRender.Canvas);
+
+            tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}" +
+                "       avg: {2:###.000} / {3:###.000}" +
+                "       R: {4:###.000} / {5:####.000}," +
+                "       G: {6:####.000} / {7:####.000}," +
+                "       B: {8:####.000} / {9:####.000}",
+
+                //" R avg: {1:###.000} stdev:{2:####.000}, G avg: {3:####.000} stdev:{4:####.000}," +
+                //" B avg: {5:####.000} stdev:{6:####.000},   Old:{7:G}",
+                (ms.ChDiff_AvgB + ms.ChDiff_AvgG + ms.ChDiff_AvgR),
+                (ms.ChDiff_StdDevB + ms.ChDiff_StdDevG + ms.ChDiff_StdDevR),
+                (ms.ChDiff_AvgB + ms.ChDiff_AvgG + ms.ChDiff_AvgR) / 3,
+                (ms.ChDiff_StdDevB + ms.ChDiff_StdDevG + ms.ChDiff_StdDevR) / 3,
+                ms.ChDiff_AvgR, ms.ChDiff_StdDevR, ms.ChDiff_AvgG, ms.ChDiff_StdDevG,
+                ms.ChDiff_AvgB, ms.ChDiff_StdDevB);
+                
         }
 
         private void trackBarScale_Scroll(object sender, EventArgs e)

@@ -28,8 +28,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             short x3 = points[2].X;
             short y3 = points[2].Y;
 
-            FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
-            //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
+            //FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
+            FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -247,8 +247,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 {
                     nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
                 }
-                //else
-                /*{
+                /*else
+                {
                     while (index <= endIndex)
                     {
 

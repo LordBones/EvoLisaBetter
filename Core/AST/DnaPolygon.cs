@@ -6,7 +6,6 @@ using GenArt.Core.Classes;
 
 namespace GenArt.AST
 {
-    [Serializable]
     public class DnaPolygon
     {
         public DnaPoint [] Points; // { get; set; }
@@ -278,7 +277,10 @@ namespace GenArt.AST
                                 !IsIntersect(points))
                             {
                                 // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
-                                this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                DnaBrush brush = this.Brush;
+                                brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                this.Brush = brush;
 
                                 drawing.SetDirty();
                                 break;
@@ -410,52 +412,7 @@ namespace GenArt.AST
 
         }
 
-        public void Mutate2(DnaDrawing drawing, byte[] _rawDestImage = null, int width = 0)
-        {
-            RemovePointByChance(drawing);
-
-            if (Tools.WillMutate(Settings.ActiveAddPointMutationRate))
-                AddPoint(drawing);
-
-            if (Tools.WillMutate(50000))
-            {
-                if (_rawDestImage != null)
-                {
-                    Color tmpColor = DnaDrawing.GetColorByPolygonPoints(this.Points, _rawDestImage, width);
-                    this.Brush.SetByColor(tmpColor);
-                }
-            }
-            else
-            {
-                Brush.MutateRGBOld(drawing);
-            }
-
-            #region move point with test intersect
-
-
-            DnaPoint [] points = this.ClonePoints();
-            bool pointsWasChange = false;
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                pointsWasChange |= points[index].Mutate();
-                //if (pointsWasChange) break;
-            }
-
-            if (pointsWasChange)
-            {
-                if (IsNotSmallAngles(points) && !IsIntersect(points))
-                {
-                    this.Points = points;
-                    drawing.SetDirty();
-                }
-            }
-
-            #endregion
-
-
-        }
-
+        
         private void RemovePointByChance(DnaDrawing drawing)
         {
 

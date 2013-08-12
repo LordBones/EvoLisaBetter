@@ -140,6 +140,7 @@ namespace GenArt.Core.AST
             for (int i =0; i < this._population.Length; i++)
             {
                 DnaDrawing dna = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
+                dna.BackGround.InitRandomWithoutAlpha();
 
                 for (int k =0; k < 10; k++)
                 {
@@ -157,13 +158,15 @@ namespace GenArt.Core.AST
 
         public void ExecuteGeneration()
         {
+            GenerateNewPopulationByMutation();
+
             ComputeFittness();
 
             UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();
             //GenerateNewPopulationRoulete();
-            GenerateNewPopulationByMutation();
+            
 
             //MutatePopulation();
 
@@ -177,7 +180,8 @@ namespace GenArt.Core.AST
                 _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareTriangle);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data);
-                long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = (this._population[index].PointCount + 1) * (this._population[index].PointCount + 1);
 

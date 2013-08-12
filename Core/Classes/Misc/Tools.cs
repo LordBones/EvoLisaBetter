@@ -9,9 +9,12 @@ namespace GenArt.Classes
         private static RandomNumberGenerator rng  = RandomNumberGenerator.Create();
         private static byte [] buff = new byte[800000];
         private static int buffIndex = 450000;
-        private static readonly Random random = new Random(0);
+        private static  Random random = new Random(0);
 
         public static readonly int MaxPolygons = 250;
+        public static long randomCall = 0;
+
+        public static void ClearPseudoRandom() { random = new Random(0); randomCall = 0; }
 
         public static int GetRandomNumber2(int min, int max)
         {
@@ -48,6 +51,7 @@ namespace GenArt.Classes
             //}
             //else
             {
+                randomCall++;
                 return random.Next(min, max);
             }
         }
@@ -60,10 +64,7 @@ namespace GenArt.Classes
             return (tmp >= ignore) ? tmp + 1 : tmp;
         }
 
-        public static short GetRandomNumber(short min, short max)
-        {
-            return (short)random.Next(min, max);
-        }
+        
 
         //public static int GetRandomNumber(int min, int max)
         //{
@@ -78,11 +79,7 @@ namespace GenArt.Classes
         //    return (tmp >= ignore) ? tmp + 1 : tmp;
         //}
 
-        //public static short GetRandomNumber(short min, short max)
-        //{
-        //    return (short)GetRandomNumber2(min, max);
-        //}
-
+        
 
         public static int MaxWidth = 200;
         public static int MaxHeight = 200;
