@@ -290,31 +290,10 @@ namespace GenArt.Classes
             }
 
 
-            double ChDiff_AvgB = medB.Median;
-            double ChDiff_AvgG = medG.Median;
-            double ChDiff_AvgR = medR.Median;
-
-
-            // spocteni prumerne std odchylky
-            index = 0;
-
-            double sumStdDevB = 0;
-            double sumStdDevG = 0;
-            double sumStdDevR = 0;
-            while (index < orig.Length)
-            {
-                sumStdDevB += Math.Abs(Tools.fastAbs(current[index] - orig[index]) - ChDiff_AvgB);
-                sumStdDevG += Math.Abs(Tools.fastAbs(current[index + 1] - orig[index + 1]) - ChDiff_AvgG);
-                sumStdDevR += Math.Abs(Tools.fastAbs(current[index + 2] - orig[index + 2]) - ChDiff_AvgR);
-                index += 4;
-            }
-
             long result = 0;
-            result += (long)(medB.TotalSum + ChDiff_AvgB * 2);
-            result += (long)(medG.TotalSum + ChDiff_AvgG * 2)*7;
-            result += (long)(medR.TotalSum + ChDiff_AvgR * 2)*2;
-          
-
+            result += (long)(medB.TotalSum + medB.SumStdDev * 2);
+            result += (long)(medG.TotalSum + medG.SumStdDev * 2) * 7;
+            result += (long)(medR.TotalSum + medR.SumStdDev * 2) * 2;
 
             return result;
         }

@@ -9,29 +9,47 @@ namespace GenArt.Core.Classes
 {
     public class MatchStatistics
     {
-        public double ChDiff_AvgB;
-        public double ChDiff_AvgG;
-        public double ChDiff_AvgR;
+        public double Diff_AvgB;
+        public double Diff_AvgG;
+        public double Diff_AvgR;
 
-        public double ChDiff_StdDevB;
-        public double ChDiff_StdDevG;
-        public double ChDiff_StdDevR;
+        public double Diff_MedB;
+        public double Diff_MedG;
+        public double Diff_MedR;
 
-        public double ComplexError
+        public double Diff_MedStdDevB;
+        public double Diff_MedStdDevG;
+        public double Diff_MedStdDevR;
+
+        public double Diff_AvgStdDevB;
+        public double Diff_AvgStdDevG;
+        public double Diff_AvgStdDevR;
+
+
+        public double ComplexErrorAvg
         {
-            get { return ChDiff_AvgB + ChDiff_AvgG + ChDiff_AvgR + ChDiff_StdDevB * 2 + ChDiff_StdDevG * 2 + ChDiff_StdDevR * 2; }
+            get { return Diff_AvgB + Diff_AvgG + Diff_AvgR + Diff_AvgStdDevB * 2 + Diff_AvgStdDevG * 2 + Diff_AvgStdDevR * 2; }
         }
+
+        public double ComplexErrorMed
+        {
+            get { return Diff_MedB + Diff_MedG + Diff_MedR + Diff_MedStdDevB * 2 + Diff_MedStdDevG * 2 + Diff_MedStdDevR * 2; }
+        }
+
 
         public MatchStatistics()
         {
 
         }
 
-        public void ComputeImageMatchStat(CanvasBGRA source, CanvasBGRA dest)
+        public void ComputeImageMatchStatAvg(CanvasBGRA source, CanvasBGRA dest)
         {
-            //ComputeStatChanelsAvg(source, dest);
-            ComputeStatChanelsMedian(source, dest);
+            ComputeStatChanelsAvg(source, dest);
+        }
 
+        public void ComputeImageMatchStatMed(CanvasBGRA source, CanvasBGRA dest)
+        {
+            ComputeStatChanelsMedian(source, dest);
         }
 
         private void ComputeStatChanelsMedian(CanvasBGRA source, CanvasBGRA dest)
@@ -50,29 +68,14 @@ namespace GenArt.Core.Classes
                 index += 4;
             }
 
+            Diff_MedB = medB.Median;
+            Diff_MedG = medG.Median;
+            Diff_MedR = medR.Median;
 
-            ChDiff_AvgB = medB.Median;
-            ChDiff_AvgG = medG.Median;
-            ChDiff_AvgR = medR.Median;
 
-
-            // spocteni prumerne std odchylky
-            index = 0;
-
-            double sumStdDevB = 0;
-            double sumStdDevG = 0;
-            double sumStdDevR = 0;
-            while (index < source.Length)
-            {
-                sumStdDevB += Math.Abs(Tools.fastAbs(source.Data[index] - dest.Data[index]) - this.ChDiff_AvgB);
-                sumStdDevG += Math.Abs(Tools.fastAbs(source.Data[index + 1] - dest.Data[index + 1]) - this.ChDiff_AvgG);
-                sumStdDevR += Math.Abs(Tools.fastAbs(source.Data[index + 2] - dest.Data[index + 2]) - this.ChDiff_AvgR);
-                index += 4;
-            }
-
-            ChDiff_StdDevB = sumStdDevB / source.CountPixels;
-            ChDiff_StdDevG = sumStdDevG / source.CountPixels;
-            ChDiff_StdDevR = sumStdDevR / source.CountPixels;
+            Diff_MedStdDevB = medB.StdDev;
+            Diff_MedStdDevG = medG.StdDev;
+            Diff_MedStdDevR = medR.StdDev;
         }
 
         private void ComputeStatChanelsAvg(CanvasBGRA source, CanvasBGRA dest)
@@ -94,9 +97,9 @@ namespace GenArt.Core.Classes
             }
 
 
-            ChDiff_AvgB = sumB / (double)source.CountPixels;
-            ChDiff_AvgG = sumG / (double)source.CountPixels;
-            ChDiff_AvgR = sumR / (double)source.CountPixels;
+            Diff_AvgB = sumB / (double)source.CountPixels;
+            Diff_AvgG = sumG / (double)source.CountPixels;
+            Diff_AvgR = sumR / (double)source.CountPixels;
 
            
             // spocteni prumerne std odchylky
@@ -107,15 +110,15 @@ namespace GenArt.Core.Classes
             double sumStdDevR = 0;
             while (index < source.Length)
             {
-                sumStdDevB += Math.Abs(Tools.fastAbs(source.Data[index] - dest.Data[index])-this.ChDiff_AvgB);
-                sumStdDevG += Math.Abs(Tools.fastAbs(source.Data[index + 1] - dest.Data[index + 1]) - this.ChDiff_AvgG);
-                sumStdDevR += Math.Abs(Tools.fastAbs(source.Data[index + 2] - dest.Data[index + 2])-this.ChDiff_AvgR);
+                sumStdDevB += Math.Abs(Tools.fastAbs(source.Data[index] - dest.Data[index])-this.Diff_AvgB);
+                sumStdDevG += Math.Abs(Tools.fastAbs(source.Data[index + 1] - dest.Data[index + 1]) - this.Diff_AvgG);
+                sumStdDevR += Math.Abs(Tools.fastAbs(source.Data[index + 2] - dest.Data[index + 2])-this.Diff_AvgR);
                 index += 4;
             }
 
-            ChDiff_StdDevB = sumStdDevB / source.CountPixels;
-            ChDiff_StdDevG = sumStdDevG / source.CountPixels;
-            ChDiff_StdDevR = sumStdDevR / source.CountPixels;
+            Diff_AvgStdDevB = sumStdDevB / source.CountPixels;
+            Diff_AvgStdDevG = sumStdDevG / source.CountPixels;
+            Diff_AvgStdDevR = sumStdDevR / source.CountPixels;
         }
     }
 }

@@ -102,14 +102,43 @@ __int64 GenArtCoreNative::NativeFunctions::computeFittnessWithStdDev(unsigned ch
 		}
 
 
-__forceinline unsigned char ApplyColor(int colorChanel, int axrem, int rem)
+__forceinline unsigned int ApplyColor(int colorChanel, int axrem, int rem)
 {
-    return (unsigned char)((axrem + rem * colorChanel) >> 16);
+    return ((axrem + rem * colorChanel) >> 16);
 }
 
 void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
 {
-    while(from <= to)
+	unsigned int * ptrColor = (unsigned int *)(canvas+from);
+
+	int count = (to - from)>>2;
+
+	 while(count>=0)
+    {
+        
+		unsigned int Color = ptrColor[count];
+		
+		unsigned int R = 0;
+		R = ApplyColor((Color>>16)&0xFF, colorARRrem, colorRem);
+		unsigned int G = (Color>>8)&0xFF;
+		G = ApplyColor(G, colorAGRrem, colorRem);
+		unsigned int B = Color&0xFF;
+		
+
+        B = ((colorABRrem + colorRem * B)>> 16);// ApplyColor(B, colorABRrem, colorRem);
+        
+        
+
+		ptrColor[count] = (Color&0xff000000) | (R<<16) | (G << 8) | B;
+
+		
+		count--;
+        
+    }
+
+
+
+    /*while(from <= to)
     {
         int index = from;
          canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
@@ -117,7 +146,7 @@ void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas
                     canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
 
                     from += 4;
-    }
+    }*/
 
    /* canvas = canvas + from;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GenArt.Classes;
 
 namespace GenArt.Core.Classes
 {
@@ -18,7 +19,7 @@ namespace GenArt.Core.Classes
         {
             get
             {
-                int sum = 0;
+                long sum = 0;
                 for (int index = 0; index < CONST_MedianTableSize; index++) sum += _medianTable[index];
                 return sum;
             }
@@ -38,6 +39,18 @@ namespace GenArt.Core.Classes
         {
             get { return ComputeMedian(); }
         }
+
+        public double SumStdDev
+        {
+            get{return ComputeSumStdDev();}
+        }
+
+        public double StdDev
+        {
+            get { return ComputeSumStdDev()/TotalCount; }
+        }
+
+      
 
         #endregion
 
@@ -60,6 +73,27 @@ namespace GenArt.Core.Classes
             _medianTable[data]++;
         }
 
+        private double ComputeSumStdDev()
+        {
+            double Median = ComputeMedian();
+
+            double sum = 0.0;
+            long totalcount = 0;
+
+            for (int index = 0; index < CONST_MedianTableSize; index++)
+            {
+                int dataCount = _medianTable[index];
+                if (dataCount > 0)
+                {
+                    sum += Math.Abs(index - Median) * dataCount;
+                }
+
+                totalcount += dataCount;
+            }
+
+            return sum;
+        }
+
         private double ComputeMedian()
         {
             long totalLength = TotalCount;
@@ -80,10 +114,11 @@ namespace GenArt.Core.Classes
 
             while (index < CONST_MedianTableSize)
             {
-                // pricteni
-                if(_medianTable[index] + sum < halfLength) sum += _medianTable[index];
+                int dataCount = _medianTable[index];
+                if (dataCount + sum < halfLength) sum += dataCount;
+
                 // median nalezen, ale mozna je potreba ho spocitat z dlasiho indexu
-                else if (_medianTable[index] + sum == halfLength)
+                else if (dataCount + sum == halfLength)
                 {
                     // if not odd
                     if ((totalLength & 1) == 1) return (byte)index;
