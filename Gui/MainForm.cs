@@ -170,13 +170,20 @@ namespace GenArt
 
         private void StartEvolutionNew()
         {
+            lastDrawing = null;
+            lastErrorLevel = 0;
+            lastWorstErrorLevelDiff = 0;
+            errorLevel = long.MaxValue;
+            selected = 0;
+            currentDrawing = null;
+
             Tools.ClearPseudoRandom();
             GASearch gaSearch = new GASearch(InitPopulation);
             gaSearch.InitFirstPopulation(sourceBitmap, EdgeThreshold);
 
             while (isRunning)
             {
-                //if (generation > 14000) break;
+                if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -381,19 +388,22 @@ namespace GenArt
                  backGraphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
                  backGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
 
-                 if ((guiDrawing != null))
+                 if ((guiDrawing != null) && chbShowResult.Checked)
                  {
                      Renderer.Render(guiDrawing, backGraphics, ZoomScale);
                      e.Graphics.DrawImage(backBuffer, 0, 0);
 
                  }
 
-                 DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
-                 for (int index = 0; index < edgePoints.Length; index++)
+                 if (chbShowEdges.Checked)
                  {
-                     DnaPoint point = edgePoints[index];
-                     e.Graphics.FillRectangle(new SolidBrush(Color.White),
-                         point.X * ZoomScale, point.Y * ZoomScale, 1 * ZoomScale, 1 * ZoomScale);
+                     DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
+                     for (int index = 0; index < edgePoints.Length; index++)
+                     {
+                         DnaPoint point = edgePoints[index];
+                         e.Graphics.FillRectangle(new SolidBrush(Color.White),
+                             point.X * ZoomScale, point.Y * ZoomScale, 1 * ZoomScale, 1 * ZoomScale);
+                     }
                  }
 
             }
@@ -552,9 +562,9 @@ namespace GenArt
 
             tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +
     "       avg: {2:###.000} / {3:###.000}" +
-    "       R: {4:###} / {5:###.000}," +
-    "       G: {6:###} / {7:###.000}," +
-    "       B: {8:###} / {9:###.000}",
+    "       R: {4:000} / {5:000.000}," +
+    "       G: {6:000} / {7:000.000}," +
+    "       B: {8:000} / {9:000.000}",
 
     (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
     (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR),
@@ -585,6 +595,16 @@ namespace GenArt
         private void nudEdgeThreshold_ValueChanged(object sender, EventArgs e)
         {
             UpdateSourceBitmapEdges();
+            pnlCanvas.Invalidate();
+        }
+
+        private void chbShowResult_CheckedChanged(object sender, EventArgs e)
+        {
+            pnlCanvas.Invalidate();
+        }
+
+        private void chbShowEdges_CheckedChanged(object sender, EventArgs e)
+        {
             pnlCanvas.Invalidate();
         }
 

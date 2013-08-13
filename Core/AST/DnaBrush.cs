@@ -73,7 +73,7 @@ namespace GenArt.AST
         public bool MutateRGBOld(DnaDrawing drawing)
         {
             
-                int colorPart = Tools.GetRandomNumber(1, 7);
+                int colorPart = Tools.GetRandomNumber(1, 5);
 
                 if (colorPart == 1)
                 {
