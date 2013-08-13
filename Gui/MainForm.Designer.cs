@@ -39,9 +39,6 @@
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.tsslFittnessError = new System.Windows.Forms.ToolStripStatusLabel();
             this.label5 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.trackBarScale = new System.Windows.Forms.TrackBar();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelFitness = new System.Windows.Forms.ToolStripStatusLabel();
@@ -61,6 +58,12 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.nudZoom = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.nudPopulation = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.nudEdgeThreshold = new System.Windows.Forms.NumericUpDown();
+            this.btnReset = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -68,10 +71,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.picPattern)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).BeginInit();
             this.statusStrip2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudZoom)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPopulation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -85,9 +90,9 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(12, 12);
+            this.btnStart.Location = new System.Drawing.Point(12, 6);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(76, 33);
+            this.btnStart.Size = new System.Drawing.Size(76, 25);
             this.btnStart.TabIndex = 6;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -168,41 +173,11 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(325, 14);
+            this.label5.Location = new System.Drawing.Point(658, 12);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(119, 13);
+            this.label5.Size = new System.Drawing.Size(65, 13);
             this.label5.TabIndex = 22;
-            this.label5.Text = "Generated image scale:";
-            // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(697, 20);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(19, 13);
-            this.label10.TabIndex = 24;
-            this.label10.Text = "10";
-            // 
-            // label8
-            // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(175, 14);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(13, 13);
-            this.label8.TabIndex = 23;
-            this.label8.Text = "1";
-            // 
-            // trackBarScale
-            // 
-            this.trackBarScale.Location = new System.Drawing.Point(166, 30);
-            this.trackBarScale.Minimum = 1;
-            this.trackBarScale.Name = "trackBarScale";
-            this.trackBarScale.Size = new System.Drawing.Size(550, 45);
-            this.trackBarScale.TabIndex = 21;
-            this.trackBarScale.Value = 1;
-            this.trackBarScale.Scroll += new System.EventHandler(this.trackBarScale_Scroll);
+            this.label5.Text = "Zoom scale:";
             // 
             // statusStrip1
             // 
@@ -320,12 +295,15 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnReset);
+            this.panel1.Controls.Add(this.nudEdgeThreshold);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.nudPopulation);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.nudZoom);
             this.panel1.Controls.Add(this.chbShowProgress);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.chbLastGen);
-            this.panel1.Controls.Add(this.label10);
-            this.panel1.Controls.Add(this.trackBarScale);
-            this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.btnStart);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 552);
@@ -336,7 +314,7 @@
             // chbShowProgress
             // 
             this.chbShowProgress.AutoSize = true;
-            this.chbShowProgress.Location = new System.Drawing.Point(780, 43);
+            this.chbShowProgress.Location = new System.Drawing.Point(793, 36);
             this.chbShowProgress.Name = "chbShowProgress";
             this.chbShowProgress.Size = new System.Drawing.Size(96, 17);
             this.chbShowProgress.TabIndex = 26;
@@ -346,7 +324,7 @@
             // chbLastGen
             // 
             this.chbLastGen.AutoSize = true;
-            this.chbLastGen.Location = new System.Drawing.Point(780, 20);
+            this.chbLastGen.Location = new System.Drawing.Point(793, 13);
             this.chbLastGen.Name = "chbLastGen";
             this.chbLastGen.Size = new System.Drawing.Size(159, 17);
             this.chbLastGen.TabIndex = 25;
@@ -384,6 +362,104 @@
             this.toolStripButton2.Text = "Save";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
+            // nudZoom
+            // 
+            this.nudZoom.Location = new System.Drawing.Point(729, 10);
+            this.nudZoom.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.nudZoom.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudZoom.Name = "nudZoom";
+            this.nudZoom.Size = new System.Drawing.Size(43, 20);
+            this.nudZoom.TabIndex = 27;
+            this.nudZoom.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nudZoom.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudZoom.ValueChanged += new System.EventHandler(this.nudZoom_ValueChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(109, 43);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(60, 13);
+            this.label3.TabIndex = 28;
+            this.label3.Text = "Population:";
+            // 
+            // nudPopulation
+            // 
+            this.nudPopulation.Location = new System.Drawing.Point(200, 36);
+            this.nudPopulation.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudPopulation.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudPopulation.Name = "nudPopulation";
+            this.nudPopulation.Size = new System.Drawing.Size(67, 20);
+            this.nudPopulation.TabIndex = 29;
+            this.nudPopulation.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nudPopulation.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(109, 14);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(85, 13);
+            this.label4.TabIndex = 30;
+            this.label4.Text = "Edge Threshold:";
+            // 
+            // nudEdgeThreshold
+            // 
+            this.nudEdgeThreshold.Location = new System.Drawing.Point(200, 10);
+            this.nudEdgeThreshold.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nudEdgeThreshold.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudEdgeThreshold.Name = "nudEdgeThreshold";
+            this.nudEdgeThreshold.Size = new System.Drawing.Size(67, 20);
+            this.nudEdgeThreshold.TabIndex = 31;
+            this.nudEdgeThreshold.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nudEdgeThreshold.Value = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.nudEdgeThreshold.ValueChanged += new System.EventHandler(this.nudEdgeThreshold_ValueChanged);
+            // 
+            // btnReset
+            // 
+            this.btnReset.Location = new System.Drawing.Point(12, 37);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(76, 25);
+            this.btnReset.TabIndex = 32;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -408,13 +484,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.pnlCanvas)).EndInit();
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudZoom)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPopulation)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -429,10 +507,7 @@
         private System.Windows.Forms.Timer tmrRedraw;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TrackBar trackBarScale;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFitness;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelGeneration;
@@ -455,6 +530,12 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.NumericUpDown nudZoom;
+        private System.Windows.Forms.NumericUpDown nudEdgeThreshold;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown nudPopulation;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnReset;
     }
 }
 

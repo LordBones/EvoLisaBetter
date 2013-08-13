@@ -86,9 +86,8 @@ namespace GenArt.Core.Classes
                 if (dataCount > 0)
                 {
                     sum += Math.Abs(index - Median) * dataCount;
+                    totalcount += dataCount;
                 }
-
-                totalcount += dataCount;
             }
 
             return sum;
@@ -97,11 +96,11 @@ namespace GenArt.Core.Classes
         private double ComputeMedian()
         {
             long totalLength = TotalCount;
-            long halfLength = totalLength / 2 + (totalLength&1);
+            long halfLength = totalLength / 2 + (totalLength & 1);
 
             if (totalLength == 0) return 0.0;
 
-            
+
             long sum = 0;
             int index = 0;
 
@@ -111,17 +110,26 @@ namespace GenArt.Core.Classes
                 return index;
             }
 
-
             while (index < CONST_MedianTableSize)
             {
                 int dataCount = _medianTable[index];
-                if (dataCount + sum < halfLength) sum += dataCount;
+                if (dataCount + sum < halfLength)
+                {
+                    sum += dataCount;
+                    index++;
+                }
+                else
+                    break;
+            }
+
+            if (index < CONST_MedianTableSize)
+            {
 
                 // median nalezen, ale mozna je potreba ho spocitat z dlasiho indexu
-                else if (dataCount + sum == halfLength)
+                if (_medianTable[index] + sum == halfLength)
                 {
                     // if not odd
-                    if ((totalLength & 1) == 1) return (byte)index;
+                    if ((totalLength & 1) == 1) return index;
                     else
                     {
                         int startValue = index;
@@ -136,9 +144,8 @@ namespace GenArt.Core.Classes
                 {
                     return index; ;
                 }
-
-                index++;
             }
+
 
             return 0.0;
         }

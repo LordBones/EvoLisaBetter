@@ -108,10 +108,10 @@ namespace GenArt.Core.AST
             return Color.FromArgb(255, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
-        private static ImageEdges CreateEdges(CanvasBGRA destImg)
+        private static ImageEdges CreateEdges(CanvasBGRA destImg, int EdgeThreshold)
         {
             EdgeDetector ed = new EdgeDetector(destImg);
-            ed.DetectEdges();
+            ed.DetectEdges(EdgeThreshold);
             
             ed.SaveEdgesAsBitmap("ImageEdges.bmp");
             ed.SaveBitmapHSL("bmpHSL_H.bmp", true, false, false);
@@ -122,7 +122,7 @@ namespace GenArt.Core.AST
 
         }
 
-        public void InitFirstPopulation(Bitmap destImg)
+        public void InitFirstPopulation(Bitmap destImg, int EdgeTreshold)
         {
             this._generation = 0;
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
@@ -132,7 +132,7 @@ namespace GenArt.Core.AST
 
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
 
-            this._edgePoints = CreateEdges(this._destCanvas);
+            this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             this._destCanvas.EasyColorReduction();
 
            
@@ -180,7 +180,8 @@ namespace GenArt.Core.AST
                 _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareTriangle);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data);
-                long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = (this._population[index].PointCount + 1) * (this._population[index].PointCount + 1);

@@ -511,7 +511,7 @@ namespace GenArt.AST
             //int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
 
             int alpha = 254 - (Math.Min(avgSumDiff, 127) << 1);
-            alpha = 5 + (249
+            alpha = 5 + (128
                 * alpha) / 254;
 
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);

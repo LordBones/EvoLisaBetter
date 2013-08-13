@@ -44,6 +44,11 @@ namespace GenArt
 
         private Thread thread;
 
+        private int ZoomScale { get { return (int)nudZoom.Value; } }
+        private int InitPopulation { get { return (int)nudPopulation.Value; } }
+        private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
+
+
         public MainForm()
         {
             Tools.ClearPseudoRandom();
@@ -166,12 +171,12 @@ namespace GenArt
         private void StartEvolutionNew()
         {
             Tools.ClearPseudoRandom();
-            GASearch gaSearch = new GASearch(10);
-            gaSearch.InitFirstPopulation(sourceBitmap);
+            GASearch gaSearch = new GASearch(InitPopulation);
+            gaSearch.InitFirstPopulation(sourceBitmap, EdgeThreshold);
 
             while (isRunning)
             {
-                if (generation > 14000) break;
+                //if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -352,13 +357,15 @@ namespace GenArt
 
         private void pnlCanvas_Paint(object sender, PaintEventArgs e)
         {
+
+
             //if (isRunning && !this.chbShowProgress.Checked)
             //    return;
             e.Graphics.Clear(Color.Black);
 
 
             using (
-                var backBuffer = new Bitmap(trackBarScale.Value*picPattern.Width, trackBarScale.Value*picPattern.Height,
+                var backBuffer = new Bitmap(ZoomScale * picPattern.Width, ZoomScale * picPattern.Height,
                                             PixelFormat.Format32bppPArgb))
             using (Graphics backGraphics = Graphics.FromImage(backBuffer)) 
             {
@@ -376,18 +383,18 @@ namespace GenArt
 
                  if ((guiDrawing != null))
                  {
-                     Renderer.Render(guiDrawing, backGraphics, trackBarScale.Value);
+                     Renderer.Render(guiDrawing, backGraphics, ZoomScale);
                      e.Graphics.DrawImage(backBuffer, 0, 0);
 
                  }
-                
-                //DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
-                //for (int index = 0; index < edgePoints.Length; index++)
-                //{
-                //    DnaPoint point = edgePoints[index];
-                //    e.Graphics.FillRectangle(new SolidBrush(Color.White),
-                //        point.X * trackBarScale.Value, point.Y * trackBarScale.Value, 1 * trackBarScale.Value, 1 * trackBarScale.Value);
-                //}
+
+                 DnaPoint [] edgePoints = SourceBitmapEdges.EdgePoints;
+                 for (int index = 0; index < edgePoints.Length; index++)
+                 {
+                     DnaPoint point = edgePoints[index];
+                     e.Graphics.FillRectangle(new SolidBrush(Color.White),
+                         point.X * ZoomScale, point.Y * ZoomScale, 1 * ZoomScale, 1 * ZoomScale);
+                 }
 
             }
         }
@@ -403,9 +410,7 @@ namespace GenArt
 
             sourceBitmap = ConvertImageIntoPARGB();
             sourceBitmapAsCanvas = CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap);
-            EdgeDetector edgeDetector = new EdgeDetector(CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap));
-            edgeDetector.DetectEdges();
-            SourceBitmapEdges = edgeDetector.GetAllEdgesPoints();
+            UpdateSourceBitmapEdges();
 
             _dnaRender = new DNARenderer(Tools.MaxWidth, Tools.MaxHeight);
 
@@ -413,6 +418,13 @@ namespace GenArt
 
             splitContainer1.SplitterDistance = picPattern.Width + 30;
             pnlCanvas.Invalidate();
+        }
+
+        private void UpdateSourceBitmapEdges()
+        {
+            EdgeDetector edgeDetector = new EdgeDetector(CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap));
+            edgeDetector.DetectEdges(EdgeThreshold);
+            SourceBitmapEdges = edgeDetector.GetAllEdgesPoints();
         }
 
         private void OpenImage()
@@ -426,8 +438,8 @@ namespace GenArt
 
         private void SetCanvasSize()
         {
-            pnlCanvas.Height = trackBarScale.Value*picPattern.Height;
-            pnlCanvas.Width = trackBarScale.Value*picPattern.Width;
+            pnlCanvas.Height = ZoomScale * picPattern.Height;
+            pnlCanvas.Width = ZoomScale * picPattern.Width;
 
             pnlCanvas.Invalidate();
             lastRepaint = DateTime.Now;
@@ -538,11 +550,11 @@ namespace GenArt
             //    ms.Diff_AvgB, ms.Diff_AvgStdDevB);
 
 
-            tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###.000} / {1:###.000}" +
+            tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +
     "       avg: {2:###.000} / {3:###.000}" +
-    "       R: {4:###.000} / {5:####.000}," +
-    "       G: {6:####.000} / {7:####.000}," +
-    "       B: {8:####.000} / {9:####.000}",
+    "       R: {4:###} / {5:###.000}," +
+    "       G: {6:###} / {7:###.000}," +
+    "       B: {8:###} / {9:###.000}",
 
     (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
     (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR),
@@ -553,10 +565,7 @@ namespace GenArt
 
         }
 
-        private void trackBarScale_Scroll(object sender, EventArgs e)
-        {
-            SetCanvasSize();
-        }
+        
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
@@ -566,6 +575,17 @@ namespace GenArt
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
             SaveDNA();
+        }
+
+        private void nudZoom_ValueChanged(object sender, EventArgs e)
+        {
+            SetCanvasSize();
+        }
+
+        private void nudEdgeThreshold_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateSourceBitmapEdges();
+            pnlCanvas.Invalidate();
         }
 
         

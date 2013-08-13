@@ -2,9 +2,12 @@
 
 #include "stdafx.h"
 #include "string.h"
+#include "NativeMedian8bit.h"
 #include <iostream>
 
 #include "GenArt.CoreNative.h"
+
+//#define FastAbs(x) ((x^(x>>31))-(x>>31))
 
 int FastAbs(int data)
 {
@@ -64,41 +67,29 @@ __int64 GenArtCoreNative::NativeFunctions::computeFittness(unsigned char * curr,
 
 __int64 GenArtCoreNative::NativeFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 		{
-			__int64 result = 0;
+            NativeMedian8Bit medR = NativeMedian8Bit();
+            NativeMedian8Bit medG = NativeMedian8Bit();
+            NativeMedian8Bit medB = NativeMedian8Bit();
 
-			_int64 sumR = 0;
-			_int64 sumG = 0;
-			_int64 sumB = 0;
+            
+            int index = 0;
+            while (index < length)
+            {
+                medB.InsertData(FastAbs(curr[index] - orig[index]));
+                medG.InsertData(FastAbs(curr[index + 1] - orig[index + 1]));
+                medR.InsertData(FastAbs(curr[index + 2] - orig[index + 2]));
+                index += 4;
+            }
 
 
-			for(int index = 0;index < length;index+=4)
-			{
-				sumR +=  FastAbs(curr[index] - orig[index]);
-                sumG += FastAbs(curr[index+1] - orig[index+1]);
-                sumB += FastAbs(curr[index+2] - orig[index+2]);
-			}
+            __int64 result = 0;
+            result += (medB.ValueSum() + medB.SumStdDev()*2);
+            result += (medG.ValueSum() + medG.SumStdDev() * 2);
+            result += (medR.ValueSum() + medR.SumStdDev() * 2);
 
+            return result;
 
-			_int64 sumAvgR = sumR / (length *4);
-			_int64 sumAvgG = sumG / (length *4);
-			_int64 sumAvgB = sumB / (length *4);
-
-			_int64 sumDiffR = 0;
-			_int64 sumDiffG = 0;
-			_int64 sumDiffB = 0;
-
-			for(int index = 0;index < length;index+=4)
-			{
-				sumDiffR += FastAbs( FastAbs(curr[index] - orig[index]) - sumAvgR);
-                sumDiffG += FastAbs(FastAbs(curr[index+1] - orig[index+1]) - sumAvgG);
-                sumDiffB += FastAbs(FastAbs(curr[index+2] - orig[index+2]) - sumAvgB);
-			}
-
-			result += sumR + sumG+sumB;
-			result += sumDiffR + sumDiffG+sumDiffB;
 			
-
-			return result;
 		}
 
 
@@ -109,36 +100,36 @@ __forceinline unsigned int ApplyColor(int colorChanel, int axrem, int rem)
 
 void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
 {
-	unsigned int * ptrColor = (unsigned int *)(canvas+from);
+	//unsigned int * ptrColor = (unsigned int *)(canvas+from);
 
-	int count = (to - from)>>2;
+	//int count = (to - from)>>2;
 
-	 while(count>=0)
-    {
-        
-		unsigned int Color = ptrColor[count];
-		
-		unsigned int R = 0;
-		R = ApplyColor((Color>>16)&0xFF, colorARRrem, colorRem);
-		unsigned int G = (Color>>8)&0xFF;
-		G = ApplyColor(G, colorAGRrem, colorRem);
-		unsigned int B = Color&0xFF;
-		
+	// while(count>=0)
+ //   {
+ //       
+	//	unsigned int Color = ptrColor[count];
+	//	unsigned int res = Color&0xff000000;
 
-        B = ((colorABRrem + colorRem * B)>> 16);// ApplyColor(B, colorABRrem, colorRem);
-        
-        
+	//	res |= ApplyColor((Color>>16)&0xFF, colorARRrem, colorRem) << 16; // r
+	//	unsigned int G = (Color>>8)&0xFF;
+	//	res |= ApplyColor(G, colorAGRrem, colorRem)<<8;
+	//	unsigned int B = Color&0xFF;
+	//	
 
-		ptrColor[count] = (Color&0xff000000) | (R<<16) | (G << 8) | B;
+ //       res |= ((colorABRrem + colorRem * B)>> 16);// ApplyColor(B, colorABRrem, colorRem);
+ //       
+ //       
 
-		
-		count--;
-        
-    }
+	//	ptrColor[count] = res; // (Color&0xff000000) | (R<<16) | (G << 8) | B;
+
+	//	
+	//	count--;
+ //       
+ //   }
 
 
 
-    /*while(from <= to)
+    while(from <= to)
     {
         int index = from;
          canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
@@ -146,7 +137,7 @@ void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas
                     canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
 
                     from += 4;
-    }*/
+    }
 
    /* canvas = canvas + from;
 

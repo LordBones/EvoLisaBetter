@@ -161,9 +161,8 @@ namespace GenArt.Core.Classes
         private CanvasBGRA _originalImage = null;
         private Array2D _edgesPoints;
 
-        private const int CONST_Threshold = 25;
-        private const double CONST_ThresholdDouble = 25.0;
-
+        private int _threshold = 25;
+        
         public EdgeDetector(CanvasBGRA bmp)
         {
             _originalImage = bmp;
@@ -230,8 +229,10 @@ namespace GenArt.Core.Classes
             bmp.Save(filename, ImageFormat.Bmp);
         }
 
-        public void DetectEdges()
+        public void DetectEdges(int threshold)
         {
+            _threshold = threshold;
+
             Array.Clear(_edgesPoints.Data, 0, _edgesPoints.Length);
             leftRunFindEdgesByHSLBetter();
             DownRunFindEdgesByHSLBetter();
@@ -442,9 +443,9 @@ namespace GenArt.Core.Classes
                 int bg = origData[origIndex + 1] - origData[origIndex + 5];
                 int bb = origData[origIndex + 2] - origData[origIndex + 6];
 
-                if (!(Tools.fastAbs(br) < CONST_Threshold &&
-                    Tools.fastAbs(bg) < CONST_Threshold &&
-                    Tools.fastAbs(bb) < CONST_Threshold))
+                if (!(Tools.fastAbs(br) < _threshold &&
+                    Tools.fastAbs(bg) < _threshold &&
+                    Tools.fastAbs(bb) < _threshold))
                 {
                     _edgesPoints.Data[edgeIndex] = 1;
                 }
@@ -470,7 +471,7 @@ namespace GenArt.Core.Classes
                     origData[origIndex + 6], origData[origIndex + 5], origData[origIndex + 4]);
 
 
-                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > CONST_ThresholdDouble))
+                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > _threshold))
                 {
                     _edgesPoints.Data[edgeIndex] = 1;
                 }
@@ -504,7 +505,7 @@ namespace GenArt.Core.Classes
                         origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
 
 
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > CONST_ThresholdDouble))
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startBlockColor = hlsColor;
@@ -538,7 +539,7 @@ namespace GenArt.Core.Classes
                         origData[origIndex + bmpRowLength], origData[origIndex + bmpRowLength + 1], origData[origIndex + bmpRowLength + 2]);
 
 
-                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > CONST_ThresholdDouble))
+                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                     }
@@ -575,7 +576,7 @@ namespace GenArt.Core.Classes
                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
 
 
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > CONST_ThresholdDouble))
+                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startBlockColor = hlsColor;
@@ -610,9 +611,9 @@ namespace GenArt.Core.Classes
                     int bg = origData[origIndex + 1] - origData[origIndex + bmpRowLength + 1];
                     int bb = origData[origIndex + 2] - origData[origIndex + bmpRowLength + 2];
 
-                    if (!(Tools.fastAbs(br) < CONST_Threshold &&
-                        Tools.fastAbs(bg) < CONST_Threshold &&
-                        Tools.fastAbs(bb) < CONST_Threshold))
+                    if (!(Tools.fastAbs(br) < _threshold &&
+                        Tools.fastAbs(bg) < _threshold &&
+                        Tools.fastAbs(bb) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                     }
