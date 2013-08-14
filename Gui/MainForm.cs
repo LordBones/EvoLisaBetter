@@ -47,6 +47,8 @@ namespace GenArt
         private int ZoomScale { get { return (int)nudZoom.Value; } }
         private int InitPopulation { get { return (int)nudPopulation.Value; } }
         private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
+        private int MaxPolygons { get { return (int)nudMaxPolygon.Value; } }
+
 
 
         public MainForm()
@@ -176,6 +178,10 @@ namespace GenArt
             errorLevel = long.MaxValue;
             selected = 0;
             currentDrawing = null;
+            Settings.ActivePolygonsMax = MaxPolygons;
+            Settings.ActivePointsMax = MaxPolygons * 3;
+            generation = 0;
+
 
             Tools.ClearPseudoRandom();
             GASearch gaSearch = new GASearch(InitPopulation);
@@ -183,7 +189,7 @@ namespace GenArt
 
             while (isRunning)
             {
-                if (generation > 14000) break;
+                //if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 

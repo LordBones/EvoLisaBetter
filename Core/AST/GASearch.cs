@@ -133,7 +133,7 @@ namespace GenArt.Core.AST
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
 
             this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
-            this._destCanvas.EasyColorReduction();
+            //this._destCanvas.EasyColorReduction();
 
            
 
@@ -184,7 +184,7 @@ namespace GenArt.Core.AST
                 long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat = (this._population[index].PointCount + 1) * (this._population[index].PointCount + 1);
+                long bloat = this._population[index].Polygons.Length;
 
                 _fittness[index] = fittness + bloat;
 
