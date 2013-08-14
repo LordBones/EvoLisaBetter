@@ -1,4 +1,5 @@
 
+//#pragma managed(push, off)
 public class NativeMedian8Bit
 {
 private:
@@ -44,3 +45,19 @@ public:
         }
    
 };
+
+public class FastFunctions
+{
+private :
+	static int ApplyColor(int colorChanel, int axrem, int rem);
+
+public:
+
+	FastFunctions(void){}
+	~FastFunctions(void){}
+
+	static  void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
+		
+};
+
+//#pragma managed(pop)

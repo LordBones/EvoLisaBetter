@@ -98,6 +98,7 @@ __forceinline unsigned int ApplyColor(int colorChanel, int axrem, int rem)
     return ((axrem + rem * colorChanel) >> 16);
 }
 
+//#pragma managed(push, off)
 void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
 {
 	//unsigned int * ptrColor = (unsigned int *)(canvas+from);
@@ -152,6 +153,8 @@ void GenArtCoreNative::NativeFunctions::FastRowApplyColor(unsigned char * canvas
 
     }*/
 }
+
+//#pragma managed(pop)
 
 void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
 {

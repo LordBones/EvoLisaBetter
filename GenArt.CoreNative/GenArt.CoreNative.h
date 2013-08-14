@@ -13,6 +13,7 @@ namespace GenArtCoreNative {
 
 		private:
 
+			
 	    void _ClearFieldByColor(unsigned char * curr, int length, int color);
 
 		__int64 computeFittness(unsigned char * curr, unsigned char * orig, int length);
@@ -20,7 +21,7 @@ namespace GenArtCoreNative {
 
 
         void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
-
+		
 		
 
 		// TODO: Add your methods for this class here.
@@ -38,6 +39,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
+			FastFunctions::
             FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
         }
 
