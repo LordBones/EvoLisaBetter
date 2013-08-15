@@ -1,5 +1,7 @@
 
 //#pragma managed(push, off)
+
+#pragma unmanaged
 public class NativeMedian8Bit
 {
 private:
@@ -46,6 +48,7 @@ public:
    
 };
 
+  
 public class FastFunctions
 {
 private :
@@ -57,7 +60,10 @@ public:
 	~FastFunctions(void){}
 
 	static  void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
+
+    static __int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
 		
 };
+#pragma managed  
 
 //#pragma managed(pop)

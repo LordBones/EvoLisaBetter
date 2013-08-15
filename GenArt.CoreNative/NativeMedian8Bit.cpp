@@ -2,6 +2,7 @@
 #include <math.h>
 #include "NativeMedian8bit.h"
 
+#pragma unmanaged
 //#pragma managed(push, off)
 NativeMedian8Bit::NativeMedian8Bit(void)
 {
@@ -92,6 +93,7 @@ NativeMedian8Bit::~NativeMedian8Bit(void)
  }
 
 
+   
  int FastFunctions::ApplyColor(int colorChanel, int axrem, int rem)
 {
     return ((axrem + rem * colorChanel) >> 16);
@@ -127,7 +129,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, 
  //   }
 
 
-
+    /*
     while(from <= to)
     {
         int index = from;
@@ -136,7 +138,36 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, 
                     canvas[index + 2] = (unsigned char)FastFunctions::ApplyColor(canvas[index + 2], colorARRrem, colorRem);
 
                     from += 4;
+    }*/
+
+    while(from <= to)
+    {
+        int index = from;
+        //((axrem + rem * colorChanel) >> 16)
+        unsigned int b = canvas[index];
+        unsigned int g = canvas[index+1];
+        unsigned int r = canvas[index+2];
+        b*=colorRem;
+        g*=colorRem;
+        r*=colorRem;
+
+        b+=colorABRrem;
+        g+=colorAGRrem;
+        r+=colorARRrem;
+
+        b>>=16;
+        g>>=16;
+        r>>=16;
+
+        canvas[index] = (unsigned char)b;
+        canvas[index+1] = (unsigned char)g;
+        canvas[index+2] = (unsigned char)r;
+  
+        from += 4;
     }
+
+
+
 
    /* canvas = canvas + from;
 
@@ -152,4 +183,39 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, 
     }*/
 }
 
+
+int FastAbs2(int data)
+{
+    int topbitreplicated = data >> 31;
+    return (data ^ topbitreplicated) - topbitreplicated;  
+}
+
+__int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
+		{
+            NativeMedian8Bit medR = NativeMedian8Bit();
+            NativeMedian8Bit medG = NativeMedian8Bit();
+            NativeMedian8Bit medB = NativeMedian8Bit();
+
+            
+            int index = 0;
+            while (index < length)
+            {
+                medB.InsertData(FastAbs2(curr[index] - orig[index]));
+                medG.InsertData(FastAbs2(curr[index + 1] - orig[index + 1]));
+                medR.InsertData(FastAbs2(curr[index + 2] - orig[index + 2]));
+                index += 4;
+            }
+
+
+            __int64 result = 0;
+            result += (medB.ValueSum() + medB.SumStdDev()*2);
+            result += (medG.ValueSum() + medG.SumStdDev() * 2);
+            result += (medR.ValueSum() + medR.SumStdDev() * 2);
+
+            return result;
+
+			
+		}
+
+#pragma managed  
 //#pragma managed(pop)

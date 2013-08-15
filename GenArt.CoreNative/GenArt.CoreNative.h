@@ -2,7 +2,8 @@
 
 #pragma once
 #include <math.h>
-#include <vcclr.h> 
+#include <vcclr.h>
+
 using namespace System;
 //using namespace System::Drawing;
 
@@ -39,8 +40,11 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
-            FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+			//FastFunctions::
+            //FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
         }
 
         __int64 ComputeFittnessAdvance(array<System::Byte>^ current, array<System::Byte>^ orig)
@@ -48,7 +52,9 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
-            return computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
+            //return computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
+
+            return  FastFunctions::computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
         }
 
 		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig)
