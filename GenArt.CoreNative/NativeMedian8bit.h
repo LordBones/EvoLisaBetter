@@ -1,8 +1,8 @@
 
 //#pragma managed(push, off)
 
-#pragma unmanaged
-public class NativeMedian8Bit
+//#pragma unmanage
+class  NativeMedian8Bit
 {
 private:
     static const int CONST_MedianTableSize = 256;
@@ -49,7 +49,7 @@ public:
 };
 
   
-public class FastFunctions
+ class  FastFunctions
 {
 private :
 	static int ApplyColor(int colorChanel, int axrem, int rem);
@@ -59,11 +59,11 @@ public:
 	FastFunctions(void){}
 	~FastFunctions(void){}
 
-	static  void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
+	static  void FastRowApplyColor(unsigned char * canvas, int len, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
 
     static __int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
 		
 };
-#pragma managed  
+//#pragma managed  
 
 //#pragma managed(pop)

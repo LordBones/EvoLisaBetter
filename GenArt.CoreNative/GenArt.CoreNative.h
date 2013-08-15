@@ -21,7 +21,7 @@ namespace GenArtCoreNative {
 		__int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
 
 
-        void FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
+        void FastRowApplyColor(unsigned char * canvas, int from,int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
 		
 		
 
@@ -38,10 +38,10 @@ namespace GenArtCoreNative {
 
         void RowApplyColor(array<System::Byte>^ canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
         {
-            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+            pin_ptr<System::Byte> pinCanvas(&canvas[from]);
 
-			//FastFunctions::
-            //FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+			FastFunctions::
+            FastRowApplyColor(pinCanvas,to-from+1,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 

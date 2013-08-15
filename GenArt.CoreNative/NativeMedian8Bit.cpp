@@ -1,15 +1,17 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include <math.h>
+#include <cstring>
 #include "NativeMedian8bit.h"
 
-#pragma unmanaged
+//#pragma unmanaged
 //#pragma managed(push, off)
 NativeMedian8Bit::NativeMedian8Bit(void)
 {
-    for (int index=0; index < CONST_MedianTableSize; index++)
+	memset(_medianTable,0,sizeof(long)*CONST_MedianTableSize);
+  /*  for (int index=0; index < CONST_MedianTableSize; index++)
             {
                 _medianTable[index] = 0;
-            }
+            }*/
 }
 
 
@@ -99,7 +101,7 @@ NativeMedian8Bit::~NativeMedian8Bit(void)
     return ((axrem + rem * colorChanel) >> 16);
 }
 
-void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
+void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
 {
     //unsigned int * ptrColor = (unsigned int *)(canvas+from);
 
@@ -139,31 +141,38 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, 
 
                     from += 4;
     }*/
-
-    while(from <= to)
+	
+    while(len > 0)
     {
-        int index = from;
+        
         //((axrem + rem * colorChanel) >> 16)
-        unsigned int b = canvas[index];
-        unsigned int g = canvas[index+1];
-        unsigned int r = canvas[index+2];
+        unsigned int b = *canvas;
+        unsigned int g = canvas[1];
+		unsigned int r = canvas[2];
+        
         b*=colorRem;
         g*=colorRem;
-        r*=colorRem;
-
+		r*=colorRem;
+        
         b+=colorABRrem;
         g+=colorAGRrem;
-        r+=colorARRrem;
+		r+=colorARRrem;
 
         b>>=16;
         g>>=16;
-        r>>=16;
+		r>>=16;
 
-        canvas[index] = (unsigned char)b;
-        canvas[index+1] = (unsigned char)g;
-        canvas[index+2] = (unsigned char)r;
+        *canvas = (unsigned char)b;
+        canvas[1] = (unsigned char)g;
+		
+        
+		
+        
+		canvas[2] = (unsigned char)r;
+        
   
-        from += 4;
+        len -= 4;
+		canvas+=4;
     }
 
 
@@ -184,7 +193,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int from, int to, 
 }
 
 
-int FastAbs2(int data)
+  int __fastcall FastAbs2(int data)
 {
     int topbitreplicated = data >> 31;
     return (data ^ topbitreplicated) - topbitreplicated;  
@@ -197,13 +206,14 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
             NativeMedian8Bit medB = NativeMedian8Bit();
 
             
-            int index = 0;
-            while (index < length)
+            //int index = 0;
+            //while (index < length)
+			for(int index = 0;index < length;index+=4)
             {
-                medB.InsertData(FastAbs2(curr[index] - orig[index]));
-                medG.InsertData(FastAbs2(curr[index + 1] - orig[index + 1]));
-                medR.InsertData(FastAbs2(curr[index + 2] - orig[index + 2]));
-                index += 4;
+                medB.InsertData(labs(curr[index] - orig[index]));
+                medG.InsertData(labs(curr[index + 1] - orig[index + 1]));
+                medR.InsertData(labs(curr[index + 2] - orig[index + 2]));
+              //  index += 4;
             }
 
 
@@ -217,5 +227,8 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
 			
 		}
 
-#pragma managed  
+
+
+
+//#pragma managed  
 //#pragma managed(pop)
