@@ -150,24 +150,12 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
         unsigned int g = canvas[1];
 		unsigned int r = canvas[2];
         
-        b*=colorRem;
-        g*=colorRem;
-		r*=colorRem;
+        b=(b*colorRem+colorABRrem)>>16;
+        g=(g*colorRem+colorAGRrem)>>16;
+		r=(r*colorRem+colorARRrem)>>16;
         
-        b+=colorABRrem;
-        g+=colorAGRrem;
-		r+=colorARRrem;
-
-        b>>=16;
-        g>>=16;
-		r>>=16;
-
         *canvas = (unsigned char)b;
         canvas[1] = (unsigned char)g;
-		
-        
-		
-        
 		canvas[2] = (unsigned char)r;
         
   
