@@ -127,16 +127,16 @@ namespace GenArt.AST
 
 
 
-                 if (mutateChange < 50)
+                 if (mutateChange < 100)
                  {
                      if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                          RemovePolygon();
                      AddPolygon(destImage, edgePoints);
                  }
-                 else if (mutateChange < 100)
+                 else if (mutateChange < 200)
                      RemovePolygon();
-                 else if (mutateChange < 150)
-                     SwapPolygon();
+                 else if (mutateChange < 300)
+                     SwapPolygon2();
                
 
                  else
@@ -149,7 +149,7 @@ namespace GenArt.AST
                          //for (int index = 0; index < Polygons.Length; index++)
                          //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                         if (Tools.GetRandomNumber(0, 3) >= 1)
+                         if (Tools.GetRandomNumber(0, 2) >= 1) 
                          {
                              int index = Tools.GetRandomNumber(0, Polygons.Length);
                              Polygons[index].Mutate(this, destImage, edgePoints);
@@ -171,6 +171,121 @@ namespace GenArt.AST
 
 
 
+        }
+
+        bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )
+        {
+            int startX = int.MaxValue;
+            int startY = int.MaxValue;
+            int endX = 0;
+            int endY = 0;
+
+            int startX2 = int.MaxValue;
+            int startY2 = int.MaxValue;
+            int endX2 = 0;
+            int endY2 = 0;
+
+            for (int index = 0; index < 3; index++)
+            {
+                DnaPoint p = tri[0];
+                DnaPoint p2 = tri2[0];
+
+                if (p.X < startX) startX = p.X;
+                if (p.Y < startY) startY = p.Y;
+                if (p.X > endX) endX = p.X;
+                if (p.Y > endY) endY = p.Y;
+
+                if (p2.X < startX2) startX2 = p2.X;
+                if (p2.Y < startY2) startY2 = p2.Y;
+                if (p2.X > endX2) endX2 = p2.X;
+                if (p2.Y > endY2) endY2 = p2.Y;
+
+            }
+
+            if ((startY <= startY2 && endY <= startY2) ||
+               (startY >= endY2 && endY >= endY2) ||
+                (startX <= startX2 && endX <= startX2) ||
+               (startY >= endX2 && endX >= endX2)
+                )
+            {
+                return false;
+            }
+
+            return true;
+        }
+        static int c = 0;
+        public void SwapPolygon2()
+        {
+             
+            if (Polygons.Length < 2)
+                return;
+
+            //int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
+            //int index2 = Tools.GetRandomNumber(0, Polygons.Length - 1);
+
+            //DnaPolygon poly = Polygons[index];
+            //Polygons[index] = Polygons[index2];
+            //Polygons[index] = poly;
+
+            int index = Tools.GetRandomNumber(0, Polygons.Length);
+            bool swapUp = Tools.GetRandomNumber(0, 2) < 1;
+
+            if (swapUp && index + 1 >= Polygons.Length) swapUp = false;
+            else if (!swapUp && index == 0) swapUp = true;
+
+            DnaPolygon poly = Polygons[index];
+
+            if (swapUp)
+            {
+                int tmpIndex = index-1;
+                while (tmpIndex >= 0 && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                 tmpIndex--;
+
+                if (tmpIndex < 0)
+                {
+                    tmpIndex = index+1;
+                    while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                        tmpIndex++;
+
+                    // nema smysl prohazovat dva polygony nikde se neprekryvaji
+                    if (tmpIndex >= Polygons.Length)
+                    { c++;return;}
+                }
+
+                Polygons[index] = Polygons[tmpIndex];
+                Polygons[tmpIndex] = poly;
+            }
+            else
+            {
+                int tmpIndex = index + 1;
+                while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                    tmpIndex++;
+
+                if (tmpIndex >= Polygons.Length)
+                {
+                    tmpIndex = index - 1;
+                    while (tmpIndex >=0 && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                        tmpIndex--;
+
+                    // nema smysl prohazovat dva polygony nikde se neprekryvaji
+                    if (tmpIndex < 0)
+                    {c++; return;}
+                }
+
+
+                Polygons[index] = Polygons[tmpIndex];
+                Polygons[tmpIndex] = poly;
+
+            }
+
+
+             
+          
+            {
+
+                SetDirty();
+            }
+            Console.WriteLine(c);
         }
 
         public void SwapPolygon()
