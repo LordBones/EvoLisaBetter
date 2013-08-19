@@ -94,8 +94,11 @@ namespace GenArt.AST
                 }
                 else if (colorPart >= 4)
                 {
+                    int tmp = Tools.GetRandomNumber(0, 10, 5);
+                    Alpha = (byte)Math.Max(Math.Min(Alpha + tmp - 5, 255), 5);
+
                     //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
-                    Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
+                    //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
                 }
                 
                 drawing.SetDirty();

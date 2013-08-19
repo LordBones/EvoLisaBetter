@@ -500,19 +500,22 @@ namespace GenArt.Core.Classes
                     if (!(Tools.fastAbs(br - startR) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
-                        startR = br;
+                        //startR = br;
+                        startR = origData[origIndex-4];
                     }
 
                     if (!(Tools.fastAbs(bg - startG) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startG = bg;
+                        startG = origData[origIndex-4 + 1];
                     }
 
                     if (!(Tools.fastAbs(bb - startB) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
                         startB = bb;
+                        startB = origData[origIndex-4 + 2];
                     }
 
 
@@ -607,19 +610,24 @@ namespace GenArt.Core.Classes
                     if (!(Tools.fastAbs(br - startR) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
-                        startR = br;
+                        //startR = br;
+                        startR = origData[origIndex - bmpRowLength];
                     }
 
                     if (!(Tools.fastAbs(bg - startG) < _threshold))
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
-                        startG = bg;
+                        //startG = bg;
+                        startG = origData[origIndex - bmpRowLength+1];
+                 
                     }
 
-                    if (!(Tools.fastAbs(bb - startB) < _threshold))
+                    if (!(Tools.fastAbs(bb - startB) < _threshold)) 
                     {
                         _edgesPoints.Data[edgeIndex] = 1;
-                        startB = bb;
+                        //startB = bb;
+                        startB = origData[origIndex - bmpRowLength+2];
+                 
                     }
 
               //      if (!(Tools.fastAbs(br - startR) < _threshold &&

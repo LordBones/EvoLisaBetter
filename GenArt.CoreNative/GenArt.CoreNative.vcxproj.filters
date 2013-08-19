@@ -33,6 +33,9 @@
     <ClInclude Include="NativeMedian8bit.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
+    <ClInclude Include="FastFunctions.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenArt.CoreNative.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NativeMedian8Bit.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="FastFunctions.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>

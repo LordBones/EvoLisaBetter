@@ -121,56 +121,57 @@ namespace GenArt.AST
             if (Tools.GetRandomNumber(0, 10) == 9)
                 BackGround.MutateRGBOldWithoutAlpha(this);
 
-             do
-             {
-                 int mutateChange = Tools.GetRandomNumber(0, 1001);
+            do
+            {
+                int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
 
-                 if (mutateChange < 100)
-                 {
-                     if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                         RemovePolygon();
-                     AddPolygon(destImage, edgePoints);
-                 }
-                 else if (mutateChange < 200)
-                     RemovePolygon();
-                 else if (mutateChange < 300)
-                     SwapPolygon2();
-               
+                if (mutateChange < 100)
+                {
+                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                        RemovePolygon();
+                    AddPolygon(destImage, edgePoints);
+                    continue;
+                }
+                if (mutateChange < 200)
+                {
+                    RemovePolygon();
+                    continue;
+                }
+                if (mutateChange < 300)
+                {
+                    //SwapPolygon();
+                    if(SwapPolygon2())
+                        continue;
+                }
 
-                 else
-                 {
-                     while (!this.IsDirty)
-                     {
-                         if (Polygons.Length == 0)
-                             break;
+                // else
 
-                         //for (int index = 0; index < Polygons.Length; index++)
-                         //    Polygons[index].Mutate(this,destImage, edgePoints);
+                while (!this.IsDirty)
+                {
+                    if (Polygons.Length == 0)
+                        break;
 
-                         if (Tools.GetRandomNumber(0, 2) >= 1) 
-                         {
-                             int index = Tools.GetRandomNumber(0, Polygons.Length);
-                             Polygons[index].Mutate(this, destImage, edgePoints);
-                         }
-                         else
-                         {
-                             int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                             DnaBrush brush = Polygons[tindex].Brush;
-                             brush.MutateRGBOld(this);
-                             Polygons[tindex].Brush = brush;
-                             //Polygons[tindex].Brush.MutateRGBOld(this);
-                         }
-                     }
-                 }
+                    //for (int index = 0; index < Polygons.Length; index++)
+                    //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                
+                    if (Tools.GetRandomNumber(0, 2) >= 1)
+                    {
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        Polygons[index].Mutate(this, destImage, edgePoints);
+                    }
+                    else
+                    {
+                        int tindex = Tools.GetRandomNumber(0, Polygons.Length);
+                        DnaBrush brush = Polygons[tindex].Brush;
+                        brush.MutateRGBOld(this);
+                        Polygons[tindex].Brush = brush;
+                        //Polygons[tindex].Brush.MutateRGBOld(this);
+                    }
+                }
 
-             } while (Tools.GetRandomNumber(1,11) <= 5);
-
-
-
+            } while (Tools.GetRandomNumber(1, 11) <= 5);
         }
 
         bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )
@@ -187,8 +188,8 @@ namespace GenArt.AST
 
             for (int index = 0; index < 3; index++)
             {
-                DnaPoint p = tri[0];
-                DnaPoint p2 = tri2[0];
+                DnaPoint p = tri[index];
+                DnaPoint p2 = tri2[index];
 
                 if (p.X < startX) startX = p.X;
                 if (p.Y < startY) startY = p.Y;
@@ -205,7 +206,7 @@ namespace GenArt.AST
             if ((startY <= startY2 && endY <= startY2) ||
                (startY >= endY2 && endY >= endY2) ||
                 (startX <= startX2 && endX <= startX2) ||
-               (startY >= endX2 && endX >= endX2)
+               (startX >= endX2 && endX >= endX2)
                 )
             {
                 return false;
@@ -214,11 +215,11 @@ namespace GenArt.AST
             return true;
         }
         static int c = 0;
-        public void SwapPolygon2()
+        public bool SwapPolygon2()
         {
              
             if (Polygons.Length < 2)
-                return;
+                return  false;
 
             //int index = Tools.GetRandomNumber(0, Polygons.Length - 1);
             //int index2 = Tools.GetRandomNumber(0, Polygons.Length - 1);
@@ -249,7 +250,8 @@ namespace GenArt.AST
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji
                     if (tmpIndex >= Polygons.Length)
-                    { c++;return;}
+                    { c++;
+                        return false;}
                 }
 
                 Polygons[index] = Polygons[tmpIndex];
@@ -269,7 +271,8 @@ namespace GenArt.AST
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji
                     if (tmpIndex < 0)
-                    {c++; return;}
+                    {c++; 
+                        return false;}
                 }
 
 
@@ -285,7 +288,8 @@ namespace GenArt.AST
 
                 SetDirty();
             }
-            Console.WriteLine(c);
+
+            return true;
         }
 
         public void SwapPolygon()

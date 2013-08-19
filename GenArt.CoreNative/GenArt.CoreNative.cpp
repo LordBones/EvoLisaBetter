@@ -24,8 +24,8 @@ __int64 GenArtCoreNative::NativeFunctions::computeFittness(unsigned char * curr,
 				int br = curr[index] - orig[index];
                 int bg = curr[index+1] - orig[index+1];
                 int bb = curr[index+2] - orig[index+2];
-				br*=2;
-				bg*=7;
+				//br*=2;
+				//bg*=7;
 
 				int tmpres = br * br + bg * bg + bb * bb;
                 result += tmpres;

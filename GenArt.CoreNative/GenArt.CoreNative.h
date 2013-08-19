@@ -3,6 +3,7 @@
 #pragma once
 #include <math.h>
 #include <vcclr.h>
+#include "FastFunctions.h"
 
 using namespace System;
 //using namespace System::Drawing;
@@ -76,7 +77,8 @@ namespace GenArtCoreNative {
 
 			}*/
 
-            result = computeFittness(pinCurr,pinOrig,orig->Length);
+            result = FastFunctions::computeFittnessSumSquare(pinCurr,pinOrig,orig->Length);
+            //result = computeFittness(pinCurr,pinOrig,orig->Length);
 
 			//result = computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
 
