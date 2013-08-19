@@ -629,7 +629,7 @@ namespace GenArt.AST
             int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
             //int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
 
-            int alpha = 254 - (Math.Min(avgSumDiff, 127) << 1);
+            int alpha = 254 - (Math.Min(avgSumDiff, 63) << 2);
             alpha = 5 + (128
                 * alpha) / 254;
 

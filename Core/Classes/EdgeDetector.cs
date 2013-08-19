@@ -154,7 +154,34 @@ namespace GenArt.Core.Classes
             return null;
 
         }
+
+        public DnaPoint ? GetRandomCloserEdgePoint(DnaPoint startPoint, int countTrys)
+        {
+            int shorttest = int.MaxValue;
+            DnaPoint ? result = null;
+
+            for (; countTrys > 0; countTrys--)
+            {
+                DnaPoint endPoint = GetRandomBorderPoint();
+
+                DnaPoint ? resultPoint = GetFirstEdgeOnLineDirection(startPoint.X, startPoint.Y, endPoint.X, endPoint.Y);
+                if (resultPoint.HasValue)
+                {
+                    int tmpNew = Tools.fastAbs(endPoint.X - startPoint.X) + Tools.fastAbs(endPoint.Y - startPoint.Y) - 1;
+
+                    if (shorttest > tmpNew)
+                    {
+                        shorttest = tmpNew;
+                        result = endPoint;
+                    }
+                }
+            }
+
+            return result;
+        }
     }
+
+    
 
     public class EdgeDetector
     {

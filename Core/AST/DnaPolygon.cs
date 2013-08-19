@@ -252,6 +252,8 @@ namespace GenArt.AST
                         DnaPoint oldPoint = points[pointIndex];
 
                         //get random end line on border canvas
+                        //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
+
                         DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
 
                         DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
@@ -273,14 +275,14 @@ namespace GenArt.AST
 
                             points[pointIndex] = resultPoint.Value;
 
-                            if (IsNotSmallAngles(points) && 
+                            if (//IsNotSmallAngles(points) && 
                                 !IsIntersect(points))
                             {
                                 // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
                                 //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
-                                DnaBrush brush = this.Brush;
-                                brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
-                                this.Brush = brush;
+                                //DnaBrush brush = this.Brush;
+                                //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                //this.Brush = brush;
 
                                 drawing.SetDirty();
                                 break;

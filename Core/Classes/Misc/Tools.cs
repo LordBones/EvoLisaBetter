@@ -14,32 +14,9 @@ namespace GenArt.Classes
         public static readonly int MaxPolygons = 250;
         public static long randomCall = 0;
 
-        public static void ClearPseudoRandom() { random = new Random(0); randomCall = 0; }
+        public static void ClearPseudoRandom() { random = new Random(0); random.NextBytes(buff); buffIndex = 0; randomCall = 0; }
 
-        public static int GetRandomNumber2(int min, int max)
-        {
-            if (buffIndex >= buff.Length)
-            {
-                rng.GetBytes(buff);
-                buffIndex = 0;
-            }
-
-            long randValue = (((long)buff[buffIndex] << 24) + (buff[buffIndex + 1] << 16) + (buff[buffIndex + 2] << 8) + buff[buffIndex+3]);
-          
-            long delta = ((max-1) + 0xffffffff) - (min + (0xffffffff));
-
-            long newDelta =(long)((randValue / (float)uint.MaxValue) * delta);
-            newDelta = min + newDelta;
-
-
-            buffIndex += 4;
-
-            if (newDelta > max) return max;
-            if (newDelta < min) return min;
-
-            return (int)newDelta;
-            
-        }
+        
 
         public static int GetRandomNumber(int min, int max)
         {
@@ -50,9 +27,25 @@ namespace GenArt.Classes
             //    return min + newVal;
             //}
             //else
+
+            if (buffIndex >= buff.Length)
             {
-                randomCall++;
-                return random.Next(min, max);
+                random.NextBytes(buff);
+                //rng.GetBytes(buff);
+                buffIndex = 0;
+            }
+
+            randomCall++;
+
+            uint randValue = (uint)((buff[buffIndex] << 24) + (buff[buffIndex + 1] << 16) + (buff[buffIndex + 2] << 8) + buff[buffIndex + 3]);
+            buffIndex += 4;
+
+            uint tmp = (uint)(max - min);
+
+            return (int)(randValue % tmp);
+            {
+            //    randomCall++;
+            //    return random.Next(min, max);
             }
         }
 

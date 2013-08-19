@@ -44,6 +44,9 @@ namespace GenArt
 
         private Thread thread;
 
+        // backbuffer do ktereho se provadi vykreslovani pred samotnym zobrazenim
+        Bitmap backBuffer = new Bitmap(1, 1, PixelFormat.Format32bppPArgb);
+
         private int ZoomScale { get { return (int)nudZoom.Value; } }
         private int InitPopulation { get { return (int)nudPopulation.Value; } }
         private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
@@ -189,7 +192,7 @@ namespace GenArt
 
             while (isRunning)
             {
-                //if (generation > 14000) break;
+                if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -376,10 +379,14 @@ namespace GenArt
             //    return;
             e.Graphics.Clear(Color.Black);
 
-
-            using (
-                var backBuffer = new Bitmap(ZoomScale * picPattern.Width, ZoomScale * picPattern.Height,
-                                            PixelFormat.Format32bppPArgb))
+            if (ZoomScale * picPattern.Width != backBuffer.Width ||
+                ZoomScale * picPattern.Height != backBuffer.Height)
+            {
+                backBuffer.Dispose();
+                backBuffer = new Bitmap(ZoomScale * picPattern.Width, ZoomScale * picPattern.Height,
+                                            PixelFormat.Format32bppPArgb);
+            }
+           
             using (Graphics backGraphics = Graphics.FromImage(backBuffer)) 
             {
                 e.Graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
@@ -396,6 +403,7 @@ namespace GenArt
 
                  if ((guiDrawing != null) && chbShowResult.Checked)
                  {
+                     backGraphics.Clear(Color.Black);
                      Renderer.Render(guiDrawing, backGraphics, ZoomScale);
                      e.Graphics.DrawImage(backBuffer, 0, 0);
 
