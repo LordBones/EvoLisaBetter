@@ -142,7 +142,7 @@ namespace GenArt.AST
                 if (mutateChange < 300)
                 {
                     //SwapPolygon();
-                    if(SwapPolygon2())
+                    if (SwapPolygon2())
                         continue;
                 }
 
@@ -171,7 +171,7 @@ namespace GenArt.AST
                     }
                 }
 
-            } while (Tools.GetRandomNumber(1, 11) <= 5);
+            } while (false);// while (Tools.GetRandomNumber(1, 11) <= 5);
         }
 
         bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )

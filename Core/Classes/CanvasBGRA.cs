@@ -51,10 +51,7 @@ namespace GenArt.Core.Classes
                                         PixelFormat.Format32bppPArgb);
             try
             {
-                unsafe
-                {
-                    Marshal.Copy(bmdSRC.Scan0, canvas.Data, 0, canvas.Data.Length);
-                }
+                Marshal.Copy(bmdSRC.Scan0, canvas.Data, 0, canvas.Data.Length);
             }
             finally
             {
@@ -63,6 +60,25 @@ namespace GenArt.Core.Classes
 
             return canvas;
         }
+
+        public static Bitmap CreateBitmpaFromCanvas(CanvasBGRA canvas)
+        {
+            Bitmap result = new Bitmap(canvas.WidthPixel,canvas.HeightPixel,PixelFormat.Format32bppPArgb);
+
+            BitmapData bmdSRC = result.LockBits(new Rectangle(0, 0, result.Width, result.Height), ImageLockMode.ReadOnly,
+                                        PixelFormat.Format32bppPArgb);
+            try
+            {
+                Marshal.Copy(canvas.Data, 0, bmdSRC.Scan0, canvas.Data.Length);
+            }
+            finally
+            {
+                result.UnlockBits(bmdSRC);
+            }
+
+            return result;
+        }
+
 
         public void FastClearColor(Color color)
         {

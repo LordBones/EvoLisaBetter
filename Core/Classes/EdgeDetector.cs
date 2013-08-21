@@ -187,6 +187,7 @@ namespace GenArt.Core.Classes
     {
         private CanvasBGRA _originalImage = null;
         private Array2D _edgesPoints;
+        private Array2D _imageGreyscale = null;
 
         private int _threshold = 25;
         
@@ -194,6 +195,8 @@ namespace GenArt.Core.Classes
         {
             _originalImage = bmp;
             _edgesPoints = new Array2D(bmp.WidthPixel , bmp.HeightPixel);
+            _imageGreyscale = new Array2D(bmp.WidthPixel, bmp.HeightPixel);
+
         }
 
         public void SaveBitmapHSL(string filename, bool h, bool s, bool l)
@@ -261,6 +264,11 @@ namespace GenArt.Core.Classes
             _threshold = threshold;
 
             Array.Clear(_edgesPoints.Data, 0, _edgesPoints.Length);
+            Array.Clear(_imageGreyscale.Data, 0, _edgesPoints.Length);
+
+            ConvertToGreyScale();
+            SaveGreyscaleAsBitmap("ImageGreyscale.bmp");
+
             //leftRunFindEdgesByHSLBetter();
             //DownRunFindEdgesByHSLBetter();
 
@@ -361,6 +369,86 @@ namespace GenArt.Core.Classes
             }
 
         }
+
+        #region better edge detection
+
+        private void ConvertToGreyScale()
+        {
+            int imageIndex = 0;
+            for (int index = 0; index < _imageGreyscale.Length; index++)
+            {
+                _imageGreyscale.Data[index] = (byte)((_originalImage.Data[imageIndex] * 8 +
+                _originalImage.Data[imageIndex + 1] * 71 +
+                _originalImage.Data[imageIndex + 2] * 21) / 100);
+
+                imageIndex += 4;
+            }
+        }
+
+        private void SaveGreyscaleAsBitmap(string filename)
+        {
+            CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
+
+            int imageIndex = 0;
+            for (int index = 0; index < _imageGreyscale.Length; index++)
+            {
+                byte data = _imageGreyscale.Data[index];
+                canvas.Data[imageIndex] = data;
+                canvas.Data[imageIndex+1] = data;
+                canvas.Data[imageIndex+2] = data;
+                canvas.Data[imageIndex + 3] = 255;
+
+                imageIndex += 4;
+            }
+
+            using (Bitmap bmp = CanvasBGRA.CreateBitmpaFromCanvas(canvas))
+            {
+                bmp.Save(filename);
+            }
+        }
+
+        private void LeftDetectEdgeNew()
+        {
+            int upRowIndex = 0;
+            int midRowIndex = this._edgesPoints.Width;
+            int downRowIndex = this._edgesPoints.Width * 2;
+
+            byte [] ep = this._edgesPoints.Data;
+            //byte [] ep = this._edgesPoints.Data;
+
+            for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+                {
+                    if (ep[upIndex - 1] == 0 && ep[upIndex] == 0 && ep[upIndex + 1] == 0 &&
+                        ep[midIndex - 1] == 0 && ep[midIndex] == 1 && ep[midIndex + 1] == 0 &&
+                        ep[downIndex - 1] == 0 && ep[downIndex] == 0 && ep[downIndex + 1] == 0
+                        )
+                    {
+                        ep[midIndex] = 0;
+                    }
+
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._edgesPoints.Width;
+                midRowIndex += this._edgesPoints.Width;
+                downRowIndex += this._edgesPoints.Width;
+
+
+
+            }
+        }
+
+        #endregion
+
 
         /// <summary>
         /// all points around image are set as edge points
