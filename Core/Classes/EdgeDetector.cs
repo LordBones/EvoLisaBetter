@@ -185,6 +185,13 @@ namespace GenArt.Core.Classes
 
     public class EdgeDetector
     {
+        private const int CONST_EdgeDirection_Vertical = 0;
+        private const int CONST_EdgeDirection_Horizontal = 90;
+        private const int CONST_EdgeDirection_LeftDown = 45;
+        private const int CONST_EdgeDirection_LeftUp = 135;
+
+
+
         private CanvasBGRA _originalImage = null;
         private Array2D _edgesPoints;
         private Array2D _imageGreyscale = null;
@@ -224,8 +231,8 @@ namespace GenArt.Core.Classes
                     else if (s) ll[bmpIndex] = (byte)hlsColor.Saturation;
                     else if (l) ll[bmpIndex] = (byte)hlsColor.Luminosity;
 
-                        ll[bmpIndex + 1] = 0;
-                        ll[bmpIndex + 2] = 0;
+                        ll[bmpIndex + 1] = ll[bmpIndex];
+                        ll[bmpIndex + 2] = ll[bmpIndex];
 
                     bmpIndex += 4;
                 }
@@ -240,6 +247,51 @@ namespace GenArt.Core.Classes
         {
             SaveGreyscaleAsBitmap(filename);
             
+        }
+
+        public void SaveImageEdgeDirectionsAsBitmap(string filename)
+        {
+            CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
+
+            int imageIndex = 0;
+            for (int index = 0; index < _imageGreyscale.Length; index++)
+            {
+                int data = _kernelDirection[index];
+                if (data == 0) // vertical
+                {
+                    canvas.Data[imageIndex] = 255;
+                    canvas.Data[imageIndex + 1] = 255;
+                    canvas.Data[imageIndex + 2] = 255;
+                }
+                if (data == 45) // leftdown
+                {
+                    canvas.Data[imageIndex] = 0;
+                    canvas.Data[imageIndex + 1] = 0;
+                    canvas.Data[imageIndex + 2] = 255;
+                }
+                if (data == 90) // horizontal
+                {
+                    canvas.Data[imageIndex] = 0;
+                    canvas.Data[imageIndex + 1] = 0;
+                    canvas.Data[imageIndex + 2] = 0;
+                }
+                if (data == 135) // leftup
+                {
+                    canvas.Data[imageIndex] = 0;
+                    canvas.Data[imageIndex + 1] = 255;
+                    canvas.Data[imageIndex + 2] = 0;
+                }
+
+                canvas.Data[imageIndex + 3] = 255;
+               
+                imageIndex += 4;
+            }
+
+            using (Bitmap bmp = CanvasBGRA.CreateBitmpaFromCanvas(canvas))
+            {
+                bmp.Save(filename);
+            }
+
         }
 
         public void SaveEdgesAsBitmap(string filename)
@@ -283,6 +335,7 @@ namespace GenArt.Core.Classes
             ConvertToGreyScale();
             LeftDetectEdgeNew();
             DetectEdgeByKernelSum();
+            MakeThinEdges();
             //UpDownDetectEdgeNew();
 
             //leftRunFindEdgesByHSLBetter();
@@ -469,15 +522,15 @@ namespace GenArt.Core.Classes
                     int val = (int)Math.Sqrt(sumX*sumX + sumY*sumY);
                     _kernelSums[midIndex] = val;
 
-                    int angle = (int)(Math.Atan2(sumY ,sumX) * 180 / System.Math.PI);
+                    int angle = (int)(Math.Atan2(-sumY ,sumX) * 180 / System.Math.PI);
                     angle %= 180;
 
                     if (angle < 0) angle = 180 + angle;
 
-                    if (angle < 23 || angle >= 157) angle = 0;
-                    else if (angle < 68 || angle >= 23) angle = 45;
-                    else if (angle < 113 || angle >= 68) angle = 90;
-                    else angle = 135;
+                    if (angle < 23 || angle >= 157) angle = CONST_EdgeDirection_Vertical;
+                    else if (angle < 68 && angle >= 23) angle = CONST_EdgeDirection_LeftDown;
+                    else if (angle < 113 && angle >= 68) angle = CONST_EdgeDirection_Horizontal;
+                    else angle = CONST_EdgeDirection_LeftUp;
 
                     _kernelDirection[midIndex] = angle;
 
@@ -505,7 +558,10 @@ namespace GenArt.Core.Classes
 
             byte [] ep = this._edgesPoints.Data;
             int [] ks = _kernelSums;
-            
+
+            //int thresholdMin = _threshold;
+            int thresholdMax = _threshold;
+
             for (int y = 1; y < this._edgesPoints.Height - 1; y++)
             {
                 int upIndex = upRowIndex + 1;
@@ -514,28 +570,28 @@ namespace GenArt.Core.Classes
 
                 for (int x = 1; x < this._edgesPoints.Width - 1; x++)
                 {
-                    if (_kernelSums[midIndex] > _threshold * 3)
+                    if (_kernelSums[midIndex] >= thresholdMax)
                     {
                         ep[midIndex] = 1;
                     }
-                    else if (_kernelSums[midIndex] > _threshold)
+                    else if (_kernelSums[midIndex] < thresholdMax)
                     {
-                        int thr = _threshold*2;
-                        if ((ks[upIndex - 1] > thr && _kernelDirection[upIndex - 1] == 135) || 
-                            (ks[upIndex] > thr && _kernelDirection[upIndex] == 90) || 
-                            (ks[upIndex + 1] > thr && _kernelDirection[upIndex + 1] == 45))
+                        int thr = thresholdMax;
+                        if ((ks[upIndex - 1] > thr) ||
+                            (ks[upIndex] > thr ) ||
+                            (ks[upIndex + 1] > thr ))
                         {
                             ep[midIndex] = 1;
                         }
 
-                        if((ks[midIndex - 1] > thr && _kernelDirection[midIndex - 1] == 0) || 
-                            (ks[midIndex + 1] > thr &&  _kernelDirection[midIndex + 1] == 0))
+                        if ((ks[midIndex - 1] > thr) ||
+                            (ks[midIndex + 1] > thr ))
                         {
                             ep[midIndex] = 1;
                         }
-                        if( (ks[downIndex - 1] > thr && _kernelDirection[downIndex - 1] == 45) ||
-                            (ks[downIndex] > thr && _kernelDirection[downIndex] == 90) ||
-                            (ks[downIndex + 1] > thr && _kernelDirection[downIndex + 1] == 135))
+                        if ((ks[downIndex - 1] > thr ) ||
+                            (ks[downIndex] > thr ) ||
+                            (ks[downIndex + 1] > thr ))
                             
                         {
                             ep[midIndex] = 1;
@@ -591,6 +647,129 @@ namespace GenArt.Core.Classes
             }
         }
 
+        private void MakeThinEdges()
+        {
+            List<int> indexForDelete = new List<int>();
+            byte [] ep = this._edgesPoints.Data;
+
+
+            do
+            {
+
+                for (int index  = 0; index < indexForDelete.Count; index++)
+                    ep[indexForDelete[index]] = 0;
+
+                indexForDelete.Clear();
+
+
+                int upRowIndex = 0;
+                int midRowIndex = this._edgesPoints.Width;
+                int downRowIndex = this._edgesPoints.Width * 2;
+
+                
+                for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+                {
+                    int upIndex = upRowIndex + 1;
+                    int midIndex = midRowIndex + 1;
+                    int downIndex = downRowIndex + 1;
+
+                    for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+                    {
+                        int p1 = ep[midIndex];
+                        int p2 = ep[upIndex];
+                        int p3 = ep[upIndex+1];
+                        int p4 = ep[midIndex+1];
+                        int p5 = ep[downIndex+1];
+                        int p6 = ep[downIndex];
+                        int p7 = ep[downIndex-1];
+                        int p8 = ep[midIndex-1];
+                        int p9 = ep[upIndex-1];
+
+
+                        int sum = p2+p3+p4+p5+p6+p7+p8+p9;
+                        
+                        int sumChange01 = (p2 < p3 ? 1 : 0) + (p3 < p4 ? 1 : 0) +
+                                          (p4 < p5 ? 1 : 0) + (p5 < p6 ? 1 : 0) +
+                                          (p6 > p7 ? 1 : 0) + (p7 > p8 ? 1 : 0) +
+                                          (p8 > p9 ? 1 : 0) + (p9 > p2 ? 1 : 0);
+
+
+                        if (p1 == 1 && (2 <= sum && sum <= 6) && sumChange01 == 1 &&
+                            (p2 * p4 * p6) == 0 && (p4 * p6 * p8) == 0 && p7 != 0)
+                        {
+                            indexForDelete.Add(midIndex);
+                        }
+
+                        
+                        upIndex++;
+                        midIndex++;
+                        downIndex++;
+                    }
+
+                    upRowIndex += this._edgesPoints.Width;
+                    midRowIndex += this._edgesPoints.Width;
+                    downRowIndex += this._edgesPoints.Width;
+                }
+
+                for (int index  = 0; index < indexForDelete.Count; index++)
+                    ep[indexForDelete[index]] = 0;
+
+                indexForDelete.Clear();
+
+
+                upRowIndex = 0;
+                midRowIndex = this._edgesPoints.Width;
+                downRowIndex = this._edgesPoints.Width * 2;
+
+
+                for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+                {
+                    int upIndex = upRowIndex + 1;
+                    int midIndex = midRowIndex + 1;
+                    int downIndex = downRowIndex + 1;
+
+                    for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+                    {
+                        int p1 = ep[midIndex];
+                        int p2 = ep[upIndex];
+                        int p3 = ep[upIndex + 1];
+                        int p4 = ep[midIndex + 1];
+                        int p5 = ep[downIndex + 1];
+                        int p6 = ep[downIndex];
+                        int p7 = ep[downIndex - 1];
+                        int p8 = ep[midIndex - 1];
+                        int p9 = ep[upIndex - 1];
+
+
+                        int sum = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
+
+                        int sumChange01 = (p2 < p3 ? 1 : 0) + (p3 < p4 ? 1 : 0) +
+                                          (p4 < p5 ? 1 : 0) + (p5 < p6 ? 1 : 0) +
+                                          (p6 > p7 ? 1 : 0) + (p7 > p8 ? 1 : 0) +
+                                          (p8 > p9 ? 1 : 0) + (p9 > p2 ? 1 : 0);
+
+
+                        if (p1 == 1 && (2 <= sum && sum <= 6) && sumChange01 == 1 &&
+                            (p2 * p4 * p8) == 0 && (p2 * p6 * p8) == 0 && p7 != 0)
+                        {
+                            indexForDelete.Add(midIndex);
+                        }
+
+
+                        upIndex++;
+                        midIndex++;
+                        downIndex++;
+                    }
+
+                    upRowIndex += this._edgesPoints.Width;
+                    midRowIndex += this._edgesPoints.Width;
+                    downRowIndex += this._edgesPoints.Width;
+                }
+
+            } while (indexForDelete.Count > 0);
+        }
+
+
         #endregion
 
 
@@ -606,6 +785,9 @@ namespace GenArt.Core.Classes
             _edgesPoints.Data[_edgesPoints.Length - 1] = 1;
             
         }
+
+       
+
 
         private void ReduceOnePointNoise()
         {

@@ -118,6 +118,7 @@ namespace GenArt.Core.AST
             ed.SaveBitmapHSL("bmpHSL_S.bmp", false, true, false);
             ed.SaveBitmapHSL("bmpHSL_L.bmp", false, false, true);
             ed.SaveImageGreyscaleAsBitmap("ImageGreyscale.bmp");
+            ed.SaveImageEdgeDirectionsAsBitmap("ImageEdgeDirection.bmp");
 
             return ed.GetAllEdgesPoints();
 
