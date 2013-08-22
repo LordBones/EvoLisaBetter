@@ -190,7 +190,21 @@ namespace GenArt.Core.Classes
         private const int CONST_EdgeDirection_LeftDown = 45;
         private const int CONST_EdgeDirection_LeftUp = 135;
 
+        private byte [] gauseKernel = new byte[]
+        {0,1,2,1,0,
+         1,4,8,4,1,
+         2,8,16,8,2,
+         1,4,8,4,1,
+         0,1,2,1,0
+        };
 
+        private int [] gauseKernel2 = new int[]
+        {0,-1,-2,-1,0,
+         -1,-4,-8,-4,-1,
+         -2,-8,+64,-8,-2,
+         -1,-4,-8,-4,-1,
+         -0,-1,-2,-1,-0
+        };
 
         private CanvasBGRA _originalImage = null;
         private Array2D _edgesPoints;
@@ -245,6 +259,7 @@ namespace GenArt.Core.Classes
 
         public void SaveImageGreyscaleAsBitmap(string filename)
         {
+
             SaveGreyscaleAsBitmap(filename);
             
         }
@@ -333,9 +348,10 @@ namespace GenArt.Core.Classes
 
 
             ConvertToGreyScale();
+            ReduceNoiseGausianGreyscale();
             LeftDetectEdgeNew();
             DetectEdgeByKernelSum();
-            MakeThinEdges();
+            //MakeThinEdges();
             //UpDownDetectEdgeNew();
 
             //leftRunFindEdgesByHSLBetter();
@@ -472,6 +488,7 @@ namespace GenArt.Core.Classes
 
         private void SaveGreyscaleAsBitmap(string filename)
         {
+            ReduceNoiseGausianGreyscale();
             CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
 
             int imageIndex = 0;
@@ -559,8 +576,8 @@ namespace GenArt.Core.Classes
             byte [] ep = this._edgesPoints.Data;
             int [] ks = _kernelSums;
 
-            //int thresholdMin = _threshold;
-            int thresholdMax = _threshold;
+            int thresholdMin = _threshold;
+            int thresholdMax = _threshold*3;
 
             for (int y = 1; y < this._edgesPoints.Height - 1; y++)
             {
@@ -574,7 +591,7 @@ namespace GenArt.Core.Classes
                     {
                         ep[midIndex] = 1;
                     }
-                    else if (_kernelSums[midIndex] < thresholdMax)
+                    else if (_kernelSums[midIndex] >= thresholdMin)
                     {
                         int thr = thresholdMax;
                         if ((ks[upIndex - 1] > thr) ||
@@ -645,6 +662,65 @@ namespace GenArt.Core.Classes
                 midRowIndex += this._edgesPoints.Width;
                 downRowIndex += this._edgesPoints.Width;
             }
+        }
+
+        private void ReduceNoiseGausianGreyscale()
+        {
+            byte [] gauseValues = new byte[_imageGreyscale.Length];
+
+            int rowIndex = this._edgesPoints.Width * 2;
+            int rowStartKernelIndex = 0;
+            
+            
+            byte [] gs = this._imageGreyscale.Data;
+
+            for (int y = 2; y < this._edgesPoints.Height - 2; y++)
+            {
+                int index = rowIndex + 2;
+                int rowKernelIndex = rowStartKernelIndex;
+                for (int x = 2; x < this._edgesPoints.Width - 2; x++)
+                {
+                    int sum = 0;
+                    int rowInsideKernelIndex = rowKernelIndex;
+                    for(int ky = 0;ky < 5;ky++)
+                    {
+                        int insideKernelIndex = rowInsideKernelIndex; 
+
+                        for (int kx =0; kx < 5; kx++)
+                        {
+                            sum += gs[insideKernelIndex] * gauseKernel[ky * 5 + kx];
+
+                            insideKernelIndex++;
+                        }
+
+                        rowInsideKernelIndex += this._edgesPoints.Width;
+                    }
+
+                    gauseValues[index] = (byte)(sum/80);
+
+                    rowKernelIndex++;
+                    index++;
+                }
+
+                rowIndex += this._edgesPoints.Width;
+                rowStartKernelIndex += this._edgesPoints.Width;
+            }
+
+            // update pixels
+            int findexRow = this._edgesPoints.Width * 2;
+
+            for (int y = 2; y < this._edgesPoints.Height - 2; y++)
+            {
+                int index = findexRow + 2;
+                for (int x = 2; x < this._edgesPoints.Width - 2; x++)
+                {
+                    gs[index] = gauseValues[index];
+                    index++;
+                }
+
+                findexRow += this._edgesPoints.Width;
+            }
+            
         }
 
         private void MakeThinEdges()
