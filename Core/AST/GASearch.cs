@@ -226,11 +226,16 @@ namespace GenArt.Core.AST
             this._lastBestFittness = bestFittness;
 
             // aplikovani pridani nejlepsiho do kolekce
-            _fittness[this._population.Length - 1] = this._currentBestFittness;
-            _population[this._population.Length - 1] = this._currentBest;
-
-            //_fittness[this._population.Length - 1] = this._lastBestFittness;
-            //_population[this._population.Length - 1] = this._lastBest;
+            if (_generation % 1 == 0) 
+            {
+                _fittness[this._population.Length - 1] = this._currentBestFittness;
+                _population[this._population.Length - 1] = this._currentBest;
+            }
+            else
+            {
+                _fittness[this._population.Length - 1] = this._lastBestFittness;
+                _population[this._population.Length - 1] = this._lastBest;
+            }
 
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
         }

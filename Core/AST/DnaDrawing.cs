@@ -129,10 +129,13 @@ namespace GenArt.AST
 
                 if (mutateChange < 100)
                 {
-                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                        RemovePolygon();
-                    AddPolygon(destImage, edgePoints);
-                    continue;
+                    //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                    //    RemovePolygon();
+                    if (Settings.ActivePolygonsMax > this.Polygons.Length)
+                    {
+                        AddPolygon(destImage, edgePoints);
+                        continue;
+                    }
                 }
                 if (mutateChange < 200)
                 {

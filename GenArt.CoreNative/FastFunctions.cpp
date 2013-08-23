@@ -144,4 +144,57 @@ __int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned c
             return result;
 		}
 
+unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* p1, unsigned char* p2, int count )
+{
+    int high32 = 0;
+
+	/*_asm
+	{
+		push	ebx
+		push	esi
+		push	edi
+
+		mov		esi, p1
+		mov		edi, p2
+		xor		eax, eax
+again:
+		dec		count
+		js		done
+
+		movzx	ebx, byte ptr [esi]
+		movzx	edx, byte ptr [edi]
+		sub		edx, ebx
+		imul	edx, edx
+
+		movzx	ebx, byte ptr [esi+1]
+		movzx	ecx, byte ptr [edi+1]
+		sub		ebx, ecx
+		imul	ebx, ebx
+		add		edx, ebx
+
+		movzx	ebx, byte ptr [esi+2]
+		movzx	ecx, byte ptr [edi+2]
+		sub		ebx, ecx
+		imul	ebx, ebx
+		add		edx, ebx
+
+		add		esi, 4
+		add		edi, 4
+
+		add		eax, edx
+		jnc		again
+
+		inc		high32
+		jmp		again
+done:
+		mov		edx, high32
+
+		pop		edi
+		pop		esi
+		pop		ebx
+	}*/
+
+    return 0;
+
+}
 
