@@ -192,7 +192,7 @@ namespace GenArt
 
             while (isRunning)
             {
-                //if (generation > 14000) break;
+                if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -404,7 +404,14 @@ namespace GenArt
                  if ((guiDrawing != null) && chbShowResult.Checked)
                  {
                      backGraphics.Clear(Color.Black);
-                     Renderer.Render(guiDrawing, backGraphics, ZoomScale);
+                     if (chbWires.Checked)
+                     {
+                         Renderer.RenderWire(guiDrawing, backGraphics, ZoomScale);
+                     }
+                     else 
+                     {
+                         Renderer.Render(guiDrawing, backGraphics, ZoomScale);
+                     }
                      e.Graphics.DrawImage(backBuffer, 0, 0);
 
                  }
@@ -420,6 +427,7 @@ namespace GenArt
                      }
                  }
 
+             
             }
         }
 
@@ -618,6 +626,11 @@ namespace GenArt
         }
 
         private void chbShowEdges_CheckedChanged(object sender, EventArgs e)
+        {
+            pnlCanvas.Invalidate();
+        }
+
+        private void chbWires_CheckedChanged(object sender, EventArgs e)
         {
             pnlCanvas.Invalidate();
         }

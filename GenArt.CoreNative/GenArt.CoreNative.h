@@ -15,16 +15,10 @@ namespace GenArtCoreNative {
 
 		private:
 
-			
-	    void _ClearFieldByColor(unsigned char * curr, int length, int color);
-
 		__int64 computeFittness(unsigned char * curr, unsigned char * orig, int length);
 		__int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
 
 
-        void FastRowApplyColor(unsigned char * canvas, int from,int to, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem);
-		
-		
 
 		// TODO: Add your methods for this class here.
 	public :
@@ -33,7 +27,8 @@ namespace GenArtCoreNative {
 		{
 			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			_ClearFieldByColor(pinCanvas, canvas->Length, color);
+			FastFunctions::
+			ClearFieldByColor(pinCanvas, canvas->Length, color);
 
 		}
 
@@ -43,6 +38,19 @@ namespace GenArtCoreNative {
 
 			FastFunctions::
             FastRowApplyColor(pinCanvas,to-from+1,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+        }
+
+		void RowApplyColorBetter(array<System::Byte>^ canvas,int canvasWidth, array<System::Int16>^ ranges, int startY, int r, int g, int b, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			pin_ptr<System::Int16> pinRanges(&ranges[0]);
+
+
+			FastFunctions::
+                FastRowsApplyColor2(pinCanvas,canvasWidth,pinRanges,ranges->Length, startY, r, g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
