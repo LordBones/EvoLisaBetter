@@ -190,7 +190,8 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
           while(len > 1)
           {
               __m128i source = _mm_cvtsi64_si128(*((long long*)line));
-
+              //if((len & 6) == 4)
+              //_mm_prefetch(((char *)line)+128, _MM_HINT_T1 );
               source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
               __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
               tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
@@ -208,7 +209,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 
               *((long long*)line) =  _mm_cvtsi128_si64(source);
 
-
+              //_mm_prefetch(_mm_h
 			  len -= 2;
 			  line+=8;
           }
@@ -313,9 +314,12 @@ MixAlphaMMX32_MainLoop:
     f.m128i_i32[2] = Fill;
     f.m128i_i32[3] = Fill;
 
+   
+
 	while (Count >= 4)
     {
         _mm_store_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)M, f);
         M += 4;
         Count -= 4;
 	}

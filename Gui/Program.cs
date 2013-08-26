@@ -17,16 +17,26 @@ namespace GenArt
     {
         private static void TestBenchmarkColorFill()
         {
-            const int CONST_LoopCount = 1000;
+            const int CONST_LoopCount = 3000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
+            short [] ranges = new short[2000];
+
+            for (int i = 0; i < ranges.Length; i+=2)
+            {
+                ranges[i] = 0;
+                ranges[i + 1] = 999;
+            }
+
             NativeFunctions nativeFunc = new NativeFunctions();
 
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
+                //nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
             }
 
-            Console.Out.WriteLine("points fill: {0} Mpoints", (canvas.CountPixels * CONST_LoopCount) / 1000000);
+            Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
+            //Console.Out.WriteLine("points fill: {0} Mpoints", ((ranges.Length/2) * 1000 * CONST_LoopCount) / 1000000);
         }
 
 
