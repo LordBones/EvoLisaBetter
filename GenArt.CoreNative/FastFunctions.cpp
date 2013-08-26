@@ -81,9 +81,14 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
     return (data ^ topbitreplicated) - topbitreplicated;  
 }
 
+  unsigned short int Fast255div(unsigned short int value)
+  {
+      return (value+1 + (value >> 8)) >> 8;
+  }
+
   void FastFunctions::FastRowsApplyColor(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r , int g, int b, int alpha)
   {
-      if(alpha> 0) alpha++;
+      //if(alpha> 0) alpha++;
 
       int invAlpha = 255-alpha;
 	  int rowStartIndex = (rangeStartY) * canvasWidth;
@@ -115,9 +120,17 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 			  //tg=tg + ((g-tg)*alpha)/255;
 			  //tr=tr + ((r-tr)*alpha)/255;
 
-              tb = tb + (((b-tb)*alpha)>>8);
+              /*tb = (b*alpha + (tb*invAlpha))/255;
+			  tg=(g*alpha + (tg*invAlpha))/255;
+			  tr=(r*alpha + (tr*invAlpha))/255;
+*/
+               tb = Fast255div(b*alpha + (tb*invAlpha));
+			  tg=Fast255div(g*alpha + (tg*invAlpha));
+			  tr=Fast255div(r*alpha + (tr*invAlpha));
+
+              /*tb = tb + (((b-tb)*alpha)>>8);
 			  tg=tg + (((g-tg)*alpha)>>8);
-			  tr=tr + (((r-tr)*alpha)>>8);
+			  tr=tr + (((r-tr)*alpha)>>8);*/
 
 
 			  *line = (unsigned char)tb;
@@ -141,23 +154,22 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 
      // pFastRowsApplyColor2(canvas,canvasWidth,ranges,rlen,rangeStartY,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
-	 if(alpha> 0) alpha++;
+	
 
-      // implementace source +((color -  source)*alpha)/255
-      // kvuli rychlosti je pouzit trik alpha +1 a pote /256;
-      // kvuli spravnemu vypoctu je nutne jeli alpha 0 nedelat inkrement;
-
+      // implementace (color*alpha + (255-alpha)*source)/255 
+      // implementace deleni 255  v sse s pomoci tohoto vzorce (value+1 + (value >> 8)) >> 8;
+      
 	  int rowStartIndex = (rangeStartY) * canvasWidth;
 
 	  short * end = ranges+rlen;
 
-      //_mm
+      int invAlpha = 255-alpha;
       
-      __m128i nNull = _mm_setzero_si128();
-      __m128i mColor = _mm_setr_epi16(b,g,r,0,0,0,0,0);
-      __m128i mMullAlpha = _mm_setr_epi16(alpha,alpha,alpha,1,1,1,1,1);
-      //__m128i mDivShr8 = _mm_setr_epi16(8,8,8,0,0,0,0,0);
-      __m128i mMaskAnd = _mm_setr_epi16(0xffff,0xffff,0xffff,0,0,0,0,0);
+      // __m128i nNull = _mm_cvtsi32_si128(0);
+      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,b*alpha,g*alpha,r*alpha,0);
+
+      __m128i mMullInvAlpha = _mm_setr_epi16(invAlpha,invAlpha,invAlpha,1,invAlpha,invAlpha,invAlpha,1);
+      __m128i mMaskAnd = _mm_setr_epi16(0xffff,0xffff,0xffff,0,0xffff,0xffff,0xffff,0);
 
 
       
@@ -175,39 +187,54 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 		  unsigned char * line = canvas+index;
 		  
           
-          
+          while(len > 1)
+          {
+              __m128i source = _mm_cvtsi64_si128(*((long long*)line));
+
+              source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+              tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+                                                                        // rychle deleni 255
+              __m128i tmp2  = _mm_adds_epu16(tmp1,_mm_set1_epi16(1));   // t + 1
+              tmp1          = _mm_srli_epi16(tmp1,8);                   //t >> 8
+              tmp2          = _mm_adds_epu16(tmp1,tmp2);                //(t+1)+(t >> 8)
+              tmp2          = _mm_srli_epi16(tmp2,8);                   //((t+1)+(t >> 8)) >> 8
+              source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+              tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+              source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+              source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
+
+              *((long long*)line) =  _mm_cvtsi128_si64(source);
+
+
+			  len -= 2;
+			  line+=8;
+          }
 
 
 		  while(len > 0)
 		  {
               __m128i source = _mm_cvtsi32_si128(*((int*)line));
-              source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
 
-                __m128i tmp1 = _mm_sub_epi16(mColor,source);
-              tmp1 = _mm_and_si128(tmp1,mMaskAnd);
-              tmp1 = _mm_mullo_epi16(tmp1,mMullAlpha);
-              tmp1 = _mm_srai_epi16(tmp1,8);
-              source = _mm_add_epi16(tmp1,source);
-              source = _mm_packus_epi16(source, _mm_setzero_si128() );
-            
-            
+              source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+              tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+                                                                        // rychle deleni 255
+              __m128i tmp2  = _mm_adds_epu16(tmp1,_mm_set1_epi16(1));   // t + 1
+              tmp1          = _mm_srli_epi16(tmp1,8);                   //t >> 8
+              tmp2          = _mm_adds_epu16(tmp1,tmp2);                //(t+1)+(t >> 8)
+              tmp2          = _mm_srli_epi16(tmp2,8);                   //((t+1)+(t >> 8)) >> 8
+              source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+              tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+              source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+              source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
 
               *((int*)line) =  _mm_cvtsi128_si32(source);
 
-			  //((axrem + rem * colorChanel) >> 16)
-
-			  /*unsigned int b = *line;
-			  unsigned int g = line[1];
-			  unsigned int r = line[2];
-
-			  b = (b*colorRem+colorABRrem)>>16;
-			  g=(g*colorRem+colorAGRrem)>>16;
-			  r=(r*colorRem+colorARRrem)>>16;
-
-			  *line = (unsigned char)b;
-			  line[1] = (unsigned char)g;
-			  line[2] = (unsigned char)r;
-              */
 
 			  len -= 1;
 			  line+=4;

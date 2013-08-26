@@ -226,7 +226,7 @@ namespace GenArt.Core.AST
             this._lastBestFittness = bestFittness;
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 0) 
+            if (_generation % 10 == 0) 
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
                 _population[this._population.Length - 1] = this._currentBest;
