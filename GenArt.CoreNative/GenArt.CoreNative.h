@@ -50,7 +50,7 @@ namespace GenArtCoreNative {
 
 
 			FastFunctions::
-                FastRowsApplyColor2(pinCanvas,canvasWidth,pinRanges,ranges->Length, startY, r, g, b, alpha);
+                FastRowsApplyColorSSE128(pinCanvas,canvasWidth,pinRanges,ranges->Length, startY, r, g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 

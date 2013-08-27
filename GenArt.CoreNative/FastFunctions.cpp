@@ -151,7 +151,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 
   
 
-  void FastFunctions::FastRowsApplyColor2(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r,int g, int b, int alpha)
+  void FastFunctions::FastRowsApplyColorSSE64(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r,int g, int b, int alpha)
   {
 
      // pFastRowsApplyColor2(canvas,canvasWidth,ranges,rlen,rangeStartY,colorABRrem,colorAGRrem,colorARRrem,colorRem);
@@ -259,50 +259,133 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 
   }
 
-  
+  void FastFunctions::FastRowsApplyColorSSE128(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r,int g, int b, int alpha)
+  {
 
-  static unsigned short alphaMMXmul_const1[4] = {256,256,256,256};	      
-static unsigned alphaMMXmul_0[2] = {1,1};				      
-									      
-void MixAlphaMMX32(void *dest,const void *src,unsigned len,unsigned opacity) {
-									      
-/*__asm {									      
-	mov		edi,dest					      
-	mov		ebx,src						      
-	mov		ecx,len						      
-	mov		edx,opacity					      
-									      
-	movzx   eax,dl                                                        
-   	movq    mm7,[alphaMMXmul_const1]				      
-									      
-	shl     eax,16							      
-	add     eax,edx							      
-   	mov     [alphaMMXmul_0],eax 					      
-   	mov     [alphaMMXmul_0 + 4],eax					      
-   	movq    mm6,[alphaMMXmul_0]	; mm6(X) = alpha (4 words)	      
-   	pxor    mm5,mm5							      
-   	psubusw mm7,mm6			; mm7(Y) = 256 – alpha (4 words)      
-									      
-ALIGN 16								      
-MixAlphaMMX32_MainLoop: 						      
-									      
- movd    	mm0,[edi]	; mm0(A) = 0 0 0 0 | 0 Ra Ga Ba	 	      
- add     	edi,4							      
- movd    	mm1,[ebx]	; mm1(B) = 0 0 0 0 | 0 Rb Gb Bb	  	      
- add     	ebx,4							      
- punpcklbw 	mm0,mm5		; mm0 = 0 0 0 Ra | 0 Ga 0 Ba		      
- punpcklbw 	mm1,mm5		; mm1 = 0 0 0 Rb | 0 Gb 0 Bb		      
- pmullw  	mm0,mm6		; mm0 = 0 Ra*X | Ga*X Ba*X		      
- pmullw  	mm1,mm7		; mm1 = 0 Rb*Y | Gb*Y Bb*Y 		      
- paddusw 	mm0,mm1		; mm0 = 0 Ra*X+Rb*y | Ga*X+Gb*y Ba*X+Bb*Y     
- psrlw		mm0,8		; mm0 = 0 0 0 Rc | 0 Gc 0 Bc		      
- packuswb 	mm0,mm0		; mm0 = 0 0 0 0 | 0 Rc Gc Bc		      
- movd    	[edi-4],mm0						      
- dec		ecx							      
- jnz   		MixAlphaMMX32_MainLoop 					      
- emms									      
-}*/									      
-}	
+     // pFastRowsApplyColor2(canvas,canvasWidth,ranges,rlen,rangeStartY,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+	
+
+      // implementace (color*alpha + (255-alpha)*source)/255 
+      // implementace deleni 255  v sse s pomoci tohoto vzorce (value+1 + (value >> 8)) >> 8;
+      
+	  int rowStartIndex = (rangeStartY) * canvasWidth;
+
+	  short * end = ranges+rlen;
+
+      int invAlpha = 255-alpha;
+      
+      // __m128i nNull = _mm_cvtsi32_si128(0);
+      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,b*alpha,g*alpha,r*alpha,0);
+
+      //__m128i mMullInvAlpha = _mm_setr_epi16(invAlpha,invAlpha,invAlpha,1,invAlpha,invAlpha,invAlpha,1);
+      //__m128i mMaskAnd = _mm_setr_epi16(0xffff,0xffff,0xffff,0,0xffff,0xffff,0xffff,0);
+
+      __m128i mColorRBTimeAlpha = _mm_setr_epi16(b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha);
+      __m128i mColorGTimeAlpha = _mm_setr_epi16(g*alpha,0,g*alpha,0,g*alpha,0,g*alpha,0);
+
+
+      __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+      __m128i mMaskGAnd = _mm_setr_epi8(0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0);
+      __m128i mMaskAAnd = _mm_setr_epi8(0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff);
+
+
+      
+
+	  //int indexY = minY * this._canvasWidth;
+	  //for (int y  = 0; y < rlen; y+=2)//, indexY += this._canvasWidth)
+	  while(ranges < end)
+	  {
+
+
+		  int index = rowStartIndex + (*ranges) * 4;
+
+		  //
+		  int len = ranges[1] - *ranges+1; 
+		  unsigned char * line = canvas+index;
+		  
+          
+          while(len > 3)
+          {
+
+
+              __m128i sourceRB = _mm_loadu_si128((__m128i*)line); // load    ArgbArgbArgbArgb
+              __m128i sourceG = _mm_and_si128(sourceRB,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
+              sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
+              __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
+              sourceRB = _mm_andnot_si128(mMaskAAnd,sourceRB);
+
+
+              sourceG = _mm_srli_epi16(sourceG,8);                 // shift for compute    xxxgxxxgxxxgxxxg
+              // in source is now  xrxbxrxbxrxbxrxb
+              sourceRB = _mm_mullo_epi16(sourceRB,mMullInvAlpha);    // sourceRB <= sourceRB*invAlpha
+              sourceG = _mm_mullo_epi16(sourceG,mMullInvAlpha);    // sourceG <= sourceG*invAlpha
+              sourceRB = _mm_adds_epu16(sourceRB,mColorRBTimeAlpha); // sourceRB <= sourceRB+(colorRB*Alpha)
+              sourceG = _mm_adds_epu16(sourceG,mColorGTimeAlpha); // sourceG <= sourceG+(colorG*Alpha)
+
+              // fast div 255  = (t+1+(t>>8))>>8
+              __m128i tmpRB = _mm_adds_epu16(sourceRB,_mm_set1_epi16(1));    // tmpRB = sourceRB +1
+              __m128i tmpG = _mm_adds_epu16(sourceG,_mm_set1_epi16(1));      // tmpG = sourceG +1
+              sourceRB = _mm_srli_epi16(sourceRB,8);                         // sourceRB = sourceRB >> 8
+              sourceG = _mm_srli_epi16(sourceG,8);                           // sourceG = sourceG >> 8
+              sourceRB = _mm_adds_epu16(sourceRB,tmpRB);                     // sourceRB = sourceRB + tmpsourceRB
+              sourceG = _mm_adds_epu16(sourceG,tmpG);                        // sourceG = sourceG + tmpsourceG
+              sourceRB = _mm_srli_epi16(sourceRB,8);                         // now in sourceRB is sourceRB/255
+              sourceG = _mm_srli_epi16(sourceG,8);                           // now in sourceG is sourceG/255
+
+              // now merge back xrxb.... xxxg.... into xrgb....
+              sourceG = _mm_slli_epi16(sourceG,8);
+              sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
+              sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+              _mm_storeu_si128((__m128i*)line,sourceRB);
+
+              
+			  len -= 4;
+			  line+=16;
+          }
+
+
+		  while(len > 0)
+		  {
+              __m128i source = _mm_cvtsi32_si128(*((int*)line));
+
+              //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              source = _mm_cvtepu8_epi16(source);
+
+              __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+              tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+                                                                        // rychle deleni 255
+              __m128i tmp2  = _mm_adds_epu16(tmp1,_mm_set1_epi16(1));   // t + 1
+              tmp1          = _mm_srli_epi16(tmp1,8);                   //t >> 8
+              tmp2          = _mm_adds_epu16(tmp1,tmp2);                //(t+1)+(t >> 8)
+              tmp2          = _mm_srli_epi16(tmp2,8);                   //((t+1)+(t >> 8)) >> 8
+
+              source        = _mm_blend_epi16(tmp2,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+              //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+              //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+              //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+              source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
+
+              *((int*)line) =  _mm_cvtsi128_si32(source);
+
+
+			  len -= 1;
+			  line+=4;
+		  }
+
+		  rowStartIndex += canvasWidth;
+		  ranges+=2;
+	  }
+
+  }
+
+
+
+
+  
 
   void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
 {

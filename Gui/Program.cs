@@ -36,7 +36,7 @@ namespace GenArt
             }
 
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
-            Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 1000 * CONST_LoopCount) / 1000000);
+            Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 10000 * CONST_LoopCount) / 1000000);
         }
 
 
