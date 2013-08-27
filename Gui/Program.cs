@@ -31,12 +31,12 @@ namespace GenArt
 
             for (int i = 0; i < CONST_LoopCount; i++)
             {
-                nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                //nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
+                //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
+                nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
             }
 
-            Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
-            //Console.Out.WriteLine("points fill: {0} Mpoints", ((ranges.Length/2) * 1000 * CONST_LoopCount) / 1000000);
+            //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
+            Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 1000 * CONST_LoopCount) / 1000000);
         }
 
 

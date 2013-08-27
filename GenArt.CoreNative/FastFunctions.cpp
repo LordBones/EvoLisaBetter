@@ -1,8 +1,10 @@
 
 #include <math.h>
 //#include <iostream>
-#include <mmintrin.h>
+//#include <mmintrin.h>
 #include <emmintrin.h>
+#include <smmintrin.h>
+
 
 
 #include "FastFunctions.h"
@@ -192,7 +194,9 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
               __m128i source = _mm_cvtsi64_si128(*((long long*)line));
               //if((len & 6) == 4)
               //_mm_prefetch(((char *)line)+128, _MM_HINT_T1 );
-              source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              source = _mm_cvtepu8_epi16(source);
+
               __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
               tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
 
@@ -201,11 +205,14 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
               tmp1          = _mm_srli_epi16(tmp1,8);                   //t >> 8
               tmp2          = _mm_adds_epu16(tmp1,tmp2);                //(t+1)+(t >> 8)
               tmp2          = _mm_srli_epi16(tmp2,8);                   //((t+1)+(t >> 8)) >> 8
-              source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
-              tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
-              source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+              source        = _mm_blend_epi16(tmp2,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+              //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+              //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+              //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
 
               source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
+              //source        = _mm_cvt packus_epi16(source, _mm_setzero_si128() );         // pack
 
               *((long long*)line) =  _mm_cvtsi128_si64(source);
 
@@ -219,7 +226,9 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 		  {
               __m128i source = _mm_cvtsi32_si128(*((int*)line));
 
-              source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+              source = _mm_cvtepu8_epi16(source);
+
               __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
               tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
 
@@ -228,9 +237,12 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
               tmp1          = _mm_srli_epi16(tmp1,8);                   //t >> 8
               tmp2          = _mm_adds_epu16(tmp1,tmp2);                //(t+1)+(t >> 8)
               tmp2          = _mm_srli_epi16(tmp2,8);                   //((t+1)+(t >> 8)) >> 8
-              source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
-              tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
-              source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+              source        = _mm_blend_epi16(tmp2,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+              //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+              //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+              //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
 
               source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
 
