@@ -18,62 +18,7 @@
 
 void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int colorABRrem, int colorAGRrem, int colorARRrem, int colorRem)
 {
-    //unsigned int * ptrColor = (unsigned int *)(canvas+from);
-
-	//int count = (to - from)>>2;
-
-	// while(count>=0)
- //   {
- //       
-	//	unsigned int Color = ptrColor[count];
-	//	unsigned int res = Color&0xff000000;
-
-	//	res |= ApplyColor((Color>>16)&0xFF, colorARRrem, colorRem) << 16; // r
-	//	unsigned int G = (Color>>8)&0xFF;
-	//	res |= ApplyColor(G, colorAGRrem, colorRem)<<8;
-	//	unsigned int B = Color&0xFF;
-	//	
-
- //       res |= ((colorABRrem + colorRem * B)>> 16);// ApplyColor(B, colorABRrem, colorRem);
- //       
- //       
-
-	//	ptrColor[count] = res; // (Color&0xff000000) | (R<<16) | (G << 8) | B;
-
-	//	
-	//	count--;
- //       
- //   }
-
-
-    /*
-    while(from <= to)
-    {
-        int index = from;
-         canvas[index] = (unsigned char)FastFunctions::ApplyColor(canvas[index], colorABRrem, colorRem);
-                    canvas[index + 1] = (unsigned char)FastFunctions::ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-                    canvas[index + 2] = (unsigned char)FastFunctions::ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-                    from += 4;
-    }*/
-	
    
-
-
-
-
-   /* canvas = canvas + from;
-
-    while(from <= to)
-    {
-         *canvas = ApplyColor(*canvas, colorABRrem, colorRem);
-                    canvas[1] = ApplyColor(canvas[1], colorAGRrem, colorRem);
-                    canvas[2] = ApplyColor(canvas[2], colorARRrem, colorRem);
-
-                    from += 4;
-                    canvas +=4;
-
-    }*/
 }
 
 
@@ -413,12 +358,19 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
               //sourceRB = _mm_adds_epu16(sourceRB,tmpRB);                     // sourceRB = sourceRB + tmpsourceRB
               //sourceG = _mm_adds_epu16(sourceG,tmpG);                        // sourceG = sourceG + tmpsourceG
               sourceRB = _mm_srli_epi16(sourceRB,8);                         // now in sourceRB is sourceRB/255
-              sourceG = _mm_srli_epi16(sourceG,8);                           // now in sourceG is sourceG/255
+              //sourceG = _mm_srli_epi16(sourceG,8);                           // now in sourceG is sourceG/255
 
               // now merge back xrxb.... xxxg.... into xrgb....
-              sourceG = _mm_slli_epi16(sourceG,8);
-              sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
-              sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+
+              //sourceG = _mm_slli_epi16(sourceG,8);
+              //sourceG = _mm_and_si128(mMaskGAnd,sourceG);
+              //sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
+              //sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+
+              sourceG = _mm_and_si128(mMaskGAnd,sourceG);
+              __m128i tmp = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+              sourceRB =_mm_or_si128(tmp,sourceG);         // now in sourceRB is xrgbxrgb....
+              
               _mm_store_si128((__m128i*)line,sourceRB);
               
               
@@ -566,57 +518,55 @@ __int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned c
             return result;
 		}
 
-unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* p1, unsigned char* p2, int count )
+unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr, unsigned char* orig, int count )
 {
-    int high32 = 0;
+    __int64 result = 0;
 
-	/*_asm
-	{
-		push	ebx
-		push	esi
-		push	edi
+    __m128i mMaskGAAnd = _mm_setr_epi8(0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff);
 
-		mov		esi, p1
-		mov		edi, p2
-		xor		eax, eax
-again:
-		dec		count
-		js		done
+    while(count > 15)
+    {
+   
+    __m128i colors = _mm_loadu_si128((__m128i*)curr);
+    __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+    __m128i tmp1 = _mm_min_epu8(colors,colors2);
+    __m128i tmp2 = _mm_max_epu8(colors,colors2);
+     tmp1 = _mm_subs_epu8(tmp2,tmp1);
 
-		movzx	ebx, byte ptr [esi]
-		movzx	edx, byte ptr [edi]
-		sub		edx, ebx
-		imul	edx, edx
+     tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
+     tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
+    
+     tmp2 =  _mm_srli_epi16(tmp2,8);
+     tmp1 = _mm_mullo_epi16(tmp1,tmp1);
+     tmp2 = _mm_mullo_epi16(tmp2,tmp2);
 
-		movzx	ebx, byte ptr [esi+1]
-		movzx	ecx, byte ptr [edi+1]
-		sub		ebx, ecx
-		imul	ebx, ebx
-		add		edx, ebx
+      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
+         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
 
-		movzx	ebx, byte ptr [esi+2]
-		movzx	ecx, byte ptr [edi+2]
-		sub		ebx, ecx
-		imul	ebx, ebx
-		add		edx, ebx
+          count-=16;
+          curr+=16;
+          orig+=16;
+            
+    }
 
-		add		esi, 4
-		add		edi, 4
 
-		add		eax, edx
-		jnc		again
 
-		inc		high32
-		jmp		again
-done:
-		mov		edx, high32
+    while(count > 3)
+            {
+                int br = curr[0] - orig[0];
+                int bg = curr[1] - orig[1];
+                int bb = curr[2] - orig[2];
 
-		pop		edi
-		pop		esi
-		pop		ebx
-	}*/
+                result += br*br+bg*bg + bb*bb;
 
-    return 0;
+                count-=4;
+                curr+=4;
+                orig+=4;
+              //  index += 4;
+            }
+
+
+    return result;
 
 }
 

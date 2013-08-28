@@ -6,7 +6,7 @@
 #include <smmintrin.h>
 
 
-int _tmain(int argc, _TCHAR* argv[])
+void TestBlendColor128()
 {
     // implementace michani barev podle vzorce
     // (color*alpha + (255-alpha)*source)/255
@@ -61,6 +61,40 @@ int _tmain(int argc, _TCHAR* argv[])
       sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
       _mm_storeu_si128((__m128i*)field,sourceRB);
 
+}
+
+void TestSumSquare()
+{
+    unsigned char field1[] = {2,3,4,50,13,14,15,255,13,14,15,255,13,14,15,255};
+    unsigned char field2[] = {4,6,8,255,13,10,15,255,13,14,15,255,13,14,15,255};
+
+    __m128i mMaskGAnd = _mm_setr_epi8(0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0);
+    __m128i mMaskAAnd = _mm_setr_epi8(0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff);
+
+    __m128i colors = _mm_loadu_si128((__m128i*)field1);
+    __m128i colors2 = _mm_loadu_si128((__m128i*)field2);
+    __m128i tmp1 = _mm_min_epu8(colors,colors2);
+    __m128i tmp2 = _mm_max_epu8(colors,colors2);
+     tmp1 = _mm_subs_epu8(tmp2,tmp1);
+
+     tmp2 = _mm_and_si128(tmp1,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
+     tmp1 = _mm_andnot_si128(mMaskGAnd,tmp1);
+     tmp1 = _mm_andnot_si128(mMaskAAnd,tmp1);
+
+     tmp2 =  _mm_srli_epi16(tmp2,8);
+     tmp1 = _mm_mullo_epi16(tmp1,tmp1);
+     tmp2 = _mm_mullo_epi16(tmp2,tmp2);
+
+     __int64 res = tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
+         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
+     
+
+
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+    TestSumSquare();
 
 	return 0;
 }
