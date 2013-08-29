@@ -70,8 +70,8 @@ namespace GenArtCoreNative {
 		{
 			__int64 result = 0;
 
-			pin_ptr<System::Byte> pinCurr(&current[0]);
-			pin_ptr<System::Byte> pinOrig(&orig[0]);
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
 
 			
 			

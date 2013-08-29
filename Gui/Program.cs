@@ -15,6 +15,16 @@ namespace GenArt
 {
     static class Program
     {
+        private static TimeSpan ts;
+
+        private static void PerfStart() { ts = Process.GetCurrentProcess().UserProcessorTime; }
+        private static void PerfEnd() 
+        { 
+            ts = Process.GetCurrentProcess().UserProcessorTime;
+            Console.Out.WriteLine("time: {0}.{1:d3}", (int)ts.TotalSeconds, ts.Milliseconds);
+        }
+
+
         private static void TestBenchmarkColorFill()
         {
             const int CONST_LoopCount = 3000;
@@ -29,12 +39,14 @@ namespace GenArt
 
             NativeFunctions nativeFunc = new NativeFunctions();
 
+            PerfStart();
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
                 //nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
                 nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
+            PerfEnd();
 
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
             Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 1000 * CONST_LoopCount) / 1000000);
@@ -68,27 +80,29 @@ namespace GenArt
             Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
             polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
 
-             for (int i = 0; i < 100000; i++)
-             {
-            for (int index =0; index < dna.Polygons.Length; index++)
+            PerfStart();
+            for (int i = 0; i < 100000; i++)
             {
+                for (int index =0; index < dna.Polygons.Length; index++)
+                {
 
-                //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
-                
+                    //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
+
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
                     triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, Color.PaleGreen);
-                
 
-                //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
-                {
-                    //    polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
-                    //    polyTest.SaveMinAreaToFile("PolyTest.txt");
 
-                    //  break;
+                    //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
+                    {
+                        //    polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
+                        //    polyTest.SaveMinAreaToFile("PolyTest.txt");
+
+                        //  break;
+                    }
+
                 }
-
+                PerfEnd();
             }
-             }
 
         }
 
@@ -264,26 +278,11 @@ namespace GenArt
                 
                 if (args[0] == "benchfill")
                 {
-                    TimeSpan ts = Process.GetCurrentProcess().UserProcessorTime;
-
-                    TestBenchmarkColorFill();
-
-                    ts = Process.GetCurrentProcess().UserProcessorTime - ts;
-
-                    Console.Out.WriteLine("time: {0}.{1:d3}", (int)ts.TotalSeconds, ts.Milliseconds);
-                    
+                    TestBenchmarkColorFill();        
                 }
                 if (args[0] == "bench")
                 {
-
-                    TimeSpan ts = Process.GetCurrentProcess().UserProcessorTime;
-
-                    TestBenchmark();
-
-                    ts = Process.GetCurrentProcess().UserProcessorTime - ts;
-
-                    Console.Out.WriteLine("time: {0}.{1:d3}", (int)ts.TotalSeconds, ts.Milliseconds);
-                    
+                    TestBenchmark();     
                 }
                 else if (args[0] == "test")
                 {
