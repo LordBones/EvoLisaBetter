@@ -65,11 +65,13 @@ void TestBlendColor128()
 
 void TestSumSquare()
 {
-    unsigned char field1[] = {2,3,4,50,13,14,15,255,13,14,15,255,13,14,15,255};
-    unsigned char field2[] = {4,6,8,255,13,10,15,255,13,14,15,255,13,14,15,255};
+    unsigned char field1[] = {2,3,4,250,2,3,4,250,2,3,4,250,2,3,4,250};
+    unsigned char field2[] = {3,4,5,255,3,4,5,255,3,4,5,255,3,4,5,255};
 
-    __m128i mMaskGAnd = _mm_setr_epi8(0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0);
-    __m128i mMaskAAnd = _mm_setr_epi8(0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff);
+    __m128i mMaskGAAnd = _mm_setr_epi8(0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff);
+    __m128i mMaskEven = _mm_setr_epi16(0xffff,0,0xffff,0,0xffff,0,0xffff,0);
+    __m128i mResult = _mm_setzero_si128();
+   
 
     __m128i colors = _mm_loadu_si128((__m128i*)field1);
     __m128i colors2 = _mm_loadu_si128((__m128i*)field2);
@@ -77,17 +79,25 @@ void TestSumSquare()
     __m128i tmp2 = _mm_max_epu8(colors,colors2);
      tmp1 = _mm_subs_epu8(tmp2,tmp1);
 
-     tmp2 = _mm_and_si128(tmp1,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
-     tmp1 = _mm_andnot_si128(mMaskGAnd,tmp1);
-     tmp1 = _mm_andnot_si128(mMaskAAnd,tmp1);
-
+     tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
+     tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
+    
      tmp2 =  _mm_srli_epi16(tmp2,8);
      tmp1 = _mm_mullo_epi16(tmp1,tmp1);
      tmp2 = _mm_mullo_epi16(tmp2,tmp2);
 
-     __int64 res = tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
-         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
-     
+     __m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
+      mResult = _mm_add_epi32(tmp3,mResult);
+      tmp1 = _mm_srli_epi32(tmp1,16);
+      mResult = _mm_add_epi32(tmp1,mResult);
+
+      tmp3 = _mm_and_si128(tmp2,mMaskEven);
+      mResult = _mm_add_epi32(tmp3,mResult);
+    
+    
+
+      __int64 result = mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+      
 
 
 }

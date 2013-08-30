@@ -337,6 +337,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
 
 
               __m128i sourceRB = _mm_load_si128((__m128i*)line); // load    ArgbArgbArgbArgb
+               _mm_prefetch((char *)line+16,_MM_HINT_T0);
               __m128i sourceG = _mm_and_si128(sourceRB,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
               sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
               __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
@@ -366,7 +367,8 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int color
               //sourceG = _mm_and_si128(mMaskGAnd,sourceG);
               //sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
               //sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
-
+             
+              
               sourceG = _mm_and_si128(mMaskGAnd,sourceG);
               __m128i tmp = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
               sourceRB =_mm_or_si128(tmp,sourceG);         // now in sourceRB is xrgbxrgb....
@@ -526,11 +528,16 @@ unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr
     __m128i mMaskEven = _mm_setr_epi16(0xffff,0,0xffff,0,0xffff,0,0xffff,0);
     __m128i mResult = _mm_setzero_si128();
 
+    int c = 1000;
+     
     while(count > 15)
     {
-     mResult = _mm_setzero_si128();
+     
     __m128i colors = _mm_loadu_si128((__m128i*)curr);
     __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+    _mm_prefetch((char *)curr+16,_MM_HINT_T0);
+    _mm_prefetch((char *)orig+16,_MM_HINT_T0);
+
     __m128i tmp1 = _mm_min_epu8(colors,colors2);
     __m128i tmp2 = _mm_max_epu8(colors,colors2);
      tmp1 = _mm_subs_epu8(tmp2,tmp1);
@@ -546,13 +553,19 @@ unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr
       mResult = _mm_add_epi32(tmp3,mResult);
       tmp1 = _mm_srli_epi32(tmp1,16);
       mResult = _mm_add_epi32(tmp1,mResult);
-
+      
       tmp3 = _mm_and_si128(tmp2,mMaskEven);
       mResult = _mm_add_epi32(tmp3,mResult);
     
 
-      result += tmp1.m128i_u32[0]+tmp1.m128i_u32[1]+tmp1.m128i_u32[2]+tmp1.m128i_u32[3];
-         
+       
+      c--;
+      if(c == 0)
+      {
+          result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+          mResult = _mm_setzero_si128();
+          c = 1000;
+      }
 //      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
 //         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
 
@@ -562,7 +575,8 @@ unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr
             
     }
 
-
+    result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+          
 
     while(count > 3)
             {

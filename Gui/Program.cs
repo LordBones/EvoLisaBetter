@@ -43,8 +43,8 @@ namespace GenArt
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                //nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
-                nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
+                nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
+                //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
             PerfEnd();
 
