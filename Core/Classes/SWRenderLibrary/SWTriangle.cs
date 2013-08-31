@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArt.Classes;
 using GenArtCoreNative;
 
 namespace GenArt.Core.Classes.SWRenderLibrary
@@ -297,8 +298,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
             if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
 
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
+            int longest = Tools.fastAbs(w);
+            int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
                 swap<int>(ref longest, ref shortest);
@@ -469,8 +470,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
             if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
 
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
+            int longest = Tools.fastAbs(w);
+            int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
                 swap<int>(ref longest, ref shortest);

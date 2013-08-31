@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArt.Classes;
 using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt.Core.Classes
@@ -102,12 +103,12 @@ namespace GenArt.Core.Classes
             if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
             if (h < 0) dy1 = -widthMull; else if (h > 0) dy1 = widthMull;
             if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
+            int longest = Tools.fastAbs(w);
+            int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
+                longest = Tools.fastAbs(h);
+                shortest = Tools.fastAbs(w);
                 if (h < 0) dy2 = -widthMull; else if (h > 0) dy2 = widthMull;
                 dx2 = 0;
             }

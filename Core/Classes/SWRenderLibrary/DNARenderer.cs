@@ -14,6 +14,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private CanvasBGRA _drawCanvas = new CanvasBGRA(0,0);
         private SWTriangle _drawTriangle;
 
+        public long FillPixels = 0;
+
         public enum RenderType{WPF,GDI,SoftwareUniversalPolygon, SoftwareTriangle};
 
         NativeFunctions nativefunc = new NativeFunctions();
@@ -39,6 +41,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
         {
             nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
+            //FillPixels += this._drawCanvas.CountPixels;
             //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
 
             DnaPolygon [] dnaPolygons = dna.Polygons;
@@ -46,6 +49,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             for (int i = 0; i < polyCount; i++)
             {
                 DnaPolygon polygon = dnaPolygons[i];
+                FillPixels += polygon.GetPixelSizePolygon();
                 this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
 
             }

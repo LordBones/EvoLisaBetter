@@ -68,6 +68,51 @@ namespace GenArt.Core.Classes
             return new DnaPoint((short)pointX, (short)pointY);
         }
 
+        public DnaPoint GetRandomBorderPoint(int startX, int startY)
+        {
+            int maxX = this.Width - 1 - startX;
+            int minX = -(this.Width - maxX-1);
+
+            int maxY = this.Height - 1 - startY;
+            int minY = -(this.Height - maxY - 1);
+
+            int angle = Tools.GetRandomNumber(0, 360);
+            double pomer = Math.Tan((angle / 180.0) * Math.PI);
+
+            int x = (int)(startY / pomer);
+            //check up
+            if (x >= minX && x <= maxX && angle <= 180)
+            {
+                return new DnaPoint((short)(startX + x), (short)0);
+            }
+
+            // check down
+            x = (int)((startY- (this.Height-1)) / pomer);
+            //check up
+            if (x >= minX && x <= maxX && angle > 180)
+            {
+                return new DnaPoint((short)(startX + x), (short)(this.Height-1));
+            }
+
+            int y = (int)(startX * pomer);
+            //check up
+            if (y >= minY && y <= maxY && angle > 90 && angle < 270)
+            {
+                return new DnaPoint((short)0,(short)(startY + y));
+            }
+
+            // check down
+            y = (int)((startX-(this.Width-1)) * pomer);
+            //check up
+            if (y >= minY && y <= maxY && (angle <= 90 || angle >=270 ))
+            {
+                return new DnaPoint((short)(this.Width - 1),(short)(startY + y) );
+            }
+
+            throw new Exception("Sem se to nema nikdy dostat");
+            
+        }
+
         /// <summary>
         /// vraci prvni nalezenou hranu na definovane usecce mimo prvniho bodu
         /// pokud nic nenajde vraci null
@@ -87,8 +132,8 @@ namespace GenArt.Core.Classes
             if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
             if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
 
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
+            int longest = Tools.fastAbs(w);
+            int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
                 int tmp = longest;

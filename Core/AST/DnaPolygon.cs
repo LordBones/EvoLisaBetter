@@ -162,7 +162,7 @@ namespace GenArt.AST
 
                     while (!result.HasValue)
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
                         result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
                     }
 
@@ -172,7 +172,7 @@ namespace GenArt.AST
 
                     while (!result.HasValue  )
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
                         result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
                         if (result.HasValue && DnaPoint.Compare(result.Value, points[0]))
                             result = null;
@@ -183,7 +183,7 @@ namespace GenArt.AST
 
                     while (!result.HasValue)
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
                         result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
 
                         if (result.HasValue && (DnaPoint.Compare(result.Value, points[0]) || DnaPoint.Compare(result.Value, points[1])) )
@@ -254,7 +254,7 @@ namespace GenArt.AST
                         //get random end line on border canvas
                         //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
 
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint();
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(oldPoint.X,oldPoint.Y);
 
                         DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
 
@@ -279,7 +279,7 @@ namespace GenArt.AST
                                 !IsIntersect(points))
                             {
                                 // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
-                                //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
                                 //DnaBrush brush = this.Brush;
                                 //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
                                 //this.Brush = brush;

@@ -174,7 +174,8 @@ namespace GenArt.AST
                     }
                 }
 
-            } while (false);// while (Tools.GetRandomNumber(1, 11) <= 5);
+            } //while (false);
+             while (Tools.GetRandomNumber(1, 11) <= 5);
         }
 
         bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )

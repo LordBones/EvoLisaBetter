@@ -42,6 +42,10 @@ namespace GenArt
 
         DNARenderer _dnaRender;
 
+        private long statsFillPixelsLast = 0;
+        private long statsFillPixelsCurr = 0;
+
+
         private Thread thread;
 
         // backbuffer do ktereho se provadi vykreslovani pred samotnym zobrazenim
@@ -195,6 +199,8 @@ namespace GenArt
                 if (generation > 14000) break;
 
                 gaSearch.ExecuteGeneration();
+
+                statsFillPixelsCurr = gaSearch.fillPixels;
 
                 generation++;
 
@@ -362,13 +368,17 @@ namespace GenArt
             StatRefresh(guiDrawing);
          
             double speed = (generation - lastGenetation) / (DateTime.Now - last).TotalSeconds;
+            double fillrate = (statsFillPixelsCurr - statsFillPixelsLast) / (DateTime.Now - last).TotalSeconds;
+            fillrate /= 1000000;
 
-            this.Text = "speed: " + string.Format("{0:######.000}", speed) +
-                " gen/s   Last Fittness: " + this.lastErrorLevel +
-                " Worst Fittness Diff: " + string.Format("{0:####.000 }%", (this.lastWorstErrorLevelDiff / (this.lastErrorLevel/100.0d)) );
+            this.Text = "speed: " + string.Format("{0:######.000}", speed) +" gen/s"+
+                "    fillRate: " + string.Format("{0:######.000}", fillrate) +" M pix"+
+                "    Last Fittness: " + this.lastErrorLevel +
+                "    Worst Fittness Diff: " + string.Format("{0:####.000 }%", (this.lastWorstErrorLevelDiff / (this.lastErrorLevel/100.0d)) );
                 //" Bad Angle: "+ guiDrawing.HasSomePolygonBadAngles();
             last = DateTime.Now;
             lastGenetation = generation;
+            statsFillPixelsLast = statsFillPixelsCurr;
         }
 
         private void pnlCanvas_Paint(object sender, PaintEventArgs e)
