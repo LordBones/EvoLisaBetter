@@ -275,9 +275,11 @@ namespace GenArt.Core.AST
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
+            
+
             for (int index = 0; index < _popSize; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue+1);
+                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
@@ -288,6 +290,8 @@ namespace GenArt.Core.AST
                 this._population[index] = dna;
 
             }
+
+          
 
             //this._population = newPopulation;
         }

@@ -98,11 +98,13 @@
     <Compile Include="Classes\Array2D.cs" />
     <Compile Include="Classes\CanvasBGRA.cs" />
     <Compile Include="Classes\EdgeDetector.cs" />
+    <Compile Include="Classes\GraphicFunctions.cs" />
     <Compile Include="Classes\Median8bit.cs" />
     <Compile Include="Classes\Misc\FileUtil.cs" />
     <Compile Include="Classes\FitnessCalculator.cs" />
     <Compile Include="Classes\Misc\HSLColor.cs" />
     <Compile Include="Classes\MatchStatistics.cs" />
+    <Compile Include="Classes\PolygonColorPredict.cs" />
     <Compile Include="Classes\RederWPF.cs" />
     <Compile Include="Classes\Renderer.cs" />
     <Compile Include="Classes\Misc\Settings.cs" />

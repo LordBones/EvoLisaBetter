@@ -129,8 +129,8 @@ namespace GenArt.AST
 
                 if (mutateChange < 100)
                 {
-                    //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                    //    RemovePolygon();
+                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                        RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
                         AddPolygon(destImage, edgePoints);
@@ -218,6 +218,21 @@ namespace GenArt.AST
 
             return true;
         }
+
+        bool IsTrinagleInterleaving2(DnaPoint[] tri, DnaPoint[] tri2)
+        {
+            if ( GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]) ||
+                 GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]) ||
+                 GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]))
+            {
+                return true;
+            }
+
+            return false;
+
+        }
+
+
         static int c = 0;
         public bool SwapPolygon2()
         {
@@ -243,13 +258,13 @@ namespace GenArt.AST
             if (swapUp)
             {
                 int tmpIndex = index-1;
-                while (tmpIndex >= 0 && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                while (tmpIndex >= 0 && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
                  tmpIndex--;
 
                 if (tmpIndex < 0)
                 {
                     tmpIndex = index+1;
-                    while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                    while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
                         tmpIndex++;
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji
@@ -264,13 +279,13 @@ namespace GenArt.AST
             else
             {
                 int tmpIndex = index + 1;
-                while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
                     tmpIndex++;
 
                 if (tmpIndex >= Polygons.Length)
                 {
                     tmpIndex = index - 1;
-                    while (tmpIndex >=0 && !IsTrinagleInterleaving(Polygons[tmpIndex].Points, Polygons[index].Points))
+                    while (tmpIndex >=0 && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
                         tmpIndex--;
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji
@@ -381,267 +396,7 @@ namespace GenArt.AST
             }
         }
 
-        public static Color GetColorByPolygonPointsBasic(DnaPoint[] points,byte [] _rawDestImage, int width)
-        {
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * width) + points[index].X) << 2;
-                sumBlue += _rawDestImage[colorIndex];
-                sumGreen += _rawDestImage[colorIndex + 1];
-                sumRed += _rawDestImage[colorIndex + 2];
-            }
-
-            return Color.FromArgb(64, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
-        }
-
-        public static Color GetColorByPolygonPointsWithAphaDiff(DnaPoint[] points, byte[] _rawDestImage, int width)
-        {
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * width) + points[index].X) << 2;
-                sumBlue += _rawDestImage[colorIndex];
-                sumGreen += _rawDestImage[colorIndex + 1];
-                sumRed += _rawDestImage[colorIndex + 2];
-            }
-
-            sumBlue /= points.Length;
-            sumGreen /= points.Length;
-            sumRed /= points.Length;
-
-            int sumDiffRed = 0;
-            int sumDiffGreen = 0;
-            int sumDiffBlue = 0;
-
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * width) + points[index].X) << 2;
-                sumDiffBlue += Tools.fastAbs(sumRed - _rawDestImage[colorIndex]);
-                sumDiffGreen += Tools.fastAbs(sumGreen - _rawDestImage[colorIndex + 1]);
-                sumDiffRed += Tools.fastAbs(sumBlue -  _rawDestImage[colorIndex + 2]);
-            }
-
-            sumDiffBlue /= points.Length;
-            sumDiffGreen /= points.Length;
-            sumDiffRed /= points.Length;
-          
-            //int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
-            int avgSumDiff = (int)Math.Sqrt( (sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
-
-            int alpha = 254 - (Math.Min(avgSumDiff, 127) << 1);
-
-            return Color.FromArgb(alpha, sumRed, sumGreen , sumBlue );
-        }
-
-        
-
-        public static Color GetColorByPolygonMiddle(DnaPoint[] points, byte[] _rawDestImage, int width)
-        {
-            int middleX = 0;
-            int middleY = 0;
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                middleX += points[index].X;
-                middleY += points[index].Y;
-            }
-
-            middleX /= points.Length;
-            middleY /= points.Length;
-
-            int middleColorIndex = ((middleY * width) + middleX) << 2;
-
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-            sumBlue += _rawDestImage[middleColorIndex];
-            sumGreen += _rawDestImage[middleColorIndex + 1];
-            sumRed += _rawDestImage[middleColorIndex + 2];
-            
-            int alpha = 0;
-            alpha = Tools.GetRandomNumber(1, 256);
-
-            return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
-        }
-
-
-        public static Color GetColorByPolygonPoints(DnaPoint[] points, byte[] _rawDestImage, int width)
-        {
-            int middleX = 0;
-            int middleY = 0;
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                middleX += points[index].X;
-                middleY += points[index].Y;
-            }
-
-            middleX /= points.Length;
-            middleY /= points.Length;
-
-            int middleColorIndex = ((middleY * width) + middleX) << 2;
-
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-            sumBlue += _rawDestImage[middleColorIndex];
-            sumGreen += _rawDestImage[middleColorIndex + 1];
-            sumRed += _rawDestImage[middleColorIndex + 2];
-
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * width) + points[index].X) << 2;
-                sumBlue += _rawDestImage[colorIndex];
-                sumGreen += _rawDestImage[colorIndex + 1];
-                sumRed += _rawDestImage[colorIndex + 2];
-            }
-
-            sumBlue /= points.Length + 1;
-            sumGreen /= points.Length + 1;
-            sumRed /= points.Length + 1;
-
-            int sumDiffRed = 0;
-            int sumDiffGreen = 0;
-            int sumDiffBlue = 0;
-
-            sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[middleColorIndex]);
-            sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[middleColorIndex + 1]);
-            sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[middleColorIndex + 2]);
-
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * width) + points[index].X) << 2;
-                sumDiffBlue = Tools.fastAbs(sumBlue - _rawDestImage[colorIndex]);
-                sumDiffGreen = Tools.fastAbs(sumGreen - _rawDestImage[colorIndex + 1]);
-                sumDiffRed = Tools.fastAbs(sumRed - _rawDestImage[colorIndex + 2]);
-            }
-
-            sumDiffBlue = sumDiffBlue / (points.Length + 1);
-            sumDiffGreen = sumDiffGreen / (points.Length + 1);
-            sumDiffRed = sumDiffRed / (points.Length + 1);
-
-            int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
-            //int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
-
-            int alpha = 254 - (Math.Min(avgSumDiff, 127) << 1);
-            alpha = 5 + (249 * alpha) / 254;
-
-            return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
-        }
-
-        public static Color GetColorByPolygonPointsMiddleEdgePoints(DnaPoint[] points, CanvasBGRA destImage)
-        {
-            byte [] destImageData = destImage.Data;
-
-            int middleX = 0;
-            int middleY = 0;
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                middleX += points[index].X;
-                middleY += points[index].Y;
-            }
-
-            middleX /= points.Length;
-            middleY /= points.Length;
-
-            int middleColorIndex = ((middleY * destImage.WidthPixel) + middleX) << 2;
-
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-            sumBlue += destImageData[middleColorIndex]*points.Length;
-            sumGreen += destImageData[middleColorIndex + 1] * points.Length;
-            sumRed += destImageData[middleColorIndex + 2] * points.Length;
-
-
-            int x = (points[0].X + points[points.Length - 1].X) / 2;
-            int y = (points[0].Y + points[points.Length - 1].Y) / 2;
-
-
-            int colorIndex = ((y *destImage.WidthPixel) + x) << 2;
-            sumBlue += destImageData[colorIndex];
-            sumGreen += destImageData[colorIndex + 1];
-            sumRed += destImageData[colorIndex + 2];
-           
-
-            for (int index = 1; index < points.Length; index++)
-            {
-                x = (points[index].X + points[index - 1].X)/2;
-                y = (points[index].Y + points[index - 1].Y)/2;
-
-
-                colorIndex = ((y * destImage.WidthPixel) + x) << 2;
-                sumBlue += destImageData[colorIndex];
-                sumGreen += destImageData[colorIndex + 1];
-                sumRed += destImageData[colorIndex + 2];
-            }
-
-
-
-            sumBlue /= points.Length + points.Length;
-            sumGreen /= points.Length + points.Length;
-            sumRed /= points.Length + points.Length;
-
-            int sumDiffRed = 0;
-            int sumDiffGreen = 0;
-            int sumDiffBlue = 0;
-
-            sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[middleColorIndex]) * points.Length;
-            sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[middleColorIndex + 1]) * points.Length;
-            sumDiffRed = Tools.fastAbs(sumRed - destImageData[middleColorIndex + 2]) * points.Length;
-
-
-            x = (points[0].X + points[points.Length - 1].X) / 2;
-            y = (points[0].Y + points[points.Length - 1].Y) / 2;
-
-            colorIndex = ((y * destImage.WidthPixel) + x) << 2;
-            sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[colorIndex]);
-            sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[colorIndex + 1]);
-            sumDiffRed = Tools.fastAbs(sumRed - destImageData[colorIndex + 2]);
-
-            for (int index = 1; index < points.Length; index++)
-            {
-                x = (points[index].X + points[index - 1].X) / 2;
-                y = (points[index].Y + points[index - 1].Y) / 2;
-
-                colorIndex = ((y * destImage.WidthPixel) + x) << 2;
-                sumDiffBlue = Tools.fastAbs(sumBlue - destImageData[colorIndex]);
-                sumDiffGreen = Tools.fastAbs(sumGreen - destImageData[colorIndex + 1]);
-                sumDiffRed = Tools.fastAbs(sumRed - destImageData[colorIndex + 2]);
-            }
-
-            sumDiffBlue = sumDiffBlue / (points.Length + points.Length);
-            sumDiffGreen = sumDiffGreen / (points.Length + points.Length);
-            sumDiffRed = sumDiffRed / (points.Length + points.Length);
-
-            int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
-            //int avgSumDiff = (int)Math.Sqrt((sumDiffBlue * sumDiffBlue + sumDiffRed * sumDiffRed + sumDiffGreen * sumDiffGreen) / 3);
-
-            int alpha = 255 - avgSumDiff;
-            alpha = 5 + (250
-                * alpha) / 255;
-
-            //int alpha = 254 - (Math.Min(avgSumDiff, 63) << 2);
-            //alpha = 5 + (10    * alpha) / 254;
-
-            return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
-        }
+       
 
 
         public void AddPolygon(CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
@@ -657,7 +412,11 @@ namespace GenArt.AST
                     if (_rawDestImage != null)
                     {
                         //Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
-                        Color nearColor = GetColorByPolygonPointsMiddleEdgePoints(newPolygon.Points, _rawDestImage);
+                        Color nearColor = 
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newPolygon.Points, _rawDestImage);
 
                         newPolygon.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();
@@ -681,5 +440,10 @@ namespace GenArt.AST
                 }
             }
         }
+
+        
+
     }
+
+
 }

@@ -8,7 +8,7 @@ namespace GenArt.Classes
     {
         private static RandomNumberGenerator rng  = RandomNumberGenerator.Create();
         private static byte [] buff = new byte[800000];
-        private static int buffIndex = 450000;
+        private static int buffIndex = 4500000;
         private static  Random random = new Random(0);
 
         public static readonly int MaxPolygons = 250;

@@ -20,20 +20,7 @@ namespace GenArt.AST
 
         public void Init(ImageEdges edgePoints = null)
         {
-            //87,81 195,0 199,79
-
-            //int p1 = 0;
-            //int p2 = 11;
-            //int p3 = 10;
-            //int p4 = 0;
-            //double f = PointsAngle2(p1, p2, p3, p4);
-            //double f1 = PointsAngle2(-p1, p2, -p3, p4);
-            //double f2 = PointsAngle2(p1, -p2, p3, -p4);
-            //double f3 = PointsAngle2(-p1, -p2, -p3, -p4);
-            //double fff = f1 + f2 + f3 + f;
-           
-
-            //int count = Tools.GetRandomNumber(3, 3);
+            
 
             int countPoints = Math.Min(Settings.ActivePointsPerPolygonMax,3);
             DnaPoint [] points = new DnaPoint [countPoints];
@@ -149,13 +136,13 @@ namespace GenArt.AST
                 }*/
 
                 
-                int startX = Tools.GetRandomNumber(1, edgePoints.Width);
-                int startY = Tools.GetRandomNumber(1, edgePoints.Height);
+                
 
                 while (true)
                 {
-                    
 
+                    int startX = Tools.GetRandomNumber(1, edgePoints.Width);
+                    int startY = Tools.GetRandomNumber(1, edgePoints.Height); 
                     
 
                     DnaPoint ? result = null;
@@ -192,8 +179,11 @@ namespace GenArt.AST
 
                     points[2] = result.Value;
 
+                   
+
                     //
                     if (//!IsIntersect(points) &&
+                        !IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints) &&
                         IsNotSmallAngles(points))
                     {
                         break;
@@ -222,7 +212,7 @@ namespace GenArt.AST
             var newPolygon = new DnaPolygon();
             newPolygon.Points = new DnaPoint[Points.Length];
             newPolygon.Brush = Brush;
-           
+
             Array.Copy(this.Points, newPolygon.Points, Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
@@ -235,7 +225,7 @@ namespace GenArt.AST
             DnaPoint [] result = new DnaPoint[this.Points.Length];
             
             Array.Copy(this.Points, result, Points.Length);
-
+            
             return result;
         }
 
@@ -276,10 +266,11 @@ namespace GenArt.AST
                             points[pointIndex] = resultPoint.Value;
 
                             if (//IsNotSmallAngles(points) && 
+                                //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
                                 !IsIntersect(points))
                             {
                                 // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
-                                this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
                                 //DnaBrush brush = this.Brush;
                                 //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
                                 //this.Brush = brush;
@@ -322,6 +313,15 @@ namespace GenArt.AST
                     }
                 }*/
            
+        }
+
+        private bool IsTriangleEdgesCrossedSomeEdge(DnaPoint p1, DnaPoint p2, DnaPoint p3, ImageEdges edgePoints )
+        {
+            if (edgePoints.IsSomeEdgeOnLineNoStartEndPoint(p1.X, p1.Y, p2.X, p2.Y)) return true;
+            if (edgePoints.IsSomeEdgeOnLineNoStartEndPoint(p2.X, p2.Y, p3.X, p3.Y)) return true;
+            if (edgePoints.IsSomeEdgeOnLineNoStartEndPoint(p3.X, p3.Y, p1.X, p1.Y)) return true;
+
+            return false;
         }
 
         public void Mutateold(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)

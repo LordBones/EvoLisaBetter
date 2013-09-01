@@ -14,6 +14,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
     {
 
         private static NativeFunctions nativeFunc = new NativeFunctions();
+        private short [] rangePoints  = new short[0];
 
         public SWTriangle()
         {
@@ -31,7 +32,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             //FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
             //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
-            FillTriangleMyBetter(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -354,7 +355,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void FillTriangleMyBetter(CanvasBGRA drawCanvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
         {
-
+            
 
             short minY = y0;
             short maxY = y0;
@@ -378,75 +379,44 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             byte [] canvas = drawCanvas.Data;
 
-            //ParallelOptions po = new ParallelOptions();
-            //po.MaxDegreeOfParallelism = 1;
-            /*Parallel.For(0, rangePoints.Length-1, y =>
-            {
-                pointRange points = rangePoints[y];
-
-                //if (points == null) continue;
-
-
-                int prowStartIndex = (minY+y) * drawCanvas.Width;
-                int index = prowStartIndex + points.Start * 4;
-                int endIndex = prowStartIndex + points.End * 4;
-
-                rangePoints[y] = null;
-                //int endPoint = points.End;
-
-                while (index <= endIndex)
-                {
-
-                    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-                    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-                    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-                    index += 4;
-                }
-
-                
-            });
-            */
-
+            
             nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, color.R, color.G,color.B, color.A);
 
-            //int rowStartIndex = (minY) * drawCanvas.Width;
+        }
 
-            //for (int y  = 0; y < rangePoints.Length; y+=2)
-            //{
-            //    int index = rowStartIndex + rangePoints[y] * 4;
-            //    int endIndex = rowStartIndex + rangePoints[y+1] * 4;
+        private void InitRangePoints(CanvasBGRA drawCanvas)
+        {
+            if (drawCanvas.HeightPixel != (rangePoints.Length / 2))
+            {
+                rangePoints = new short[drawCanvas.HeightPixel * 2];
+            }
+
+            for (int index=0; index < rangePoints.Length; index += 2)
+                rangePoints[index] = -1;
+        }
+
+        private void FillTriangleMyBetter2(CanvasBGRA drawCanvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
+        {
+            InitRangePoints(drawCanvas);
+
+            short minY = y0;
+            short maxY = y0;
+
+            if (minY > y1) minY = y1;
+            if (minY > y2) minY = y2;
+            if (maxY < y1) maxY = y1;
+            if (maxY < y2) maxY = y2;
+
+            
+
+            DrawLineBetter(rangePoints, x0, y0, x1, y1);
+            DrawLineBetter(rangePoints, x1, y1, x2, y2);
+            DrawLineBetter(rangePoints, x2, y2, x0, y0);
+
+            byte [] canvas = drawCanvas.Data;
 
 
-               
-                
-            //        //nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
-                
-            //        //while (index <= endIndex)
-            //        //{
-
-            //        //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-            //        //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-            //        //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-            //        //    index += 4;
-            //        //}
-                
-
-
-            //    //for (int i = points.Start; i <= endPoint; i++)
-            //    //{
-
-            //    //    canvas[index] = ApplyColor(canvas[index], colorABRrem, colorRem);
-            //    //    canvas[index + 1] = ApplyColor(canvas[index + 1], colorAGRrem, colorRem);
-            //    //    canvas[index + 2] = ApplyColor(canvas[index + 2], colorARRrem, colorRem);
-
-            //    //    index += 4;
-            //    //}
-
-
-            //    rowStartIndex += drawCanvas.Width;
-            //}
+            nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
 
         }
 
@@ -497,6 +467,78 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                     if (rangePoints[tmpY] > tmpX) rangePoints[tmpY] = tmpX;
                     else if (rangePoints[tmpY + 1] < tmpX) rangePoints[tmpY+1] = tmpX;
+
+                }
+
+
+                #endregion
+
+
+                numerator += shortest;
+                if (!(numerator < longest))
+                {
+                    numerator -= longest;
+                    x += dx1;
+                    y += dy1;
+                    //compY += mullY;
+                }
+                else
+                {
+                    x += dx2;
+                    y += dy2;
+                    //compY += mully2;
+                }
+            }
+
+        }
+
+        private static void DrawLineBetter(short[] rangePoints,
+            short x1, short y1, short x2, short y2)
+        {
+
+            //if (x1 > x2)
+            //{
+            //    short tmp = x1; x1 = x2; x2 = tmp;
+            //    tmp = y1; y1 = y2; y2 = tmp;
+
+            //}
+
+
+            int x = x1;
+            int y = y1;
+            int w = x2 - x1;
+            int h = y2 - y1;
+            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
+            if (w < 0) { dx1 = -1; dx2 = -1; } else if (w > 0) { dx1 = 1; dx2 = 1; }
+            if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
+
+            int longest = Tools.fastAbs(w);
+            int shortest = Tools.fastAbs(h);
+            if (!(longest > shortest))
+            {
+                swap<int>(ref longest, ref shortest);
+
+                if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
+                dx2 = 0;
+            }
+            int numerator = longest >> 1;
+
+            for (int i=0; i <= longest; i++)
+            {
+                #region set pixel
+                short tmpY = (short)(y * 2);
+                short tmpX = (short)x;
+
+                if (rangePoints[tmpY] < 0)
+                {
+                    rangePoints[tmpY] = tmpX;
+                    rangePoints[tmpY + 1] = tmpX;
+                }
+                else
+                {
+
+                    if (rangePoints[tmpY] > tmpX) rangePoints[tmpY] = tmpX;
+                    else if (rangePoints[tmpY + 1] < tmpX) rangePoints[tmpY + 1] = tmpX;
 
                 }
 

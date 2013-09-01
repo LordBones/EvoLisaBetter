@@ -1,7 +1,6 @@
 // GenArt.CoreNative.h
 
 #pragma once
-#include <math.h>
 #include <vcclr.h>
 #include "FastFunctions.h"
 
@@ -14,10 +13,6 @@ namespace GenArtCoreNative {
 	{
 
 		private:
-
-		__int64 computeFittness(unsigned char * curr, unsigned char * orig, int length);
-		__int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
-
 
 
 		// TODO: Add your methods for this class here.
@@ -56,13 +51,25 @@ namespace GenArtCoreNative {
 
         }
 
+        void RowApplyColorBetter(array<System::Byte>^ canvas,int canvasWidth, array<System::Int16>^ ranges, int startY, int endY, int r, int g, int b, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			pin_ptr<System::Int16> pinRanges(&ranges[0]);
+
+            int countPolygonRows = (endY-startY+1)*2;
+			FastFunctions::
+                FastRowsApplyColorSSE128(pinCanvas,canvasWidth,pinRanges+startY*2,countPolygonRows, startY, r, g, b, alpha);
+
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+        }
+
         __int64 ComputeFittnessAdvance(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
-            //return computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
-
+            
             return  FastFunctions::computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
         }
 

@@ -510,17 +510,27 @@ namespace GenArt
             DNARenderer _dnaRender = new DNARenderer(dna.Width, dna.Height);
             _dnaRender.RenderDNA(dna, DNARenderer.RenderType.SoftwareTriangle);
             MatchStatistics ms = new MatchStatistics();
-            ms.ComputeImageMatchStatMed(sourceImage, _dnaRender.Canvas);
+            ms.ComputeImageMatchStatAvg(sourceImage, _dnaRender.Canvas);
 
-            string line1 = string.Format("Med: {0:###.000} / {1:###.000}  Sum: {2:###.000} / {3:###.000}  (med/stdev)",
-                (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR) / 3,
-                (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR) / 3,
-                (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
-                (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR)); 
+            //string line1 = string.Format("Med: {0:###.000} / {1:###.000}  Sum: {2:###.000} / {3:###.000} ",
+            //    (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR) / 3,
+            //    (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR) / 3,
+            //    (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
+            //    (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR)); 
+            //// 12 mezer
+            //string line2 = string.Format("R  : {0:###.000} / {1:####.000}", ms.Diff_MedR, ms.Diff_MedStdDevR);
+            //string line3 = string.Format("G  : {0:###.000} / {1:####.000}", ms.Diff_MedG, ms.Diff_MedStdDevG);
+            //string line4 = string.Format("B  : {0:###.000} / {1:####.000}", ms.Diff_MedB, ms.Diff_MedStdDevB);
+
+            string line1 = string.Format("Avg: {0:###.000} / {1:###.000}  Sum: {2:###.000} / {3:###.000}",
+                (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR) / 3,
+                (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR) / 3,
+                (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR),
+                (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR));
             // 12 mezer
-            string line2 = string.Format("R  : {0:###.000} / {1:####.000}", ms.Diff_MedR, ms.Diff_MedStdDevR);
-            string line3 = string.Format("G  : {0:###.000} / {1:####.000}", ms.Diff_MedG, ms.Diff_MedStdDevG);
-            string line4 = string.Format("B  : {0:###.000} / {1:####.000}", ms.Diff_MedB, ms.Diff_MedStdDevB);
+            string line2 = string.Format("R  : {0:###.000} / {1:####.000} (avg/stdev)", ms.Diff_AvgR, ms.Diff_AvgStdDevR);
+            string line3 = string.Format("G  : {0:###.000} / {1:####.000} (avg/stdev)", ms.Diff_AvgG, ms.Diff_AvgStdDevG);
+            string line4 = string.Format("B  : {0:###.000} / {1:####.000} (avg/stdev)", ms.Diff_AvgB, ms.Diff_AvgStdDevB);
 
              
             StringBuilder sb = new StringBuilder();
@@ -574,36 +584,36 @@ namespace GenArt
         {
             _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.SoftwareTriangle);
             MatchStatistics ms = new MatchStatistics();
-            ms.ComputeImageMatchStatMed(sourceBitmapAsCanvas, _dnaRender.Canvas);
+            ms.ComputeImageMatchStatAvg(sourceBitmapAsCanvas, _dnaRender.Canvas);
 
             // avg 
 
-            //tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}" +
-            //    "       avg: {2:###.000} / {3:###.000}" +
-            //    "       R: {4:###.000} / {5:####.000}," +
-            //    "       G: {6:####.000} / {7:####.000}," +
-            //    "       B: {8:####.000} / {9:####.000}",
+            tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}" +
+                "       avg: {2:###.000} / {3:###.000}" +
+                "       R: {4:###.000} / {5:####.000}," +
+                "       G: {6:####.000} / {7:####.000}," +
+                "       B: {8:####.000} / {9:####.000}",
 
-            //    (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR),
-            //    (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR),
-            //    (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR) / 3,
-            //    (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR) / 3,
-            //    ms.Diff_AvgR, ms.Diff_AvgStdDevR, ms.Diff_AvgG, ms.Diff_AvgStdDevG,
-            //    ms.Diff_AvgB, ms.Diff_AvgStdDevB);
+                (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR),
+                (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR),
+                (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR) / 3,
+                (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR) / 3,
+                ms.Diff_AvgR, ms.Diff_AvgStdDevR, ms.Diff_AvgG, ms.Diff_AvgStdDevG,
+                ms.Diff_AvgB, ms.Diff_AvgStdDevB);
 
 
-            tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +
-    "       avg: {2:###.000} / {3:###.000}" +
-    "       R: {4:000} / {5:000.000}," +
-    "       G: {6:000} / {7:000.000}," +
-    "       B: {8:000} / {9:000.000}",
+    //        tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +
+    //"       avg: {2:###.000} / {3:###.000}" +
+    //"       R: {4:000} / {5:000.000}," +
+    //"       G: {6:000} / {7:000.000}," +
+    //"       B: {8:000} / {9:000.000}",
 
-    (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
-    (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR),
-    (ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR) / 3,
-    (ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR) / 3,
-    ms.Diff_MedR, ms.Diff_MedStdDevR, ms.Diff_MedG, ms.Diff_MedStdDevG,
-    ms.Diff_MedB, ms.Diff_MedStdDevB);
+    //(ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR),
+    //(ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR),
+    //(ms.Diff_MedB + ms.Diff_MedG + ms.Diff_MedR) / 3,
+    //(ms.Diff_MedStdDevB + ms.Diff_MedStdDevG + ms.Diff_MedStdDevR) / 3,
+    //ms.Diff_MedR, ms.Diff_MedStdDevR, ms.Diff_MedG, ms.Diff_MedStdDevG,
+    //ms.Diff_MedB, ms.Diff_MedStdDevB);
 
         }
 

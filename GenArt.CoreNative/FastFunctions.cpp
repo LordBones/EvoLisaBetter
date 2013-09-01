@@ -490,9 +490,9 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
 
 
             __int64 result = 0;
-            result += (medB.ValueSum() + medB.SumStdDev()*2);
-            result += (medG.ValueSum() + medG.SumStdDev() * 2);
-            result += (medR.ValueSum() + medR.SumStdDev() * 2);
+            result += (medB.ValueSum() + medB.SumStdDev());
+            result += (medG.ValueSum() + medG.SumStdDev());
+            result += (medR.ValueSum() + medR.SumStdDev());
 
             return result;
 

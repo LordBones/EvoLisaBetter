@@ -113,6 +113,18 @@ namespace GenArt.Core.Classes
             
         }
 
+        public bool IsSomeEdgeOnLineNoStartEndPoint(int startX, int startY, int endX, int endY)
+        {
+            DnaPoint ? point = GetFirstEdgeOnLineDirection(startX, startY, endX, endY);
+
+            if (!point.HasValue)
+                return false;
+            else
+            {
+                return point.Value.X != endX && point.Value.Y != endY;
+            }
+        }
+
         /// <summary>
         /// vraci prvni nalezenou hranu na definovane usecce mimo prvniho bodu
         /// pokud nic nenajde vraci null
@@ -433,8 +445,9 @@ namespace GenArt.Core.Classes
                     int index = indexRow + x;
                     if (_edgesPoints.Data[index] != 0)
                     {
-                        epoints.Add(new DnaPoint((short)x, (short)y));
-                        epointsByY.Add(new DnaPoint((short)x, (short)y));
+                        DnaPoint p = new DnaPoint((short)x, (short)y);
+                        epoints.Add(p);
+                        epointsByY.Add(p);
                     }
                 }
 
