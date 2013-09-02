@@ -142,12 +142,13 @@ namespace GenArt.Core.AST
             this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
 
-           
+            DnaBrush backGround = ComputeBackgroundColor(this._destCanvas);
 
             for (int i =0; i < this._population.Length; i++)
             {
                 DnaDrawing dna = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
-                dna.BackGround.InitRandomWithoutAlpha();
+                //dna.BackGround.InitRandomWithoutAlpha();
+                dna.BackGround = backGround;
 
                 for (int k =0; k < 10; k++)
                 {
@@ -160,6 +161,26 @@ namespace GenArt.Core.AST
 
             this._lastBest = this._population[_population.Length-1].Clone();
             this._currentBest = this._lastBest.Clone();
+
+            // nezbytne aby doslo k vypoctu novych fittness
+            ComputeFittness();
+        }
+
+        private static DnaBrush ComputeBackgroundColor(CanvasBGRA image)
+        {
+            Median8bit mr = new Median8bit();
+            Median8bit mg = new Median8bit();
+            Median8bit mb = new Median8bit();
+
+            for (int index = 0; index < image.Data.Length; index += 4)
+            {
+                mb.InsertData(image.Data[index]);
+                mg.InsertData(image.Data[index+1]);
+                mr.InsertData(image.Data[index+2]);
+            }
+
+            return new DnaBrush(255, (int)mr.Median, (int)mg.Median, (int)mb.Median);
+
         }
 
 
@@ -269,7 +290,7 @@ namespace GenArt.Core.AST
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            RouletteTableNormalizeBetter2(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -300,7 +321,8 @@ namespace GenArt.Core.AST
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
+            RouletteTableNormalizeBetter2(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -369,6 +391,36 @@ namespace GenArt.Core.AST
             for (int index = 0; index < diffFittness.Length; index++)
             {
                 int tmp = (int)((diffFittness[index] / (float)sumFittness) * maxNormalizeValue);
+                rouleteTable[index] = lastRouleteValue + tmp;
+                lastRouleteValue = lastRouleteValue + tmp;
+            }
+        }
+
+        private static void RouletteTableNormalizeBetter2(long[] fittness, int[] rouleteTable, long[] diffFittness, int maxNormalizeValue)
+        {
+            long fittnessMax = 0;
+            long fittnessMin = long.MaxValue;
+
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
+                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
+            }
+
+            long sumFittness = 0;
+            long minDiffFit = fittnessMax - fittnessMin;
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                long diffFit = (fittnessMax - fittness[index] + minDiffFit) ;
+                sumFittness += diffFit;
+                diffFittness[index] = diffFit;
+            }
+
+
+            int lastRouleteValue = 0;
+            for (int index = 0; index < diffFittness.Length; index++)
+            {
+                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
                 rouleteTable[index] = lastRouleteValue + tmp;
                 lastRouleteValue = lastRouleteValue + tmp;
             }

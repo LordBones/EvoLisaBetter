@@ -15,6 +15,7 @@ using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt
 {
+    [System.Runtime.InteropServices.GuidAttribute("BFF95222-C0CC-484B-9FE7-12B56EF6AED3")]
     public partial class MainForm : Form
     {
         public static Settings Settings;
@@ -75,102 +76,10 @@ namespace GenArt
             
             Settings = new Settings();
 
-            //Test();
-            //TestSoftwareRenderPolygon();
-            //TestBenchmark();
-
-            
-
             InitImage(Bitmap.FromFile(Path.Combine(Application.StartupPath,GenArt.Properties.Resources.ml1)));
 
            
         }
-
-        private void TestBenchmark()
-        {
-            const int CONST_Width = 1000;
-            const int CONST_Height = 1000;
-
-
-            DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
-            dna.Init();
-
-
-            for (int i =0; i < 100; i++)
-                dna.AddPolygon();
-
-          
-            byte [] canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
-            byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
-
-
-            Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
-            polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
-            Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
-            polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
-
-            //for (int index =0; index < dna.Polygons.Length; index++)
-            {
-                
-                //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
-                //for (int i = 0; i < 40000; i++)
-                {
-                    polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                }
-
-              //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
-                {
-                //    polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
-                //    polyTest.SaveMinAreaToFile("PolyTest.txt");
-
-                  //  break;
-                }
-
-            }
-            
-        }
-
-        private void TestSoftwareRenderPolygon()
-        {
-            const int CONST_Width = 200;
-            const int CONST_Height = 200;
-
-            DnaDrawing dna = new DnaDrawing(CONST_Width,CONST_Height);
-            dna.Init();
-
-            for (int i =0; i < 100; i++)
-                dna.AddPolygon();
-
-            
-
-            byte [] canvasCorrect = new byte[CONST_Height*CONST_Width*4];
-            byte [] canvasTest = new byte[CONST_Height*CONST_Width*4];
-
-            
-            Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
-            polyCorrect.SetStartBufferSize(200, 200);
-            Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
-            polyTest.SetStartBufferSize(200, 200);
-
-            for(int index =0;index < dna.Polygons.Length;index++)
-            {
-               Point [] points = SoftwareRender.GetGdiPoints(dna.Polygons[index].Points,1);
-               polyCorrect.FillPolygonCorrectSlow(points,canvasCorrect,Color.Black);
-               polyTest.FillPolygon(points, canvasTest, Color.Black);
-
-               if (!polyCorrect.IsMinAreaDataEqual(polyTest))
-               {
-                   polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
-                   polyTest.SaveMinAreaToFile("PolyTest.txt");
-
-                   break;
-               }
-           
-            }
-            
-        }
-
-       
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -194,9 +103,13 @@ namespace GenArt
             GASearch gaSearch = new GASearch(InitPopulation);
             gaSearch.InitFirstPopulation(sourceBitmap, EdgeThreshold);
 
+            int maxGeneration = Convert.ToInt32(nudMaxGeneration.Value)*1000;
+            bool enableMaxGeneration = cheMaxGeneration.Checked;
+
             while (isRunning)
             {
-                if (generation > 14000) break;
+
+                if (enableMaxGeneration && generation > maxGeneration) break;
 
                 gaSearch.ExecuteGeneration();
 
@@ -292,7 +205,7 @@ namespace GenArt
             btnStart.Text = "Start";
             isRunning = false;
             tmrRedraw.Enabled = false;
-            this.Text = Tools.randomCall.ToString();
+            //this.Text = Tools.randomCall.ToString();
 
             if(guiDrawing != null)
                 StatRefresh(guiDrawing);
@@ -326,7 +239,6 @@ namespace GenArt
             toolStripStatusLabelFitness.Text = errorLevel.ToString();
             toolStripStatusLabelGeneration.Text = generation.ToString();
             toolStripStatusLabelSelected.Text = selected.ToString();
-            toolStripStatusLabelPoints.Text = points.ToString();
             toolStripStatusLabelPolygons.Text = polygons.ToString();
             toolStripStatusLabelAvgPoints.Text = avg.ToString();
 
@@ -653,6 +565,11 @@ namespace GenArt
         private void chbWires_CheckedChanged(object sender, EventArgs e)
         {
             pnlCanvas.Invalidate();
+        }
+
+        private void cheMaxGeneration_CheckedChanged(object sender, EventArgs e)
+        {
+            nudMaxGeneration.Enabled = cheMaxGeneration.Checked;
         }
 
         

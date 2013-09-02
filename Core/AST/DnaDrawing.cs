@@ -118,8 +118,8 @@ namespace GenArt.AST
         public void MutateBetter(CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
             /// k mutaci pozadi dochazi pouze jednou 
-            if (Tools.GetRandomNumber(0, 10) == 9)
-                BackGround.MutateRGBOldWithoutAlpha(this);
+            //if (Tools.GetRandomNumber(0, 10) == 9)
+            //    BackGround.MutateRGBOldWithoutAlpha(this);
 
             do
             {

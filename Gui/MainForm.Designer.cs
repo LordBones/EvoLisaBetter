@@ -46,13 +46,14 @@
             this.toolStripStatusLabelGeneration = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelSelected = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabelPoints = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelPolygons = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelAvgPoints = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.nudMaxGeneration = new System.Windows.Forms.NumericUpDown();
+            this.cheMaxGeneration = new System.Windows.Forms.CheckBox();
+            this.chbWires = new System.Windows.Forms.CheckBox();
             this.chbShowEdges = new System.Windows.Forms.CheckBox();
             this.nudMaxPolygon = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
@@ -67,7 +68,6 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.chbWires = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -77,6 +77,7 @@
             this.statusStrip2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxGeneration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxPolygon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPopulation)).BeginInit();
@@ -193,8 +194,6 @@
             this.toolStripStatusLabelGeneration,
             this.toolStripStatusLabel3,
             this.toolStripStatusLabelSelected,
-            this.toolStripStatusLabel4,
-            this.toolStripStatusLabelPoints,
             this.toolStripStatusLabel5,
             this.toolStripStatusLabelPolygons,
             this.toolStripStatusLabel6,
@@ -220,7 +219,7 @@
             this.toolStripStatusLabelFitness.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabelFitness.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelFitness.Name = "toolStripStatusLabelFitness";
-            this.toolStripStatusLabelFitness.Size = new System.Drawing.Size(166, 20);
+            this.toolStripStatusLabelFitness.Size = new System.Drawing.Size(175, 20);
             this.toolStripStatusLabelFitness.Spring = true;
             // 
             // toolStripStatusLabel2
@@ -236,7 +235,7 @@
             this.toolStripStatusLabelGeneration.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabelGeneration.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelGeneration.Name = "toolStripStatusLabelGeneration";
-            this.toolStripStatusLabelGeneration.Size = new System.Drawing.Size(166, 20);
+            this.toolStripStatusLabelGeneration.Size = new System.Drawing.Size(175, 20);
             this.toolStripStatusLabelGeneration.Spring = true;
             // 
             // toolStripStatusLabel3
@@ -251,23 +250,8 @@
             this.toolStripStatusLabelSelected.AutoSize = false;
             this.toolStripStatusLabelSelected.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelSelected.Name = "toolStripStatusLabelSelected";
-            this.toolStripStatusLabelSelected.Size = new System.Drawing.Size(166, 20);
+            this.toolStripStatusLabelSelected.Size = new System.Drawing.Size(175, 20);
             this.toolStripStatusLabelSelected.Spring = true;
-            // 
-            // toolStripStatusLabel4
-            // 
-            this.toolStripStatusLabel4.Font = new System.Drawing.Font("Segoe UI", 11F);
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(49, 20);
-            this.toolStripStatusLabel4.Text = "Points";
-            // 
-            // toolStripStatusLabelPoints
-            // 
-            this.toolStripStatusLabelPoints.AutoSize = false;
-            this.toolStripStatusLabelPoints.Font = new System.Drawing.Font("Segoe UI", 11F);
-            this.toolStripStatusLabelPoints.Name = "toolStripStatusLabelPoints";
-            this.toolStripStatusLabelPoints.Size = new System.Drawing.Size(166, 20);
-            this.toolStripStatusLabelPoints.Spring = true;
             // 
             // toolStripStatusLabel5
             // 
@@ -281,7 +265,7 @@
             this.toolStripStatusLabelPolygons.AutoSize = false;
             this.toolStripStatusLabelPolygons.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.toolStripStatusLabelPolygons.Name = "toolStripStatusLabelPolygons";
-            this.toolStripStatusLabelPolygons.Size = new System.Drawing.Size(166, 20);
+            this.toolStripStatusLabelPolygons.Size = new System.Drawing.Size(175, 20);
             this.toolStripStatusLabelPolygons.Spring = true;
             // 
             // toolStripStatusLabel6
@@ -295,11 +279,13 @@
             // 
             this.toolStripStatusLabelAvgPoints.AutoSize = false;
             this.toolStripStatusLabelAvgPoints.Name = "toolStripStatusLabelAvgPoints";
-            this.toolStripStatusLabelAvgPoints.Size = new System.Drawing.Size(117, 17);
+            this.toolStripStatusLabelAvgPoints.Size = new System.Drawing.Size(175, 20);
             this.toolStripStatusLabelAvgPoints.Spring = true;
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.nudMaxGeneration);
+            this.panel1.Controls.Add(this.cheMaxGeneration);
             this.panel1.Controls.Add(this.chbWires);
             this.panel1.Controls.Add(this.chbShowEdges);
             this.panel1.Controls.Add(this.nudMaxPolygon);
@@ -320,6 +306,53 @@
             this.panel1.Size = new System.Drawing.Size(1282, 69);
             this.panel1.TabIndex = 27;
             // 
+            // nudMaxGeneration
+            // 
+            this.nudMaxGeneration.Location = new System.Drawing.Point(411, 8);
+            this.nudMaxGeneration.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudMaxGeneration.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudMaxGeneration.Name = "nudMaxGeneration";
+            this.nudMaxGeneration.Size = new System.Drawing.Size(54, 20);
+            this.nudMaxGeneration.TabIndex = 38;
+            this.nudMaxGeneration.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nudMaxGeneration.Value = new decimal(new int[] {
+            14,
+            0,
+            0,
+            0});
+            // 
+            // cheMaxGeneration
+            // 
+            this.cheMaxGeneration.AutoSize = true;
+            this.cheMaxGeneration.Checked = true;
+            this.cheMaxGeneration.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cheMaxGeneration.Location = new System.Drawing.Point(287, 11);
+            this.cheMaxGeneration.Name = "cheMaxGeneration";
+            this.cheMaxGeneration.Size = new System.Drawing.Size(121, 17);
+            this.cheMaxGeneration.TabIndex = 37;
+            this.cheMaxGeneration.Text = "Max generation (tis):";
+            this.cheMaxGeneration.UseVisualStyleBackColor = true;
+            this.cheMaxGeneration.CheckedChanged += new System.EventHandler(this.cheMaxGeneration_CheckedChanged);
+            // 
+            // chbWires
+            // 
+            this.chbWires.AutoSize = true;
+            this.chbWires.Location = new System.Drawing.Point(968, 36);
+            this.chbWires.Name = "chbWires";
+            this.chbWires.Size = new System.Drawing.Size(83, 17);
+            this.chbWires.TabIndex = 36;
+            this.chbWires.Text = "Show Wires";
+            this.chbWires.UseVisualStyleBackColor = true;
+            this.chbWires.CheckedChanged += new System.EventHandler(this.chbWires_CheckedChanged);
+            // 
             // chbShowEdges
             // 
             this.chbShowEdges.AutoSize = true;
@@ -333,7 +366,7 @@
             // 
             // nudMaxPolygon
             // 
-            this.nudMaxPolygon.Location = new System.Drawing.Point(359, 37);
+            this.nudMaxPolygon.Location = new System.Drawing.Point(411, 40);
             this.nudMaxPolygon.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -357,7 +390,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(284, 42);
+            this.label6.Location = new System.Drawing.Point(304, 42);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(75, 13);
             this.label6.TabIndex = 33;
@@ -515,17 +548,6 @@
             this.toolStripButton2.Text = "Save";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
-            // chbWires
-            // 
-            this.chbWires.AutoSize = true;
-            this.chbWires.Location = new System.Drawing.Point(968, 36);
-            this.chbWires.Name = "chbWires";
-            this.chbWires.Size = new System.Drawing.Size(83, 17);
-            this.chbWires.TabIndex = 36;
-            this.chbWires.Text = "Show Wires";
-            this.chbWires.UseVisualStyleBackColor = true;
-            this.chbWires.CheckedChanged += new System.EventHandler(this.chbWires_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -554,6 +576,7 @@
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxGeneration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxPolygon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPopulation)).EndInit();
@@ -579,13 +602,11 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFitness;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelGeneration;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelSelected;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelPoints;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelPolygons;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelAvgPoints;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.Panel panel1;
@@ -607,6 +628,8 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox chbShowEdges;
         private System.Windows.Forms.CheckBox chbWires;
+        private System.Windows.Forms.NumericUpDown nudMaxGeneration;
+        private System.Windows.Forms.CheckBox cheMaxGeneration;
     }
 }
 

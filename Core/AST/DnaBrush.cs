@@ -75,7 +75,7 @@ namespace GenArt.AST
             
                 int colorPart = Tools.GetRandomNumber(1, 5);
 
-                int tmp = Tools.GetRandomNumber(0, 10, 5) - 5;
+                int tmp = Tools.GetRandomNumber(0, 40, 20) - 20;
 
                 if (colorPart == 1)
                 {
