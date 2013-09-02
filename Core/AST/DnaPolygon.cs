@@ -8,15 +8,22 @@ namespace GenArt.AST
 {
     public class DnaPolygon
     {
+        private static long _globalUniqueId = 0;
+
         public DnaPoint [] Points; // { get; set; }
         public DnaBrush Brush;// { get; set; }
+        public int UniqueId;
         
         public DnaPolygon()
         {
 
         }
 
-
+        public void CreateNewUniqueId()
+        {
+            this.UniqueId = (int)(_globalUniqueId%int.MaxValue);
+            _globalUniqueId++;
+        }
 
         public void Init(ImageEdges edgePoints = null)
         {
@@ -194,6 +201,7 @@ namespace GenArt.AST
             this.Points = points;
 
             Brush = new DnaBrush(0,255,0,0);
+            CreateNewUniqueId();
         }
 
         public void InitTestPolygon()
@@ -212,6 +220,7 @@ namespace GenArt.AST
             var newPolygon = new DnaPolygon();
             newPolygon.Points = new DnaPoint[Points.Length];
             newPolygon.Brush = Brush;
+            newPolygon.UniqueId = UniqueId;
 
             Array.Copy(this.Points, newPolygon.Points, Points.Length);
             //for (int index = 0; index < Points.Length; index++)
@@ -276,6 +285,7 @@ namespace GenArt.AST
                                 //this.Brush = brush;
 
                                 drawing.SetDirty();
+                                CreateNewUniqueId();
                                 break;
                             }
                         }

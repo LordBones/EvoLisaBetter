@@ -33,6 +33,7 @@ namespace GenArt.Core.AST
         private int [] _rouleteTable = new int[0];
         private long [] _diffFittness = new long[0];
         private long [] _fittness = new long[0];
+        private float [] _similarity = new float[0];
 
         private int _popSize=  1;
 
@@ -88,29 +89,10 @@ namespace GenArt.Core.AST
              _rouleteTable = new int[popSize+1];
              _diffFittness = new long[popSize+1];
              _fittness = new long[popSize+1];
+             _similarity = new float[popSize + 1];
              _popSize = popSize;
 
 
-        }
-
-
-        private Color GetColorByPolygonPoints(DnaPoint [] points)
-        {
-            int sumRed = 0;
-            int sumGreen = 0;
-            int sumBlue = 0;
-
-            byte [] canvasData = this._destCanvas.Data;
-
-            for (int index = 0; index < points.Length; index++)
-            {
-                int colorIndex = ((points[index].Y * this._destCanvas.WidthPixel) + points[index].X) << 2;
-                sumRed += canvasData[colorIndex];
-                sumGreen += canvasData[colorIndex + 1];
-                sumBlue += canvasData[colorIndex + 2];
-            }
-
-            return Color.FromArgb(255, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
         private static ImageEdges CreateEdges(CanvasBGRA destImg, int EdgeThreshold)
@@ -220,7 +202,7 @@ namespace GenArt.Core.AST
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
-            }    
+            }
         }
 
         private void UpdateStatsByFittness()
@@ -266,6 +248,47 @@ namespace GenArt.Core.AST
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
         }
 
+        private void ComputeSimilarity()
+        {
+            HashSet<int> allIds = new HashSet<int>();
+            HashSet<int> theSameIds = new HashSet<int>();
+
+
+            for (int index = 0; index < _population.Length; index++)
+            {
+                DnaPolygon [] polygons = _population[index].Polygons;
+                for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
+                {
+                    bool wasAdd = allIds.Add(polygons[polygonIndex].UniqueId);
+
+                    // if polygon exist safe him
+                    if (!wasAdd)
+                        theSameIds.Add(polygons[polygonIndex].UniqueId);
+                }
+            }
+
+            // compute similarity
+            for (int index = 0; index < _population.Length; index++)
+            {
+                DnaPolygon [] polygons = _population[index].Polygons;
+                int countSame =0;
+
+                for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
+                {
+                    if (theSameIds.Contains(polygons[polygonIndex].UniqueId))
+                        countSame++;
+                }
+
+                _similarity[index] = countSame / (float)polygons.Length;
+            }
+
+            //if (allIds.Count != theSameIds.Count)
+            //{
+            //    int i = 0;
+            //    allIds.Clear();
+            //}
+        }
+
         private void GenerateNewPopulationBasic()
         {
             DnaDrawing [] newPopulation = new DnaDrawing[_popSize+1];
@@ -290,7 +313,9 @@ namespace GenArt.Core.AST
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            RouletteTableNormalizeBetter2(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            ComputeSimilarity();
+            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
+            RouletteTableNormalizeBetterWithSimilarity(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -322,7 +347,7 @@ namespace GenArt.Core.AST
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
-            RouletteTableNormalizeBetter2(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -374,29 +399,35 @@ namespace GenArt.Core.AST
         private static void RouletteTableNormalizeBetter(long[] fittness,int [] rouleteTable, long []diffFittness, int maxNormalizeValue)
         {
             long fittnessMax = 0;
+            long fittnessMin = long.MaxValue;
 
-            for (int index = 0; index < fittness.Length; index++)
-                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
-
-            long sumFittness = 0;
             for (int index = 0; index < fittness.Length; index++)
             {
-                long diffFit  = ((fittnessMax - fittness[index] + 100) << 2);
+                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
+                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
+            }
+
+            long sumFittness = 0;
+            long minDiffFit = fittnessMax - fittnessMin;
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                long diffFit = (fittnessMax - fittness[index] + minDiffFit);
                 sumFittness += diffFit;
                 diffFittness[index] = diffFit;
             }
 
-           
+
             int lastRouleteValue = 0;
             for (int index = 0; index < diffFittness.Length; index++)
             {
-                int tmp = (int)((diffFittness[index] / (float)sumFittness) * maxNormalizeValue);
+                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
                 rouleteTable[index] = lastRouleteValue + tmp;
                 lastRouleteValue = lastRouleteValue + tmp;
             }
         }
 
-        private static void RouletteTableNormalizeBetter2(long[] fittness, int[] rouleteTable, long[] diffFittness, int maxNormalizeValue)
+        private static void RouletteTableNormalizeBetterWithSimilarity
+            (long[] fittness, int[] rouleteTable, long[] diffFittness, float [] similarity, int maxNormalizeValue)
         {
             long fittnessMax = 0;
             long fittnessMin = long.MaxValue;
@@ -411,7 +442,11 @@ namespace GenArt.Core.AST
             long minDiffFit = fittnessMax - fittnessMin;
             for (int index = 0; index < fittness.Length; index++)
             {
-                long diffFit = (fittnessMax - fittness[index] + minDiffFit) ;
+                // similarity 1.0 very similar, 0.0 very different  
+                // koef multiple increase for more different. Min is 1.0;
+
+                float koef = (1.0f - similarity[index])*9.0f + 1.0f;
+                long diffFit = (long)(((fittnessMax - fittness[index])*koef + minDiffFit));
                 sumFittness += diffFit;
                 diffFittness[index] = diffFit;
             }

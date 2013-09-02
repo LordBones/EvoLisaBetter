@@ -123,14 +123,15 @@ namespace GenArt.AST
 
             do
             {
+                this.IsDirty = false;
                 int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
 
                 if (mutateChange < 100)
                 {
-                    if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                        RemovePolygon();
+                    //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                    //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
                         AddPolygon(destImage, edgePoints);
@@ -174,8 +175,8 @@ namespace GenArt.AST
                     }
                 }
 
-            } //while (false);
-             while (Tools.GetRandomNumber(1, 11) <= 5);
+            } while (false);
+            // while (Tools.GetRandomNumber(1, 11) <= 5);
         }
 
         bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )
