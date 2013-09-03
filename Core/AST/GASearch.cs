@@ -440,13 +440,15 @@ namespace GenArt.Core.AST
 
             long sumFittness = 0;
             long minDiffFit = fittnessMax - fittnessMin;
+            if (minDiffFit == 0) minDiffFit = 1;
+
             for (int index = 0; index < fittness.Length; index++)
             {
                 // similarity 1.0 very similar, 0.0 very different  
                 // koef multiple increase for more different. Min is 1.0;
 
-                float koef = (1.0f - similarity[index])*9.0f + 1.0f;
-                long diffFit = (long)(((fittnessMax - fittness[index])*koef + minDiffFit));
+                float koef = (1.0f - similarity[index])*3.0f + 1.0f;
+                long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef) ;
                 sumFittness += diffFit;
                 diffFittness[index] = diffFit;
             }

@@ -242,6 +242,7 @@ namespace GenArt.Core.Classes
 
     public class EdgeDetector
     {
+        private const int CONST_EdgeDirection_NotDefine = -1;
         private const int CONST_EdgeDirection_Vertical = 0;
         private const int CONST_EdgeDirection_Horizontal = 90;
         private const int CONST_EdgeDirection_LeftDown = 45;
@@ -408,22 +409,16 @@ namespace GenArt.Core.Classes
             ReduceNoiseGausianGreyscale();
             LeftDetectEdgeNew();
             DetectEdgeByKernelSum();
+            MakeThinEdgesMyLeftRight();
+            MakeThinEdgesMyUpDown();
             //MakeThinEdges();
             //UpDownDetectEdgeNew();
 
-            //leftRunFindEdgesByHSLBetter();
-            //DownRunFindEdgesByHSLBetter();
+        
 
 
-            //leftRunFindEdgesRGB();
-            //DownRunFindEdgesRGB();
-
-            //leftRunFindEdgesRGBAdvance();
-            //DownRunFindEdgesRGBAdvance();
-
-
-            //ReduceOnePointNoise();
-            //ReduceTwoPointNoise();
+            ReduceOnePointNoise();
+            ReduceTwoPointNoise();
             SetEdgesFrame();
             //SetCornerEdgesFrame();
             
@@ -814,6 +809,107 @@ namespace GenArt.Core.Classes
             
         }
 
+        private void MakeThinEdgesMyLeftRight()
+        {
+            int rowIndex = this._edgesPoints.Width;
+            
+            byte [] ep = this._edgesPoints.Data;
+            int [] kd = this._kernelDirection;
+
+            for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+            {
+                int index = rowIndex + 1;
+
+                int lastDirection = CONST_EdgeDirection_NotDefine;
+                for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+                {
+                    if (ep[index] == 1)
+                    {
+                        if (lastDirection != CONST_EdgeDirection_NotDefine)
+                        {
+                            if (CONST_EdgeDirection_Vertical == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else if (CONST_EdgeDirection_LeftDown == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else if (CONST_EdgeDirection_LeftUp == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else
+                            {
+                                lastDirection = kd[index];
+                            }
+                        }
+                        else
+                        {
+                            lastDirection = kd[index];
+                        }
+                    }
+                    else
+                    {
+                        lastDirection = CONST_EdgeDirection_NotDefine;
+                    }
+
+                    index++;               
+                }
+
+                rowIndex += this._edgesPoints.Width;
+            }
+        }
+
+        private void MakeThinEdgesMyUpDown()
+        {
+            byte [] ep = this._edgesPoints.Data;
+            int [] kd = this._kernelDirection;
+
+            for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+            {
+                int index = x;
+
+                int lastDirection = CONST_EdgeDirection_NotDefine;
+                for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+                {
+                    if (ep[index] == 1)
+                    {
+                        if (lastDirection != CONST_EdgeDirection_NotDefine)
+                        {
+                            if (CONST_EdgeDirection_Horizontal == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else if (CONST_EdgeDirection_LeftDown == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else if (CONST_EdgeDirection_LeftUp == kd[index] && kd[index] == lastDirection)
+                            {
+                                ep[index] = 0;
+                            }
+                            else
+                            {
+                                lastDirection = kd[index];
+                            }
+                        }
+                        else
+                        {
+                            lastDirection = kd[index];
+                        }
+                    }
+                    else
+                    {
+                        lastDirection = CONST_EdgeDirection_NotDefine;
+                    }
+
+                    index += this._edgesPoints.Width;
+                }
+            }
+        }
+
+
         private void MakeThinEdges()
         {
             List<int> indexForDelete = new List<int>();
@@ -1041,355 +1137,6 @@ namespace GenArt.Core.Classes
 
 
             }
-        }
-
-        private void leftRunFindEdgesRGB()
-        {
-            byte [] origData = this._originalImage.Data;
-
-
-            for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgesPoints.Width)
-            {
-                int endLineIndex = yIndex + this._edgesPoints.Width;
-                int origIndex = yIndex * 4;
-
-                int startR = origData[origIndex] ;
-                int startG = origData[origIndex + 1] ;
-                int startB = origData[origIndex + 2] ;
-
-                origIndex += 4;
-
-                for (int edgeIndex = yIndex + 1; edgeIndex < endLineIndex; edgeIndex++)
-                {
-                    int br = origData[origIndex];
-                    int bg = origData[origIndex + 1];
-                    int bb = origData[origIndex + 2];
-
-                    if (!(Tools.fastAbs(br - startR) < _threshold &&
-                   Tools.fastAbs(bg - startG) < _threshold &&
-                   Tools.fastAbs(bb - startB) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                    }
-
-                    startB = bb;
-                    startG = bg;
-                    startR = br;
-
-
-                    origIndex += 4;
-
-                }
-            }
-        }
-
-        private void leftRunFindEdgesRGBAdvance()
-        {
-            byte [] origData = this._originalImage.Data;
-
-
-            for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgesPoints.Width)
-            {
-                int endLineIndex = yIndex + this._edgesPoints.Width;
-                int origIndex = yIndex * 4;
-
-                int startR = origData[origIndex];
-                int startG = origData[origIndex + 1];
-                int startB = origData[origIndex + 2];
-
-                origIndex += 4;
-
-                for (int edgeIndex = yIndex + 1; edgeIndex < endLineIndex; edgeIndex++)
-                {
-                    int br = origData[origIndex];
-                    int bg = origData[origIndex + 1];
-                    int bb = origData[origIndex + 2];
-
-                    if (!(Tools.fastAbs(br - startR) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        //startR = br;
-                        startR = origData[origIndex-4];
-                    }
-
-                    if (!(Tools.fastAbs(bg - startG) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        startG = bg;
-                        startG = origData[origIndex-4 + 1];
-                    }
-
-                    if (!(Tools.fastAbs(bb - startB) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        startB = bb;
-                        startB = origData[origIndex-4 + 2];
-                    }
-
-
-                   // if (!(Tools.fastAbs(br - startR) < _threshold &&
-                   //Tools.fastAbs(bg - startG) < _threshold &&
-                   //Tools.fastAbs(bb - startB) < _threshold))
-                   // {
-                   //     _edgesPoints.Data[edgeIndex] = 1;
-
-                   //     startB = bb;
-                   //     startG = bg;
-                   //     startR = br;
-                   // }
-
-                   
-
-                    origIndex += 4;
-
-                }
-            }
-        }
-
-        private void DownRunFindEdgesRGB()
-        {
-            byte [] origData = this._originalImage.Data;
-            int bmpRowLength = _originalImage.Width;
-
-            int origIndex = 0;
-            int edgeIndex = 0;
-
-            for (int x = 0; x < _originalImage.WidthPixel; x++)
-            {
-                origIndex = x * 4;
-                edgeIndex = x;
-
-                int startR = origData[origIndex];
-                int startG = origData[origIndex + 1];
-                int startB = origData[origIndex + 2];
-
-                edgeIndex += this._edgesPoints.Width;
-                origIndex += bmpRowLength;
-
-                for (int y = 1; y < _originalImage.HeightPixel - 1; y++)
-                {
-                    int br = origData[origIndex];
-                    int bg = origData[origIndex + 1];
-                    int bb = origData[origIndex + 2];
-
-                    if (!(Tools.fastAbs(br - startR) < _threshold &&
-              Tools.fastAbs(bg - startG) < _threshold &&
-              Tools.fastAbs(bb - startB) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                    }
-
-                    startB = bb;
-                    startG = bg;
-                    startR = br;
-
-                    edgeIndex += this._edgesPoints.Width;
-                    origIndex += bmpRowLength;
-                }
-            }
-        }
-
-        private void DownRunFindEdgesRGBAdvance()
-        {
-            byte [] origData = this._originalImage.Data;
-            int bmpRowLength = _originalImage.Width;
-
-            int origIndex = 0;
-            int edgeIndex = 0;
-
-            for (int x = 0; x < _originalImage.WidthPixel; x++)
-            {
-                origIndex = x * 4;
-                edgeIndex = x;
-
-                int startR = origData[origIndex];
-                int startG = origData[origIndex + 1];
-                int startB = origData[origIndex + 2];
-
-                edgeIndex += this._edgesPoints.Width;
-                origIndex += bmpRowLength;
-
-                for (int y = 1; y < _originalImage.HeightPixel - 1; y++)
-                {
-                    int br = origData[origIndex];
-                    int bg = origData[origIndex + 1];
-                    int bb = origData[origIndex + 2];
-
-                    if (!(Tools.fastAbs(br - startR) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        //startR = br;
-                        startR = origData[origIndex - bmpRowLength];
-                    }
-
-                    if (!(Tools.fastAbs(bg - startG) < _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        //startG = bg;
-                        startG = origData[origIndex - bmpRowLength+1];
-                 
-                    }
-
-                    if (!(Tools.fastAbs(bb - startB) < _threshold)) 
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        //startB = bb;
-                        startB = origData[origIndex - bmpRowLength+2];
-                 
-                    }
-
-              //      if (!(Tools.fastAbs(br - startR) < _threshold &&
-              //Tools.fastAbs(bg - startG) < _threshold &&
-              //Tools.fastAbs(bb - startB) < _threshold))
-              //      {
-              //          _edgesPoints.Data[edgeIndex] = 1;
-
-              //          startB = bb;
-              //          startG = bg;
-              //          startR = br;
-              //      }
-
-                   
-
-                    edgeIndex += this._edgesPoints.Width;
-                    origIndex += bmpRowLength;
-                }
-            }
-        }
-
-
-        private void leftRunFindEdgesByHSL()
-        {
-
-
-            byte [] origData = this._originalImage.Data;
-            int origIndex = 0;
-            int edgeIndex = 0;
-            
-            while (edgeIndex < (_edgesPoints.Length - 1))
-            {
-                HSLColor hlsColor = new HSLColor(
-                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-                HSLColor hlsColor2 = new HSLColor(
-                    origData[origIndex + 6], origData[origIndex + 5], origData[origIndex + 4]);
-
-
-                if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > _threshold))
-                {
-                    _edgesPoints.Data[edgeIndex] = 1;
-                }
-
-                origIndex += 4;
-                edgeIndex++;
-            }
-
-
-        }
-
-        private void leftRunFindEdgesByHSLBetter()
-        {
-
-
-            byte [] origData = this._originalImage.Data;
-           
-
-            for (int yIndex = 0; yIndex < _edgesPoints.Length; yIndex += this._edgesPoints.Width)
-            {
-                int endLineIndex = yIndex + this._edgesPoints.Width;
-                int origIndex = yIndex * 4;
-
-                HSLColor startBlockColor = new HSLColor(
-                    origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-                origIndex += 4;
-
-                for (int edgeIndex = yIndex + 1; edgeIndex < endLineIndex; edgeIndex++)
-                {
-                    HSLColor hlsColor = new HSLColor(
-                        origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-
-
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        startBlockColor = hlsColor;
-                    }
-
-                    origIndex += 4;
-
-                }
-            }
-        }
-
-        private void DownRunFindEdgesByHSL()
-        {
-
-
-            byte [] origData = this._originalImage.Data;
-            int origIndex = 0;
-            int edgeIndex = 0;
-
-            int bmpRowLength = _originalImage.Width;
-            
-            for (int x = 0; x < _originalImage.WidthPixel; x++)
-            {
-                origIndex = x * 4;
-                edgeIndex = x;
-                for (int y = 0; y < _originalImage.HeightPixel - 1; y++)
-                {
-                    HSLColor hlsColor = new HSLColor(
-                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-                    HSLColor hlsColor2 = new HSLColor(
-                        origData[origIndex + bmpRowLength], origData[origIndex + bmpRowLength + 1], origData[origIndex + bmpRowLength + 2]);
-
-
-                    if ((Math.Abs(hlsColor.Luminosity - hlsColor2.Luminosity) > _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                    }
-
-                    edgeIndex += _edgesPoints.Width;
-                    origIndex += bmpRowLength;
-                }
-            }
-        }
-
-        private void DownRunFindEdgesByHSLBetter()
-        {
-
-            byte [] origData = this._originalImage.Data;
-            int bmpRowLength = _originalImage.Width;
-
-            int origIndex = 0;
-            int edgeIndex = 0;
-
-            for (int x = 0; x < _originalImage.WidthPixel; x++)
-            {
-                origIndex = x * 4;
-                edgeIndex = x;
-
-                HSLColor startBlockColor = new HSLColor(
-                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-
-                edgeIndex += this._edgesPoints.Width;
-                origIndex += bmpRowLength;
-
-                for (int y = 1; y < _originalImage.HeightPixel - 1; y++)
-                {
-                    HSLColor hlsColor = new HSLColor(
-                   origData[origIndex + 2], origData[origIndex + 1], origData[origIndex]);
-
-
-                    if ((Math.Abs(startBlockColor.Luminosity - hlsColor.Luminosity) > _threshold))
-                    {
-                        _edgesPoints.Data[edgeIndex] = 1;
-                        startBlockColor = hlsColor;
-                    }
-
-                    edgeIndex += this._edgesPoints.Width;
-                    origIndex += bmpRowLength;
-                }
-            }
-
         }
     }
 
