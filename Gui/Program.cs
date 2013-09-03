@@ -15,13 +15,14 @@ namespace GenArt
 {
     static class Program
     {
-        private static TimeSpan ts;
+        private static Stopwatch sw = new Stopwatch();
 
-        private static void PerfStart() { ts = Process.GetCurrentProcess().UserProcessorTime; }
-        private static void PerfEnd() 
-        { 
-            ts = Process.GetCurrentProcess().UserProcessorTime;
-            Console.Out.WriteLine("time: {0}.{1:d3}", (int)ts.TotalSeconds, ts.Milliseconds);
+        private static void PerfStart() { sw.Reset(); sw.Start(); }
+        private static long PerfEnd() 
+        {
+            sw.Stop();
+            return sw.ElapsedTicks;
+            
         }
 
 
@@ -46,8 +47,10 @@ namespace GenArt
                 nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
-            PerfEnd();
-
+            long ticks = PerfEnd();
+            
+            TimeSpan ts = new TimeSpan(ticks);
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds,CONST_LoopCount,ticks/(double)CONST_LoopCount);
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
             Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 1000 * CONST_LoopCount) / 1000000);
         }
@@ -290,7 +293,7 @@ namespace GenArt
                 }
                 else
                 {
-                    Console.Out.WriteLine("test");
+                    //Console.Out.WriteLine("test");
                 }
             }
         }
