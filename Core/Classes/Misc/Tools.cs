@@ -42,7 +42,7 @@ namespace GenArt.Classes
 
             uint tmp = (uint)(max - min);
 
-            return (int)(randValue % tmp);
+            return (int)min+(int)(randValue % tmp);
             {
             //    randomCall++;
             //    return random.Next(min, max);

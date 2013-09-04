@@ -406,7 +406,7 @@ namespace GenArt.Core.Classes
 
 
             ConvertToGreyScale();
-            ReduceNoiseGausianGreyscale();
+            //ReduceNoiseGausianGreyscale();
             LeftDetectEdgeNew();
             DetectEdgeByKernelSum();
             MakeThinEdgesMyLeftRight();

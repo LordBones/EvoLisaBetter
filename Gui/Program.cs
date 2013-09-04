@@ -30,7 +30,7 @@ namespace GenArt
         {
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
-            const int CONST_LoopCount = 3000;
+            const int CONST_LoopCount = 6000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
             short [] ranges = new short[2000];
 

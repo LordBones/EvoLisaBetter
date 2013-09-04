@@ -10,13 +10,27 @@
 #include "FastFunctions.h"
 #include "NativeMedian8bit.h"
 
-
+/*
+   alpha : 0 - 256
+*/
 void ApplyColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
   {
       int invAlpha = 256 - alpha;
-      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,b*alpha,g*alpha,r*alpha,0);
 
-      __m128i mMullInvAlpha = _mm_setr_epi16(invAlpha,invAlpha,invAlpha,1,invAlpha,invAlpha,invAlpha,1);
+      // unsigned long long tmpColor = ((unsigned long long)(r*alpha)<<32) | ((unsigned long long)(g*alpha)<<16) | (b*alpha);
+      
+       //__m128i mColorTimeAlpha = _mm_setzero_si128();
+       ///mColorTimeAlpha.m128i_u64[0] = tmpColor;
+       //mColorTimeAlpha.m128i_u64[1] = tmpColor;
+      //__m128i mColorTimeAlpha;
+      //mColorTimeAlpha.m128i_u16[0] = b*alpha;
+      //mColorTimeAlpha.m128i_u16[1] = g*alpha;
+      //mColorTimeAlpha.m128i_u16[2] = r*alpha;
+
+
+      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,0,0,0,0);
+
+      __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
       __m128i source = _mm_cvtsi32_si128(*((int*)canvas));
 
       //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
@@ -39,6 +53,9 @@ void ApplyColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
 
   }
 
+/*
+   alpha : 0 - 256
+*/
   void Apply2ColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
   {
       int invAlpha = 256 - alpha;
@@ -68,11 +85,18 @@ void ApplyColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
       *((long long*)canvas) =  _mm_cvtsi128_si64(source);
   }
 
+  /*
+   alpha : 0 - 256
+*/
   void Apply4ColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
   {
       int invAlpha = 256 - alpha;
 
-      __m128i mColorRBTimeAlpha = _mm_setr_epi16(b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha);
+      unsigned int tmpColor = (r*alpha)<<16 | b*alpha;
+
+      __m128i mColorRBTimeAlpha = _mm_set1_epi32(tmpColor);
+      
+      //__m128i mColorRBTimeAlpha = _mm_setr_epi16(b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha);
       __m128i mColorGTimeAlpha = _mm_set1_epi16(g*alpha);
 
 
@@ -185,7 +209,7 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
         line+=8;
     }
 
-    while(len > 0)
+    if(len > 0)
     {
         ApplyColorPixelSSE(line,r,g,b,alpha);
 

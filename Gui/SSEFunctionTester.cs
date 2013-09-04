@@ -15,13 +15,13 @@ namespace GenArt
             
 
             // oneline
-            byte [] colorsCorrect = new byte[16];
-            byte [] colorsTest = new byte[16];
+            byte [] colorsCorrect = new byte[32];
+            byte [] colorsTest = new byte[32];
 
             Random rnd  = new Random(
                 (int)DateTime.Now.Ticks);
                 //0);
-            for (int counter = 0; counter < 100; counter++)
+            for (int counter = 0; counter < 1000; counter++)
             {
 
                 for (int index = 0; index < colorsCorrect.Length; index += 4)
