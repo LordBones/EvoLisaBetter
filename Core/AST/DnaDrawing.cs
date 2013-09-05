@@ -162,7 +162,8 @@ namespace GenArt.AST
 
                     if (Tools.GetRandomNumber(0, 2) >= 1)
                     {
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        int index = GetRNDIndexPolygonBySize(this.Polygons);
+                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
                     }
                     else
@@ -380,7 +381,8 @@ namespace GenArt.AST
         {
             if (Polygons.Length > Settings.ActivePolygonsMin)
             {
-                int index = Tools.GetRandomNumber(0, Polygons.Length);
+                int index = GetRNDIndexPolygonBySize(this.Polygons);
+                //int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
 
@@ -440,6 +442,55 @@ namespace GenArt.AST
                     SetDirty();
                 }
             }
+        }
+
+        private static int GetRNDIndexPolygonBySize(DnaPolygon[] polygons)
+        {
+            long [] polygonSizes = new long[polygons.Length];
+
+            for (int index = 0; index < polygons.Length; index++)
+                polygonSizes[index] = polygons[index].GetPixelSizePolygon();
+
+            long polySizeMax = 0;
+            long polySizeMin = long.MaxValue;
+
+            for (int index = 0; index < polygonSizes.Length; index++)
+            {
+                if (polySizeMax < polygonSizes[index]) polySizeMax = polygonSizes[index];
+                if (polySizeMin > polygonSizes[index]) polySizeMin = polygonSizes[index];
+            }
+
+
+            long sumSizes = 0;
+            long minDiffSize = (polySizeMax - polySizeMin)/4;
+            for (int index = 0; index < polygonSizes.Length; index++)
+            {
+                long diffFit = (polySizeMax - polygonSizes[index] + minDiffSize);
+                sumSizes += diffFit;
+            }
+
+            long [] polygonRullete = new long[polygons.Length];
+
+            int lastRouleteValue = 0;
+            const int maxNormalizeValue = 1000000;
+            for (int index = 0; index < polygonSizes.Length; index++)
+            {
+                long diffSize = (polySizeMax - polygonSizes[index] + minDiffSize);
+
+                int tmp = (int)(((long)diffSize * maxNormalizeValue) / sumSizes);
+                polygonRullete[index] = lastRouleteValue + tmp;
+                lastRouleteValue = lastRouleteValue + tmp;
+            }
+
+            int rndIndex = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+
+            for (int index = 0; index < polygonRullete.Length; index++)
+            {
+                if (polygonRullete[index] > rndIndex)
+                    return index;
+            }
+
+            return polygonRullete.Length - 1;
         }
 
         
