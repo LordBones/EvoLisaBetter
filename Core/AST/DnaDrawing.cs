@@ -59,6 +59,8 @@ namespace GenArt.AST
             IsDirty = true;
         }
 
+
+
         public void Init()
         {
             Polygons = new DnaPolygon[Settings.ActivePolygonsMin];
@@ -81,6 +83,14 @@ namespace GenArt.AST
                 }
             }
             return false;
+        }
+
+        public void UpdateLive()
+        {
+            for (int index = 0; index < this.Polygons.Length; index++)
+            {
+                this.Polygons[index].Live++;
+            }
         }
 
         public DnaDrawing Clone()
@@ -162,9 +172,14 @@ namespace GenArt.AST
 
                     if (Tools.GetRandomNumber(0, 2) >= 1)
                     {
-                        int index = GetRNDIndexPolygonBySize(this.Polygons);
+                        //int index = GetRNDIndexPolygonBySize(this.Polygons);
+                        int index = GetRNDIndexPolygonByLive(this.Polygons);
+
                         //int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
+                        //Polygons[index].LiveDecr();
+                        Polygons[index].Live = 1;//.LiveIncr();
+
                     }
                     else
                     {
@@ -172,6 +187,7 @@ namespace GenArt.AST
                         DnaBrush brush = Polygons[tindex].Brush;
                         brush.MutateRGBOld(this);
                         Polygons[tindex].Brush = brush;
+                        Polygons[tindex].Live = 1;
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
                 }
@@ -381,7 +397,9 @@ namespace GenArt.AST
         {
             if (Polygons.Length > Settings.ActivePolygonsMin)
             {
-                int index = GetRNDIndexPolygonBySize(this.Polygons);
+                //int index = GetRNDIndexPolygonBySize(this.Polygons);
+                int index = GetRNDIndexPolygonByLive(this.Polygons);
+
                 //int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
@@ -478,6 +496,48 @@ namespace GenArt.AST
                 long diffSize = (polySizeMax - polygonSizes[index] + minDiffSize);
 
                 int tmp = (int)(((long)diffSize * maxNormalizeValue) / sumSizes);
+                polygonRullete[index] = lastRouleteValue + tmp;
+                lastRouleteValue = lastRouleteValue + tmp;
+            }
+
+            int rndIndex = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+
+            for (int index = 0; index < polygonRullete.Length; index++)
+            {
+                if (polygonRullete[index] > rndIndex)
+                    return index;
+            }
+
+            return polygonRullete.Length - 1;
+        }
+
+        private static int GetRNDIndexPolygonByLive(DnaPolygon[] polygons)
+        {
+            long liveMax = 0;
+
+
+            for (int index = 0; index < polygons.Length; index++)
+            {
+                if (liveMax < polygons[index].Live) liveMax = polygons[index].Live;
+                
+            }
+
+            long sumLives = 0;
+            for (int index = 0; index < polygons.Length; index++)
+            {
+                long diffLive = (liveMax - polygons[index].Live + 1);
+                sumLives += diffLive;
+            }
+
+            long [] polygonRullete = new long[polygons.Length];
+
+            int lastRouleteValue = 0;
+            const int maxNormalizeValue = 1000000;
+            for (int index = 0; index < polygons.Length; index++)
+            {
+                long diffLive = (liveMax - polygons[index].Live + 1);
+
+                int tmp = (int)(((long)diffLive * maxNormalizeValue) / sumLives);
                 polygonRullete[index] = lastRouleteValue + tmp;
                 lastRouleteValue = lastRouleteValue + tmp;
             }

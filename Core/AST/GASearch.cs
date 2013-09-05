@@ -334,7 +334,7 @@ namespace GenArt.Core.AST
                     dna.MutateBetter(this._destCanvas, _edgePoints);
 
                 this._population[index] = dna;
-
+                dna.UpdateLive();
             }
 
           

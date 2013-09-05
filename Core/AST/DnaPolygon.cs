@@ -13,10 +13,17 @@ namespace GenArt.AST
         public DnaPoint [] Points; // { get; set; }
         public DnaBrush Brush;// { get; set; }
         public int UniqueId;
-        
+        public int Live = 0;
+
+        public void LiveIncr() { Live++; }
+        public void LiveDecr()
+        {
+            if (Live > 0) Live--;
+        }
+
         public DnaPolygon()
         {
-
+            
         }
 
         public void CreateNewUniqueId()
@@ -202,6 +209,7 @@ namespace GenArt.AST
 
             Brush = new DnaBrush(0,255,0,0);
             CreateNewUniqueId();
+            Live = 0;
         }
 
         public void InitTestPolygon()
@@ -221,6 +229,7 @@ namespace GenArt.AST
             newPolygon.Points = new DnaPoint[Points.Length];
             newPolygon.Brush = Brush;
             newPolygon.UniqueId = UniqueId;
+            newPolygon.Live = Live;
 
             Array.Copy(this.Points, newPolygon.Points, Points.Length);
             //for (int index = 0; index < Points.Length; index++)
