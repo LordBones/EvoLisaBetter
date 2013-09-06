@@ -89,7 +89,7 @@ namespace GenArt.AST
         {
             for (int index = 0; index < this.Polygons.Length; index++)
             {
-                this.Polygons[index].Live++;
+                this.Polygons[index].LiveIncr();
             }
         }
 
@@ -173,9 +173,9 @@ namespace GenArt.AST
                     if (Tools.GetRandomNumber(0, 2) >= 1)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
-                        int index = GetRNDIndexPolygonByLive(this.Polygons);
+                        //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
                         //Polygons[index].LiveDecr();
                         Polygons[index].Live = 1;//.LiveIncr();
@@ -187,6 +187,7 @@ namespace GenArt.AST
                         DnaBrush brush = Polygons[tindex].Brush;
                         brush.MutateRGBOld(this);
                         Polygons[tindex].Brush = brush;
+                        //Polygons[tindex].LiveDecr();
                         Polygons[tindex].Live = 1;
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
@@ -398,9 +399,9 @@ namespace GenArt.AST
             if (Polygons.Length > Settings.ActivePolygonsMin)
             {
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
-                int index = GetRNDIndexPolygonByLive(this.Polygons);
+                //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
 

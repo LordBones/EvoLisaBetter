@@ -51,6 +51,7 @@
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelAvgPoints = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.ceShowLive = new System.Windows.Forms.CheckBox();
             this.nudMaxGeneration = new System.Windows.Forms.NumericUpDown();
             this.cheMaxGeneration = new System.Windows.Forms.CheckBox();
             this.chbWires = new System.Windows.Forms.CheckBox();
@@ -284,6 +285,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.ceShowLive);
             this.panel1.Controls.Add(this.nudMaxGeneration);
             this.panel1.Controls.Add(this.cheMaxGeneration);
             this.panel1.Controls.Add(this.chbWires);
@@ -305,6 +307,17 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1282, 69);
             this.panel1.TabIndex = 27;
+            // 
+            // ceShowLive
+            // 
+            this.ceShowLive.AutoSize = true;
+            this.ceShowLive.Location = new System.Drawing.Point(1060, 14);
+            this.ceShowLive.Name = "ceShowLive";
+            this.ceShowLive.Size = new System.Drawing.Size(76, 17);
+            this.ceShowLive.TabIndex = 39;
+            this.ceShowLive.Text = "Show Live";
+            this.ceShowLive.UseVisualStyleBackColor = true;
+            this.ceShowLive.CheckedChanged += new System.EventHandler(this.ceShowLive_CheckedChanged);
             // 
             // nudMaxGeneration
             // 
@@ -630,6 +643,7 @@
         private System.Windows.Forms.CheckBox chbWires;
         private System.Windows.Forms.NumericUpDown nudMaxGeneration;
         private System.Windows.Forms.CheckBox cheMaxGeneration;
+        private System.Windows.Forms.CheckBox ceShowLive;
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 
 using GenArt.AST;
 
@@ -35,6 +36,40 @@ namespace GenArt.Classes
                 }
             }
                 //Render(polygon, g, scale);
+        }
+
+        //Render a Drawing
+        public static void RenderLive(DnaDrawing drawing, Graphics g, int scale)
+        {
+            int avgLive = (int)drawing.Polygons.Average(x => x.Live);
+
+            g.Clear(drawing.BackGround.BrushColor);
+            //g.Clear(background);
+
+            for (int index = 0; index < drawing.Polygons.Length; index++)
+            {
+
+                using (Brush brush = new SolidBrush(drawing.Polygons[index].Brush.BrushColor))
+                {
+                    if (drawing.Polygons[index].Live >= avgLive)
+                    {
+
+                        //var tmpPoints = polygon.ClonePoints();
+                        //tmpPoints.Add(tmpPoints[0]);
+
+                        //Point[] points = GetGdiPoints(tmpPoints, scale);
+                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
+                        //g.DrawLines(new Pen(brush), points);
+                        g.FillPolygon(brush, points);
+
+                        //g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
+
+                        //g.FillClosedCurve(polygon.Brush.Brush, points);
+                    }
+
+                }
+            }
+            //Render(polygon, g, scale);
         }
 
         public static void RenderWire(DnaDrawing drawing, Graphics g, int scale)

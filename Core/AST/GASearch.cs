@@ -253,6 +253,7 @@ namespace GenArt.Core.AST
             HashSet<int> allIds = new HashSet<int>();
             HashSet<int> theSameIds = new HashSet<int>();
 
+            int maxLength = _population.Max(x => x.Polygons.Length);
 
             for (int index = 0; index < _population.Length; index++)
             {
@@ -279,7 +280,7 @@ namespace GenArt.Core.AST
                         countSame++;
                 }
 
-                _similarity[index] = countSame / (float)polygons.Length;
+                _similarity[index] = countSame / ((float)polygons.Length+ 0.1f*(maxLength-polygons.Length));
             }
 
             //if (allIds.Count != theSameIds.Count)
@@ -315,7 +316,7 @@ namespace GenArt.Core.AST
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             ComputeSimilarity();
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
-            RouletteTableNormalizeBetterWithSimilarity(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
+            RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -439,7 +440,7 @@ namespace GenArt.Core.AST
             }
 
             long sumFittness = 0;
-            long minDiffFit = fittnessMax - fittnessMin;
+            long minDiffFit = 0;//(fittnessMax - fittnessMin)/8;
             if (minDiffFit == 0) minDiffFit = 1;
 
             for (int index = 0; index < fittness.Length; index++)
@@ -453,6 +454,43 @@ namespace GenArt.Core.AST
                 diffFittness[index] = diffFit;
             }
 
+
+            int lastRouleteValue = 0;
+            for (int index = 0; index < diffFittness.Length; index++)
+            {
+                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
+                rouleteTable[index] = lastRouleteValue + tmp;
+                lastRouleteValue = lastRouleteValue + tmp;
+            }
+        }
+
+        private static void RouletteTableNormalizeBetterWithSimilarity2
+            (long[] fittness, int[] rouleteTable, long[] diffFittness, float[] similarity, int maxNormalizeValue)
+        {
+            long fittnessMax = 0;
+            long fittnessMin = long.MaxValue;
+
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
+                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
+            }
+
+            long sumFittness = 0;
+            long minDiffFit = 0;//fittnessMin;
+            
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                // similarity 1.0 very similar, 0.0 very different  
+                // koef multiple increase for more different. Min is 1.0;
+
+                float koef = (1.0f - similarity[index]) * 3.0f + 1.0f;
+                long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef);
+                sumFittness += diffFit;
+                diffFittness[index] = diffFit;
+            }
+
+            if (sumFittness == 0) minDiffFit = 1;
 
             int lastRouleteValue = 0;
             for (int index = 0; index < diffFittness.Length; index++)

@@ -7,11 +7,13 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 using GenArt.AST;
 using GenArt.Classes;
 using GenArt.Core.AST;
 using GenArt.Core.Classes;
 using GenArt.Core.Classes.SWRenderLibrary;
+
 
 namespace GenArt
 {
@@ -330,6 +332,10 @@ namespace GenArt
                      {
                          Renderer.RenderWire(guiDrawing, backGraphics, ZoomScale);
                      }
+                     else if(ceShowLive.Checked) 
+                     {
+                         Renderer.RenderLive(guiDrawing, backGraphics, ZoomScale);
+                     }
                      else 
                      {
                          Renderer.Render(guiDrawing, backGraphics, ZoomScale);
@@ -498,20 +504,24 @@ namespace GenArt
             MatchStatistics ms = new MatchStatistics();
             ms.ComputeImageMatchStatAvg(sourceBitmapAsCanvas, _dnaRender.Canvas);
 
+            int maxLive = guiDrawing.Polygons.Max(x => x.Live);
+            int avgLive = (int)guiDrawing.Polygons.Average(x => x.Live); 
+            int countLive = guiDrawing.Polygons.Count(x => x.Live >= avgLive); 
             // avg 
 
             tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}" +
                 "       avg: {2:###.000} / {3:###.000}" +
                 "       R: {4:###.000} / {5:####.000}," +
                 "       G: {6:####.000} / {7:####.000}," +
-                "       B: {8:####.000} / {9:####.000}",
+                "       B: {8:####.000} / {9:####.000}" +
+                "       MaxLive:{10}  count:{11}",
 
                 (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR),
                 (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR),
                 (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR) / 3,
                 (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR) / 3,
                 ms.Diff_AvgR, ms.Diff_AvgStdDevR, ms.Diff_AvgG, ms.Diff_AvgStdDevG,
-                ms.Diff_AvgB, ms.Diff_AvgStdDevB);
+                ms.Diff_AvgB, ms.Diff_AvgStdDevB, maxLive, countLive);
 
 
     //        tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +
@@ -570,6 +580,11 @@ namespace GenArt
         private void cheMaxGeneration_CheckedChanged(object sender, EventArgs e)
         {
             nudMaxGeneration.Enabled = cheMaxGeneration.Checked;
+        }
+
+        private void ceShowLive_CheckedChanged(object sender, EventArgs e)
+        {
+            pnlCanvas.Invalidate();
         }
 
         
