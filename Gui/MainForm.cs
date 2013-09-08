@@ -23,6 +23,7 @@ namespace GenArt
         public static Settings Settings;
         private DnaDrawing currentDrawing;
         private DnaDrawing lastDrawing = null;
+        private ErrorMatrix lastErrorMatrix = null;
         private object DrawingLock = new object();
 
         private long lastErrorLevel = long.MaxValue;
@@ -131,6 +132,7 @@ namespace GenArt
                     {
                         currentDrawing = gaSearch.CurrentBest;
                         errorLevel = gaSearch.CurrentBestFittness;
+                        lastErrorMatrix = gaSearch.ErrorMatrixCurrentClone();
                     }
                 }              
             }
@@ -334,7 +336,12 @@ namespace GenArt
                      }
                      else if(ceShowLive.Checked) 
                      {
-                         Renderer.RenderLive(guiDrawing, backGraphics, ZoomScale);
+                         lock (DrawingLock)
+                         {
+                             Renderer.RenderErrorMatrix(lastErrorMatrix, backGraphics, ZoomScale);
+                         }
+
+                         //Renderer.RenderLive(guiDrawing, backGraphics, ZoomScale);
                      }
                      else 
                      {
@@ -504,24 +511,21 @@ namespace GenArt
             MatchStatistics ms = new MatchStatistics();
             ms.ComputeImageMatchStatAvg(sourceBitmapAsCanvas, _dnaRender.Canvas);
 
-            int maxLive = guiDrawing.Polygons.Max(x => x.Live);
-            int avgLive = (int)guiDrawing.Polygons.Average(x => x.Live); 
-            int countLive = guiDrawing.Polygons.Count(x => x.Live >= avgLive); 
+            
             // avg 
 
             tsslFittnessError.Text = string.Format("Error (avg/stdev)  sum: {0:###.000} / {1:###.000}" +
                 "       avg: {2:###.000} / {3:###.000}" +
                 "       R: {4:###.000} / {5:####.000}," +
                 "       G: {6:####.000} / {7:####.000}," +
-                "       B: {8:####.000} / {9:####.000}" +
-                "       MaxLive:{10}  count:{11}",
+                "       B: {8:####.000} / {9:####.000}" ,
 
                 (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR),
                 (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR),
                 (ms.Diff_AvgB + ms.Diff_AvgG + ms.Diff_AvgR) / 3,
                 (ms.Diff_AvgStdDevB + ms.Diff_AvgStdDevG + ms.Diff_AvgStdDevR) / 3,
                 ms.Diff_AvgR, ms.Diff_AvgStdDevR, ms.Diff_AvgG, ms.Diff_AvgStdDevG,
-                ms.Diff_AvgB, ms.Diff_AvgStdDevB, maxLive, countLive);
+                ms.Diff_AvgB, ms.Diff_AvgStdDevB);
 
 
     //        tsslFittnessError.Text = string.Format("Error (Med/stdev)  sum: {0:###} / {1:###.000}" +

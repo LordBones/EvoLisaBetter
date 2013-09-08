@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 
 using GenArt.AST;
+using GenArt.Core.Classes;
 
 namespace GenArt.Classes
 {
@@ -39,37 +40,39 @@ namespace GenArt.Classes
         }
 
         //Render a Drawing
-        public static void RenderLive(DnaDrawing drawing, Graphics g, int scale)
+        public static void RenderErrorMatrix(ErrorMatrix errorMatrix, Graphics g, int scale)
         {
-            int avgLive = (int)drawing.Polygons.Average(x => x.Live);
+            int maxError = (int)errorMatrix.Matrix.Max(x => x);
 
-            g.Clear(drawing.BackGround.BrushColor);
-            //g.Clear(background);
+            g.Clear(Color.Black);
 
-            for (int index = 0; index < drawing.Polygons.Length; index++)
+            for (int matrixY = 0; matrixY <  errorMatrix.MatrixHeight; matrixY++)
             {
-
-                using (Brush brush = new SolidBrush(drawing.Polygons[index].Brush.BrushColor))
+                for (int matrixX = 0; matrixX < errorMatrix.MatrixWidth; matrixX++)
                 {
-                    if (drawing.Polygons[index].Live >= avgLive)
+                    //int originalTileHeight =  errorMatrix.InputPixelHeight - matrixY * ErrorMatrix.CONST_TileSize;
+                    //if (originalTileHeight >= CONST_TileSize) originalTileHeight = CONST_TileSize;
+                    //int originalTileWidth = this._inputPixelWidth - matrixX * CONST_TileSize;
+                    //if (originalTileWidth >= CONST_TileSize) originalTileWidth = CONST_TileSize;
+
+                    //int r = (errorMatrix.Matrix[matrixY*errorMatrix.MatrixWidth+matrixX]*255)/maxError;
+                    int r = errorMatrix.Matrix[matrixY * errorMatrix.MatrixWidth + matrixX];
+                    r *= 8;
+                    r = (r > 255 )? 255 : r;
+                    using (Brush brush = new SolidBrush(Color.FromArgb(255, r, r, r)))
                     {
+                        //int indexTileStart = matrixY * errorMatrix.InputPixelWidth + matrixX * ErrorMatrix.CONST_TileSize;
 
-                        //var tmpPoints = polygon.ClonePoints();
-                        //tmpPoints.Add(tmpPoints[0]);
+                        Rectangle rec = new Rectangle(
+                            matrixX * errorMatrix.CONST_TileSize * scale, matrixY * errorMatrix.CONST_TileSize * scale,
+                           errorMatrix.CONST_TileSize * scale, errorMatrix.CONST_TileSize * scale);
+                        g.FillRectangle(brush, rec);
+                        g.DrawRectangle(new Pen(Color.White), rec);
 
-                        //Point[] points = GetGdiPoints(tmpPoints, scale);
-                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
-                        //g.DrawLines(new Pen(brush), points);
-                        g.FillPolygon(brush, points);
 
-                        //g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
-
-                        //g.FillClosedCurve(polygon.Brush.Brush, points);
                     }
-
                 }
             }
-            //Render(polygon, g, scale);
         }
 
         public static void RenderWire(DnaDrawing drawing, Graphics g, int scale)

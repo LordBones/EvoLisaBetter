@@ -68,7 +68,7 @@ namespace GenArt.AST
             BackGround.InitRandomWithoutAlpha();
 
             for (int i = 0; i < Settings.ActivePolygonsMin; i++)
-                AddPolygon();
+                AddPolygon(null);
 
             SetDirty();
         }
@@ -83,14 +83,6 @@ namespace GenArt.AST
                 }
             }
             return false;
-        }
-
-        public void UpdateLive()
-        {
-            for (int index = 0; index < this.Polygons.Length; index++)
-            {
-                this.Polygons[index].LiveIncr();
-            }
         }
 
         public DnaDrawing Clone()
@@ -109,10 +101,10 @@ namespace GenArt.AST
         public void Mutate(CanvasBGRA destImage = null)
         {
             if (Tools.WillMutate(Settings.ActiveRemovePolygonMutationRate))
-                RemovePolygon();
+                RemovePolygon(null);
             
             else if (Tools.WillMutate(Settings.ActiveAddPolygonMutationRate))
-                AddPolygon(destImage);
+                AddPolygon(null,destImage);
 
             else if (Tools.WillMutate(Settings.ActiveMovePolygonMutationRate))
                 SwapPolygon();
@@ -125,7 +117,7 @@ namespace GenArt.AST
 
         }
 
-        public void MutateBetter(CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public void MutateBetter(ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
             /// k mutaci pozadi dochazi pouze jednou 
             //if (Tools.GetRandomNumber(0, 10) == 9)
@@ -144,13 +136,13 @@ namespace GenArt.AST
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
-                        AddPolygon(destImage, edgePoints);
+                        AddPolygon(errorMatrix, destImage, edgePoints);
                         continue;
                     }
                 }
                 if (mutateChange < 200)
                 {
-                    RemovePolygon();
+                    RemovePolygon(errorMatrix);
                     continue;
                 }
                 if (mutateChange < 300)
@@ -177,18 +169,19 @@ namespace GenArt.AST
 
                         int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
-                        //Polygons[index].LiveDecr();
-                        Polygons[index].Live = 1;//.LiveIncr();
-
+                   
                     }
                     else
                     {
-                        int tindex = Tools.GetRandomNumber(0, Polygons.Length);
+                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix); 
+                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+
+                        int tindex = tmpIndex.Value;
+                        //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                         DnaBrush brush = Polygons[tindex].Brush;
                         brush.MutateRGBOld(this);
                         Polygons[tindex].Brush = brush;
-                        //Polygons[tindex].LiveDecr();
-                        Polygons[tindex].Live = 1;
+                       
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
                 }
@@ -394,14 +387,18 @@ namespace GenArt.AST
             }
         }
 
-        public void RemovePolygon()
+        public void RemovePolygon(ErrorMatrix errorMatrix)
         {
             if (Polygons.Length > Settings.ActivePolygonsMin)
             {
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
                 //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                int index = Tools.GetRandomNumber(0, Polygons.Length);
+                int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                if (!tmpIndex.HasValue) return;
+
+                int index = tmpIndex.Value;
+                //int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
 
@@ -421,14 +418,14 @@ namespace GenArt.AST
        
 
 
-        public void AddPolygon(CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void AddPolygon(ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newPolygon = new DnaPolygon();
-                    newPolygon.Init(edgePoints);
+                    newPolygon.Init(errorMatrix, edgePoints);
                     //newPolygon.Init(null);
 
                     if (_rawDestImage != null)
@@ -512,48 +509,76 @@ namespace GenArt.AST
             return polygonRullete.Length - 1;
         }
 
-        private static int GetRNDIndexPolygonByLive(DnaPolygon[] polygons)
+        
+        private int ? GetRNDPolygonIndex(ErrorMatrix errorMatrix)
         {
-            long liveMax = 0;
+            
 
-
-            for (int index = 0; index < polygons.Length; index++)
+            if (this.Polygons.Length == 1)
             {
-                if (liveMax < polygons[index].Live) liveMax = polygons[index].Live;
-                
+                return 0;
+            }
+            else if (this.Polygons.Length > 1)
+            {
+                List<int> polygonsId = new List<int>();
+
+                do
+                {
+
+                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                    Rectangle tileArea = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+
+                    for (int index = 0; index < this.Polygons.Length; index++)
+                    {
+                        DnaPolygon polygon = this.Polygons[index];
+                        if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
+                        else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
+                        else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
+                        else
+                        {
+                            // test if tile is inside triangle
+                            if (GraphicFunctions.IsPointInTriangle(
+                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
+                                new DnaPoint((short)tileArea.X, (short)tileArea.Y)) &&
+
+                                GraphicFunctions.IsPointInTriangle(
+                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
+                                new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)tileArea.Y)) &&
+
+                                GraphicFunctions.IsPointInTriangle(
+                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
+                                new DnaPoint((short)tileArea.X, (short)(tileArea.Y + tileArea.Height - 1))) &&
+
+                                GraphicFunctions.IsPointInTriangle(
+                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
+                                new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)(tileArea.Y + tileArea.Height - 1)))
+                                )
+                            {
+                                polygonsId.Add(index);
+                            }
+
+                        }
+
+                    }
+                } while (polygonsId.Count == 0);
+
+                int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
+                return polygonsId[polygonIndex];
             }
 
-            long sumLives = 0;
-            for (int index = 0; index < polygons.Length; index++)
-            {
-                long diffLive = (liveMax - polygons[index].Live + 1);
-                sumLives += diffLive;
-            }
-
-            long [] polygonRullete = new long[polygons.Length];
-
-            int lastRouleteValue = 0;
-            const int maxNormalizeValue = 1000000;
-            for (int index = 0; index < polygons.Length; index++)
-            {
-                long diffLive = (liveMax - polygons[index].Live + 1);
-
-                int tmp = (int)(((long)diffLive * maxNormalizeValue) / sumLives);
-                polygonRullete[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-
-            int rndIndex = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-
-            for (int index = 0; index < polygonRullete.Length; index++)
-            {
-                if (polygonRullete[index] > rndIndex)
-                    return index;
-            }
-
-            return polygonRullete.Length - 1;
+            // if no pygons in dna
+            return null;
         }
 
+        private static bool IsPointInRectangle(Rectangle area, DnaPoint point)
+        {
+            int diffX = area.X - point.X;
+            int diffY = area.Y - point.Y;
+
+            return diffX >= 0 && diffX < area.Width &&
+               diffY >= 0 && diffY < area.Height;
+
+        }
         
 
     }

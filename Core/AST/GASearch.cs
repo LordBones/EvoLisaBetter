@@ -29,6 +29,7 @@ namespace GenArt.Core.AST
         private NativeFunctions _nativeFunc = new NativeFunctions();
 
         private ImageEdges _edgePoints = null;
+        private ErrorMatrix _errorMatrix = new ErrorMatrix(1,1);
 
         private int [] _rouleteTable = new int[0];
         private long [] _diffFittness = new long[0];
@@ -79,6 +80,8 @@ namespace GenArt.Core.AST
 
         #endregion
 
+        public ErrorMatrix ErrorMatrixCurrentClone() { return _errorMatrix.Clone(); }
+
         public GASearch(int popSize)
         {
             //if (popSize < 2)
@@ -119,6 +122,8 @@ namespace GenArt.Core.AST
             this._currentBestFittness = long.MaxValue;
             this._lastBestFittness = long.MaxValue;
 
+            _errorMatrix = new ErrorMatrix(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
+
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
 
             this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
@@ -134,7 +139,7 @@ namespace GenArt.Core.AST
 
                 for (int k =0; k < 10; k++)
                 {
-                    dna.AddPolygon(this._destCanvas, this._edgePoints);
+                    dna.AddPolygon(null, this._destCanvas, this._edgePoints);
 
                 }
 
@@ -228,6 +233,8 @@ namespace GenArt.Core.AST
             {
                 this._currentBestFittness = bestFittness;
                 this._currentBest = this._population[bestIndex];
+
+                ComputeCurrentBestErrorMatrix();
             }
 
             this._lastBest = this._population[bestIndex];
@@ -246,6 +253,16 @@ namespace GenArt.Core.AST
             }
 
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
+
+            
+        }
+
+        private void ComputeCurrentBestErrorMatrix()
+        {
+            _dnaRender.RenderDNA(this._currentBest, DNARenderer.RenderType.SoftwareTriangle);
+
+            _errorMatrix.ComputeErrorMatrix(this._destCanvas, _dnaRender.Canvas);
+      
         }
 
         private void ComputeSimilarity()
@@ -332,10 +349,9 @@ namespace GenArt.Core.AST
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
 
                 while (!dna.IsDirty)
-                    dna.MutateBetter(this._destCanvas, _edgePoints);
+                    dna.MutateBetter(this._errorMatrix, this._destCanvas, _edgePoints);
 
                 this._population[index] = dna;
-                dna.UpdateLive();
             }
 
           
@@ -371,7 +387,7 @@ namespace GenArt.Core.AST
                 DnaDrawing  dna = CrossoverOnePoint(this._lastPopulation[indexParent1], this._lastPopulation[indexParent2]);
 
                 while (!dna.IsDirty)
-                    dna.MutateBetter(this._destCanvas, _edgePoints);
+                    dna.MutateBetter(this._errorMatrix,this._destCanvas, _edgePoints);
 
                 this._population[index] = dna;
             }
@@ -448,7 +464,7 @@ namespace GenArt.Core.AST
                 // similarity 1.0 very similar, 0.0 very different  
                 // koef multiple increase for more different. Min is 1.0;
 
-                float koef = (1.0f - similarity[index])*3.0f + 1.0f;
+                float koef = (1.0f - similarity[index])*1.5f + 1.0f;
                 long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef) ;
                 sumFittness += diffFit;
                 diffFittness[index] = diffFit;
@@ -477,7 +493,7 @@ namespace GenArt.Core.AST
             }
 
             long sumFittness = 0;
-            long minDiffFit = 0;//fittnessMin;
+            long minDiffFit = 1;//fittnessMin;
             
             for (int index = 0; index < fittness.Length; index++)
             {

@@ -13,13 +13,7 @@ namespace GenArt.AST
         public DnaPoint [] Points; // { get; set; }
         public DnaBrush Brush;// { get; set; }
         public int UniqueId;
-        public int Live = 0;
-
-        public void LiveIncr() { Live++; }
-        public void LiveDecr()
-        {
-            if (Live > 0) Live--;
-        }
+        
 
         public DnaPolygon()
         {
@@ -32,7 +26,7 @@ namespace GenArt.AST
             _globalUniqueId++;
         }
 
-        public void Init(ImageEdges edgePoints = null)
+        public void Init(ErrorMatrix errorMatrix, ImageEdges edgePoints = null)
         {
             
 
@@ -149,15 +143,30 @@ namespace GenArt.AST
                     }
                 }*/
 
-                
-                
+                Rectangle tile = new Rectangle(0,0,1,1);
+                if (errorMatrix != null)
+                {
+                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                    tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+                }
 
                 while (true)
                 {
-
-                    int startX = Tools.GetRandomNumber(1, edgePoints.Width);
-                    int startY = Tools.GetRandomNumber(1, edgePoints.Height); 
+                    int startX = 0;
+                    int startY = 0;
                     
+
+                    if (errorMatrix != null)
+                    {
+
+                        startX = Tools.GetRandomNumber(0, tile.Width) + tile.X;
+                        startY = Tools.GetRandomNumber(0, tile.Height) + tile.Y;
+                    }
+                    else
+                    {
+                        startX = Tools.GetRandomNumber(1, edgePoints.Width);
+                        startY = Tools.GetRandomNumber(1, edgePoints.Height); 
+                    }
 
                     DnaPoint ? result = null;
 
@@ -209,7 +218,6 @@ namespace GenArt.AST
 
             Brush = new DnaBrush(0,255,0,0);
             CreateNewUniqueId();
-            Live = 0;
         }
 
         public void InitTestPolygon()
@@ -229,7 +237,6 @@ namespace GenArt.AST
             newPolygon.Points = new DnaPoint[Points.Length];
             newPolygon.Brush = Brush;
             newPolygon.UniqueId = UniqueId;
-            newPolygon.Live = Live;
 
             Array.Copy(this.Points, newPolygon.Points, Points.Length);
             //for (int index = 0; index < Points.Length; index++)
@@ -434,115 +441,7 @@ namespace GenArt.AST
         }
 
         
-        private void RemovePointByChance(DnaDrawing drawing)
-        {
-
-            if (Points.Length > Settings.ActivePointsPerPolygonMin && drawing.PointCount > Settings.ActivePointsMin)
-            {
-                if (Tools.WillMutate(Settings.ActiveRemovePointMutationRate))
-                {
-                    DnaPoint [] points = new DnaPoint[this.Points.Length - 1];
-
-                    int newPointIndex = Tools.GetRandomNumber(0, this.Points.Length);
-
-                    for (int repeat = 0; repeat < this.Points.Length;repeat++ )
-                    {
-                    
-                        int tmpIndex = 0;
-
-                        for (int index = 0; index < this.Points.Length; index++)
-                        {
-                            if (index != newPointIndex)
-                            {
-                                points[tmpIndex] = this.Points[index];
-                                tmpIndex++;
-                            }
-                        }
-                        
-                        if (newPointIndex > 0 && newPointIndex < (this.Points.Length - 1))
-                        {
-                            DnaPoint middlePoint = this.Points[newPointIndex];
-
-                            DnaPoint newpoint = points[newPointIndex];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[newPointIndex] = newpoint;
-
-                            newpoint = points[newPointIndex - 1];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[newPointIndex - 1] = newpoint;
-
-                            //points[newPointIndex].X = (short)((points[newPointIndex].X + middlePoint.X) >> 1);
-                            //points[newPointIndex].Y = (short)((points[newPointIndex].Y + middlePoint.Y) >> 1);
-
-                            //points[newPointIndex-1].X = (short)((points[newPointIndex-1].X + middlePoint.X) >> 1);
-                            //points[newPointIndex-1].Y = (short)((points[newPointIndex-1].Y + middlePoint.Y) >> 1);
-
-                        }
-                        else if (newPointIndex == 0)
-                        {
-                            DnaPoint middlePoint = this.Points[newPointIndex];
-
-                            DnaPoint newpoint = points[newPointIndex];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[newPointIndex] = newpoint;
-
-                            newpoint = points[points.Length - 1];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[points.Length - 1] = newpoint;
-
-                            //points[newPointIndex].X = (short)((points[newPointIndex].X + middlePoint.X) >> 1);
-                            //points[newPointIndex].Y = (short)((points[newPointIndex].Y + middlePoint.Y) >> 1);
-
-                            //points[points.Length - 1].X = (short)((points[points.Length - 1].X + middlePoint.X) >> 1);
-                            //points[points.Length - 1].Y = (short)((points[points.Length - 1].Y + middlePoint.Y) >> 1);
-
-                        }
-
-                        else if (newPointIndex == points.Length - 1)
-                        {
-                            DnaPoint middlePoint = this.Points[newPointIndex];
-
-                            DnaPoint newpoint = points[newPointIndex];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[newPointIndex] = newpoint;
-
-                            newpoint = points[0];
-                            newpoint.X = (short)((newpoint.X + middlePoint.X) >> 1);
-                            newpoint.Y = (short)((newpoint.Y + middlePoint.Y) >> 1);
-                            points[0] = newpoint;
-
-
-                            //points[newPointIndex].X = (short)((points[newPointIndex].X + middlePoint.X) >> 1);
-                            //points[newPointIndex].Y = (short)((points[newPointIndex].Y + middlePoint.Y) >> 1);
-
-                            //points[0].X = (short)((points[0].X + middlePoint.X) >> 1);
-                            //points[0].Y = (short)((points[0].Y + middlePoint.Y) >> 1);
-
-                        }
-                        
-
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
-                        {
-                            this.Points = points;
-                            drawing.SetDirty();
-                            break;
-                        }
-                        else
-                        {
-                            if (newPointIndex >= (this.Points.Length-1))
-                                newPointIndex = 0;
-                            else
-                                newPointIndex++;
-                        }
-                    }
-                }
-            }
-        }
+      
 
         public bool IsIntersect(List<DnaPoint> points)
         {
@@ -737,45 +636,7 @@ namespace GenArt.AST
             return true;
         }
 
-        private void AddPoint(DnaDrawing drawing)
-        {
-            if (Points.Length < Settings.ActivePointsPerPolygonMax)
-            {
-                if (drawing.PointCount < Settings.ActivePointsMax)
-                {
-                    for (int countTest = 0; countTest < 100; countTest++)
-                    {
-                        List<DnaPoint> points = new List<DnaPoint>(this.ClonePoints());
-
-                        DnaPoint newPoint = new DnaPoint();
-
-                        int index = Tools.GetRandomNumber(1, points.Count);
-
-                        DnaPoint prev = points[index - 1];
-                        DnaPoint next = points[index];
-
-                        newPoint.X = (short)((prev.X + next.X) >> 1);
-                        newPoint.Y = (short)((prev.Y + next.Y) >> 1);
-
-                        // some noise
-                        int tmp = Tools.GetRandomNumber(1, 10);
-                        newPoint.X = (short)Math.Min(Math.Max(0, newPoint.X + ((Tools.GetRandomNumber(0, 1000)>500)? -tmp : tmp) ), Tools.MaxWidth-1);
-                        tmp = Tools.GetRandomNumber(1, 10);
-                        newPoint.Y = (short)Math.Min(Math.Max(0, newPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
-
-
-                        points.Insert(index, newPoint);
-
-                        if (IsNotSmallAngles(points) && !IsIntersect(points) )
-                        {
-                            this.Points = points.ToArray();
-                            drawing.SetDirty();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+       
 
 
         private static bool LineIntersect(DnaPoint l1p1, DnaPoint l1p2, DnaPoint l2p1, DnaPoint l2p2 )
