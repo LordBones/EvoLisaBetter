@@ -536,25 +536,56 @@ namespace GenArt.AST
                         else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
                         else
                         {
+                            DnaPoint tPointLeftTop = new DnaPoint((short)tileArea.X, (short)tileArea.Y);
+                            DnaPoint tPointRightTop = new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)tileArea.Y);
+                            DnaPoint tPointLeftDown = new DnaPoint((short)tileArea.X, (short)(tileArea.Y + tileArea.Height - 1));
+                            DnaPoint tPointRightDown = new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)(tileArea.Y + tileArea.Height - 1));
+                            
+
                             // test if tile is inside triangle
                             if (GraphicFunctions.IsPointInTriangle(
                                 polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                new DnaPoint((short)tileArea.X, (short)tileArea.Y)) &&
+                                tPointLeftTop) &&
 
                                 GraphicFunctions.IsPointInTriangle(
                                 polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)tileArea.Y)) &&
+                                tPointRightTop) &&
 
                                 GraphicFunctions.IsPointInTriangle(
                                 polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                new DnaPoint((short)tileArea.X, (short)(tileArea.Y + tileArea.Height - 1))) &&
+                                tPointLeftDown) &&
 
                                 GraphicFunctions.IsPointInTriangle(
                                 polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)(tileArea.Y + tileArea.Height - 1)))
+                                tPointRightDown)
                                 )
                             {
                                 polygonsId.Add(index);
+                            }
+                            else
+                            {
+                                // test if some edge cross tile
+                                if (DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightTop) ||
+                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointRightTop, tPointRightDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointRightDown, tPointLeftDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftDown, tPointRightTop))
+                                {
+                                    polygonsId.Add(index);
+                                }
+                                else if (DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightTop) ||
+                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointRightTop, tPointRightDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointRightDown, tPointLeftDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftDown, tPointRightTop))
+                                {
+                                    polygonsId.Add(index);
+                                }
+                                else if (DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightTop) ||
+                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointRightTop, tPointRightDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointRightDown, tPointLeftDown) ||
+                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftDown, tPointRightTop))
+                                {
+                                    polygonsId.Add(index);
+                                }
                             }
 
                         }

@@ -639,7 +639,7 @@ namespace GenArt.AST
        
 
 
-        private static bool LineIntersect(DnaPoint l1p1, DnaPoint l1p2, DnaPoint l2p1, DnaPoint l2p2 )
+        public static bool LineIntersect(DnaPoint l1p1, DnaPoint l1p2, DnaPoint l2p1, DnaPoint l2p2 )
         {
             return LineIntersect(l1p1.X, l1p1.Y, l1p2.X, l1p2.Y, l2p1.X, l2p1.Y, l2p2.X, l2p2.Y);
         }

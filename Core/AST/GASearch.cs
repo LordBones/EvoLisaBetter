@@ -265,6 +265,14 @@ namespace GenArt.Core.AST
       
         }
 
+        private void ComputeCurrentBestErrorMatrix(DnaDrawing dna)
+        {
+            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.SoftwareTriangle);
+
+            _errorMatrix.ComputeErrorMatrix(this._destCanvas, _dnaRender.Canvas);
+
+        }
+
         private void ComputeSimilarity()
         {
             HashSet<int> allIds = new HashSet<int>();
@@ -347,7 +355,7 @@ namespace GenArt.Core.AST
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
-
+                //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
                     dna.MutateBetter(this._errorMatrix, this._destCanvas, _edgePoints);
 
@@ -500,7 +508,7 @@ namespace GenArt.Core.AST
                 // similarity 1.0 very similar, 0.0 very different  
                 // koef multiple increase for more different. Min is 1.0;
 
-                float koef = (1.0f - similarity[index]) * 3.0f + 1.0f;
+                float koef = (1.0f - similarity[index]) * 1.5f + 1.0f;
                 long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef);
                 sumFittness += diffFit;
                 diffFittness[index] = diffFit;
