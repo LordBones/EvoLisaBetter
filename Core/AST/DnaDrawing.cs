@@ -167,7 +167,12 @@ namespace GenArt.AST
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
+                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+
+                        int index = tmpIndex.Value;
+
+                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
                    
                     }
@@ -565,23 +570,17 @@ namespace GenArt.AST
                             else
                             {
                                 // test if some edge cross tile
-                                if (DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightTop) ||
-                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointRightTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointRightDown, tPointLeftDown) ||
+                                if (DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightDown) ||
                                 DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
                                 }
-                                else if (DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightTop) ||
-                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointRightTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointRightDown, tPointLeftDown) ||
+                                else if (DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightDown) ||
                                 DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
                                 }
-                                else if (DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightTop) ||
-                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointRightTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointRightDown, tPointLeftDown) ||
+                                else if (DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightDown) ||
                                 DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
@@ -589,6 +588,43 @@ namespace GenArt.AST
                             }
 
                         }
+
+                    }
+                } while (polygonsId.Count == 0);
+
+                int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
+                return polygonsId[polygonIndex];
+            }
+
+            // if no pygons in dna
+            return null;
+        }
+
+        private int? GetRNDPolygonIndexOnlyPoints(ErrorMatrix errorMatrix)
+        {
+
+
+            if (this.Polygons.Length == 1)
+            {
+                return 0;
+            }
+            else if (this.Polygons.Length > 1)
+            {
+                List<int> polygonsId = new List<int>();
+
+                do
+                {
+
+                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                    Rectangle tileArea = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+
+                    for (int index = 0; index < this.Polygons.Length; index++)
+                    {
+                        DnaPolygon polygon = this.Polygons[index];
+                        if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
+                        else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
+                        else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
+                       
 
                     }
                 } while (polygonsId.Count == 0);

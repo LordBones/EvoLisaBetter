@@ -100,7 +100,7 @@ namespace GenArt.Core.Classes
 
                     int indexTileStart = matrixY * CONST_TileSize * this._inputPixelWidth + matrixX * CONST_TileSize;
 
-                    this.Matrix[matrixY*this.MatrixWidth+matrixX] = ComputeErrorTile(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
+                    this.Matrix[matrixY*this.MatrixWidth+matrixX] = ComputeErrorTile_Median(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
                 }
             }
 
@@ -160,6 +160,34 @@ namespace GenArt.Core.Classes
             }
 
                 return result/(imageLenX*imageLenY*3) + 1;
+        }
+
+        private int ComputeErrorTile_Median(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
+        {
+            Median8bit median = new Median8bit();
+
+            int result = 0;
+
+            int imageIndex = imageStartIndex * 4;
+
+            for (int tileY = 0; tileY < imageLenY; tileY++)
+            {
+                int imageIndexX = imageIndex;
+                for (int tileX = 0; tileX < imageLenX; tileX++)
+                {
+                    // copmute sumDiff
+
+                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]));
+                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]));
+                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]));
+
+                    imageIndexX += 4;
+                }
+
+                imageIndex += this._inputPixelWidth * 4;
+            }
+
+            return (int)(median.Median+median.StdDev + 1.0);
         }
 
         #region ICloneable Members
