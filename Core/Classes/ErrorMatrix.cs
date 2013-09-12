@@ -100,7 +100,7 @@ namespace GenArt.Core.Classes
 
                     int indexTileStart = matrixY * CONST_TileSize * this._inputPixelWidth + matrixX * CONST_TileSize;
 
-                    this.Matrix[matrixY*this.MatrixWidth+matrixX] = ComputeErrorTile_Median(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
+                    this.Matrix[matrixY * this.MatrixWidth + matrixX] = ComputeErrorTile_Median(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
                 }
             }
 
@@ -109,18 +109,18 @@ namespace GenArt.Core.Classes
 
         private void FillRouleteTable()
         {
-            long maxError = 0;
+            long minError = long.MaxValue;
 
 
             for (int index = 0; index < Matrix.Length; index++)
             {
-                if (maxError < Matrix[index]) maxError = Matrix[index];
+                if (minError > Matrix[index]) minError = Matrix[index];
             }
 
             long sumError = 0;
             for (int index = 0; index < Matrix.Length; index++)
             {
-                long diffLive = Matrix[index]+1;
+                long diffLive = Matrix[index]-minError+1;
                 sumError += diffLive;
             }
 
@@ -128,7 +128,7 @@ namespace GenArt.Core.Classes
             int lastRouleteValue = 0;
             for (int index = 0; index < Matrix.Length; index++)
             {
-                long diffLive = (Matrix[index]+1);
+                long diffLive = (Matrix[index]+1-minError);
 
                 int tmp = (int)(((long)diffLive * CONST_MaxNormalizeValue) / sumError);
                 this._rouleteTable[index] = lastRouleteValue + tmp;
@@ -187,7 +187,7 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            return (int)(median.Median+median.StdDev + 1.0);
+            return (int)(median.Median + median.StdDev + 1.0);
         }
 
         #region ICloneable Members

@@ -270,6 +270,9 @@ namespace GenArt.Core.Classes
         private int [] _kernelSums = null;
         private int [] _kernelDirection = null;
 
+        private byte [] _colourArea = null;
+        private byte [] _finalEdges = null;
+
         private int _threshold = 25;
         
         public EdgeDetector(CanvasBGRA bmp)
@@ -279,6 +282,8 @@ namespace GenArt.Core.Classes
             _imageGreyscale = new Array2D(bmp.WidthPixel, bmp.HeightPixel);
             _kernelSums = new int[_imageGreyscale.Length];
             _kernelDirection = new int[_imageGreyscale.Length];
+            _colourArea = new byte[_imageGreyscale.Length];
+            _finalEdges = new byte[_imageGreyscale.Length];
 
         }
 
@@ -402,23 +407,29 @@ namespace GenArt.Core.Classes
             Array.Clear(_imageGreyscale.Data, 0, _edgesPoints.Length);
             Array.Clear(_kernelSums, 0, _kernelSums.Length);
             Array.Clear(_kernelDirection, 0, _kernelDirection.Length);
+            Array.Clear(_colourArea, 0, _colourArea.Length);
+            Array.Clear(_finalEdges, 0, _finalEdges.Length);
 
 
 
             ConvertToGreyScale();
-            //ReduceNoiseGausianGreyscale();
-            LeftDetectEdgeNew();
-            DetectEdgeByKernelSum();
-            MakeThinEdgesMyLeftRight();
-            MakeThinEdgesMyUpDown();
+            
+            ReduceNoiseGausianGreyscale();
+            NewDetectEdges((byte)threshold);
+
+            //LeftDetectEdgeNew();
+            //DetectEdgeByKernelSum();
+            //MakeThinEdgesMyLeftRight();
+            //MakeThinEdgesMyUpDown();
+
             //MakeThinEdges();
             //UpDownDetectEdgeNew();
 
         
 
 
-            ReduceOnePointNoise();
-            ReduceTwoPointNoise();
+            //ReduceOnePointNoise();
+            //ReduceTwoPointNoise();
             SetEdgesFrame();
             //SetCornerEdgesFrame();
             
@@ -507,6 +518,91 @@ namespace GenArt.Core.Classes
             }
 
         }
+
+        #region edge detector by area
+
+        private void NewDetectEdges(byte colourTolerance)
+        {
+            Array.Clear(_finalEdges, 0, _finalEdges.Length);
+
+            int min = 0;
+            while (min < 256)
+            {
+                int max = (min + colourTolerance < 256) ? min + colourTolerance : 255; 
+                DetectColoursInRange((byte)(min), (byte)(max));
+                DetectExtractEdges();
+                CopyFinalColorIntoEdges();
+
+                min += colourTolerance+1;
+            }
+        }
+
+        private void DetectColoursInRange(byte minColor, byte maxColor)
+        {
+            Array.Clear(_colourArea, 0, _colourArea.Length);
+
+            for (int index = 0; index < this._imageGreyscale.Length; index++)
+            {
+                byte tmp = this._imageGreyscale.Data[index];
+                if (minColor <= tmp && tmp <= maxColor)
+                    this._colourArea[index] = 1;
+            }
+        }
+
+        private void DetectExtractEdges()
+        {
+            int upRowIndex = 0;
+            int midRowIndex = this._imageGreyscale.Width;
+            int downRowIndex = this._imageGreyscale.Width * 2;
+
+            byte [] ca = this._colourArea;
+
+
+            for (int y = 1; y < this._imageGreyscale.Height - 1; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._imageGreyscale.Width - 1; x++)
+                {
+                    if (ca[midIndex] == 1 && !(
+                        ca[upIndex] == 1 &&
+                        ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 &&
+                        ca[downIndex] == 1 
+                        ))
+                    {
+                        if ((ca[upIndex] == 0 && _finalEdges[upIndex] == 0) ||
+                            (ca[downIndex] == 0 && _finalEdges[downIndex] == 0) ||
+                            (ca[midIndex-1] == 0 && _finalEdges[midIndex-1] == 0) ||
+                            (ca[midIndex+1] == 0 && _finalEdges[midIndex+1] == 0) 
+                            )
+
+                        this._finalEdges[midIndex] = 1;
+                    }
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._imageGreyscale.Width;
+                midRowIndex += this._imageGreyscale.Width;
+                downRowIndex += this._imageGreyscale.Width;
+            }
+        }
+
+        private void CopyFinalColorIntoEdges()
+        {
+            for (int index = 0; index < this._finalEdges.Length; index++)
+            {
+                byte tmp = this._finalEdges[index];
+                if (tmp == 1)
+                    this._edgesPoints.Data[index] = tmp;
+            }
+        }
+
+        #endregion
 
         #region better edge detection
 
