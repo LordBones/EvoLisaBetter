@@ -399,11 +399,11 @@ namespace GenArt.AST
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
                 //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
-                if (!tmpIndex.HasValue) return;
+                //int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                //if (!tmpIndex.HasValue) return;
 
-                int index = tmpIndex.Value;
-                //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                //int index = tmpIndex.Value;
+                int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
 
