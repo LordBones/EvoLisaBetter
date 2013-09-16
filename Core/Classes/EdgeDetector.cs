@@ -528,8 +528,17 @@ namespace GenArt.Core.Classes
             int min = 0;
             while (min < 256)
             {
-                int max = (min + colourTolerance < 256) ? min + colourTolerance : 255; 
-                DetectColoursInRange((byte)(min), (byte)(max));
+                int max = (min + colourTolerance < 256) ? min + colourTolerance : 255;
+
+                Array.Clear(_colourArea, 0, _colourArea.Length);
+                for (int i  = min; i <= max; i++)
+                {
+                    DetectColours((byte)i);
+                    
+                }
+
+                RemoveNoiseEdges();
+
                 DetectExtractEdges();
                 CopyFinalColorIntoEdges();
 
@@ -537,14 +546,37 @@ namespace GenArt.Core.Classes
             }
         }
 
-        private void DetectColoursInRange(byte minColor, byte maxColor)
+        private void NewDetectEdges2(byte colourTolerance)
         {
-            Array.Clear(_colourArea, 0, _colourArea.Length);
+            colourTolerance++;
+
+            Array.Clear(_finalEdges, 0, _finalEdges.Length);
+
+            for (int counter = 0; counter < colourTolerance; counter++)
+            { 
+                int tmpColor = counter;
+
+                Array.Clear(_colourArea, 0, _colourArea.Length);
+                while (tmpColor < 256)
+                {
+                    DetectColours((byte)tmpColor);
+                    tmpColor += colourTolerance;
+                }
+
+                DetectExtractEdges();
+                CopyFinalColorIntoEdges();
+
+            }
+        }
+
+        private void DetectColours(byte color)
+        {
+            
 
             for (int index = 0; index < this._imageGreyscale.Length; index++)
             {
                 byte tmp = this._imageGreyscale.Data[index];
-                if (minColor <= tmp && tmp <= maxColor)
+                if (color == tmp)
                     this._colourArea[index] = 1;
             }
         }
@@ -572,13 +604,60 @@ namespace GenArt.Core.Classes
                         ca[downIndex] == 1 
                         ))
                     {
-                        if ((ca[upIndex] == 0 && _finalEdges[upIndex] == 0) ||
-                            (ca[downIndex] == 0 && _finalEdges[downIndex] == 0) ||
-                            (ca[midIndex-1] == 0 && _finalEdges[midIndex-1] == 0) ||
-                            (ca[midIndex+1] == 0 && _finalEdges[midIndex+1] == 0) 
+                        //if ((ca[upIndex] == 0 && _finalEdges[upIndex] == 0) ||
+                        //    (ca[downIndex] == 0 && _finalEdges[downIndex] == 0) ||
+                        //    (ca[midIndex-1] == 0 && _finalEdges[midIndex-1] == 0) ||
+                        //    (ca[midIndex+1] == 0 && _finalEdges[midIndex+1] == 0) 
+                        //    )
+                        if ((ca[upIndex] == 1 && ca[downIndex] == 1 && _finalEdges[midIndex - 1] == 1) ||
+                            (ca[upIndex] == 1 && ca[downIndex] == 1 && _finalEdges[midIndex + 1] == 1) ||
+                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[upIndex] == 1) ||
+                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[downIndex] == 1)
                             )
+                            this._finalEdges[midIndex] = 0;
+                        else
+                        {
+                            this._finalEdges[midIndex] = 1;
+                        }
+                    }
 
-                        this._finalEdges[midIndex] = 1;
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._imageGreyscale.Width;
+                midRowIndex += this._imageGreyscale.Width;
+                downRowIndex += this._imageGreyscale.Width;
+            }
+        }
+
+        private void RemoveNoiseEdges()
+        {
+            int upRowIndex = 0;
+            int midRowIndex = this._imageGreyscale.Width;
+            int downRowIndex = this._imageGreyscale.Width * 2;
+
+            byte [] ca = this._colourArea;
+
+
+            for (int y = 1; y < this._imageGreyscale.Height - 1; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._imageGreyscale.Width - 1; x++)
+                {
+                    if (ca[midIndex] == 1 && ca[midIndex+1] == 0 && ca[midIndex-1] == 0  &&
+                        ca[upIndex] == 0 &&     ca[upIndex+1] == 0 &&ca[upIndex-1] == 0 && 
+                        ca[downIndex] == 0 &&  ca[downIndex+1] == 0 &&ca[downIndex-1] == 0
+                        )
+
+                    {
+
+                        ca[midIndex] = 0;
+                        
                     }
 
                     upIndex++;
