@@ -613,6 +613,12 @@ namespace GenArt.Core.Classes
                             (ca[upIndex] == 1 && ca[downIndex] == 1 && _finalEdges[midIndex + 1] == 1) ||
                             (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[upIndex] == 1) ||
                             (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[downIndex] == 1)
+
+                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _finalEdges[midIndex - 1] == 1 && _finalEdges[upIndex] == 1)
+                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _finalEdges[midIndex + 1] == 1 && _finalEdges[downIndex] == 1)
+                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _finalEdges[midIndex + 1] == 1 && _finalEdges[upIndex] == 1)
+                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _finalEdges[midIndex - 1] == 1 && _finalEdges[downIndex] == 1)
+                            
                             )
                             this._finalEdges[midIndex] = 0;
                         else
