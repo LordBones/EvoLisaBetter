@@ -414,11 +414,14 @@ namespace GenArt.Core.Classes
 
             ConvertToGreyScale();
             
-            ReduceNoiseGausianGreyscale();
-            NewDetectEdges((byte)threshold);
+            //ReduceNoiseGausianGreyscale();
+            ReduceNoiseMedian();
+            //NewDetectEdges((byte)threshold);
 
-            //LeftDetectEdgeNew();
-            //DetectEdgeByKernelSum();
+            LeftDetectEdgeNew();
+            DetectEdgeByKernelSum();
+
+            MakeThinEdgesArea();
             //MakeThinEdgesMyLeftRight();
             //MakeThinEdgesMyUpDown();
 
@@ -687,6 +690,52 @@ namespace GenArt.Core.Classes
             }
         }
 
+        private void ReduceNoiseMedian()
+        {
+            Median8bit median = new Median8bit();
+
+            int upRowIndex = 0;
+            int midRowIndex = this._imageGreyscale.Width;
+            int downRowIndex = this._imageGreyscale.Width * 2;
+
+            byte [] img = this._imageGreyscale.Data;
+
+
+            for (int y = 1; y < this._imageGreyscale.Height - 1; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._imageGreyscale.Width - 1; x++)
+                {
+                    median.Clear();
+                    median.InsertData(img[upIndex - 1]);
+                    median.InsertData(img[upIndex]);
+                    median.InsertData(img[upIndex + 1]);
+                    median.InsertData(img[midIndex - 1]);
+                    median.InsertData(img[midIndex]);
+                    median.InsertData(img[midIndex + 1]);
+                    median.InsertData(img[downIndex - 1]);
+                    median.InsertData(img[downIndex]);
+                    median.InsertData(img[downIndex + 1]);
+
+
+                    img[midIndex] = (byte)median.Median;
+
+
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._imageGreyscale.Width;
+                midRowIndex += this._imageGreyscale.Width;
+                downRowIndex += this._imageGreyscale.Width;
+            }
+        }
+
         #endregion
 
         #region better edge detection
@@ -722,7 +771,8 @@ namespace GenArt.Core.Classes
 
         private void SaveGreyscaleAsBitmap(string filename)
         {
-            ReduceNoiseGausianGreyscale();
+            //ReduceNoiseGausianGreyscale();
+            ReduceNoiseMedian();
             CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
 
             int imageIndex = 0;
@@ -988,6 +1038,48 @@ namespace GenArt.Core.Classes
                 findexRow += this._edgesPoints.Width;
             }
             
+        }
+
+        private void MakeThinEdgesArea()
+        {
+
+
+            int upRowIndex = 0;
+            int midRowIndex = this._imageGreyscale.Width;
+            int downRowIndex = this._imageGreyscale.Width * 2;
+
+            byte [] ep = this._edgesPoints.Data;
+            byte [] epTmp = new byte[this._edgesPoints.Length];
+
+            for (int y = 1; y < this._edgesPoints.Height - 1; y++)
+            {
+                int upIndex = upRowIndex + 1;
+                int midIndex = midRowIndex + 1;
+                int downIndex = downRowIndex + 1;
+
+                for (int x = 1; x < this._edgesPoints.Width - 1; x++)
+                {
+                    if (ep[midIndex] == 1 && !(
+                        ep[upIndex] == 1 &&
+                        ep[midIndex - 1] == 1 && ep[midIndex + 1] == 1 &&
+                        ep[downIndex] == 1
+                        ))
+                    {
+                        epTmp[midIndex] = 1;
+                    }
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+                }
+
+                upRowIndex += this._edgesPoints.Width;
+                midRowIndex += this._edgesPoints.Width;
+                downRowIndex += this._edgesPoints.Width;
+            
+            }
+
+            Array.Copy(epTmp, ep, epTmp.Length);
         }
 
         private void MakeThinEdgesMyLeftRight()
@@ -1321,272 +1413,8 @@ namespace GenArt.Core.Classes
         }
     }
 
+	
 
-
-
-    public class EdgeDetectorInspiration 
-{
-	private int [] image;
-	private int [] gradImage;
-	private int [] dirImage; 
-	private int imageSize, imageWidth;
-	private int [] j;
-	
-	
-	// the constructor, computes the gradient amplitudes and directions 
-	// stores them in gradImage[] and dirImage[] arrays.
-	
-	public void EdgeDetector(int [] inPixels, int width, int height) 
-	{
-		imageSize  = inPixels.Length;
-		imageWidth = width;
-		gradImage  = new int[imageSize];
-		dirImage   = new int[imageSize];
-		image      = new int[imageSize];
-		image      = inPixels;
-		j          = new int[4];
-		j[0] = 1;
-		j[1] =-imageWidth;
-		j[2] =-1;
-		j[3] =imageWidth;
-		
-		int gradient;
-		double direction;
-		
-		for (int x = 0; x < imageSize; x++)
-		{
-			if (x % width > 1 && x % width < width-1 && x > width && x < imageSize - width)
-			{
-				// the Sobel operator
-				
-				double dy = (inPixels[x-1]*-2 + inPixels[x+1]*2+
-							inPixels [x-width-1]*-1 + inPixels[x-width+1] +
-							inPixels [x+width-1]*-1 + inPixels[x-width+1]) / 8.0;
-				
-				double dx = (inPixels[x-width-1] + inPixels[x-width]*2+
-							inPixels[x-width+1] + inPixels[x+width-1]*-1 +
-							inPixels[x+width]*-2 + inPixels[x-width+1]*-1) / 8.0;
-				
-				gradient = (int)Math.Sqrt(dx*dx + dy*dy);
-				
-				
-				if (dx == 0)
-				{
-					if (dy == 0) direction = 0.0;
-					else direction = (dy > 0) ? Math.PI/2.0 : Math.PI/-2.0;
-				}
-				else if (dy == 0)
-				{
-					direction = 0.0;
-				}
-				else 
-				{
-					direction = Math.Atan(dy/dx); 
-				}
-				
-				gradImage[x] = gradient;
-				dirImage[x] = (int)(direction * 180.0 / Math.PI);		
-			}
-		}
-	}	
-	
-	
-	
-	// Computes edges using both direction and amplitude thresholding
-	
-	public int[] getEdges(int gradThreshold, int direction)
-	{
-		int [] outPixels = new int[imageSize]; 
-		outPixels = getEdges(gradThreshold);
-		
-		for (int x = 0; x < imageSize; x++)
-				if ((dirImage[x] < direction-10) || (dirImage[x] > direction+10))
-					outPixels[x] = 255;
-					
-		return outPixels;
-	}
-	
-	
-	
-	// Computes edges by thresholding the amplitude of the gradient operator
-	
-	public int[] getEdges(int gradThreshold)
-	{
-		int [] outPixels = new int[imageSize]; 
-		
-		for (int x = 0; x < imageSize; x++)
-		{
-				if (gradImage[x] >= gradThreshold)
-					outPixels[x] = 0;
-				else
-					outPixels[x] = 255;
-		}
-		return outPixels;
-	}
-	
-	
-	
-	// Returns the gradient amplitudes. Can be viewed as an image
-	
-	public int[] getGradientImage()
-	{
-		return gradImage;
-	}
-	
-	
-	public int[] thinEdges()
-	{
-		int x,k,i;
-		for (i = 0; i < imageSize; i++)
-			if (image[i] > 5)
-				image[i] = 1;
-			else
-				image[i] = 0;
-		
-		bool remain = true;
-		while (remain)
-		{
-			remain = false;
-			for (x = 0; x < 4; x++) 
-			{
-				for (i = imageWidth+1; i < imageSize-imageWidth-2; i++)
-				{
-					if ((image[i] == 1) && (image[i + j[x]] == 0))
-						if (!patternMatch(i))					
-							image[i] = 2;
-						else
-						{ image[i] = 3; remain = true;}
-				}
-				for (k=0; k<imageSize; k++)
-					if (image[k] == 3)
-						image[k] = 0;
-			}
-		}
-		for (k=0; k<imageSize; k++)
-			if (image[k] > 0)
-				image[k] = 255;
-		return image;
-	}
-
-	
-	bool patternMatch(int i)
-	{
-		if (((image[i-imageWidth-1] > 0) && (image[i-imageWidth+1] > 0) && (image[i-imageWidth] > 0)) 
-			||((image[i+imageWidth-1] > 0) && (image[i+imageWidth+1] > 0) && (image[i+imageWidth] > 0))) 
-				return true;
-		
-		else if (((image[i-imageWidth-1] > 0) && (image[i-1] > 0) && (image[i+imageWidth-1] > 0))
-			||((image[i-imageWidth+1] > 0) && (image[i+1] > 0) && (image[i+imageWidth+1] > 0)))
-				return true;
-				
-		else if ((image[i-imageWidth-1] > 0)
-			&& (image[i-imageWidth] > 0)
-			&& (image[i-1] > 0)
-			&& (image[i-imageWidth+1] == 0)
-			&& (image[i+imageWidth-1] == 0)
-			&& (image[i+imageWidth] == 0)
-			&& (image[i+1] == 0)
-			&& (image[i+imageWidth+1] == 0))
-				return true;
-				
-		else if ((image[i+imageWidth-1] > 0)
-			&& (image[i+imageWidth] > 0)
-			&& (image[i-1] > 0)
-			&& (image[i-imageWidth-1] == 0)
-			&& (image[i+imageWidth+1] == 0)
-			&& (image[i-imageWidth] == 0)
-			&& (image[i+1] == 0)
-			&& (image[i-imageWidth+1] == 0))
-				return true;
-				
-		else if ((image[i-imageWidth+1] == 0)
-			&& (image[i+1] > 0)
-			&& (image[i+imageWidth+1] > 0)
-			&& (image[i+imageWidth] > 0)
-			&& (image[i+imageWidth-1] == 0)
-			&& (image[i-imageWidth] == 0)
-			&& (image[i-1] == 0)
-			&& (image[i-imageWidth-1] == 0))
-				return true;
-		
-		else if ((image[i-imageWidth-1] == 0)
-			&& (image[i-imageWidth] > 0)
-			&& (image[i-imageWidth+1] > 0)
-			&& (image[i+1] > 0)
-			&& (image[i+imageWidth+1] == 0)
-			&& (image[i+imageWidth] == 0)
-			&& (image[i-1] == 0)
-			&& (image[i+imageWidth-1] == 0))
-				return true;
-		
-		return false;
-	}	
-
-	public int[] linkEdges(int amp, int angle)
-	{
-		int x = 0;
-		bool remain = true;
-
-		for (int i = 0; i < imageSize-2; i++)
-			if (image[i] == 255)
-				for (x = 0; x < 4; x++)
-					if ((Math.Abs(gradImage[i] - gradImage[i+j[x]]) < amp) && (Math.Abs(dirImage[i] - dirImage[i+j[x]]) < angle))
-						{image [i] = 100; image[i+j[x]] = 100; }		
-		return image;
-	}
-	
-	public int[] removeShortEdges()
-	{
-		int i, k, length;
-		bool remain, delete;
-		
-		for (i = 0; i < imageSize; i++)
-			if (image[i] > 5)
-				image[i] = 255;
-			else
-				image[i] = 0;
-		
-		for (i = imageWidth + 1; i < imageSize - imageWidth - 1; i++)
-		{
-			if (image[i] == 255)
-			{	
-				length = 0;
-				length = traverse(i);
-				if (length < 8)
-				{
-					image[i] = 0;
-					deleteEdge(i);
-				}
-			}
-		}
-		return image;
-	}
-	
-	private int traverse(int i)
-	{
-		int length = 1;
-		for (int x = 0; x < 4; x++)
-		{
-			if (image[i + j[x]] == 255)
-			{
-				image[i + j[x]] = 250;
-				length = length + traverse(i + j[x]);
-			}
-		}
-		return length;
-	}
-	
-	private void deleteEdge(int i)
-	{
-		for (int x = 0; x < 4; x++)
-			if (image[i + j[x]] == 250)
-			{
-				image[i + j[x]] = 0;
-				deleteEdge(i + j[x]);
-			}
-	}
-	
-}
 
     
 }
