@@ -130,7 +130,7 @@ namespace GenArt.AST
 
 
 
-                if (mutateChange < 100)
+                if (mutateChange < 200)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -140,12 +140,12 @@ namespace GenArt.AST
                         continue;
                     }
                 }
-                if (mutateChange < 200)
+                if (mutateChange < 400)
                 {
                     RemovePolygon(errorMatrix);
                     continue;
                 }
-                if (mutateChange < 300)
+                if (mutateChange < 600)
                 {
                     //SwapPolygon();
                     if (SwapPolygon2())
@@ -162,7 +162,8 @@ namespace GenArt.AST
                     //for (int index = 0; index < Polygons.Length; index++)
                     //    Polygons[index].Mutate(this,destImage, edgePoints);
 
-                    if (Tools.GetRandomNumber(0, 2) >= 1)
+                    //if (Tools.GetRandomNumber(0, 2) >= 1)
+                    if (mutateChange < 800)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
