@@ -377,6 +377,7 @@ namespace GenArt
 
             sourceBitmap = ConvertImageIntoPARGB();
             sourceBitmapAsCanvas = CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap);
+            //sourceBitmapAsCanvas.ReduceNoiseMedian();
             UpdateSourceBitmapEdges();
 
             _dnaRender = new DNARenderer(Tools.MaxWidth, Tools.MaxHeight);

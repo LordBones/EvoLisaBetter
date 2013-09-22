@@ -10,7 +10,7 @@ namespace GenArt.Core.Classes
 {
     public class ErrorMatrix 
     {
-        public int CONST_TileSize = 20;
+        public int CONST_TileSize = 80;
 
         private int _inputPixelWidth;
         private int _inputPixelHeight;
@@ -187,7 +187,9 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            return (int)(median.Median + median.StdDev + 1.0);
+            return (int)(median.Median  + 
+                median.StdDev 
+                + 1.0);
         }
 
         #region ICloneable Members

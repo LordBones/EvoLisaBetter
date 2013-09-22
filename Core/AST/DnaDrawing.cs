@@ -130,7 +130,7 @@ namespace GenArt.AST
 
 
 
-                if (mutateChange < 200)
+                if (mutateChange < 100)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -140,12 +140,13 @@ namespace GenArt.AST
                         continue;
                     }
                 }
-                if (mutateChange < 400)
+                if (mutateChange < 200)
                 {
                     RemovePolygon(errorMatrix);
+                    //RemovePolygon(errorMatrix);
                     continue;
                 }
-                if (mutateChange < 600)
+                if (mutateChange < 300)
                 {
                     //SwapPolygon();
                     if (SwapPolygon2())
@@ -163,18 +164,26 @@ namespace GenArt.AST
                     //    Polygons[index].Mutate(this,destImage, edgePoints);
 
                     //if (Tools.GetRandomNumber(0, 2) >= 1)
-                    if (mutateChange < 800)
+                    if (mutateChange < 650)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                        int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
-                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+                        //int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
+                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
-                        int index = tmpIndex.Value;
+                        //int index = tmpIndex.Value;
 
-                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[index].Mutate(this, destImage, edgePoints);
+
+                        Color nearColor = 
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+
+                        Polygons[index].Brush.SetByColor(nearColor);
                    
                     }
                     else

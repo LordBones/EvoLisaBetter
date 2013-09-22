@@ -34,10 +34,20 @@ namespace GenArt.AST
             DnaPoint [] points = new DnaPoint [countPoints];
 
             if (edgePoints == null)
-            {
+            { 
 
                 var origin = new DnaPoint();
                 origin.Init();
+
+                Rectangle tile = new Rectangle(0, 0, 1, 1);
+                if (errorMatrix != null)
+                {
+                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                    tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+
+                    origin.X = (short)( tile.X + Tools.GetRandomNumber(0, tile.Width));
+                    origin.Y = (short)(tile.Y + Tools.GetRandomNumber(0, tile.Height));
+                }
 
                 while (true)
                 {
@@ -259,7 +269,7 @@ namespace GenArt.AST
 
                 DnaPoint [] points = this.Points;
 
-                //if ( Tools.GetRandomNumber(0, 1000000) < 750000)
+                if (edgePoints != null)
                 {
                     while (true)
                     {
@@ -269,7 +279,7 @@ namespace GenArt.AST
                         //get random end line on border canvas
                         //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
 
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(oldPoint.X,oldPoint.Y);
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(oldPoint.X, oldPoint.Y);
 
                         DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
 
@@ -281,12 +291,12 @@ namespace GenArt.AST
                             bool p3 = DnaPoint.Compare(resultPoint.Value, points[2]);
 
                             if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
-                                 resultPoint = null;
+                                resultPoint = null;
                         }
 
                         if (resultPoint.HasValue)
                         {
-                            
+
 
                             points[pointIndex] = resultPoint.Value;
 
@@ -308,36 +318,67 @@ namespace GenArt.AST
 
                         points[pointIndex] = oldPoint;
                     }
-
-
                 }
-                /*else
+                else
                 {
                     while (true)
                     {
-                        int pointIndex = Tools.GetRandomNumber(0, points.Length - 1);
-                        
+                        int pointIndex = Tools.GetRandomNumber(0, points.Length);
                         DnaPoint oldPoint = points[pointIndex];
 
-                        if (edgePoints == null)
-                            points[pointIndex].MutateMiddle();
-                        else
+                        //get random end line on border canvas
+                        //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
+
+
+                        DnaPoint newPoint = new DnaPoint();
+
+                        int tmp = Tools.GetRandomNumber(0, 40, 20);
+
+                        newPoint.X = (short)Math.Min(Math.Max(0, oldPoint.X + tmp - 20), Tools.MaxWidth - 1);
+                        tmp = Tools.GetRandomNumber(0, 40, 20);
+                        newPoint.Y = (short)Math.Min(Math.Max(0, oldPoint.Y + tmp - 20), Tools.MaxHeight - 1);
+
+                        //DnaPoint newPoint = new DnaPoint(
+                        //    (short)Tools.GetRandomNumber(0, destImage.WidthPixel),
+                        //    (short)Tools.GetRandomNumber(0, destImage.HeightPixel));
+
+
+
+
+                        bool p1 = DnaPoint.Compare(newPoint, points[0]);
+                        bool p2 = DnaPoint.Compare(newPoint, points[1]);
+                        bool p3 = DnaPoint.Compare(newPoint, points[2]);
+
+                        if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
                         {
-                            int edgeIndex = Tools.GetRandomNumber(0, edgePoints.EdgePoints.Length - 1);
-                            points[pointIndex] = edgePoints.EdgePoints[edgeIndex];
+                            points[pointIndex] = oldPoint;
+                            continue;
                         }
 
-                        if (IsNotSmallAngles(points) && !IsIntersect(points))
+                        points[pointIndex] = newPoint;
+
+                        if (IsNotSmallAngles(points) && 
+                            //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
+                            !IsIntersect(points))
                         {
-                           
+                            // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
+                            //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                            //DnaBrush brush = this.Brush;
+                            //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                            //this.Brush = brush;
+
                             drawing.SetDirty();
+                            CreateNewUniqueId();
                             break;
                         }
 
+
                         points[pointIndex] = oldPoint;
-                        //Array.Copy(this.Points, points, this.Points.Length);
                     }
-                }*/
+                }
+
+
+                
            
         }
 

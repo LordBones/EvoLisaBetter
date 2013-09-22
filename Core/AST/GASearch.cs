@@ -118,6 +118,8 @@ namespace GenArt.Core.AST
         {
             this._generation = 0;
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
+            this._destCanvas.ReduceNoiseMedian();
+            CanvasBGRA.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
 
             this._currentBestFittness = long.MaxValue;
             this._lastBestFittness = long.MaxValue;
@@ -353,11 +355,14 @@ namespace GenArt.Core.AST
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
+                //int indexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
-                    dna.MutateBetter(this._errorMatrix, this._destCanvas, _edgePoints);
+                    dna.MutateBetter(this._errorMatrix, this._destCanvas,
+                        null//_edgePoints
+                        );
 
                 this._population[index] = dna;
             }

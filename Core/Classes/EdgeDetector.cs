@@ -420,8 +420,8 @@ namespace GenArt.Core.Classes
 
             LeftDetectEdgeNew();
             DetectEdgeByKernelSum();
-
             MakeThinEdgesArea();
+
             //MakeThinEdgesMyLeftRight();
             //MakeThinEdgesMyUpDown();
 

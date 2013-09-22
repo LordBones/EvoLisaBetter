@@ -291,9 +291,9 @@ namespace GenArt.Classes
 
 
             long result = 0;
-            result += (long)(medB.TotalSum + medB.SumStdDev * 2);
-            result += (long)(medG.TotalSum + medG.SumStdDev * 2);
-            result += (long)(medR.TotalSum + medR.SumStdDev * 2);
+            result += (long)(medB.TotalSum + medB.SumStdDev );
+            result += (long)(medG.TotalSum + medG.SumStdDev );
+            result += (long)(medR.TotalSum + medR.SumStdDev );
 
             return result;
         }

@@ -140,5 +140,90 @@ namespace GenArt.Core.Classes
                 index+=CONST_PixelSize;
             }
         }
+
+       public void ReduceNoiseMedian()
+        {
+            Median8bit median = new Median8bit();
+
+            int upRowIndex = 0;
+            int midRowIndex = this._width;
+            int downRowIndex = this._width * 2;
+
+            byte [] img = this.Data;
+
+
+            for (int y = 1; y < this.HeightPixel - 1; y++)
+            {
+                int upIndex = upRowIndex + CONST_PixelSize;
+                int midIndex = midRowIndex + CONST_PixelSize;
+                int downIndex = downRowIndex + CONST_PixelSize;
+
+                for (int x = 1; x < this.WidthPixel - 1; x++)
+                {
+                    median.Clear();
+                    median.InsertData(img[upIndex - CONST_PixelSize]);
+                    median.InsertData(img[upIndex]);
+                    median.InsertData(img[upIndex + CONST_PixelSize]);
+                    median.InsertData(img[midIndex - CONST_PixelSize]);
+                    median.InsertData(img[midIndex]);
+                    median.InsertData(img[midIndex + CONST_PixelSize]);
+                    median.InsertData(img[downIndex - CONST_PixelSize]);
+                    median.InsertData(img[downIndex]);
+                    median.InsertData(img[downIndex + CONST_PixelSize]);
+
+
+                    img[midIndex] = (byte)median.Median;
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+
+                    median.Clear();
+                    median.InsertData(img[upIndex - CONST_PixelSize]);
+                    median.InsertData(img[upIndex]);
+                    median.InsertData(img[upIndex + CONST_PixelSize]);
+                    median.InsertData(img[midIndex - CONST_PixelSize]);
+                    median.InsertData(img[midIndex]);
+                    median.InsertData(img[midIndex + CONST_PixelSize]);
+                    median.InsertData(img[downIndex - CONST_PixelSize]);
+                    median.InsertData(img[downIndex]);
+                    median.InsertData(img[downIndex + CONST_PixelSize]);
+
+
+                    img[midIndex] = (byte)median.Median;
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+
+                    median.Clear();
+                    median.InsertData(img[upIndex - CONST_PixelSize]);
+                    median.InsertData(img[upIndex]);
+                    median.InsertData(img[upIndex + CONST_PixelSize]);
+                    median.InsertData(img[midIndex - CONST_PixelSize]);
+                    median.InsertData(img[midIndex]);
+                    median.InsertData(img[midIndex + CONST_PixelSize]);
+                    median.InsertData(img[downIndex - CONST_PixelSize]);
+                    median.InsertData(img[downIndex]);
+                    median.InsertData(img[downIndex + CONST_PixelSize]);
+
+
+                    img[midIndex] = (byte)median.Median;
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+
+                    upIndex++;
+                    midIndex++;
+                    downIndex++;
+
+                }
+
+                upRowIndex += this._width;
+                midRowIndex += this._width;
+                downRowIndex += this._width;
+            }
+        }
     }
 }
