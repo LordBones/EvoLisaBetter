@@ -390,6 +390,47 @@ namespace GenArt.AST
            
         }
 
+        public void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
+        {
+
+            Rectangle polygonArea = DnaPolygon.GetPolygonArea(this.Points);
+
+            const int defaultStepSize = 40;
+            int leftMaxStep =  (polygonArea.X > defaultStepSize) ? defaultStepSize : polygonArea.X;
+            int topMaxStep =  (polygonArea.Y > defaultStepSize) ? defaultStepSize : polygonArea.Y;
+            int tmp = destImage.WidthPixel - polygonArea.X - polygonArea.Width;
+            int rightMaxStep =  (tmp > defaultStepSize) ? defaultStepSize : tmp;
+            tmp = destImage.HeightPixel - polygonArea.Y - polygonArea.Height;
+            int downMaxStep =  (tmp > defaultStepSize) ? defaultStepSize : tmp;
+
+
+            int maxWidhtForRND = leftMaxStep + rightMaxStep;
+            int maxHeightForRND = topMaxStep + downMaxStep;
+
+            int widthDelta = 0;
+            int heightDelta = 0;
+
+            if (maxWidhtForRND > 0)
+                widthDelta = Tools.GetRandomNumber(1, maxWidhtForRND + 1) - leftMaxStep;
+
+            if (maxHeightForRND > 0)
+                heightDelta = Tools.GetRandomNumber(1, maxHeightForRND + 1) - topMaxStep;
+
+
+            // apply move on all points
+
+            for (int i = 0; i < this.Points.Length; i++)
+            {
+                this.Points[i].X += (short)widthDelta;
+                this.Points[i].Y += (short)heightDelta;
+                if (this.Points[i].X >= destImage.WidthPixel || this.Points[i].Y >= destImage.HeightPixel)
+                    throw new Exception("Toto nesmi nastat");
+            }
+
+            drawing.SetDirty();
+            
+        }
+
         private bool IsTriangleEdgesCrossedSomeEdge(DnaPoint p1, DnaPoint p2, DnaPoint p3, ImageEdges edgePoints )
         {
             if (edgePoints.IsSomeEdgeOnLineNoStartEndPoint(p1.X, p1.Y, p2.X, p2.Y)) return true;
@@ -810,6 +851,24 @@ namespace GenArt.AST
             }
 
             return ((maxX - minX + 1) * (maxY - minY + 1)) / 2;
+        }
+
+        public static Rectangle GetPolygonArea(DnaPoint [] points)
+        {   
+            int minX = int.MaxValue,minY = int.MaxValue;
+            int maxX = 0,maxY = 0;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                int x = points[i].X;
+                int y = points[i].Y;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+
+            return new Rectangle(minX, minY, maxX - minX+1, maxY - minY+1);
         }
 
       

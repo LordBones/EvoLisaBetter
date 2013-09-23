@@ -175,7 +175,11 @@ namespace GenArt.AST
                         //int index = tmpIndex.Value;
 
                         int index = Tools.GetRandomNumber(0, Polygons.Length);
-                        Polygons[index].Mutate(this, destImage, edgePoints);
+
+                        if(Tools.GetRandomNumber(0,2) == 0)
+                            Polygons[index].MutateTranspozite(this, destImage);
+                        else
+                            Polygons[index].Mutate(this, destImage, edgePoints);
 
                         Color nearColor = 
                             //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
