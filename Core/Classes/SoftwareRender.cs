@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
 using GenArt.Classes;
+using GenArt.Core.AST;
 using GenArt.Core.Classes.SWRenderLibrary;
 
 namespace GenArt.Core.Classes
@@ -181,11 +182,11 @@ namespace GenArt.Core.Classes
             drawCanvas.FastClearColor(_black);
 
             
-            DnaPolygon [] dnaPolygons = drawing.Polygons;
+            DnaPrimitive [] dnaPolygons = drawing.Polygons;
             int polyCount = dnaPolygons.Length;
             for (int i = 0; i < polyCount; i++)
             {
-                DnaPolygon polygon = dnaPolygons[i];
+                DnaPrimitive polygon = dnaPolygons[i];
                 
                 //this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
@@ -203,11 +204,11 @@ namespace GenArt.Core.Classes
         {
             drawCanvas.FastClearColor(_black);
 
-            DnaPolygon [] dnaPolygons = drawing.Polygons;
+            DnaPrimitive [] dnaPolygons = drawing.Polygons;
             int polyCount = dnaPolygons.Length;
             for (int i = 0; i < polyCount; i++)
             {
-                DnaPolygon polygon = dnaPolygons[i];
+                DnaPrimitive polygon = dnaPolygons[i];
                 //Point [] points = GetGdiPoints(polygon.Points, 1);
 
                 //Color color = Color.FromArgb(polygon.Brush.Alpha, polygon.Brush.Red, polygon.Brush.Green, polygon.Brush.Blue);

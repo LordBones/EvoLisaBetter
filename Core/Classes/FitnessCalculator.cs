@@ -171,20 +171,6 @@ namespace GenArt.Classes
 
         }
 
-        private static double GetErrorByPolygonArea(int bitmapWidth, int bitmapHeight, DnaDrawing dna)
-        {
-            long sizeCanvas = bitmapHeight * bitmapWidth;
-            long sumPolySize = dna.GetSumSize;
-
-            if (sumPolySize > sizeCanvas * 2)
-            {
-                return 1;//((sumPolySize - sizeCanvas)) / (double)sizeCanvas;
-            }
-
-            return 1;
-        }
-
-       
 
         private static long ComputeFittnessBasic(byte[] current, Bitmap orig)
         {

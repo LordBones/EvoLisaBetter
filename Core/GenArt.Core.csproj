@@ -94,6 +94,8 @@
     <Compile Include="AST\DnaDrawing.cs" />
     <Compile Include="AST\DnaPoint.cs" />
     <Compile Include="AST\DnaPolygon.cs" />
+    <Compile Include="AST\DnaPrimitive.cs" />
+    <Compile Include="AST\DnaRectangle.cs" />
     <Compile Include="AST\GASearch.cs" />
     <Compile Include="Classes\Array2D.cs" />
     <Compile Include="Classes\CanvasBGRA.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Classes\SoftwareRender.cs" />
     <Compile Include="Classes\SWRenderLibrary\DNARenderer.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWPolygon.cs" />
+    <Compile Include="Classes\SWRenderLibrary\SWRectangle.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWTriangle.cs" />
     <Compile Include="Classes\Misc\Tools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

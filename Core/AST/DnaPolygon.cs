@@ -2,31 +2,26 @@
 using System.Collections.Generic;
 using System.Drawing;
 using GenArt.Classes;
+using GenArt.Core.AST;
 using GenArt.Core.Classes;
 
 namespace GenArt.AST
 {
-    public class DnaPolygon
+    public class DnaPolygon : DnaPrimitive
     {
-        private static long _globalUniqueId = 0;
-
-        public DnaPoint [] Points; // { get; set; }
-        public DnaBrush Brush;// { get; set; }
-        public int UniqueId;
+        public DnaPoint [] _Points; // { get; set; }
         
-
         public DnaPolygon()
         {
             
         }
 
-        public void CreateNewUniqueId()
+        public override DnaPoint[] Points
         {
-            this.UniqueId = (int)(_globalUniqueId%int.MaxValue);
-            _globalUniqueId++;
+            get { return _Points; }
         }
 
-        public void Init(ErrorMatrix errorMatrix, ImageEdges edgePoints = null)
+        public override void Init(ErrorMatrix errorMatrix, ImageEdges edgePoints = null)
         {
             
 
@@ -228,7 +223,7 @@ namespace GenArt.AST
                 }
             }
 
-            this.Points = points;
+            this._Points = points;
 
             Brush = new DnaBrush(0,255,0,0);
             CreateNewUniqueId();
@@ -245,33 +240,29 @@ namespace GenArt.AST
      
         }
 
-        public DnaPolygon Clone()
+        public override object Clone()
         {
             var newPolygon = new DnaPolygon();
-            newPolygon.Points = new DnaPoint[Points.Length];
+            newPolygon._Points = new DnaPoint[_Points.Length];
             newPolygon.Brush = Brush;
             newPolygon.UniqueId = UniqueId;
 
-            Array.Copy(this.Points, newPolygon.Points, Points.Length);
+            Array.Copy(this._Points, newPolygon._Points, _Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
 
             return newPolygon;
         }
 
-        public DnaPoint [] ClonePoints()
+        public override int GetCountPoints()
         {
-            DnaPoint [] result = new DnaPoint[this.Points.Length];
-            
-            Array.Copy(this.Points, result, Points.Length);
-            
-            return result;
+            return this._Points.Length;
         }
 
-        public void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public override void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
 
-                DnaPoint [] points = this.Points;
+                DnaPoint [] points = this._Points;
 
                 if (edgePoints != null)
                 {
@@ -390,10 +381,10 @@ namespace GenArt.AST
            
         }
 
-        public void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
+        public override void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
         {
 
-            Rectangle polygonArea = DnaPolygon.GetPolygonArea(this.Points);
+            Rectangle polygonArea = DnaPolygon.GetPolygonArea(this._Points);
 
             const int defaultStepSize = 40;
             int leftMaxStep =  (polygonArea.X > defaultStepSize) ? defaultStepSize : polygonArea.X;
@@ -419,11 +410,11 @@ namespace GenArt.AST
 
             // apply move on all points
 
-            for (int i = 0; i < this.Points.Length; i++)
+            for (int i = 0; i < this._Points.Length; i++)
             {
-                this.Points[i].X += (short)widthDelta;
-                this.Points[i].Y += (short)heightDelta;
-                if (this.Points[i].X >= destImage.WidthPixel || this.Points[i].Y >= destImage.HeightPixel)
+                this._Points[i].X += (short)widthDelta;
+                this._Points[i].Y += (short)heightDelta;
+                if (this._Points[i].X >= destImage.WidthPixel || this._Points[i].Y >= destImage.HeightPixel)
                     throw new Exception("Toto nesmi nastat");
             }
 
@@ -443,7 +434,7 @@ namespace GenArt.AST
         public void Mutateold(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
 
-            DnaPoint [] points = this.Points;
+            DnaPoint [] points = this._Points;
 
             if (Tools.GetRandomNumber(0, 1000000) < 750000)
             {
@@ -454,7 +445,7 @@ namespace GenArt.AST
                 if (Tools.GetRandomNumber(0, 1000000) < 500000 && edgePoints.EdgePointsByY.Length > 0)
                 {
                     int pointYIndex = Math.Max(edgePoints.Height - 1,
-                    Math.Min(0, Points[pointIndex].Y + Tools.GetRandomNumber(0, 20, 10) - 5));
+                    Math.Min(0, _Points[pointIndex].Y + Tools.GetRandomNumber(0, 20, 10) - 5));
 
                     DnaPoint [] rowEdges = edgePoints.EdgePointsByY[pointYIndex];
 
@@ -478,7 +469,7 @@ namespace GenArt.AST
                 else
                 {
                     int pointXIndex = Math.Max(edgePoints.Width - 1,
-                    Math.Min(0, Points[pointIndex].X + Tools.GetRandomNumber(0, 20, 10) - 5));
+                    Math.Min(0, _Points[pointIndex].X + Tools.GetRandomNumber(0, 20, 10) - 5));
 
                     DnaPoint [] rowEdges = edgePoints.EdgePointsByX[pointXIndex];
 
@@ -834,7 +825,7 @@ namespace GenArt.AST
 
         public long GetPixelSizePolygon()
         {
-            if(this.Points.Length < 3)
+            if(this._Points.Length < 3)
                 return 0;
 
             long minX = long.MaxValue,minY = long.MaxValue;
@@ -842,8 +833,8 @@ namespace GenArt.AST
 
             for (int i = 0; i < 3; i++)
             {
-                int x = this.Points[i].X;
-                int y = this.Points[i].Y;
+                int x = this._Points[i].X;
+                int y = this._Points[i].Y;
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
                 if (y < minY) minY = y;

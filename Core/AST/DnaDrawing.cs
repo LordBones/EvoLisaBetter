@@ -4,12 +4,13 @@ using GenArt.Classes;
 using System;
 using System.Drawing;
 using GenArt.Core.Classes;
+using GenArt.Core.AST;
 
 namespace GenArt.AST
 {
     public class DnaDrawing
     {
-        public DnaPolygon [] Polygons;// { get; set; }
+        public DnaPrimitive [] Polygons;// { get; set; }
         private short _maxWidth = 0;
         private short _maxHeight = 0;
 
@@ -27,28 +28,15 @@ namespace GenArt.AST
             {
                 int pointCount = 0;
                 for (int index = 0; index < Polygons.Length;index++ )
-                    pointCount += Polygons[index].Points.Length;
+                    pointCount += Polygons[index].GetCountPoints();
 
                 return pointCount;
             }
         }
 
-        public long GetSumSize
-        {
-            get
-            {
-                long sum = 0;
-                for (int i = 0; i < this.Polygons.Length; i++)
-                {
-                    sum += this.Polygons[i].GetPixelSizePolygon();
-                }
-                return sum;
-            }
-        }
-
         public DnaDrawing(short maxWidth, short maxHeight)
         {
-            Polygons = new DnaPolygon[0];
+            Polygons = new DnaPrimitive[0];
             BackGround = new DnaBrush(255, 0, 0, 0);
             _maxHeight = maxHeight;
             _maxWidth = maxWidth;
@@ -63,7 +51,7 @@ namespace GenArt.AST
 
         public void Init()
         {
-            Polygons = new DnaPolygon[Settings.ActivePolygonsMin];
+            Polygons = new DnaPrimitive[Settings.ActivePolygonsMin];
             BackGround = new DnaBrush(255, 0, 0, 0);
             BackGround.InitRandomWithoutAlpha();
 
@@ -73,26 +61,14 @@ namespace GenArt.AST
             SetDirty();
         }
 
-        public bool HasSomePolygonBadAngles()
-        {
-            for (int index = 0; index < this.Polygons.Length; index++)
-            {
-                if (!this.Polygons[index].IsNotSmallAngles(this.Polygons[index].Points))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public DnaDrawing Clone()
         {
             var drawing = new DnaDrawing(this._maxWidth,this._maxHeight);
-            drawing.Polygons = new DnaPolygon[Polygons.Length];
+            drawing.Polygons = new DnaPrimitive[Polygons.Length];
             drawing.BackGround = BackGround;
 
             for (int index = 0; index < Polygons.Length; index++)
-                drawing.Polygons[index] = Polygons[index].Clone();
+                drawing.Polygons[index] = (DnaPrimitive)Polygons[index].Clone();
 
             return drawing;
         }
@@ -148,8 +124,8 @@ namespace GenArt.AST
                 }
                 if (mutateChange < 300)
                 {
-                    //SwapPolygon();
-                    if (SwapPolygon2())
+                    SwapPolygon();
+                    //if (SwapPolygon2())
                         continue;
                 }
 
@@ -176,18 +152,25 @@ namespace GenArt.AST
 
                         int index = Tools.GetRandomNumber(0, Polygons.Length);
 
-                        if(Tools.GetRandomNumber(0,2) == 0)
+                        if (Tools.GetRandomNumber(0, 2) == 0)
                             Polygons[index].MutateTranspozite(this, destImage);
                         else
+                        //{
                             Polygons[index].Mutate(this, destImage, edgePoints);
 
-                        Color nearColor = 
-                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
-                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
-                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
-                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                            Color nearColor = Color.Black;
 
-                        Polygons[index].Brush.SetByColor(nearColor);
+                            if (Polygons[index] is DnaPolygon)
+                            {
+                                nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                            }
+                            else if (Polygons[index] is DnaRectangle)
+                            {
+                                nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                            }
+
+                            Polygons[index].Brush.SetByColor(nearColor);
+                        //}
                    
                     }
                     else
@@ -284,7 +267,7 @@ namespace GenArt.AST
             if (swapUp && index + 1 >= Polygons.Length) swapUp = false;
             else if (!swapUp && index == 0) swapUp = true;
 
-            DnaPolygon poly = Polygons[index];
+            DnaPrimitive poly = Polygons[index];
 
             if (swapUp)
             {
@@ -360,7 +343,7 @@ namespace GenArt.AST
             if (swapUp && index + 1 >= Polygons.Length) swapUp = false;
             else if (!swapUp && index == 0) swapUp = true;
 
-            DnaPolygon poly = Polygons[index];
+            DnaPrimitive poly = Polygons[index];
 
             if (swapUp)
             {
@@ -419,7 +402,7 @@ namespace GenArt.AST
                 //int index = tmpIndex.Value;
                 int index = Tools.GetRandomNumber(0, Polygons.Length);
 
-                DnaPolygon [] polygons = new DnaPolygon[Polygons.Length -1];
+                DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length -1];
 
                 //if (index > 0)
                 //    Array.Copy(Polygons, polygons, index);
@@ -454,7 +437,7 @@ namespace GenArt.AST
                             //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
                             //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
                             //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
-                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newPolygon._Points, _rawDestImage);
 
                         newPolygon.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();
@@ -464,7 +447,7 @@ namespace GenArt.AST
 
                     //Polygons.Insert(index, newPolygon);
 
-                    DnaPolygon [] polygons = new DnaPolygon[Polygons.Length + 1];
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
                     Array.Copy(Polygons, polygons, Polygons.Length);
 
                     polygons[polygons.Length - 1] = newPolygon;
@@ -479,53 +462,46 @@ namespace GenArt.AST
             }
         }
 
-        private static int GetRNDIndexPolygonBySize(DnaPolygon[] polygons)
+        public void AddRectangle(ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
         {
-            long [] polygonSizes = new long[polygons.Length];
-
-            for (int index = 0; index < polygons.Length; index++)
-                polygonSizes[index] = polygons[index].GetPixelSizePolygon();
-
-            long polySizeMax = 0;
-            long polySizeMin = long.MaxValue;
-
-            for (int index = 0; index < polygonSizes.Length; index++)
+            if (Polygons.Length < Settings.ActivePolygonsMax)
             {
-                if (polySizeMax < polygonSizes[index]) polySizeMax = polygonSizes[index];
-                if (polySizeMin > polygonSizes[index]) polySizeMin = polygonSizes[index];
+                if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
+                {
+                    var newRectangle = new DnaRectangle();
+                    newRectangle.Init(errorMatrix, edgePoints );
+                    
+
+                    if (_rawDestImage != null)
+                    {
+                        //Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
+                        Color nearColor = 
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newRectangle, _rawDestImage);
+
+                        newRectangle.Brush.SetByColor(nearColor);
+                        //newPolygon.Brush.InitRandom();
+                    }
+
+                    //int index = Tools.GetRandomNumber(0, Polygons.Count);
+
+                    //Polygons.Insert(index, newPolygon);
+
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
+
+                    polygons[polygons.Length - 1] = newRectangle;
+
+
+
+
+                    Polygons = polygons;
+
+                    SetDirty();
+                }
             }
-
-
-            long sumSizes = 0;
-            long minDiffSize = (polySizeMax - polySizeMin)/4;
-            for (int index = 0; index < polygonSizes.Length; index++)
-            {
-                long diffFit = (polySizeMax - polygonSizes[index] + minDiffSize);
-                sumSizes += diffFit;
-            }
-
-            long [] polygonRullete = new long[polygons.Length];
-
-            int lastRouleteValue = 0;
-            const int maxNormalizeValue = 1000000;
-            for (int index = 0; index < polygonSizes.Length; index++)
-            {
-                long diffSize = (polySizeMax - polygonSizes[index] + minDiffSize);
-
-                int tmp = (int)(((long)diffSize * maxNormalizeValue) / sumSizes);
-                polygonRullete[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-
-            int rndIndex = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-
-            for (int index = 0; index < polygonRullete.Length; index++)
-            {
-                if (polygonRullete[index] > rndIndex)
-                    return index;
-            }
-
-            return polygonRullete.Length - 1;
         }
 
         
@@ -539,6 +515,9 @@ namespace GenArt.AST
             }
             else if (this.Polygons.Length > 1)
             {
+                return Tools.GetRandomNumber(0, Polygons.Length);
+                 
+                /*
                 List<int> polygonsId = new List<int>();
 
                 do
@@ -549,7 +528,7 @@ namespace GenArt.AST
 
                     for (int index = 0; index < this.Polygons.Length; index++)
                     {
-                        DnaPolygon polygon = this.Polygons[index];
+                        DnaPrimitive polygon = this.Polygons[index];
                         if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
                         else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
                         else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
@@ -608,8 +587,9 @@ namespace GenArt.AST
 
                 int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
                 return polygonsId[polygonIndex];
+                 */
             }
-
+                
             // if no pygons in dna
             return null;
         }
@@ -634,7 +614,7 @@ namespace GenArt.AST
 
                     for (int index = 0; index < this.Polygons.Length; index++)
                     {
-                        DnaPolygon polygon = this.Polygons[index];
+                        DnaPrimitive polygon = this.Polygons[index];
                         if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
                         else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
                         else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);

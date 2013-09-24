@@ -141,7 +141,8 @@ namespace GenArt.Core.AST
 
                 for (int k =0; k < 10; k++)
                 {
-                    dna.AddPolygon(null, this._destCanvas, this._edgePoints);
+                    dna.AddRectangle(null, this._destCanvas, this._edgePoints);
+                    //dna.AddPolygon(null, this._destCanvas, this._edgePoints);
 
                 }
 
@@ -284,7 +285,7 @@ namespace GenArt.Core.AST
 
             for (int index = 0; index < _population.Length; index++)
             {
-                DnaPolygon [] polygons = _population[index].Polygons;
+                DnaPrimitive [] polygons = _population[index].Polygons;
                 for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
                 {
                     bool wasAdd = allIds.Add(polygons[polygonIndex].UniqueId);
@@ -298,7 +299,7 @@ namespace GenArt.Core.AST
             // compute similarity
             for (int index = 0; index < _population.Length; index++)
             {
-                DnaPolygon [] polygons = _population[index].Polygons;
+                DnaPrimitive [] polygons = _population[index].Polygons;
                 int countSame =0;
 
                 for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
@@ -545,7 +546,7 @@ namespace GenArt.Core.AST
         {
             DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
-            List<DnaPolygon> polygons = new List<DnaPolygon>();
+            List<DnaPrimitive> polygons = new List<DnaPrimitive>();
             int maxIndex = Math.Max(parent1.Polygons.Length,parent2.Polygons.Length);
             for (int index = 0; index < maxIndex; index++)
             {
@@ -553,7 +554,7 @@ namespace GenArt.Core.AST
 
                 if (index < tmp.Polygons.Length)
                 {
-                    polygons.Add(tmp.Polygons[index].Clone());
+                    polygons.Add((DnaPrimitive)tmp.Polygons[index].Clone());
                 }
             }
 
@@ -575,21 +576,21 @@ namespace GenArt.Core.AST
 
             DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
-            DnaPolygon [] polygons = new DnaPolygon[newDnaSize];
+            DnaPrimitive [] polygons = new DnaPrimitive[newDnaSize];
             int polygonsIndex = 0;
 
             int maxIndex = Math.Max(parent1.Polygons.Length, parent2.Polygons.Length);
 
             for (int index = 0; index < countCrossGenP1; index++)
             {
-                polygons[polygonsIndex++] = parent1.Polygons[index].Clone();   
+                polygons[polygonsIndex++] = (DnaPrimitive)parent1.Polygons[index].Clone();   
             }
 
             
 
             for (int index = countCrossGenP2; index < parent2.Polygons.Length; index++)
             {
-                polygons[polygonsIndex++] =parent2.Polygons[index].Clone();
+                polygons[polygonsIndex++] = (DnaPrimitive)parent2.Polygons[index].Clone();
             }
 
             result.Polygons = polygons;
@@ -606,21 +607,21 @@ namespace GenArt.Core.AST
 
             DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
-            List<DnaPolygon> polygons = new List<DnaPolygon>();
+            List<DnaPrimitive> polygons = new List<DnaPrimitive>();
             int maxIndex = Math.Max(parent2.Polygons.Length, parent2.Polygons.Length);
 
             int countCrossGen = (int)(parent2.Polygons.Count() * crossLine);
 
             for (int index = 0; index < countCrossGen; index++)
             {
-                polygons.Add(parent2.Polygons[index].Clone());
+                polygons.Add((DnaPrimitive)parent2.Polygons[index].Clone());
             }
 
             countCrossGen = (int)(parent1.Polygons.Count() * (crossLine));
 
             for (int index = countCrossGen; index < parent1.Polygons.Length; index++)
             {
-                polygons.Add(parent1.Polygons[index].Clone());
+                polygons.Add((DnaPrimitive)parent1.Polygons[index].Clone());
             }
 
             result.Polygons = polygons.ToArray();

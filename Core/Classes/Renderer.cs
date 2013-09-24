@@ -2,8 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-
 using GenArt.AST;
+using GenArt.Core.AST;
 using GenArt.Core.Classes;
 
 namespace GenArt.Classes
@@ -22,21 +22,20 @@ namespace GenArt.Classes
 
                 using (Brush brush = new SolidBrush(drawing.Polygons[index].Brush.BrushColor))
                 {
-                    //var tmpPoints = polygon.ClonePoints();
-                    //tmpPoints.Add(tmpPoints[0]);
-
-                    //Point[] points = GetGdiPoints(tmpPoints, scale);
-                    Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
-                    //g.DrawLines(new Pen(brush), points);
-                    g.FillPolygon(brush, points);
-                    
-                    //g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
-
-                    //g.FillClosedCurve(polygon.Brush.Brush, points);
-
+                    if (drawing.Polygons[index] is DnaPolygon)
+                    {
+                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
+                        g.FillPolygon(brush, points);
+                    }
+                    else if (drawing.Polygons[index] is DnaRectangle)
+                    {
+                        DnaRectangle rectangle = (DnaRectangle)drawing.Polygons[index];
+                        g.FillRectangle(brush, rectangle.StartPoint.X * scale, rectangle.StartPoint.Y * scale,
+                            rectangle.Width * scale, rectangle.Height * scale);
+                    }
                 }
             }
-                //Render(polygon, g, scale);
+               
         }
 
         //Render a Drawing
@@ -89,30 +88,31 @@ namespace GenArt.Classes
                     drawing.Polygons[index].Brush.Blue
                     );
 
-                Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
-                    
-                using (Pen pen = new  Pen(c))
+                using (Pen pen = new Pen(c))
                 {
-                    //var tmpPoints = polygon.ClonePoints();
-                    //tmpPoints.Add(tmpPoints[0]);
-                    
-                    //Point[] points = GetGdiPoints(tmpPoints, scale);
-                    //g.DrawLines(new Pen(brush), points);
-                    g.DrawPolygon(pen, points);
-
-                    //g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
-
-                    //g.FillClosedCurve(polygon.Brush.Brush, points);
-
-                }
-
-                using (Brush b = new SolidBrush(Color.White))
-                {
-                    for (int pi = 0; pi < points.Length; pi++)
+                    if (drawing.Polygons[index] is DnaPolygon)
                     {
-                        g.FillEllipse(b, points[pi].X-1*scale,points[pi].Y-1*scale,3*scale,3*scale);
+                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
+
+                        g.DrawPolygon(pen, points);
+
+                        using (Brush b = new SolidBrush(Color.White))
+                        {
+                            for (int pi = 0; pi < points.Length; pi++)
+                            {
+                                g.FillEllipse(b, points[pi].X - 1 * scale, points[pi].Y - 1 * scale, 3 * scale, 3 * scale);
+                            }
+                        }
+                    }
+                    else if (drawing.Polygons[index] is DnaRectangle)
+                    {
+                        DnaRectangle rectangle = (DnaRectangle)drawing.Polygons[index];
+                        g.DrawRectangle(pen, rectangle.StartPoint.X * scale, rectangle.StartPoint.Y * scale,
+                            rectangle.Width * scale, rectangle.Height * scale);
                     }
                 }
+
+                
             }
             //Render(polygon, g, scale);
         }
@@ -128,7 +128,7 @@ namespace GenArt.Classes
                 //tmpPoints.Add(tmpPoints[0]);
 
                 //Point[] points = GetGdiPoints(tmpPoints, scale);
-                Point[] points = GetGdiPoints(polygon.Points, scale);
+                Point[] points = GetGdiPoints(polygon._Points, scale);
                 //g.DrawLines(new Pen(polygon.Brush.Brush), points);
                 //Point[] points = GetGdiPoints(polygon.Points, scale);
                 g.FillPolygon(brush, points);
