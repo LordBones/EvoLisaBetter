@@ -29,10 +29,10 @@ namespace GenArtCoreNative {
 
         void RowApplyColor(array<System::Byte>^ canvas, int from, int to, int r , int g, int b, int alpha)
         {
-            pin_ptr<System::Byte> pinCanvas(&canvas[from]);
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-            FastRowApplyColor(pinCanvas,to-from+1,  r ,  g, b, alpha);
+            FastRowApplyColor(pinCanvas+from,to-from+1,  r ,  g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
@@ -40,10 +40,10 @@ namespace GenArtCoreNative {
 
         void RowApplyColorSSE64(array<System::Byte>^ canvas, int from, int to, int r , int g, int b, int alpha)
         {
-            pin_ptr<System::Byte> pinCanvas(&canvas[from]);
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-                FastRowApplyColorSSE64(pinCanvas,to-from+1,r,g,b,alpha);
+                FastRowApplyColorSSE64(pinCanvas+from,to-from+1,r,g,b,alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
@@ -51,10 +51,10 @@ namespace GenArtCoreNative {
 
         void RowApplyColorSSE128(array<System::Byte>^ canvas, int from, int to, int r , int g, int b, int alpha)
         {
-            pin_ptr<System::Byte> pinCanvas(&canvas[from]);
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-                FastRowApplyColorSSE128(pinCanvas,to-from+1,r,g,b,alpha);
+                FastRowApplyColorSSE128(pinCanvas+from,to-from+1,r,g,b,alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 

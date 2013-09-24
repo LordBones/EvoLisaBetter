@@ -78,13 +78,13 @@ namespace GenArt.Core.AST
             this.StartPoint = origin;
 
             var point = new DnaPoint();
-            int tmp = Tools.GetRandomNumber(0, 11);
+            int tmp = Tools.GetRandomNumber(0, 21);
 
             point.X = (short)Math.Min(origin.X + tmp, Tools.MaxWidth - 1);
             if (tmp == 0)
-                tmp = Tools.GetRandomNumber(1, 11);
+                tmp = Tools.GetRandomNumber(1, 21);
             else
-                tmp = Tools.GetRandomNumber(0, 11);
+                tmp = Tools.GetRandomNumber(0, 21);
 
             point.Y = (short)Math.Min(origin.Y + tmp, Tools.MaxHeight - 1);
 
@@ -117,7 +117,7 @@ namespace GenArt.Core.AST
         {
 
             Rectangle polygonArea = new Rectangle(this.StartPoint.X, this.StartPoint.Y, 
-                this.EndPoint.X - this.StartPoint.X +1, this.EndPoint.Y - this.StartPoint.Y-1);
+                this.Width, this.Height);
 
             const int defaultStepSize = 40;
             int leftMaxStep =  (polygonArea.X > defaultStepSize) ? defaultStepSize : polygonArea.X;
