@@ -344,7 +344,7 @@ namespace GenArt.Core.AST
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             ComputeSimilarity();
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
-            RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
+            //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -355,8 +355,16 @@ namespace GenArt.Core.AST
             for (int index = 0; index < _popSize; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
-                //int indexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
+                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
+
+                
+
+                int tmpindexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
+                indexParent1 = tmpindexParent1;
+                int tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
+                if (this._fittness[tmpindexParent1]/((1.0-this._similarity[tmpindexParent1]+1.0)) > 
+                    this._fittness[tmpindexParent2]/((1.0-this._similarity[tmpindexParent2]+1.0)) )
+                    indexParent1 = tmpindexParent2;
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);

@@ -112,7 +112,7 @@ namespace GenArt.AST
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
-                        if (Tools.GetRandomNumber(0, 2) < 3)
+                        if (Tools.GetRandomNumber(0, 2) < 1)
                             AddPolygon(errorMatrix, destImage, edgePoints);
                         else
                         {
