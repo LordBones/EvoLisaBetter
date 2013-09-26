@@ -10,7 +10,7 @@ namespace GenArt.Core.Classes
 {
     public class ErrorMatrix 
     {
-        public int CONST_TileSize = 80;
+        public int CONST_TileSize = 200;
 
         private int _inputPixelWidth;
         private int _inputPixelHeight;

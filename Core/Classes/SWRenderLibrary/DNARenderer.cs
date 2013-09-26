@@ -43,7 +43,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
         {
-            nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
+            //nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
+            nativefunc.ClearFieldByColor(this._drawCanvas.Data, _black.ToArgb());
             //FillPixels += this._drawCanvas.CountPixels;
             //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
 

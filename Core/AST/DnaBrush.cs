@@ -70,12 +70,15 @@ namespace GenArt.AST
                        };
         }
 
-        public bool MutateRGBOld(DnaDrawing drawing)
+        public bool MutateRGBOld(byte mutationRate, DnaDrawing drawing)
         {
-            
-                int colorPart = Tools.GetRandomNumber(1, 5);
+            int mutationMax = Math.Max(2, ((mutationRate + 1) * 255) / (256));
+            int mutationMiddle = mutationMax / 2;
 
-                int tmp = Tools.GetRandomNumber(0, 3, 1) - 1;
+
+            int colorPart =  Tools.GetRandomNumber(1, 5);
+
+            int tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle) - mutationMiddle;
 
                 if (colorPart == 1)
                 {
@@ -91,7 +94,7 @@ namespace GenArt.AST
                 }
                 else if (colorPart >= 4)
                 {
-                    tmp = Tools.GetRandomNumber(0, 3, 1) - 1;
+                    tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle) - mutationMiddle;
                     Alpha = (byte)Math.Max(Math.Min(Alpha + tmp, 255), 5);
 
                     //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);

@@ -31,7 +31,7 @@ namespace GenArt.Core.AST
         public abstract int GetCountPoints();
 
         public abstract void Init(ErrorMatrix errorMatrix, ImageEdges edgePoints = null);
-        public abstract void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null);
+        public abstract void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null);
         public abstract void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null);
         
     }

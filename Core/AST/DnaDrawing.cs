@@ -88,12 +88,12 @@ namespace GenArt.AST
             
             {
                 for (int index = 0; index < Polygons.Length; index++)
-                    Polygons[index].Mutate(this, destImage);
+                    Polygons[index].Mutate(0,this, destImage);
             }
 
         }
 
-        public void MutateBetter(ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public void MutateBetter(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
             /// k mutaci pozadi dochazi pouze jednou 
             //if (Tools.GetRandomNumber(0, 10) == 9)
@@ -106,7 +106,7 @@ namespace GenArt.AST
 
 
 
-                if (mutateChange < 100)
+                if (mutateChange < 50)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -121,13 +121,13 @@ namespace GenArt.AST
                         continue;
                     }
                 }
-                if (mutateChange < 200)
+                if (mutateChange < 100)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                     continue;
                 }
-                if (mutateChange < 300)
+                if (mutateChange < 150)
                 {
                     SwapPolygon();
                     //if (SwapPolygon2())
@@ -157,24 +157,24 @@ namespace GenArt.AST
 
                         int index = Tools.GetRandomNumber(0, Polygons.Length);
 
-                        if (Tools.GetRandomNumber(0, 2) == 0)
-                            Polygons[index].MutateTranspozite(this, destImage);
-                        else
+                        //if (Tools.GetRandomNumber(0, 2) == 3)
+                        //    Polygons[index].MutateTranspozite(this, destImage);
+                        //else
                         //{
-                            Polygons[index].Mutate(this, destImage, edgePoints);
+                            Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
 
-                            Color nearColor = Color.Black;
+                            //Color nearColor = Color.Black;
 
-                            if (Polygons[index] is DnaPolygon)
-                            {
-                                nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
-                            }
-                            else if (Polygons[index] is DnaRectangle)
-                            {
-                                nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
-                            }
+                            //if (Polygons[index] is DnaPolygon)
+                            //{
+                            //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                            //}
+                            //else if (Polygons[index] is DnaRectangle)
+                            //{
+                            //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                            //}
 
-                            Polygons[index].Brush.SetByColor(nearColor);
+                            //Polygons[index].Brush.SetByColor(nearColor);
                         //}
                    
                     }
@@ -185,10 +185,8 @@ namespace GenArt.AST
 
                         int tindex = tmpIndex.Value;
                         //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                        DnaBrush brush = Polygons[tindex].Brush;
-                        brush.MutateRGBOld(this);
-                        Polygons[tindex].Brush = brush;
-                       
+                        Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
+                        
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
                 }

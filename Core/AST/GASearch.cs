@@ -36,6 +36,10 @@ namespace GenArt.Core.AST
         private long [] _fittness = new long[0];
         private float [] _similarity = new float[0];
 
+        private const int CONST_DynamicMutationGenInterval = 512;
+        private const int CONST_MutationMaxRate = 255; // 255 means big mutation changes
+
+
         private int _popSize=  1;
 
         #region CanvasForRender
@@ -318,6 +322,16 @@ namespace GenArt.Core.AST
             //}
         }
 
+
+        private byte GetCurrentMutationRate()
+        {
+            int positionInMutationRate =  CONST_DynamicMutationGenInterval-1 - ( this._generation % CONST_DynamicMutationGenInterval);
+
+            byte mutatioRate =  (byte)((positionInMutationRate * CONST_MutationMaxRate)/ CONST_DynamicMutationGenInterval);
+
+            return mutatioRate;
+        }
+
         private void GenerateNewPopulationBasic()
         {
             DnaDrawing [] newPopulation = new DnaDrawing[_popSize+1];
@@ -350,7 +364,7 @@ namespace GenArt.Core.AST
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
-            
+            byte currMutatioRate = GetCurrentMutationRate();
 
             for (int index = 0; index < _popSize; index++)
             {
@@ -370,10 +384,16 @@ namespace GenArt.Core.AST
                    this._fittness[tmpindexParent2] )
                     indexParent1 = tmpindexParent2;
 
+                //tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
+
+                //if (this._fittness[tmpindexParent1] >
+                //  this._fittness[tmpindexParent2])
+                //    indexParent1 = tmpindexParent2;
+
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
-                    dna.MutateBetter(this._errorMatrix, this._destCanvas,
+                    dna.MutateBetter(currMutatioRate, this._errorMatrix, this._destCanvas,
                         null//_edgePoints
                         );
 
@@ -413,7 +433,7 @@ namespace GenArt.Core.AST
                 DnaDrawing  dna = CrossoverOnePoint(this._lastPopulation[indexParent1], this._lastPopulation[indexParent2]);
 
                 while (!dna.IsDirty)
-                    dna.MutateBetter(this._errorMatrix,this._destCanvas, _edgePoints);
+                    dna.MutateBetter(0,this._errorMatrix,this._destCanvas, _edgePoints);
 
                 this._population[index] = dna;
             }
