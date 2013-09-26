@@ -96,22 +96,54 @@ namespace GenArt.Core.AST
 
         public override void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
-            var point = new DnaPoint();
+            DnaPoint point = new DnaPoint();
             int tmp = Tools.GetRandomNumber(0, 41);
 
-            point.X = (short)Math.Min(this.StartPoint.X + tmp, Tools.MaxWidth - 1);
+            point.X = (short)Math.Max(this.StartPoint.X, Math.Min(this.EndPoint.X + tmp-20, Tools.MaxWidth - 1));
             if (tmp == 0)
-                tmp = Tools.GetRandomNumber(1, 41);
+                tmp = Tools.GetRandomNumber(0, 41,20);
             else
                 tmp = Tools.GetRandomNumber(0, 41);
 
-            point.Y = (short)Math.Min(this.StartPoint.Y + tmp, Tools.MaxHeight - 1);
+            point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(this.EndPoint.Y + tmp-20, Tools.MaxHeight - 1));
 
             this.EndPoint = point;
+
+            point = new DnaPoint();
+            tmp = Tools.GetRandomNumber(0, 41);
+
+            point.X = (short)Math.Max(0, Math.Min(this.StartPoint.X + tmp - 20, this.EndPoint.X));
+            if (tmp == 0)
+                tmp = Tools.GetRandomNumber(0, 41, 20);
+            else
+                tmp = Tools.GetRandomNumber(0, 41);
+
+            point.Y = (short)Math.Max(0, Math.Min(this.StartPoint.Y + tmp - 20, this.EndPoint.Y));
+
+            this.StartPoint = point;
 
             drawing.SetDirty();
             CreateNewUniqueId();
         }
+
+        //public override void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        //{
+        //    var point = new DnaPoint();
+        //    int tmp = Tools.GetRandomNumber(0, 41);
+
+        //    point.X = (short)Math.Min(this.StartPoint.X + tmp, Tools.MaxWidth - 1);
+        //    if (tmp == 0)
+        //        tmp = Tools.GetRandomNumber(1, 41);
+        //    else
+        //        tmp = Tools.GetRandomNumber(0, 41);
+
+        //    point.Y = (short)Math.Min(this.StartPoint.Y + tmp, Tools.MaxHeight - 1);
+
+        //    this.EndPoint = point;
+
+        //    drawing.SetDirty();
+        //    CreateNewUniqueId();
+        //}
 
         public override void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
         {

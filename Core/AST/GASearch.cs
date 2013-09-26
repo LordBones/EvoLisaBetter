@@ -362,8 +362,12 @@ namespace GenArt.Core.AST
                 int tmpindexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
                 indexParent1 = tmpindexParent1;
                 int tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
-                if (this._fittness[tmpindexParent1]/((1.0-this._similarity[tmpindexParent1]+1.0)) > 
-                    this._fittness[tmpindexParent2]/((1.0-this._similarity[tmpindexParent2]+1.0)) )
+                //if (this._fittness[tmpindexParent1]/((1.0-this._similarity[tmpindexParent1]+1.0)) > 
+                //    this._fittness[tmpindexParent2]/((1.0-this._similarity[tmpindexParent2]+1.0)) )
+                //    indexParent1 = tmpindexParent2;
+
+                if (this._fittness[tmpindexParent1]  >
+                   this._fittness[tmpindexParent2] )
                     indexParent1 = tmpindexParent2;
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
