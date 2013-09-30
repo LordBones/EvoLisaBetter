@@ -101,14 +101,20 @@ namespace GenArt
             Settings.ActivePointsMax = MaxPolygons * 3;
             generation = 0;
 
+            bool enableMaxGeneration = cheMaxGeneration.Checked;
 
             Tools.ClearPseudoRandom();
             GASearch gaSearch = new GASearch(InitPopulation);
+
+            if (enableMaxGeneration)
+            {
+                gaSearch.CONST_DynamicMutationGenInterval = (int)nudSAthreshold.Value * 1000;
+            }
+
             gaSearch.InitFirstPopulation(sourceBitmap, EdgeThreshold);
 
             int maxGeneration = Convert.ToInt32(nudMaxGeneration.Value)*1000;
-            bool enableMaxGeneration = cheMaxGeneration.Checked;
-
+            
             while (isRunning)
             {
 

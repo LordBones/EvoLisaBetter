@@ -36,7 +36,7 @@ namespace GenArt.Core.AST
         private long [] _fittness = new long[0];
         private float [] _similarity = new float[0];
 
-        private const int CONST_DynamicMutationGenInterval = 512;
+        public int CONST_DynamicMutationGenInterval = 1000;
         private const int CONST_MutationMaxRate = 255; // 255 means big mutation changes
 
 

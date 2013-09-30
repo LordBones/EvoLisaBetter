@@ -51,6 +51,8 @@
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabelAvgPoints = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.nudSAthreshold = new System.Windows.Forms.NumericUpDown();
             this.ceShowLive = new System.Windows.Forms.CheckBox();
             this.nudMaxGeneration = new System.Windows.Forms.NumericUpDown();
             this.cheMaxGeneration = new System.Windows.Forms.CheckBox();
@@ -78,6 +80,7 @@
             this.statusStrip2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSAthreshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxGeneration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxPolygon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).BeginInit();
@@ -285,6 +288,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label7);
+            this.panel1.Controls.Add(this.nudSAthreshold);
             this.panel1.Controls.Add(this.ceShowLive);
             this.panel1.Controls.Add(this.nudMaxGeneration);
             this.panel1.Controls.Add(this.cheMaxGeneration);
@@ -307,6 +312,38 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1282, 69);
             this.panel1.TabIndex = 27;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(483, 11);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(43, 13);
+            this.label7.TabIndex = 41;
+            this.label7.Text = "SA Thr:";
+            // 
+            // nudSAthreshold
+            // 
+            this.nudSAthreshold.Location = new System.Drawing.Point(532, 10);
+            this.nudSAthreshold.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudSAthreshold.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudSAthreshold.Name = "nudSAthreshold";
+            this.nudSAthreshold.Size = new System.Drawing.Size(54, 20);
+            this.nudSAthreshold.TabIndex = 40;
+            this.nudSAthreshold.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.nudSAthreshold.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // ceShowLive
             // 
@@ -589,6 +626,7 @@
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSAthreshold)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxGeneration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxPolygon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudEdgeThreshold)).EndInit();
@@ -644,6 +682,8 @@
         private System.Windows.Forms.NumericUpDown nudMaxGeneration;
         private System.Windows.Forms.CheckBox cheMaxGeneration;
         private System.Windows.Forms.CheckBox ceShowLive;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.NumericUpDown nudSAthreshold;
     }
 }
 
