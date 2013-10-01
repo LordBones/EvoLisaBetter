@@ -70,7 +70,46 @@ namespace GenArt.AST
                        };
         }
 
+       
+
         public bool MutateRGBOld(byte mutationRate, DnaDrawing drawing)
+        {
+            
+
+            int colorPart =  Tools.GetRandomNumber(1, 5);
+
+        
+                if (colorPart == 1)
+                {
+                    int value = Tools.GetRandomChangeValue(Red, 0, 255, mutationRate);
+                    Red = (byte)Math.Max(Math.Min(value, 255), 0);
+                }
+                else if (colorPart == 2)
+                {
+                    int value = Tools.GetRandomChangeValue(Green, 0, 255, mutationRate);
+                    Green = (byte)Math.Max(Math.Min(value, 255), 0);
+                }
+                else if (colorPart == 3)
+                {
+                    int value = Tools.GetRandomChangeValue(Blue, 0, 255, mutationRate);
+                    Blue = (byte)Math.Max(Math.Min(value, 255), 0);
+                }
+                else if (colorPart >= 4)
+                {
+                    int value = Tools.GetRandomChangeValue(Alpha, 5, 255, mutationRate);
+                    Alpha = (byte)Math.Max(Math.Min(value, 255), 5);
+
+                    //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
+                    //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
+                }
+                
+                drawing.SetDirty();
+
+                return true;
+            
+        }
+
+        public bool MutateRGBOld3(byte mutationRate, DnaDrawing drawing)
         {
             int mutationMax = Math.Max(2, ((mutationRate + 1) * 255) / (256));
             int mutationMiddle = mutationMax / 2;

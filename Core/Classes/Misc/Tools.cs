@@ -57,6 +57,61 @@ namespace GenArt.Classes
             return (tmp >= ignore) ? tmp + 1 : tmp;
         }
 
+        public static int GetRandomChangeValue(int oldValue, int min, int max)
+        {
+            if (!(oldValue >= min && oldValue <= max))
+                throw new NotImplementedException();
+
+            int leftDelta = oldValue - min;
+            int rightDelta = max - oldValue + 1;
+
+            int diff = GetRandomNumber(0, leftDelta + rightDelta);
+
+            return oldValue + diff - leftDelta;
+        }
+
+        public static int GetRandomChangeValue(int oldValue, int min, int max, byte mutationRate)
+        {
+            if (!(oldValue >= min && oldValue <= max))
+                throw new NotImplementedException();
+
+            int leftDelta = oldValue - min;
+            int rightDelta = max - oldValue + 1;
+
+            leftDelta = GetValueByMutationRate(leftDelta, 0, mutationRate);
+            rightDelta = GetValueByMutationRate(rightDelta, 1, mutationRate);
+
+           
+
+            int diff = GetRandomNumber(0, leftDelta + rightDelta);
+
+            return oldValue + diff - leftDelta;
+        }
+
+        public static int GetRandomChangeValueGuaranted(int oldValue, int min, int max, byte mutationRate)
+        {
+            if (!(oldValue >= min && oldValue <= max))
+                throw new NotImplementedException();
+
+            int leftDelta = oldValue - min;
+            int rightDelta = max - oldValue + 1;
+
+            leftDelta = GetValueByMutationRate(leftDelta, 0, mutationRate);
+            rightDelta = GetValueByMutationRate(rightDelta, 1, mutationRate);
+
+            // nutne pokud je pouze jeden prvek a je soucasne v ignore
+            if (leftDelta + rightDelta == 1)
+                return oldValue;
+
+            int diff = GetRandomNumber(0, leftDelta + rightDelta, leftDelta);
+
+            return oldValue + diff - leftDelta;
+        }
+
+        public static int GetValueByMutationRate(int value, int minValue, byte mutationRate)
+        {
+            return Math.Max(minValue, ((mutationRate + 1) * value) / (256));
+        }
         
 
         //public static int GetRandomNumber(int min, int max)

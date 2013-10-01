@@ -78,10 +78,10 @@ namespace GenArt.Core.AST
             this.StartPoint = origin;
 
 
-            int mutationMaxy = Math.Max(2, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+            int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
             //int mutationMiddley = mutationMaxy / 2;
 
-            int mutationMaxx = Math.Max(2, ((mutationRate + 1) * Tools.MaxWidth) / (256));
+            int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
             //int mutationMiddlex = mutationMaxx / 2;
 
             var point = new DnaPoint();
@@ -106,38 +106,37 @@ namespace GenArt.Core.AST
 
         public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
-            int mutationMaxy = Math.Max(2, ((MutationRate + 1) * Tools.MaxHeight) / (256));
-            int mutationMiddley = mutationMaxy / 2;
-
-            int mutationMaxx = Math.Max(2, ((MutationRate + 1) * Tools.MaxWidth) / (256));
-            int mutationMiddlex = mutationMaxx / 2;
-
-
+            
             DnaPoint point = new DnaPoint();
-            int tmp = Tools.GetRandomNumber(0, mutationMaxx);
+           
+            int newValue = Tools.GetRandomChangeValue(this.EndPoint.X, this.StartPoint.X, Tools.MaxWidth - 1,MutationRate);
 
-            point.X = (short)Math.Max(this.StartPoint.X, Math.Min(this.EndPoint.X + tmp - mutationMiddlex, Tools.MaxWidth - 1));
+            point.X = (short)Math.Max(this.StartPoint.X, Math.Min(newValue, Tools.MaxWidth - 1));
 
 
             if (point.X == this.EndPoint.X)
-                tmp = Tools.GetRandomNumber(0, mutationMaxy, mutationMiddley);
+                newValue = Tools.GetRandomChangeValueGuaranted(this.EndPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1,MutationRate);
             else
-                tmp = Tools.GetRandomNumber(0, mutationMaxy);
-
-            point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(this.EndPoint.Y + tmp - mutationMiddley, Tools.MaxHeight - 1));
+                newValue = Tools.GetRandomChangeValue(this.EndPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1, MutationRate);
+            
+            point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(newValue, Tools.MaxHeight - 1));
 
             this.EndPoint = point;
 
             point = new DnaPoint();
-            tmp = Tools.GetRandomNumber(0, mutationMaxx);
+          
 
-            point.X = (short)Math.Max(0, Math.Min(this.StartPoint.X + tmp - mutationMiddlex, this.EndPoint.X));
+            newValue = Tools.GetRandomChangeValue(this.StartPoint.X, 0,this.EndPoint.X-1, MutationRate);
+
+
+            point.X = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.X));
             if (point.X == this.StartPoint.X)
-                tmp = Tools.GetRandomNumber(0, mutationMaxy, mutationMiddley);
+                newValue = Tools.GetRandomChangeValueGuaranted(this.StartPoint.Y, 0, this.EndPoint.Y-1, MutationRate);
             else
-                tmp = Tools.GetRandomNumber(0, mutationMaxy);
+                newValue = Tools.GetRandomChangeValue(this.StartPoint.Y,0, this.EndPoint.Y-1, MutationRate);
+          
 
-            point.Y = (short)Math.Max(0, Math.Min(this.StartPoint.Y + tmp - mutationMiddley, this.EndPoint.Y));
+            point.Y = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.Y));
 
             this.StartPoint = point;
 
