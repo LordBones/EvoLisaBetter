@@ -56,7 +56,7 @@ namespace GenArt.AST
             BackGround.InitRandomWithoutAlpha();
 
             for (int i = 0; i < Settings.ActivePolygonsMin; i++)
-                AddPolygon(null);
+                AddPolygon(255,null);
 
             SetDirty();
         }
@@ -80,7 +80,7 @@ namespace GenArt.AST
                 RemovePolygon(null);
             
             else if (Tools.WillMutate(Settings.ActiveAddPolygonMutationRate))
-                AddPolygon(null,destImage);
+                AddPolygon(0,null,destImage);
 
             else if (Tools.WillMutate(Settings.ActiveMovePolygonMutationRate))
                 SwapPolygon();
@@ -113,10 +113,10 @@ namespace GenArt.AST
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
                         if (Tools.GetRandomNumber(0, 2) < 1)
-                            AddPolygon(errorMatrix, destImage, edgePoints);
+                            AddPolygon(mutationRate,errorMatrix, destImage, edgePoints);
                         else
                         {
-                            AddRectangle(errorMatrix, destImage, edgePoints);
+                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         }
                         continue;
                     }
@@ -423,14 +423,14 @@ namespace GenArt.AST
        
 
 
-        public void AddPolygon(ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void AddPolygon(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newPolygon = new DnaPolygon();
-                    newPolygon.Init(errorMatrix, edgePoints);
+                    newPolygon.Init(mutationRate,errorMatrix, edgePoints);
                     //newPolygon.Init(null);
 
                     if (_rawDestImage != null)
@@ -450,29 +450,35 @@ namespace GenArt.AST
 
                     //Polygons.Insert(index, newPolygon);
 
-                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
-                    Array.Copy(Polygons, polygons, Polygons.Length);
+                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    if (polygons.Count == 0)
+                        polygons.Add(newPolygon);
+                    else
+                    {
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        polygons.Insert(index, newPolygon);
+                    }
+                    this.Polygons = polygons.ToArray();
 
-                    polygons[polygons.Length - 1] = newPolygon;
+                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    //Array.Copy(Polygons, polygons, Polygons.Length);
 
-
-                    
-
-                    Polygons = polygons;
+                    //polygons[polygons.Length - 1] = newPolygon;
+                    //Polygons = polygons;
 
                     SetDirty();
                 }
             }
         }
 
-        public void AddRectangle(ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void AddRectangle(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
                 if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
                 {
                     var newRectangle = new DnaRectangle();
-                    newRectangle.Init(errorMatrix, edgePoints );
+                    newRectangle.Init(mutationRate,errorMatrix, edgePoints);
                     
 
                     if (_rawDestImage != null)
@@ -492,15 +498,22 @@ namespace GenArt.AST
 
                     //Polygons.Insert(index, newPolygon);
 
-                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
-                    Array.Copy(Polygons, polygons, Polygons.Length);
+                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    if (polygons.Count == 0)
+                        polygons.Add(newRectangle);
+                    else
+                    {
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        polygons.Insert(index, newRectangle);
+                    }
+                    this.Polygons = polygons.ToArray();
 
-                    polygons[polygons.Length - 1] = newRectangle;
 
+                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    //Array.Copy(Polygons, polygons, Polygons.Length);
 
-
-
-                    Polygons = polygons;
+                    //polygons[polygons.Length - 1] = newRectangle;
+                    //Polygons = polygons;
 
                     SetDirty();
                 }

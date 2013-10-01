@@ -59,7 +59,7 @@ namespace GenArt.Core.AST
             return 2;
         }
 
-        public override void Init(Classes.ErrorMatrix errorMatrix, Classes.ImageEdges edgePoints = null)
+        public override void Init(byte mutationRate, Classes.ErrorMatrix errorMatrix, Classes.ImageEdges edgePoints = null)
         {
             var origin = new DnaPoint();
             origin.Init();
@@ -77,14 +77,24 @@ namespace GenArt.Core.AST
 
             this.StartPoint = origin;
 
+
+            int mutationMaxy = Math.Max(2, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+            //int mutationMiddley = mutationMaxy / 2;
+
+            int mutationMaxx = Math.Max(2, ((mutationRate + 1) * Tools.MaxWidth) / (256));
+            //int mutationMiddlex = mutationMaxx / 2;
+
             var point = new DnaPoint();
-            int tmp = Tools.GetRandomNumber(0, 21);
+
+
+
+            int tmp = Tools.GetRandomNumber(0, mutationMaxx);
 
             point.X = (short)Math.Min(origin.X + tmp, Tools.MaxWidth - 1);
             if (tmp == 0)
-                tmp = Tools.GetRandomNumber(1, 21);
+                tmp = Tools.GetRandomNumber(1, mutationMaxy);
             else
-                tmp = Tools.GetRandomNumber(0, 21);
+                tmp = Tools.GetRandomNumber(0, mutationMaxy);
 
             point.Y = (short)Math.Min(origin.Y + tmp, Tools.MaxHeight - 1);
 

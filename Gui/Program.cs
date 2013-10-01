@@ -67,7 +67,7 @@ namespace GenArt
             dna.Init();
             
             for (int i =0; i < 100; i++)
-                dna.AddPolygon(null);
+                dna.AddPolygon(255,null);
 
             
 
@@ -137,7 +137,7 @@ namespace GenArt
                 dna.Init();
 
                 for (int i =0; i < 2; i++)
-                    dna.AddPolygon(null);
+                    dna.AddPolygon(255,null);
 
 
                 for (int i =0; i < dna.Polygons.Length; i++)

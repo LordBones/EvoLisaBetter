@@ -21,7 +21,7 @@ namespace GenArt.AST
             get { return _Points; }
         }
 
-        public override void Init(ErrorMatrix errorMatrix, ImageEdges edgePoints = null)
+        public override void Init(byte mutationRate, ErrorMatrix errorMatrix, ImageEdges edgePoints = null)
         {
             
 
@@ -32,51 +32,46 @@ namespace GenArt.AST
             { 
 
                 var origin = new DnaPoint();
-                origin.Init();
-
-                Rectangle tile = new Rectangle(0, 0, 1, 1);
-                if (errorMatrix != null)
-                {
-                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
-                    tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
-
-                    origin.X = (short)( tile.X + Tools.GetRandomNumber(0, tile.Width));
-                    origin.Y = (short)(tile.Y + Tools.GetRandomNumber(0, tile.Height));
-                }
+                
 
                 while (true)
                 {
+                    origin.Init();
+
+                    Rectangle tile = new Rectangle(0, 0, 1, 1);
+                    if (errorMatrix != null)
+                    {
+                        int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                        tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+
+                        origin.X = (short)(tile.X + Tools.GetRandomNumber(0, tile.Width));
+                        origin.Y = (short)(tile.Y + Tools.GetRandomNumber(0, tile.Height));
+                    }
+
                     DnaPoint lastPoint = origin;
                     //int addX = 0;
                     //int addY = 0;
 
                     for (int i = 0; i < countPoints; i++)
                     {
+                        int mutationMaxy = Math.Max(2, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+                        int mutationMiddley = mutationMaxy / 2;
+
+                        int mutationMaxx = Math.Max(2, ((mutationRate + 1) * Tools.MaxWidth) / (256));
+                        int mutationMiddlex = mutationMaxx / 2;
+
                         var point = new DnaPoint();
-                        int tmp = Tools.GetRandomNumber(0, 40);
+                        int tmp = Tools.GetRandomNumber(0, mutationMaxx);
 
-                        point.X = (short)Math.Min(Math.Max(0, lastPoint.X + tmp -20), Tools.MaxWidth - 1);
-                        if(tmp == 20)
-                            tmp = Tools.GetRandomNumber(0, 40,20);
+                        point.X = (short)Math.Min(Math.Max(0, lastPoint.X + tmp - mutationMiddlex), Tools.MaxWidth - 1);
+                        if(point.X == lastPoint.X)
+                            tmp = Tools.GetRandomNumber(0, mutationMaxy, mutationMiddley);
                         else
-                            tmp = Tools.GetRandomNumber(0, 40);
+                            tmp = Tools.GetRandomNumber(0, mutationMaxy);
+
+                        point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + tmp - mutationMiddley), Tools.MaxHeight - 1);
+
                         
-                        point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + tmp - 20), Tools.MaxHeight - 1);
-
-                        //if ((Tools.GetRandomNumber(0, 1000) > 500))
-                        //{
-                        //    point.X = (short)Math.Min(Math.Max(0, lastPoint.X + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxWidth - 1);
-                        //    point.Y = lastPoint.Y;
-                        //}
-
-                        //else
-                        //{
-                        //    point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + ((Tools.GetRandomNumber(0, 1000) > 500) ? -tmp : tmp)), Tools.MaxHeight - 1);
-                        //    point.X = lastPoint.X;
-                        //}
-
-                        //point.X = Math.Min(Math.Max(0, origin.X + Tools.GetRandomNumber(-10, 10)), Tools.MaxWidth - 1);
-                        //point.Y = Math.Min(Math.Max(0, origin.Y + Tools.GetRandomNumber(-10, 10)), Tools.MaxHeight - 1);
 
 
                         points[i] = point;
