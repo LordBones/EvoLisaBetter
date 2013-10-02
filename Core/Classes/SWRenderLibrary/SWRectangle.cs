@@ -40,7 +40,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
                 //nativeFunc.RowApplyColorSSE64(canvas.Data, index, endIndex, color.R, color.G, color.B, color.A);
-                RowApplyColorSafe(canvas.Data, index, endIndex, color.R, color.G, color.B, color.A);
+                //RowApplyColorSafe(canvas.Data, index, endIndex, color.R, color.G, color.B, color.A);
 
                 rowStartIndex += canvas.Width;
             }

@@ -416,9 +416,56 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             byte [] canvas = drawCanvas.Data;
 
 
-            nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+            //nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
 
+            FastRowsApplyColor(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
         }
+
+        void FastRowsApplyColor(byte [] canvas, int canvasWidth, short [] ranges, int rangeStartY, int rangeEndY,  int r , int g, int b, int alpha)
+  {
+      //if(alpha> 0) alpha++;
+      // convert alpha value from range 0-255 to 0-256
+      alpha = (alpha*256)/255;
+
+      
+      
+      int invAlpha = 256-alpha;
+	  int rowStartIndex = (rangeStartY) * canvasWidth;
+
+
+      for (int i = rangeStartY*2; i < rangeEndY*2; i += 2)
+	  {
+		  int index = rowStartIndex + (ranges[i]) * 4;
+
+		  //
+          int end = rowStartIndex + (ranges[i+1]) * 4; 
+		  
+		  while(end >= index)
+		  {
+              int tb = canvas[index];
+			  int tg = canvas[index+1];
+			  int tr = canvas[index+2];
+
+			
+              tb = (b*alpha + (tb*invAlpha))>>8;
+			  tg=(g*alpha + (tg*invAlpha))>>8;
+			  tr=(r*alpha + (tr*invAlpha))>>8;
+
+              /*tb = tb + (((b-tb)*alpha)>>8);
+			  tg=tg + (((g-tg)*alpha)>>8);
+			  tr=tr + (((r-tr)*alpha)>>8);*/
+
+              canvas[index] = (byte)tb;
+              canvas[index+1] = (byte)tg;
+              canvas[index+2] = (byte)tr;
+
+
+			  index+=4;
+		  }
+
+		  rowStartIndex += canvasWidth;
+	  }
+  }
 
         private static void DrawLineBetter(short [] rangePoints, short minY,
             short x1, short y1, short x2, short y2)

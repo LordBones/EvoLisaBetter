@@ -81,7 +81,7 @@ namespace GenArtCoreNative {
 
             int countPolygonRows = (endY-startY+1)*2;
 			FastFunctions::
-                FastRowsApplyColorSSE128(pinCanvas,canvasWidth,pinRanges+startY*2,countPolygonRows, startY, r, g, b, alpha);
+                FastRowsApplyColorSSE64(pinCanvas,canvasWidth,pinRanges+startY*2,countPolygonRows, startY, r, g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 

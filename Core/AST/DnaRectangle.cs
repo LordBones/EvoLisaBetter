@@ -126,14 +126,14 @@ namespace GenArt.Core.AST
             point = new DnaPoint();
           
 
-            newValue = Tools.GetRandomChangeValue(this.StartPoint.X, 0,this.EndPoint.X-1, MutationRate);
+            newValue = Tools.GetRandomChangeValue(this.StartPoint.X, 0,this.EndPoint.X, MutationRate);
 
 
             point.X = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.X));
             if (point.X == this.StartPoint.X)
-                newValue = Tools.GetRandomChangeValueGuaranted(this.StartPoint.Y, 0, this.EndPoint.Y-1, MutationRate);
+                newValue = Tools.GetRandomChangeValueGuaranted(this.StartPoint.Y, 0, this.EndPoint.Y, MutationRate);
             else
-                newValue = Tools.GetRandomChangeValue(this.StartPoint.Y,0, this.EndPoint.Y-1, MutationRate);
+                newValue = Tools.GetRandomChangeValue(this.StartPoint.Y,0, this.EndPoint.Y,MutationRate);
           
 
             point.Y = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.Y));
