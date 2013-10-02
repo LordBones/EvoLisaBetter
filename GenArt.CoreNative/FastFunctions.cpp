@@ -156,6 +156,10 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int r , i
 
     unsigned char * line = canvas;
 
+    b *= alpha;
+    g *= alpha;
+    r *= alpha;
+
     while(len > 0)
     {
         unsigned int tb = *line;
@@ -163,9 +167,9 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int r , i
         unsigned int tr = line[2];
 
 
-        tb = (b*alpha + (tb*invAlpha))>>8;
-        tg=(g*alpha + (tg*invAlpha))>>8;
-        tr=(r*alpha + (tr*invAlpha))>>8;
+        tb = (b + (tb*invAlpha))>>8;
+        tg=(g + (tg*invAlpha))>>8;
+        tr=(r + (tr*invAlpha))>>8;
 
         /*tb = tb + (((b-tb)*alpha)>>8);
         tg=tg + (((g-tg)*alpha)>>8);
@@ -176,7 +180,7 @@ void FastFunctions::FastRowApplyColor(unsigned char * canvas, int len, int r , i
         line[2] = (unsigned char)tr;
 
 
-        len -= 1;
+        len -= 4;
         line+=4;
     }
 }

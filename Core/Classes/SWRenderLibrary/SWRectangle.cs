@@ -30,19 +30,19 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void FillRectangle(CanvasBGRA canvas, int x, int y, int widht, int height, Color color)
         {
-            int rowStartIndex = y * canvas.Width;
+            int rowStartIndex = y * canvas.Width + x * 4;
+            int rowEndIndex = rowStartIndex + (widht - 1) * 4;
 
             //int indexY = minY * this._canvasWidth;
             for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
             {
-                int index = rowStartIndex + x * 4;
-                int endIndex = rowStartIndex + (x + widht - 1) * 4;
-
-
-                //nativeFunc.RowApplyColorSSE64(canvas.Data, index, endIndex, color.R, color.G, color.B, color.A);
-                //RowApplyColorSafe(canvas.Data, index, endIndex, color.R, color.G, color.B, color.A);
+                
+                //nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                //RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
 
                 rowStartIndex += canvas.Width;
+                rowEndIndex += canvas.Width;
             }
         }
 
@@ -52,18 +52,20 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             int invAlpha = 256 - alpha;
 
+            int cb = b * alpha;
+            int cg = g * alpha;
+            int cr = r * alpha;
 
-
-            while (startIndex < endIndex)
+            while (startIndex <= endIndex)
             {
                 int tb = data[startIndex];
                 int tg = data[startIndex + 1];
                 int tr = data[startIndex + 2];
 
 
-                tb = (b * alpha + (tb * invAlpha)) >> 8;
-                tg = (g * alpha + (tg * invAlpha)) >> 8;
-                tr = (r * alpha + (tr * invAlpha)) >> 8;
+                tb = (cb + (tb * invAlpha)) >> 8;
+                tg = (cg + (tg * invAlpha)) >> 8;
+                tr = (cr + (tr * invAlpha)) >> 8;
 
                 /*tb = tb + (((b-tb)*alpha)>>8);
                 tg=tg + (((g-tg)*alpha)>>8);

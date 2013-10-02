@@ -26,7 +26,7 @@ namespace GenArt.Core.Classes
         private static Color Helper_AvgColorByAlpha(int avgDiff, int sumRed, int sumGreen, int sumBlue)
         {
             int alpha = 255 - avgDiff;
-            alpha = 5 + (128 * alpha) / 255;
+            alpha = 5 + (59 * alpha) / 255;
 
             return Color.FromArgb(alpha, sumRed, sumGreen, sumBlue);
         }

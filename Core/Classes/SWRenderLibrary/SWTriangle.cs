@@ -432,6 +432,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
       int invAlpha = 256-alpha;
 	  int rowStartIndex = (rangeStartY) * canvasWidth;
 
+      int cb = b * alpha;
+      int cg = g * alpha;
+      int cr = r * alpha;
+
 
       for (int i = rangeStartY*2; i < rangeEndY*2; i += 2)
 	  {
@@ -447,9 +451,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 			  int tr = canvas[index+2];
 
 			
-              tb = (b*alpha + (tb*invAlpha))>>8;
-			  tg=(g*alpha + (tg*invAlpha))>>8;
-			  tr=(r*alpha + (tr*invAlpha))>>8;
+              tb = (cb + (tb*invAlpha))>>8;
+			  tg=(cg + (tg*invAlpha))>>8;
+			  tr=(cr + (tr*invAlpha))>>8;
 
               /*tb = tb + (((b-tb)*alpha)>>8);
 			  tg=tg + (((g-tg)*alpha)>>8);
