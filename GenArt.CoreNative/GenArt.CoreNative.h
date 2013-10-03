@@ -45,8 +45,7 @@ namespace GenArtCoreNative {
 			FastFunctions::
                 FastRowApplyColorSSE64(pinCanvas+from,to-from+1,r,g,b,alpha);
 
-            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
-
+    
         }
 
         void RowApplyColorSSE128(array<System::Byte>^ canvas, int from, int to, int r , int g, int b, int alpha)

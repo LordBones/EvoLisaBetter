@@ -88,7 +88,7 @@ namespace GenArt.AST
                 {
                     int value = Tools.GetRandomChangeValue(Green, 0, 255, mutationRate);
                     Green = (byte)Math.Max(Math.Min(value, 255), 0);
-                }
+                } 
                 else if (colorPart == 3)
                 {
                     int value = Tools.GetRandomChangeValue(Blue, 0, 255, mutationRate);

@@ -31,17 +31,36 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private void FillRectangle(CanvasBGRA canvas, int x, int y, int widht, int height, Color color)
         {
             int rowStartIndex = y * canvas.Width + x * 4;
-            int rowEndIndex = rowStartIndex + (widht - 1) * 4;
+            int rowEndIndex = rowStartIndex + (widht) * 4 -1;
 
             //int indexY = minY * this._canvasWidth;
             for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
             {
-                
-                //nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
-                nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                //int length = rowEndIndex - rowStartIndex + 1;
+                //byte [] test = new byte[length];
+
+                //Array.Copy(canvas.Data, rowStartIndex, test, 0, length);
+
+                nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
                 //RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
 
-                rowStartIndex += canvas.Width;
+              
+
+                //nativeFunc.RowApplyColor(test, 0, length-1, color.R, color.G, color.B, color.A);
+
+                //bool equal = true;
+                //for (int i = 0; i < test.Length; i++)
+                //{
+                //    if (test[i] != canvas.Data[rowStartIndex + i])
+                //    {
+                //        equal = false;
+                //        throw new NotImplementedException();
+                //        break;
+                //    }
+                //}
+
+                    rowStartIndex += canvas.Width;
                 rowEndIndex += canvas.Width;
             }
         }

@@ -34,8 +34,17 @@ namespace GenArt
 
                 Array.Copy(colorsCorrect, colorsTest, colorsCorrect.Length);
 
-                native.RowApplyColor(colorsCorrect, 0, 3, 128, 50, 90, 50);
-                native.RowApplyColorSSE128(colorsTest, 0, 3, 128, 50, 90, 50);
+                int r = rnd.Next(0, 256);
+                int g = rnd.Next(0, 256);
+                int b = rnd.Next(0, 256);
+                int a = rnd.Next(0, 256);
+
+                native.RowApplyColor(colorsCorrect, 0, 15, r, g, b, a);
+                native.RowApplyColorSSE64(colorsTest, 0, 15, r, g, b, a);
+
+
+//                native.RowApplyColor(colorsCorrect, 0, 15, 128, 50, 90, 255);
+ //               native.RowApplyColorSSE64(colorsTest, 0, 15, 128, 50, 90, 255);
 
                 for (int index = 0; index < colorsCorrect.Length; index ++)
                 {

@@ -53,6 +53,52 @@ void ApplyColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
 
   }
 
+void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int alpha)
+  {
+      int invAlpha = 256 - alpha;
+
+      // unsigned long long tmpColor = ((unsigned long long)(r*alpha)<<32) | ((unsigned long long)(g*alpha)<<16) | (b*alpha);
+      
+       //__m128i mColorTimeAlpha = _mm_setzero_si128();
+       ///mColorTimeAlpha.m128i_u64[0] = tmpColor;
+       //mColorTimeAlpha.m128i_u64[1] = tmpColor;
+      //__m128i mColorTimeAlpha;
+      //mColorTimeAlpha.m128i_u16[0] = b*alpha;
+      //mColorTimeAlpha.m128i_u16[1] = g*alpha;
+      //mColorTimeAlpha.m128i_u16[2] = r*alpha;
+
+
+      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,0,0,0,0);
+
+      __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+
+      while(count > 0)
+      {
+      __m128i source = _mm_cvtsi32_si128(*((int*)canvas));
+
+      //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+      source = _mm_cvtepu8_epi16(source);
+
+      __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+      tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+      tmp1          = _mm_srli_epi16(tmp1,8); 
+
+      source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+      //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+      //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+      //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+      source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
+
+      *((int*)canvas) =  _mm_cvtsi128_si32(source);
+
+      canvas += 4;
+      count--;
+      }
+  }
+
 /*
    alpha : 0 - 256
 */
@@ -192,7 +238,7 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
 
     unsigned char * line = canvas;
     len /= 4;
-
+    /*
     // fix bad align
     unsigned int tmp = ((unsigned int)line) & 0xf; 
 
@@ -211,14 +257,20 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
         len -= 2;
         line+=8;
     }
+    */
 
     if(len > 0)
+    {
+        ApplyColorPixelSSE(line,len,r,g,b,alpha);
+    }
+
+    /*while(len > 0)
     {
         ApplyColorPixelSSE(line,r,g,b,alpha);
 
         len -= 1;
         line+=4;
-    }
+    }*/
 
 
 }
