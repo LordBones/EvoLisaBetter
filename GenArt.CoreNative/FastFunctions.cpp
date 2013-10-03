@@ -190,9 +190,8 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
     // convert alpha value from range 0-255 to 0-256
     alpha = (alpha*256)/255;
 
-    int invAlpha = 256-alpha;
-
     unsigned char * line = canvas;
+    len /= 4;
 
     // fix bad align
     unsigned int tmp = ((unsigned int)line) & 0xf; 

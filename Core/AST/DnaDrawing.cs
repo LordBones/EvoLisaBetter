@@ -102,6 +102,103 @@ namespace GenArt.AST
             do
             {
                 this.IsDirty = false;
+                //int mutateChange = Tools.GetRandomNumber(0, 1001);
+
+
+
+                if (Tools.GetRandomNumber(0, 101) < 5)
+                {
+                    //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
+                    //    RemovePolygon();
+                    if (Settings.ActivePolygonsMax > this.Polygons.Length)
+                    {
+                        if (Tools.GetRandomNumber(0, 2) < 1)
+                            AddPolygon(mutationRate,errorMatrix, destImage, edgePoints);
+                        else
+                        {
+                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
+                        }
+                        continue;
+                    }
+                }
+
+                if (Tools.GetRandomNumber(0, 101) < 5)
+                {
+                    RemovePolygon(errorMatrix);
+                    //RemovePolygon(errorMatrix);
+                    continue;
+                }
+                if (Tools.GetRandomNumber(0, 101) < 5)
+                {
+                    SwapPolygon();
+                    //if (SwapPolygon2())
+                        continue;
+                }
+
+                if (Polygons.Length > 0)
+                {
+                    if (Tools.GetRandomNumber(0, 101) < 35)
+                    {
+                        //int index = GetRNDIndexPolygonBySize(this.Polygons);
+                        //int index = GetRNDIndexPolygonByLive(this.Polygons);
+
+                        //int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
+                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+
+                        //int index = tmpIndex.Value;
+
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+
+                        //if (Tools.GetRandomNumber(0, 2) == 3)
+                        //    Polygons[index].MutateTranspozite(this, destImage);
+                        //else
+                        //{
+                        Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
+
+                        //Color nearColor = Color.Black;
+
+                        //if (Polygons[index] is DnaPolygon)
+                        //{
+                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                        //}
+                        //else if (Polygons[index] is DnaRectangle)
+                        //{
+                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                        //}
+
+                        //byte alpha = Polygons[index].Brush.Alpha;
+                        //Polygons[index].Brush.SetByColor(nearColor);
+                        //Polygons[index].Brush.Alpha = alpha;
+                        //}
+                    }
+
+                    if (!this.IsDirty ||
+                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 35))
+                    {
+                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+
+                        int tindex = tmpIndex.Value;
+                        //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
+                        Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
+
+                        //Polygons[tindex].Brush.MutateRGBOld(this);
+                    }
+                }
+                
+            } while (false);
+            // while (Tools.GetRandomNumber(1, 11) <= 5);
+        }
+
+        public void MutateBetter2(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        {
+            /// k mutaci pozadi dochazi pouze jednou 
+            //if (Tools.GetRandomNumber(0, 10) == 9)
+            //    BackGround.MutateRGBOldWithoutAlpha(this);
+
+            do
+            {
+                this.IsDirty = false;
                 int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
@@ -113,7 +210,7 @@ namespace GenArt.AST
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
                         if (Tools.GetRandomNumber(0, 2) < 1)
-                            AddPolygon(mutationRate,errorMatrix, destImage, edgePoints);
+                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         else
                         {
                             AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
@@ -131,7 +228,7 @@ namespace GenArt.AST
                 {
                     SwapPolygon();
                     //if (SwapPolygon2())
-                        continue;
+                    continue;
                 }
 
                 // else
@@ -161,32 +258,34 @@ namespace GenArt.AST
                         //    Polygons[index].MutateTranspozite(this, destImage);
                         //else
                         //{
-                            Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
+                        Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
 
-                            //Color nearColor = Color.Black;
+                        //Color nearColor = Color.Black;
 
-                            //if (Polygons[index] is DnaPolygon)
-                            //{
-                            //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
-                            //}
-                            //else if (Polygons[index] is DnaRectangle)
-                            //{
-                            //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
-                            //}
-
-                            //Polygons[index].Brush.SetByColor(nearColor);
+                        //if (Polygons[index] is DnaPolygon)
+                        //{
+                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
                         //}
-                   
+                        //else if (Polygons[index] is DnaRectangle)
+                        //{
+                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                        //}
+
+                        //byte alpha = Polygons[index].Brush.Alpha;
+                        //Polygons[index].Brush.SetByColor(nearColor);
+                        //Polygons[index].Brush.Alpha = alpha;
+                        //}
+
                     }
                     else
                     {
-                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix); 
+                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
                         int tindex = tmpIndex.Value;
                         //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
-                        
+
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
                 }
