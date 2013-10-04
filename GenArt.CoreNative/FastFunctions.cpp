@@ -131,6 +131,40 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       *((long long*)canvas) =  _mm_cvtsi128_si64(source);
   }
 
+  void Apply2ColorPixelSSE(unsigned char * canvas,int count, int r,int g, int b, int alpha)
+  {
+      int invAlpha = 256 - alpha;
+      __m128i mColorTimeAlpha = _mm_setr_epi16(b*alpha,g*alpha,r*alpha,0,b*alpha,g*alpha,r*alpha,0);
+      __m128i mMullInvAlpha = _mm_setr_epi16(invAlpha,invAlpha,invAlpha,1,invAlpha,invAlpha,invAlpha,1);
+      __m128i mZero = _mm_setzero_si128();
+      while(count > 0)
+      {
+      __m128i source = _mm_cvtsi64_si128(*((long long*)canvas));
+      //if((len & 6) == 4)
+      //_mm_prefetch(((char *)line)+128, _MM_HINT_T1 );
+      //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+      source = _mm_cvtepu8_epi16(source);
+
+      __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+      tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+      __m128i tmp2  = tmp1;                                              // rychle deleni 255
+      tmp2          = _mm_srli_epi16(tmp2,8);                   // >> 8
+      source        = _mm_blend_epi16(tmp2,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+      //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+      //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+      //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+      source        = _mm_packus_epi16(source, mZero );         // pack
+
+      *((long long*)canvas) =  _mm_cvtsi128_si64(source);
+
+       canvas += 8;
+      count-=2;
+      }
+  }
+
   /*
    alpha : 0 - 256
 */
@@ -238,7 +272,7 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
 
     unsigned char * line = canvas;
     len /= 4;
-    /*
+    
     // fix bad align
     unsigned int tmp = ((unsigned int)line) & 0xf; 
 
@@ -249,15 +283,16 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
         len -= 1;
         line+=4;
     }
-
-    while(len > 1)
+    
+    if(len > 1)
     {
-        Apply2ColorPixelSSE(line,r,g,b,alpha);
+        int tmpLen = len - (len&1);
+        Apply2ColorPixelSSE(line,tmpLen, r,g,b,alpha);
 
-        len -= 2;
-        line+=8;
+        len -= tmpLen;
+        line+=tmpLen*4;
     }
-    */
+    
 
     if(len > 0)
     {

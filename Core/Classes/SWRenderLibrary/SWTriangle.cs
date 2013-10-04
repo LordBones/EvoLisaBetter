@@ -418,7 +418,33 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             //nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
 
-            FastRowsApplyColor(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+            //FastRowsApplyColor(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+            FastRowsApplyColorNative(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+        }
+
+        void FastRowsApplyColorNative(byte[] canvas, int canvasWidth, short[] ranges, int rangeStartY, int rangeEndY, int r, int g, int b, int alpha)
+        {
+            //if(alpha> 0) alpha++;
+            // convert alpha value from range 0-255 to 0-256
+            
+
+
+            int rowStartIndex = (rangeStartY) * canvasWidth;
+
+            for (int i = rangeStartY * 2; i < rangeEndY * 2; i += 2)
+            {
+                int index = rowStartIndex + (ranges[i]) * 4;
+
+                // 
+                int end = rowStartIndex + (ranges[i + 1]+1) * 4-1;
+
+                nativeFunc.RowApplyColorSSE64(canvas, index, end, r,g,b, alpha);
+
+
+                
+
+                rowStartIndex += canvasWidth;
+            }
         }
 
         void FastRowsApplyColor(byte [] canvas, int canvasWidth, short [] ranges, int rangeStartY, int rangeEndY,  int r , int g, int b, int alpha)

@@ -137,7 +137,7 @@ namespace GenArt.AST
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 35)
+                    if (Tools.GetRandomNumber(0, 101) < 50)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
