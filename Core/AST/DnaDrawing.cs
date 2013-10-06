@@ -106,7 +106,7 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 101) < 5)
+                if (Tools.GetRandomNumber(0, 101) < 10)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -122,18 +122,18 @@ namespace GenArt.AST
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 5)
+                if (Tools.GetRandomNumber(0, 101) < 20)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                     continue;
                 }
-                if (Tools.GetRandomNumber(0, 101) < 5)
-                {
-                    SwapPolygon();
-                    //if (SwapPolygon2())
-                        continue;
-                }
+                //if (Tools.GetRandomNumber(0, 101) < 5)
+                //{
+                //    SwapPolygon();
+                //    //if (SwapPolygon2())
+                //        continue;
+                //}
 
                 if (Polygons.Length > 0)
                 {

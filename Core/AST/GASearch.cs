@@ -37,7 +37,7 @@ namespace GenArt.Core.AST
         private float [] _similarity = new float[0];
 
         public int CONST_DynamicMutationGenInterval = 1000;
-        private const int CONST_MutationMaxRate = 255; // 255 means big mutation changes
+        private const byte CONST_MutationMaxRate = 255; // 255 means big mutation changes
 
 
         private int _popSize=  1;
@@ -376,13 +376,13 @@ namespace GenArt.Core.AST
                 int tmpindexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
                 indexParent1 = tmpindexParent1;
                 int tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
-                //if (this._fittness[tmpindexParent1]/((1.0-this._similarity[tmpindexParent1]+1.0)) > 
-                //    this._fittness[tmpindexParent2]/((1.0-this._similarity[tmpindexParent2]+1.0)) )
-                //    indexParent1 = tmpindexParent2;
-
-                if (this._fittness[tmpindexParent1]  >
-                   this._fittness[tmpindexParent2] )
+                if (this._fittness[tmpindexParent1] * (((this._similarity[tmpindexParent1]) + 1.0)) >
+                    this._fittness[tmpindexParent2] * (((this._similarity[tmpindexParent2]) + 1.0)))
                     indexParent1 = tmpindexParent2;
+
+                //if (this._fittness[tmpindexParent1]  >
+                //   this._fittness[tmpindexParent2] )
+                //    indexParent1 = tmpindexParent2;
 
                 //tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
 
