@@ -200,5 +200,25 @@ namespace GenArt.Core.AST
 
             drawing.SetDirty();
         }
+
+        public override bool IsPointInside(DnaPoint point)
+        {
+            return point.X >= this.StartPoint.X && point.X <= this.EndPoint.X
+                && point.Y >= this.StartPoint.Y && point.Y <= this.EndPoint.Y;
+        }
+
+        public override bool IsLineCrossed(DnaPoint startLine, DnaPoint endLine)
+        {
+            if (GraphicFunctions.LineIntersect(startLine, endLine, 
+                this.StartPoint, new DnaPoint(this.EndPoint.X,this.StartPoint.Y)))  return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                new DnaPoint(this.EndPoint.X, this.StartPoint.Y), this.EndPoint)) return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                this.StartPoint, new DnaPoint(this.StartPoint.X, this.EndPoint.Y))) return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                new DnaPoint(this.StartPoint.X, this.EndPoint.Y), this.EndPoint)) return true;
+
+            return false;
+        }
     }
 }

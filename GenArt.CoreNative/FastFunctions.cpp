@@ -220,6 +220,66 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       _mm_store_si128((__m128i*)canvas,sourceRB);
   }
 
+   /*
+   alpha : 0 - 256
+*/
+  void Apply4ColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int alpha)
+  {
+      int invAlpha = 256 - alpha;
+
+      unsigned int tmpColor = (r*alpha)<<16 | b*alpha;
+
+      __m128i mColorRBTimeAlpha = _mm_set1_epi32(tmpColor);
+      
+      //__m128i mColorRBTimeAlpha = _mm_setr_epi16(b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha);
+      __m128i mColorGTimeAlpha = _mm_set1_epi16(g*alpha);
+
+
+      __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+      __m128i mMaskGAnd = _mm_setr_epi8(0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0);
+      __m128i mMaskAAnd = _mm_setr_epi8(0,0,0,0xff,0,0,0,0xff,0,0,0,0xff,0,0,0,0xff);
+      while(count > 0)
+      {
+   /*   __m128i mMaskGAnd = _mm_setr_epi16(0xff00,0,0xff00,0,0xff00,0,0xff00,0);
+      __m128i mMaskAAnd = _mm_setr_epi16(0,0xff00,0,0xff00,0,0xff00,0,0xff00);*/
+
+      __m128i sourceRB = _mm_load_si128((__m128i*)canvas); // load    ArgbArgbArgbArgb
+      _mm_prefetch((char *)canvas+16,_MM_HINT_T0);
+      __m128i sourceG = _mm_and_si128(sourceRB,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
+      sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
+      __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
+      sourceRB = _mm_andnot_si128(mMaskAAnd,sourceRB);
+
+
+      sourceG = _mm_srli_epi16(sourceG,8);                 // shift for compute    xxxgxxxgxxxgxxxg
+      // in source is now  xrxbxrxbxrxbxrxb
+      sourceRB = _mm_mullo_epi16(sourceRB,mMullInvAlpha);    // sourceRB <= sourceRB*invAlpha
+      sourceRB = _mm_adds_epu16(sourceRB,mColorRBTimeAlpha); // sourceRB <= sourceRB+(colorRB*Alpha)
+      sourceRB = _mm_srli_epi16(sourceRB,8);                         // now in sourceRB is sourceRB/255
+      sourceG = _mm_mullo_epi16(sourceG,mMullInvAlpha);    // sourceG <= sourceG*invAlpha
+      sourceG = _mm_adds_epu16(sourceG,mColorGTimeAlpha); // sourceG <= sourceG+(colorG*Alpha)
+
+      //sourceG = _mm_srli_epi16(sourceG,8);                           // now in sourceG is sourceG/255
+
+      // now merge back xrxb.... xxxg.... into xrgb....
+
+      //sourceG = _mm_slli_epi16(sourceG,8);
+      //sourceG = _mm_and_si128(mMaskGAnd,sourceG);
+      //sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
+      //sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+
+
+      sourceG = _mm_and_si128(mMaskGAnd,sourceG);
+      __m128i tmp = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
+      sourceRB =_mm_or_si128(tmp,sourceG);         // now in sourceRB is xrgbxrgb....
+
+      _mm_store_si128((__m128i*)canvas,sourceRB);
+
+      canvas+=16;
+      count-=4;
+      }
+  }
+
 
  int FastFunctions::ApplyColor(int colorChanel, int axrem, int rem)
 {
@@ -269,9 +329,9 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
 {
     // convert alpha value from range 0-255 to 0-256
     alpha = (alpha*256)/255;
-
-    unsigned char * line = canvas;
     len /= 4;
+    unsigned char * line = canvas;
+     
     
     // fix bad align
     unsigned int tmp = ((unsigned int)line) & 0xf; 
@@ -293,12 +353,14 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
         line+=tmpLen*4;
     }
     
-
+    
     if(len > 0)
     {
-        ApplyColorPixelSSE(line,len,r,g,b,alpha);
+        //ApplyColorPixelSSE(line,len,r,g,b,alpha);
+        ApplyColorPixelSSE(line,r,g,b,alpha);
     }
-
+    
+    
     /*while(len > 0)
     {
         ApplyColorPixelSSE(line,r,g,b,alpha);
@@ -314,14 +376,37 @@ void FastFunctions::FastRowApplyColorSSE64(unsigned char * canvas, int len, int 
 void FastFunctions::FastRowApplyColorSSE128(unsigned char * canvas, int len, int r , int g, int b, int alpha)
 {
     alpha = (alpha*256)/255;
-
+    len /= 4;
     // implementace (color*alpha + (255-alpha)*source)/255 
 
-    int invAlpha = 256-alpha;
+   
 
     unsigned char * line = canvas;
 
-    while( len > 0)
+    if(len > 3)
+    {
+        unsigned int tmp = ((unsigned int)line) & 0xf; 
+        if(tmp == 0x4)
+        {
+            ApplyColorPixelSSE(line,3,r,g,b,alpha);
+            len -= 3;
+            line+=12;
+        }
+        else if(tmp == 0x8)
+        {
+            ApplyColorPixelSSE(line,2,r,g,b,alpha);
+            len -= 2;
+            line+=8;
+        }
+        else if(tmp == 0xc)
+        {
+            ApplyColorPixelSSE(line,r,g,b,alpha);
+            len -= 1;
+            line+=4;
+        }
+    }
+
+   /* while( len > 0)
     {
         unsigned int tmp = ((unsigned int)line) & 0xf; 
         if((tmp == 0xc || tmp == 0x4 || tmp == 0x8) )
@@ -335,22 +420,22 @@ void FastFunctions::FastRowApplyColorSSE128(unsigned char * canvas, int len, int
         {
             break;
         }
-    }
+    }*/
 
-    while(len > 3)
+    if(len > 3)
     {
-        Apply4ColorPixelSSE(line,r,g,b,alpha);
-
-        len -= 4;
-        line+=16;
+        int tmpLen = len - (len&3);
+        //Apply4ColorPixelSSE(line,r,g,b,alpha);
+        Apply4ColorPixelSSE(line,tmpLen,r,g,b,alpha);
+        len -= tmpLen;
+        
+        line+=tmpLen*4;
     }
+    
 
-    while(len > 0)
+    if(len > 0)
     {
-        ApplyColorPixelSSE(line,r,g,b,alpha);
-
-        len -= 1;
-        line+=4;
+        ApplyColorPixelSSE(line,len,r,g,b,alpha);
     }
 }
 

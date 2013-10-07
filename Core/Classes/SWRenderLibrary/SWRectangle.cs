@@ -37,15 +37,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int g = color.G;
             int b = color.B;
             int a = color.A;
-
+             
             //int indexY = minY * this._canvasWidth;
             for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
             {
                 //int length = rowEndIndex - rowStartIndex + 1;
                 //byte [] test = new byte[length];
-
+                 
                 //Array.Copy(canvas.Data, rowStartIndex, test, 0, length);
-
+                 
                 nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, r,g,b,a);
                 //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
                 //RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);

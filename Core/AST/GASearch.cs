@@ -376,13 +376,13 @@ namespace GenArt.Core.AST
                 int tmpindexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
                 indexParent1 = tmpindexParent1;
                 int tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
-                if (this._fittness[tmpindexParent1] * (((this._similarity[tmpindexParent1]) + 1.0)) >
-                    this._fittness[tmpindexParent2] * (((this._similarity[tmpindexParent2]) + 1.0)))
-                    indexParent1 = tmpindexParent2;
-
-                //if (this._fittness[tmpindexParent1]  >
-                //   this._fittness[tmpindexParent2] )
+                //if (this._fittness[tmpindexParent1] * (((this._similarity[tmpindexParent1]*4.0) + 1.0)) >
+                //    this._fittness[tmpindexParent2] * (((this._similarity[tmpindexParent2]*4.0) + 1.0)))
                 //    indexParent1 = tmpindexParent2;
+
+                if (this._fittness[tmpindexParent1] >
+                   this._fittness[tmpindexParent2])
+                    indexParent1 = tmpindexParent2;
 
                 //tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
 

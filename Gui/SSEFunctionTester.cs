@@ -40,7 +40,7 @@ namespace GenArt
                 int a = rnd.Next(0, 256);
 
                 native.RowApplyColor(colorsCorrect, 0, 15, r, g, b, a);
-                native.RowApplyColorSSE64(colorsTest, 0, 15, r, g, b, a);
+                native.RowApplyColorSSE128(colorsTest, 0, 15, r, g, b, a);
 
 
 //                native.RowApplyColor(colorsCorrect, 0, 15, 128, 50, 90, 255);

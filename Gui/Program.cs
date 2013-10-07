@@ -30,11 +30,39 @@ namespace GenArt
         {
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
+            const int CONST_LoopCount = 1000000;
+            CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
+
+            int end = 79;
+            NativeFunctions nativeFunc = new NativeFunctions();
+
+            PerfStart();
+            for (int i = 0; i < CONST_LoopCount; i++)
+            {
+                //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
+                nativeFunc.RowApplyColorSSE128(canvas.Data, 0, end, 128, 100, 230, 135);
+                //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
+            } 
+            long ticks = PerfEnd();
+            
+            TimeSpan ts = new TimeSpan(ticks);
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds,CONST_LoopCount,ticks/(double)CONST_LoopCount);
+            //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
+            long mpoints = (((end + 1) / 4) * CONST_LoopCount);
+            Console.Out.WriteLine("points fill: {0} Mpoints/s", (((1.0 / ts.TotalSeconds)* mpoints) / 1000000));
+            Console.Out.WriteLine("points fill: {0} Mpoints", (mpoints / 1000000));
+
+        }
+
+        private static void TestBenchmarkColorFill2()
+        {
+            if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
+
             const int CONST_LoopCount = 6000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
             short [] ranges = new short[2000];
 
-            for (int i = 0; i < ranges.Length; i+=2)
+            for (int i = 0; i < ranges.Length; i += 2)
             {
                 ranges[i] = 0;
                 ranges[i + 1] = 999;
@@ -50,9 +78,9 @@ namespace GenArt
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
             long ticks = PerfEnd();
-            
+
             TimeSpan ts = new TimeSpan(ticks);
-            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds,CONST_LoopCount,ticks/(double)CONST_LoopCount);
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LoopCount, ticks / (double)CONST_LoopCount);
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
             Console.Out.WriteLine("points fill: {0} Mpoints", ((long)(ranges.Length / 2) * 1000 * CONST_LoopCount) / 1000000);
         }
