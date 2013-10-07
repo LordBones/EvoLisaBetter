@@ -106,7 +106,7 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 101) < 10)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -122,22 +122,22 @@ namespace GenArt.AST
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 20)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                     continue;
                 }
-                //if (Tools.GetRandomNumber(0, 101) < 5)
-                //{
-                //    SwapPolygon();
-                //    //if (SwapPolygon2())
-                //        continue;
-                //}
+                if (Tools.GetRandomNumber(0, 101) < 11)
+                {
+                    //SwapPolygon();
+                    SwapPolygon2();
+                    
+                }
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 50)
+                    if (Tools.GetRandomNumber(0, 101) < 20)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
@@ -154,7 +154,7 @@ namespace GenArt.AST
                         //else
                         //{
                         Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
-
+                        
                         //Color nearColor = Color.Black;
 
                         //if (Polygons[index] is DnaPolygon)
@@ -173,7 +173,7 @@ namespace GenArt.AST
                     }
 
                     if (!this.IsDirty ||
-                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 35))
+                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 10))
                     {
                         int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
@@ -294,57 +294,40 @@ namespace GenArt.AST
             // while (Tools.GetRandomNumber(1, 11) <= 5);
         }
 
-        bool IsTrinagleInterleaving(DnaPoint [] tri,DnaPoint [] tri2 )
+       
+        bool IsPrimitiveInterleaving(DnaPrimitive who, DnaPrimitive interWith)
         {
-            int startX = int.MaxValue;
-            int startY = int.MaxValue;
-            int endX = 0;
-            int endY = 0;
-
-            int startX2 = int.MaxValue;
-            int startY2 = int.MaxValue;
-            int endX2 = 0;
-            int endY2 = 0;
-
-            for (int index = 0; index < 3; index++)
+            DnaPolygon poly = who as DnaPolygon;
+            if (poly != null)
             {
-                DnaPoint p = tri[index];
-                DnaPoint p2 = tri2[index];
-
-                if (p.X < startX) startX = p.X;
-                if (p.Y < startY) startY = p.Y;
-                if (p.X > endX) endX = p.X;
-                if (p.Y > endY) endY = p.Y;
-
-                if (p2.X < startX2) startX2 = p2.X;
-                if (p2.Y < startY2) startY2 = p2.Y;
-                if (p2.X > endX2) endX2 = p2.X;
-                if (p2.Y > endY2) endY2 = p2.Y;
-
-            }
-
-            if ((startY <= startY2 && endY <= startY2) ||
-               (startY >= endY2 && endY >= endY2) ||
-                (startX <= startX2 && endX <= startX2) ||
-               (startX >= endX2 && endX >= endX2)
-                )
-            {
+                DnaPoint [] points = poly._Points;
+                if(interWith.IsPointInside(points[0]) || 
+                   interWith.IsPointInside(points[1]) ||
+                   interWith.IsPointInside(points[2]) ||
+                   interWith.IsLineCrossed(points[0],points[1]) ||
+                   interWith.IsLineCrossed(points[1],points[2]) || 
+                   interWith.IsLineCrossed(points[2],points[0]))
+                    return true;
+                else
                 return false;
             }
 
-            return true;
-        }
-
-        bool IsTrinagleInterleaving2(DnaPoint[] tri, DnaPoint[] tri2)
-        {
-            if ( GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]) ||
-                 GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]) ||
-                 GraphicFunctions.IsPointInTriangle(tri[0], tri[1], tri[2], tri2[1]))
+            DnaRectangle rec = who as DnaRectangle;
+            if (rec != null)
             {
-                return true;
+                DnaPoint [] points = rec.Points;
+
+                if (interWith.IsLineCrossed(points[0], new DnaPoint(points[1].X, points[0].Y)) ||
+                    interWith.IsLineCrossed(points[0], new DnaPoint(points[0].X, points[1].Y)) ||
+                    interWith.IsLineCrossed(points[1], new DnaPoint(points[1].X, points[0].Y)) ||
+                    interWith.IsLineCrossed(points[1], new DnaPoint(points[0].X, points[1].Y)))
+
+                    return true;
+                else
+                    return false;
             }
 
-            return false;
+            return true;
 
         }
 
@@ -374,13 +357,13 @@ namespace GenArt.AST
             if (swapUp)
             {
                 int tmpIndex = index-1;
-                while (tmpIndex >= 0 && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
+                while (tmpIndex >= 0 && !IsPrimitiveInterleaving(Polygons[tmpIndex], Polygons[index]))
                  tmpIndex--;
 
                 if (tmpIndex < 0)
                 {
                     tmpIndex = index+1;
-                    while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
+                    while (tmpIndex < Polygons.Length && !IsPrimitiveInterleaving(Polygons[tmpIndex], Polygons[index]))
                         tmpIndex++;
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji
@@ -395,13 +378,13 @@ namespace GenArt.AST
             else
             {
                 int tmpIndex = index + 1;
-                while (tmpIndex < Polygons.Length && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
+                while (tmpIndex < Polygons.Length && !IsPrimitiveInterleaving(Polygons[tmpIndex], Polygons[index]))
                     tmpIndex++;
 
                 if (tmpIndex >= Polygons.Length)
                 {
                     tmpIndex = index - 1;
-                    while (tmpIndex >=0 && !IsTrinagleInterleaving2(Polygons[tmpIndex].Points, Polygons[index].Points))
+                    while (tmpIndex >= 0 && !IsPrimitiveInterleaving(Polygons[tmpIndex], Polygons[index]))
                         tmpIndex--;
 
                     // nema smysl prohazovat dva polygony nikde se neprekryvaji

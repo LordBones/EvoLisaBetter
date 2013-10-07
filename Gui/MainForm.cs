@@ -488,14 +488,30 @@ namespace GenArt
 
             foreach (var item in dna.Polygons)
             {
-                StringBuilder sbPoints = new StringBuilder();
-                sbPoints.AppendFormat("{0},{1} ", item.Points[0].X,item.Points[0].Y);
-                sbPoints.AppendFormat("{0},{1} ", item.Points[1].X,item.Points[1].Y);
-                sbPoints.AppendFormat("{0},{1} ", item.Points[2].X,item.Points[2].Y);
+                DnaPolygon poly = item as DnaPolygon;
 
-                sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",
-                    sbPoints.ToString(), item.Brush.Red,item.Brush.Green, item.Brush.Blue,
-                    (item.Brush.Alpha / 255.0).ToString("0.###",CultureInfo.InvariantCulture));
+                if (poly != null)
+                {
+                    StringBuilder sbPoints = new StringBuilder();
+                    sbPoints.AppendFormat("{0},{1} ", item.Points[0].X, item.Points[0].Y);
+                    sbPoints.AppendFormat("{0},{1} ", item.Points[1].X, item.Points[1].Y);
+                    sbPoints.AppendFormat("{0},{1} ", item.Points[2].X, item.Points[2].Y);
+
+                    sb.AppendFormat("<polygon points=\"{0}\" style=\"fill:rgb({1},{2},{3});fill-opacity:{4};\"/>",
+                        sbPoints.ToString(), item.Brush.Red, item.Brush.Green, item.Brush.Blue,
+                        (item.Brush.Alpha / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
+                }
+
+                DnaRectangle rec = item as DnaRectangle;
+
+                if (rec != null)
+                {
+                    sb.AppendFormat("<rect x=\"{0}\" y=\"{1}\" width=\"{2}\" height=\"{3}\"" +
+               " style=\"fill:rgb({4},{5},{6});fill-opacity:{7};\"/>",
+               rec.StartPoint.X, rec.StartPoint.Y, rec.Width, rec.Height, rec.Brush.Red, rec.Brush.Green, rec.Brush.Blue,
+               (rec.Brush.Alpha / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
+           
+                }
                 sb.AppendLine();
 
             }
