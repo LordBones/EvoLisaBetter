@@ -15,6 +15,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private CanvasBGRA _drawCanvas = new CanvasBGRA(0,0);
         private SWTriangle _drawTriangle;
         private SWRectangle _drawRectangle;
+        private SWElipse _drawElipse;
 
         public long FillPixels = 0;
 
@@ -32,6 +33,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             this._drawTriangle = new SWTriangle();
             this._drawRectangle = new SWRectangle();
             this._drawCanvas = new CanvasBGRA(width,height);
+            this._drawElipse = new SWElipse();
         }
 
         private readonly static Color _black = Color.FromArgb(255, 0, 0, 0); 
@@ -65,6 +67,12 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 
 
             }
+
+            this._drawElipse.Render(new DnaElipse() { Middle=new DnaPoint(100,100),Height= 50, Width=50 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(100, 101), Height = 50, Width = 50 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(100, 102), Height = 50, Width = 50 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(100, 103), Height = 50, Width = 50 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(100, 104), Height = 50, Width = 50 }, _drawCanvas);
         }
 
     }

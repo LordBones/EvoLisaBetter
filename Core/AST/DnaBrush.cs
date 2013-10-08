@@ -4,8 +4,7 @@ using System.Drawing;
 using GenArt.Core.Classes;
 
 namespace GenArt.AST
-{
-    [Serializable]
+{   
     public struct DnaBrush
     {
         public byte Red;
