@@ -18,20 +18,96 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (elipse.Width <= 0 || elipse.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
 
-            FillElipse(canvas, elipse.Middle.X, elipse.Middle.Y, elipse.Width, elipse.Height, elipse.Brush.BrushColor);
+
+            //if((elipse.Height&1) == 0)
+            // FillElipseEven(canvas, elipse.Middle.X, elipse.Middle.Y, elipse.Width, elipse.Height, elipse.Brush.BrushColor);
+            //else
+            //FillElipseOdd(canvas, elipse.Middle.X, elipse.Middle.Y, elipse.Width, elipse.Height, elipse.Brush.BrushColor);
+            FillElipseOddFill(canvas, elipse.StartPoint.X, elipse.StartPoint.Y, elipse.Width, elipse.Height, elipse.Brush.BrushColor);
+
         }
 
-        private void FillElipse(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        private void FillElipseOddFill(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
         {
-            int a = width;
-            int b = height;
+            int r = color.R;
+            int g = color.G;
+            int b = color.B;
+            int a = color.A;
 
-            for (int dy = 1; dy < height; dy++)
+            float hw = width / 2.0f;
+            int hh = (height - 1) / 2;
+            float fhh = height / 2.0f;
+
+            //TestPoint(canvas, x, y + hh);
+            //TestPoint(canvas, x + width - 1, y + hh);
+
+            int upY =  (y + hh) * canvas.Width;
+            int upX1 = (x) * 4 + upY;
+            int upX2 = (x + width - 1) * 4 + upY;
+
+            nativeFunc.RowApplyColor(canvas.Data, upX1, upX2, r, g, b, a);
+            //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+
+            for (int dy = 1; dy <= hh; dy++)
             {
-                int tmpx = (int)Math.Sqrt(height * height * (1.0 - dy * dy / (float)width * width));
+                double tmpx = Math.Sqrt(hw * hw * (1.0 - (dy * dy) / ((float)fhh * fhh)));
+                  
+                upY =  (y + hh - dy)*canvas.Width;
+                upX1 = ((int)(x + hw - tmpx)) * 4 + upY;
+                upX2 = ((int)(x + hw + tmpx)) * 4 + upY;
 
-                TestPoint(canvas, x - tmpx, dy);
-                TestPoint(canvas, x + tmpx, dy);
+
+                nativeFunc.RowApplyColor(canvas.Data, upX1, upX2,r,g,b,a);
+                //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+
+                upY =  (y + hh + dy) * canvas.Width;
+                upX1 = ((int)(x + hw - tmpx)) * 4 + upY;
+                upX2 = ((int)(x + hw + tmpx)) * 4 + upY;
+
+
+                nativeFunc.RowApplyColor(canvas.Data, upX1, upX2, r, g, b, a);
+                //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+
+            }
+        }
+
+        private void FillElipseOdd(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        {
+            float hw = width / 2.0f;
+            int hh = (height-1) / 2;
+            float fhh = height / 2.0f;
+
+            TestPoint(canvas, x , y+hh);
+            TestPoint(canvas, x + width-1, y+hh);
+
+            for (int dy = 1; dy <= hh; dy++)
+            {
+                double tmpx = Math.Sqrt(hw * hw * (1.0 - (dy * dy) / ((float)fhh * fhh)));
+
+                TestPoint(canvas, (int)(x + hw - tmpx), y+hh - dy);
+                TestPoint(canvas, (int)(x + hw + tmpx), y + hh - dy);
+                TestPoint(canvas, (int)(x + hw - tmpx), y + hh + dy);
+                TestPoint(canvas, (int)(x + hw + tmpx), y + hh + dy);
+
+            }
+        }
+
+        private void FillElipseEven(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        {
+            float hw = width / 2.0f;
+            float hh = height / 2.0f;
+
+
+            
+            int highMax = (int)hh;
+            for (int dy = 0; dy < highMax; dy++)
+            {
+                int tmpx = (int)Math.Ceiling(Math.Sqrt(hw * hw * (1.0 - (dy * dy) / ((float)hh * hh))));
+
+                TestPoint(canvas, (int)(x+hw - tmpx), (int)(y+hh-dy-0.5));
+                TestPoint(canvas, (int)(x+hw + tmpx), (int)(y+hh-dy-0.5));
+                TestPoint(canvas, (int)(x+hw - tmpx), (int)(y + hh + dy + 0.5));
+                TestPoint(canvas, (int)(x+hw + tmpx), (int)(y + hh + dy + 0.5));
 
             }
         }
@@ -68,6 +144,42 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             canvas.Data[index] = 255;
             canvas.Data[index+1] = 0;
             canvas.Data[index+2] = 0;
+
+        }
+
+        private void RowApplyColorSafe(byte[] data, int startIndex, int endIndex, int r, int g, int b, int alpha)
+        {
+            alpha = (alpha * 256) / 255;
+
+            int invAlpha = 256 - alpha;
+
+            int cb = b * alpha;
+            int cg = g * alpha;
+            int cr = r * alpha;
+
+            while (startIndex <= endIndex)
+            {
+                int tb = data[startIndex];
+                int tg = data[startIndex + 1];
+                int tr = data[startIndex + 2];
+
+
+                tb = (cb + (tb * invAlpha)) >> 8;
+                tg = (cg + (tg * invAlpha)) >> 8;
+                tr = (cr + (tr * invAlpha)) >> 8;
+
+                /*tb = tb + (((b-tb)*alpha)>>8);
+                tg=tg + (((g-tg)*alpha)>>8);
+                tr=tr + (((r-tr)*alpha)>>8);*/
+
+                data[startIndex] = (byte)tb;
+                data[startIndex + 1] = (byte)tg;
+                data[startIndex + 2] = (byte)tr;
+
+
+
+                startIndex += 4;
+            }
 
         }
     }

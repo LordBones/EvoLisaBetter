@@ -33,6 +33,12 @@ namespace GenArt.Classes
                         g.FillRectangle(brush, rectangle.StartPoint.X * scale, rectangle.StartPoint.Y * scale,
                             rectangle.Width * scale, rectangle.Height * scale);
                     }
+                    else if (drawing.Polygons[index] is DnaElipse)
+                    {
+                        DnaElipse elipse = (DnaElipse)drawing.Polygons[index];
+                        g.FillEllipse(brush, elipse.StartPoint.X * scale, elipse.StartPoint.Y * scale,
+                            elipse.Width * scale, elipse.Height * scale);
+                    }
                 }
             }
                
@@ -109,6 +115,12 @@ namespace GenArt.Classes
                         DnaRectangle rectangle = (DnaRectangle)drawing.Polygons[index];
                         g.DrawRectangle(pen, rectangle.StartPoint.X * scale, rectangle.StartPoint.Y * scale,
                             rectangle.Width * scale, rectangle.Height * scale);
+                    }
+                    else if (drawing.Polygons[index] is DnaElipse)
+                    {
+                        DnaElipse elipse = (DnaElipse)drawing.Polygons[index];
+                        g.DrawEllipse(pen, elipse.StartPoint.X * scale, elipse.StartPoint.Y * scale,
+                            elipse.Width * scale, elipse.Height * scale);
                     }
                 }
 

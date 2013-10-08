@@ -28,6 +28,11 @@ namespace GenArt
 
         private static void TestBenchmarkColorFill()
         {
+            DNARenderer dr = new DNARenderer(200, 200);
+            //CanvasBGRA tc = new CanvasBGRA(200, 200);
+            dr.RenderDNA(new DnaDrawing(200, 200), DNARenderer.RenderType.SoftwareTriangle);
+            CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test.bmp");
+
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
             const int CONST_LoopCount = 1000000;

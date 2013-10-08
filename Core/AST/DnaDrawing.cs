@@ -112,13 +112,30 @@ namespace GenArt.AST
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
-                        if (Tools.GetRandomNumber(0, 2) < 1)
-                            AddPolygon(mutationRate,errorMatrix, destImage, edgePoints);
+                        int tmp = Tools.GetRandomNumber(0, 3);
+                        if (tmp == 0)
+                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
+                        else if (tmp == 1)
+                        {
+                            AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
+                        }
                         else
                         {
                             AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         }
-                        continue;
+
+                        //if (Tools.GetRandomNumber(0, 3) < 1)
+                        //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
+                        //if (Tools.GetRandomNumber(0, 3) < 1)
+                        //{
+                        //    AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
+                        //}
+                        //    if (Tools.GetRandomNumber(0, 3) < 1)
+                        //{
+                        //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
+                        //}
+
+                        
                     }
                 }
 
@@ -126,7 +143,7 @@ namespace GenArt.AST
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
-                    continue;
+                   
                 }
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
@@ -587,6 +604,52 @@ namespace GenArt.AST
                     {
                         int index = Tools.GetRandomNumber(0, Polygons.Length);
                         polygons.Insert(index, newRectangle);
+                    }
+                    this.Polygons = polygons.ToArray();
+
+
+                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    //Array.Copy(Polygons, polygons, Polygons.Length);
+
+                    //polygons[polygons.Length - 1] = newRectangle;
+                    //Polygons = polygons;
+
+                    SetDirty();
+                }
+            }
+        }
+
+        public void AddElipse(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        {
+            if (Polygons.Length < Settings.ActivePolygonsMax)
+            {
+                if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
+                {
+                    var newElipse = new DnaElipse();
+                    newElipse.Init(mutationRate, errorMatrix, edgePoints);
+
+
+                    if (_rawDestImage != null)
+                    {
+                        //Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
+                        Color nearColor = 
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newElipse, _rawDestImage);
+
+                        newElipse.Brush.SetByColor(nearColor);
+                        //newPolygon.Brush.InitRandom();
+                    }
+
+                
+                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    if (polygons.Count == 0)
+                        polygons.Add(newElipse);
+                    else
+                    {
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        polygons.Insert(index, newElipse);
                     }
                     this.Polygons = polygons.ToArray();
 

@@ -453,6 +453,53 @@ namespace GenArt.Core.Classes
 
             return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
         }
+
+        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaElipse elipse, CanvasBGRA _rawDestImage)
+        {
+            DnaPoint [] points = new DnaPoint[4];
+            points[0] = elipse.StartPoint;
+            points[0].X = (short)(elipse.StartPoint.X + elipse.Width/2);
+            points[1] = elipse.StartPoint;
+            points[1].Y = (short)(elipse.StartPoint.Y + elipse.Height / 2); ;
+            points[2].X = (short)(elipse.StartPoint.X + elipse.Width-1);
+            points[2].Y = points[1].Y;
+            points[3].X = points[0].X;
+            points[3].Y = (short)(elipse.StartPoint.Y + elipse.Height - 1);
+
+
+
+            byte [] destImageData = _rawDestImage.Data;
+
+            int middleColorIndex = Helper_PolygonMiddlePointIndex(points, _rawDestImage);
+
+            int sumRed = 0, sumGreen = 0, sumBlue = 0;
+
+            Helper_PolygonMiddleEdgeColorSum(points, _rawDestImage, false, 0, 0, 0, ref sumRed, ref sumGreen, ref sumBlue);
+            Helper_PolygonMiddlePointColorAdd(middleColorIndex, _rawDestImage, false, 0, 0, 0, ref sumRed, ref sumGreen, ref sumBlue);
+            Helper_PolygonPointsColorSum(points, _rawDestImage, false, 0, 0, 0, ref sumRed, ref sumGreen, ref sumBlue);
+            Helper_PolygonMiddlePointsBetweenPointAndMiddle_ColorSum(points, _rawDestImage, middleColorIndex, false, 0, 0, 0, ref sumRed, ref sumGreen, ref sumBlue);
+
+
+            sumBlue /= points.Length * 3 + 1;
+            sumGreen /= points.Length * 3 + 1;
+            sumRed /= points.Length * 3 + 1;
+
+            int sumDiffRed = 0, sumDiffGreen = 0, sumDiffBlue = 0;
+
+            Helper_PolygonMiddleEdgeColorSum(points, _rawDestImage, true, sumRed, sumGreen, sumBlue, ref sumDiffRed, ref sumDiffGreen, ref sumDiffBlue);
+            Helper_PolygonMiddlePointColorAdd(middleColorIndex, _rawDestImage, true, sumRed, sumGreen, sumBlue, ref sumDiffRed, ref sumDiffGreen, ref sumDiffBlue);
+            Helper_PolygonPointsColorSum(points, _rawDestImage, true, sumRed, sumGreen, sumBlue, ref sumDiffRed, ref sumDiffGreen, ref sumDiffBlue);
+            Helper_PolygonMiddlePointsBetweenPointAndMiddle_ColorSum(points, _rawDestImage, middleColorIndex, true, sumRed, sumGreen, sumBlue, ref sumDiffRed, ref sumDiffGreen, ref sumDiffBlue);
+
+
+            sumDiffBlue /= points.Length * 3 + 1;
+            sumDiffGreen /= points.Length * 3 + 1;
+            sumDiffRed /= points.Length * 3 + 1;
+
+            int avgSumDiff = (sumDiffBlue + sumDiffRed + sumDiffGreen) / 3;
+
+            return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
+        }
         #endregion
     }
 }
