@@ -20,14 +20,14 @@ namespace GenArt.Core.AST
 
         }
 
-        public int Width
+        public short Width
         {
-            get { return this.EndPoint.X - this.StartPoint.X + 1; }
+            get { return (short)(this.EndPoint.X - this.StartPoint.X + 1); }
         }
 
-        public int Height
+        public short Height
         {
-            get { return this.EndPoint.Y - this.StartPoint.Y + 1; }
+            get { return (short)( this.EndPoint.Y - this.StartPoint.Y + 1); }
         }
 
 
@@ -77,11 +77,13 @@ namespace GenArt.Core.AST
 
             this.StartPoint = origin;
 
-
+            
             int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
+            //int mutationMaxy = Math.Max(2, Math.Min( Tools.MaxHeight - origin.Y - 1,20));
             //int mutationMiddley = mutationMaxy / 2;
 
             int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
+            //int mutationMaxx = Math.Max(2, Math.Min(Tools.MaxWidth - origin.X - 1,20));
             //int mutationMiddlex = mutationMaxx / 2;
 
             var point = new DnaPoint();
@@ -91,7 +93,7 @@ namespace GenArt.Core.AST
             int tmp = Tools.GetRandomNumber(0, mutationMaxx);
 
             point.X = (short)Math.Min(origin.X + tmp, Tools.MaxWidth - 1);
-            if (tmp == 0)
+            if (point.X == origin.X)
                 tmp = Tools.GetRandomNumber(1, mutationMaxy);
             else
                 tmp = Tools.GetRandomNumber(0, mutationMaxy);

@@ -106,7 +106,7 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 101) < 21)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -139,22 +139,30 @@ namespace GenArt.AST
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 101) < 21)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                    
                 }
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 101) < 21)
                 {
                     //SwapPolygon();
                     SwapPolygon2();
                     
                 }
 
+                if (Tools.GetRandomNumber(0, 101) < 21)
+                {
+                    RandomExchangeElipseRectangle();
+                }
+
+
+                
+
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 11)
+                    if (Tools.GetRandomNumber(0, 101) < 21)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
@@ -190,7 +198,7 @@ namespace GenArt.AST
                     }
 
                     if (!this.IsDirty ||
-                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
+                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 21))
                     {
                         int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
@@ -489,6 +497,86 @@ namespace GenArt.AST
 
                 SetDirty();
             }
+        }
+
+        private void RandomExchangeElipseRectangle()
+        {
+            if (Polygons.Length == 0)
+                return;
+
+            int index = Tools.GetRandomNumber(0, Polygons.Length);
+
+            DnaPrimitive primitive = null;
+            int primitiveIndex = 0;
+
+            // find primitive for change
+            int tmp = index;
+            // down
+            while (tmp >= 0)
+            {
+                if (Polygons[tmp] is DnaElipse || Polygons[tmp] is DnaRectangle)
+                {
+                    primitive = Polygons[tmp];
+                    primitiveIndex = tmp;
+                    break;
+                }
+
+                tmp--;
+            }
+
+            if (primitive == null)
+            {
+                index++;
+                while (index < Polygons.Length)
+                {
+                    if (Polygons[index] is DnaElipse || Polygons[index] is DnaRectangle)
+                    {
+                        primitive = Polygons[index];
+                        primitiveIndex = index;
+                        break;
+                    }
+
+                    index++;
+                }
+            }
+
+            if (primitive != null)
+            {
+                DnaElipse elipse = primitive as DnaElipse;
+                if (elipse != null)
+                {
+                    DnaRectangle rec = new DnaRectangle();
+                    rec.Brush = elipse.Brush;
+                    rec.StartPoint = elipse.StartPoint;
+                    rec.EndPoint = elipse.EndPoint;
+
+                    Polygons[primitiveIndex] = rec;
+
+                    SetDirty();
+                    return;
+                }
+
+                DnaRectangle rectangle = primitive as DnaRectangle;
+
+                if (rectangle != null)
+                {
+                    if (rectangle.Width > 4 && rectangle.Height > 4)
+                    {
+                        DnaElipse tmpelipse = new DnaElipse();
+                        tmpelipse.Brush = rectangle.Brush;
+                        tmpelipse.StartPoint = rectangle.StartPoint;
+                        tmpelipse.Width = rectangle.Width;
+                        tmpelipse.Height = rectangle.Height;
+
+
+                        Polygons[primitiveIndex] = tmpelipse;
+
+                        SetDirty();
+                        return;
+                    }
+                }
+            }
+
         }
 
         public void RemovePolygon(ErrorMatrix errorMatrix)

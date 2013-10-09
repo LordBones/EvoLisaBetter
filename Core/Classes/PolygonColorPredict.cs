@@ -416,9 +416,10 @@ namespace GenArt.Core.Classes
             points[0] = rectangle.StartPoint;
             points[1] = rectangle.StartPoint;
             points[1].X = rectangle.EndPoint.X;
-            points[2] = rectangle.StartPoint;
-            points[2].Y = rectangle.EndPoint.Y;
-            points[3] = rectangle.EndPoint;
+            points[2] = rectangle.EndPoint;
+            points[3] = rectangle.StartPoint;
+            points[3].Y = rectangle.EndPoint.Y;
+            
 
 
             byte [] destImageData = _rawDestImage.Data;
@@ -461,10 +462,11 @@ namespace GenArt.Core.Classes
             points[0].X = (short)(elipse.StartPoint.X + elipse.Width/2);
             points[1] = elipse.StartPoint;
             points[1].Y = (short)(elipse.StartPoint.Y + elipse.Height / 2); ;
-            points[2].X = (short)(elipse.StartPoint.X + elipse.Width-1);
-            points[2].Y = points[1].Y;
-            points[3].X = points[0].X;
-            points[3].Y = (short)(elipse.StartPoint.Y + elipse.Height - 1);
+            points[2].X = points[0].X;
+            points[2].Y = (short)(elipse.StartPoint.Y + elipse.Height - 1);
+            points[3].X = (short)(elipse.StartPoint.X + elipse.Width-1);
+            points[3].Y = points[1].Y;
+            
 
 
 

@@ -248,7 +248,7 @@ namespace GenArt.Core.AST
             this._lastBestFittness = bestFittness;
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 3) 
+            if (_generation % 1 == 0) 
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
                 _population[this._population.Length - 1] = this._currentBest;
@@ -325,7 +325,9 @@ namespace GenArt.Core.AST
 
         private byte GetCurrentMutationRate()
         {
-            int positionInMutationRate =  CONST_DynamicMutationGenInterval-1 - ( this._generation % CONST_DynamicMutationGenInterval);
+            //int positionInMutationRate = (this._generation % CONST_DynamicMutationGenInterval);
+            int positionInMutationRate =  CONST_DynamicMutationGenInterval - 1 - (this._generation % CONST_DynamicMutationGenInterval);
+
 
             byte mutatioRate =  (byte)((positionInMutationRate * CONST_MutationMaxRate)/ CONST_DynamicMutationGenInterval);
 
@@ -370,7 +372,7 @@ namespace GenArt.Core.AST
             for (int index = 0; index < _popSize; index++)
             {
                 //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                // indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
+                //indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
 
 

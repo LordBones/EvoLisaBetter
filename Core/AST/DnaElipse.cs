@@ -16,6 +16,7 @@ namespace GenArt.Core.AST
         private short _height;
 
         public DnaPoint StartPoint { get { return _startPoint; } set { _startPoint = value; } }
+        public DnaPoint EndPoint{get{return new DnaPoint((short)(_startPoint.X+_width-1),(short)(_startPoint.Y+_height-1));}}
         public short Width { get { return _width; } set { _width = value; } }
         public short Height { get { return _height; } set {_height = value;} }
 
@@ -65,12 +66,12 @@ namespace GenArt.Core.AST
             this._startPoint = origin;
 
 
-            int mutationMaxy = Math.Max(5, ( (Math.Min(Tools.MaxHeight- origin.Y - 1,20) )) / (256));
-            //int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1, 20))) / (256));
+            //int mutationMaxy = Math.Max(5, ( (Math.Min(Tools.MaxHeight- origin.Y - 1,20) )) );
+            int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1, 20))) / (256));
             //int mutationMiddley = mutationMaxy / 2;
 
-            int mutationMaxx = Math.Max(5, ( (Math.Min(Tools.MaxWidth - origin.X - 1,20))) / (256));
-            //int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1, 20))) / (256));
+            //int mutationMaxx = Math.Max(5, ( (Math.Min(Tools.MaxWidth - origin.X - 1,20))) );
+            int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1, 20))) / (256));
             //int mutationMiddlex = mutationMaxx / 2;
 
             var point = new DnaPoint();

@@ -323,14 +323,16 @@ namespace GenArt.AST
                         DnaPoint newPoint = new DnaPoint();
 
                         // musi byt alespon 2, jinak pada generovani nahodneho cisla
-                        int mutationMax = Math.Max(2, ((MutationRate + 1) * (Tools.MaxWidth - oldPoint.X - 1 )) / (256));
+                        //int mutationMax = Math.Max(2, ((MutationRate + 1) * (Tools.MaxWidth - oldPoint.X - 1 )) / (256));
+                        int mutationMax = Math.Max(2, Math.Min(Tools.MaxWidth - oldPoint.X - 1,20));
                         int mutationMiddle = mutationMax / 2;
 
                         int tmp = Tools.GetRandomNumber(0, mutationMax);
 
                         newPoint.X = (short)Math.Min(Math.Max(0, oldPoint.X + tmp - mutationMiddle), Tools.MaxWidth - 1);
 
-                        mutationMax = Math.Max(2,((MutationRate + 1) * (Tools.MaxHeight - oldPoint.Y-1)) / (256));
+                        //mutationMax = Math.Max(2,((MutationRate + 1) * (Tools.MaxHeight - oldPoint.Y-1)) / (256));
+                        mutationMax = Math.Max(2, Math.Min(Tools.MaxHeight - oldPoint.Y - 1,20));
                         mutationMiddle = mutationMax / 2;
 
 
