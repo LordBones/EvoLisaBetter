@@ -248,7 +248,7 @@ namespace GenArt.Core.AST
             this._lastBestFittness = bestFittness;
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 0) 
+            if (_generation % 1 == 3) 
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
                 _population[this._population.Length - 1] = this._currentBest;
@@ -329,6 +329,7 @@ namespace GenArt.Core.AST
 
             byte mutatioRate =  (byte)((positionInMutationRate * CONST_MutationMaxRate)/ CONST_DynamicMutationGenInterval);
 
+            
             return mutatioRate;
         }
 
@@ -356,29 +357,27 @@ namespace GenArt.Core.AST
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            ComputeSimilarity();
+            //ComputeSimilarity();
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
             //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
-            this._lastPopulation = tmpPolulation;
+            this._lastPopulation = tmpPolulation; 
 
             byte currMutatioRate = GetCurrentMutationRate();
 
             for (int index = 0; index < _popSize; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                 indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
+                //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                // indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
-                
+
 
                 int tmpindexParent1 = Tools.GetRandomNumber(0, this._fittness.Length);
-                indexParent1 = tmpindexParent1;
+                int indexParent1 = tmpindexParent1;
                 int tmpindexParent2 = Tools.GetRandomNumber(0, this._fittness.Length);
-                //if (this._fittness[tmpindexParent1] * (((this._similarity[tmpindexParent1]*4.0) + 1.0)) >
-                //    this._fittness[tmpindexParent2] * (((this._similarity[tmpindexParent2]*4.0) + 1.0)))
-                //    indexParent1 = tmpindexParent2;
+
 
                 if (this._fittness[tmpindexParent1] >
                    this._fittness[tmpindexParent2])

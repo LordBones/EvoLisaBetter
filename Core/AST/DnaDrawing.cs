@@ -154,7 +154,7 @@ namespace GenArt.AST
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 20)
+                    if (Tools.GetRandomNumber(0, 101) < 11)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
@@ -190,7 +190,7 @@ namespace GenArt.AST
                     }
 
                     if (!this.IsDirty ||
-                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 10))
+                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
                     {
                         int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
