@@ -106,7 +106,7 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 101) < 21)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
@@ -139,20 +139,20 @@ namespace GenArt.AST
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 21)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                    
                 }
-                if (Tools.GetRandomNumber(0, 101) < 21)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //SwapPolygon();
                     SwapPolygon2();
                     
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 21)
+                if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     RandomExchangeElipseRectangle();
                 }
@@ -162,7 +162,7 @@ namespace GenArt.AST
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 21)
+                    if (Tools.GetRandomNumber(0, 101) < 11)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
@@ -198,7 +198,7 @@ namespace GenArt.AST
                     }
 
                     if (!this.IsDirty ||
-                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 21))
+                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
                     {
                         int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
@@ -350,6 +350,31 @@ namespace GenArt.AST
                     return true;
                 else
                     return false;
+            }
+
+            DnaElipse eli = who as DnaElipse;
+            if (eli != null)
+            {
+                if (interWith is DnaRectangle || interWith is DnaPolygon)
+                {
+                    return IsPrimitiveInterleaving(interWith, who);
+                }
+
+                DnaElipse intEli = who as DnaElipse;
+                if (intEli != null)
+                {
+                    DnaPoint startPoint = eli.StartPoint;
+                    DnaPoint endPoint = eli.EndPoint;
+
+                    if (interWith.IsPointInside(startPoint) ||
+                    interWith.IsPointInside(new DnaPoint(startPoint.X, endPoint.Y)) ||
+                    interWith.IsPointInside(new DnaPoint(endPoint.X, startPoint.Y)) ||
+                    interWith.IsPointInside(endPoint))
+
+                    return true;
+                else
+                    return false;
+                }
             }
 
             return true;

@@ -78,11 +78,13 @@ namespace GenArt.Core.AST
             this.StartPoint = origin;
 
             
-            int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
+            //int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
+            int mutationMaxy = Math.Max(2, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1,20))) / (256));
             //int mutationMaxy = Math.Max(2, Math.Min( Tools.MaxHeight - origin.Y - 1,20));
             //int mutationMiddley = mutationMaxy / 2;
 
-            int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
+            //int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
+            int mutationMaxx = Math.Max(2, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1,20))) / (256));
             //int mutationMaxx = Math.Max(2, Math.Min(Tools.MaxWidth - origin.X - 1,20));
             //int mutationMiddlex = mutationMaxx / 2;
 

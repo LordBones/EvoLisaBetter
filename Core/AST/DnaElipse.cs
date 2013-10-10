@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
 using GenArt.Classes;
+using GenArt.Core.Classes;
 
 namespace GenArt.Core.AST
 {
@@ -68,15 +69,17 @@ namespace GenArt.Core.AST
 
             //int mutationMaxy = Math.Max(5, ( (Math.Min(Tools.MaxHeight- origin.Y - 1,20) )) );
             int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1, 20))) / (256));
+            //int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
             //int mutationMiddley = mutationMaxy / 2;
 
             //int mutationMaxx = Math.Max(5, ( (Math.Min(Tools.MaxWidth - origin.X - 1,20))) );
             int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1, 20))) / (256));
+            //int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
             //int mutationMiddlex = mutationMaxx / 2;
 
             var point = new DnaPoint();
 
-
+            
 
             int tmp = Tools.GetRandomNumber(4, mutationMaxx);
 
@@ -97,12 +100,37 @@ namespace GenArt.Core.AST
 
         public override bool IsPointInside(GenArt.AST.DnaPoint point)
         {
-            return true;
+            //return true;
+
+            float halfWidth = this._width / 2.0f;
+            float halfHeight = this._height / 2.0f;
+
+            float centerX = this._startPoint.X + halfWidth;
+            float centerY = this._startPoint.Y + halfHeight;
+             
+            float normPointX = point.X - centerX;
+            float normPointY = point.Y- centerY;
+
+
+            return ((double)(normPointX * normPointX)
+                     / (halfWidth * halfWidth)) + ((double)(normPointY * normPointY) / (halfHeight * halfHeight))
+                <= 1.0;
         }
 
         public override bool IsLineCrossed(GenArt.AST.DnaPoint startLine, GenArt.AST.DnaPoint endLine)
         {
-            return true;
+            //return true;
+            DnaPoint endPoint = this.EndPoint;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                this.StartPoint, new DnaPoint(endPoint.X, this.StartPoint.Y))) return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                new DnaPoint(endPoint.X, this.StartPoint.Y), endPoint)) return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                this.StartPoint, new DnaPoint(this.StartPoint.X, endPoint.Y))) return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                new DnaPoint(this.StartPoint.X, endPoint.Y), endPoint)) return true;
+
+            return false;
         }
 
         public override void Mutate(byte MutationRate, GenArt.AST.DnaDrawing drawing, Classes.CanvasBGRA destImage = null, Classes.ImageEdges edgePoints = null)
