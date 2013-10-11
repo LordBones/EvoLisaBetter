@@ -10,6 +10,9 @@ public:
 	FastFunctions(void){}
 	~FastFunctions(void){}
 
+    static  void NewFastRowApplyColorSSE(unsigned char * canvas, int len, int color , int alpha);
+    
+
 	static  void FastRowApplyColor(unsigned char * canvas, int len, int r , int g, int b, int alpha);
     static  void FastRowApplyColorSSE64(unsigned char * canvas, int len, int r , int g, int b, int alpha);
     static  void FastRowApplyColorSSE128(unsigned char * canvas, int len, int r , int g, int b, int alpha);

@@ -27,6 +27,17 @@ namespace GenArtCoreNative {
 
 		}
 
+        void NewRowApplyColor(array<System::Byte>^ canvas, int from, int to, int color, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+			FastFunctions::
+            NewFastRowApplyColorSSE(pinCanvas+from,to-from+1, color, alpha);
+
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+        }
+
         void RowApplyColor(array<System::Byte>^ canvas, int from, int to, int r , int g, int b, int alpha)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);

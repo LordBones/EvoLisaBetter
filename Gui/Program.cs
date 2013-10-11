@@ -38,14 +38,16 @@ namespace GenArt
             const int CONST_LoopCount = 1000000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
 
-            int end = 79;
+            int end = 15;
             NativeFunctions nativeFunc = new NativeFunctions();
 
+            int color = Color.FromArgb(128, 100, 230).ToArgb();
             PerfStart();
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                nativeFunc.RowApplyColorSSE128(canvas.Data, 0, end, 128, 100, 230, 135);
+                nativeFunc.RowApplyColor(canvas.Data, 0, end, 128, 100, 230, 135);
+                //nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color, 135);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             } 
             long ticks = PerfEnd();
