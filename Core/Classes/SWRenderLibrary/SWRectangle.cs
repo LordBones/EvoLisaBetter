@@ -28,15 +28,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
         }
 
-        private void FillRectangle(CanvasBGRA canvas, int x, int y, int widht, int height, Color color)
+        private void FillRectangle(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
         {
             int rowStartIndex = y * canvas.Width + x * 4;
-            int rowEndIndex = rowStartIndex + (widht) * 4 -1;
+           
 
-            int r = color.R;
-            int g = color.G;
-            int b = color.B;
+           
             int a = color.A;
+            int c = color.ToArgb();
              
             //int indexY = minY * this._canvasWidth;
             for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
@@ -46,8 +45,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                  
                 //Array.Copy(canvas.Data, rowStartIndex, test, 0, length);
                  
-                nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, r,g,b,a);
-                //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                //nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, r,g,b,a);
+                //nativeFunc.NewRowApplyColor(canvas.Data, rowStartIndex, width, color.ToArgb(), a);
+                nativeFunc.NewRowApplyColor64(canvas.Data, rowStartIndex, width, c, a);
+
+                //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, width, color.R, color.G, color.B, color.A);
                 //RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
 
               
@@ -66,7 +68,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //}
 
                     rowStartIndex += canvas.Width;
-                rowEndIndex += canvas.Width;
+                
             }
         }
 

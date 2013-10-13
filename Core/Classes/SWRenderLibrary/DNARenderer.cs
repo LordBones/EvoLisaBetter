@@ -72,21 +72,19 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             }
 
-            //this._drawElipse.Render(new DnaElipse() { Middle=new DnaPoint(100,100),Height= 4, Width=3 }, _drawCanvas);
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(90, 100), Height = 3, Width = 3 }, _drawCanvas);
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(80, 100), Height = 2, Width = 3 }, _drawCanvas);
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(70, 100), Height = 1, Width = 3 }, _drawCanvas);
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(60, 100), Height = 1, Width = 1 }, _drawCanvas);
-            
-            //this._drawRectangle.Render(new DnaRectangle()
-            //{ StartPoint = new DnaPoint(10,150), EndPoint = new DnaPoint(34,199),Brush=new DnaBrush(255,255,0,0)}, this._drawCanvas);
+           /* this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(100, 100), Height = 4, Width = 3 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(90, 100), Height = 3, Width = 3 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(80, 100), Height = 2, Width = 3 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(70, 100), Height = 1, Width = 3 }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(60, 100), Height = 1, Width = 1 }, _drawCanvas);
 
-            //this._drawRectangle.Render(new DnaRectangle() 
-            //{ StartPoint = new DnaPoint(36, 150), EndPoint = new DnaPoint(60, 198), Brush = new DnaBrush(255, 255, 0, 0) }, this._drawCanvas);
+            this._drawRectangle.Render(new DnaRectangle() { StartPoint = new DnaPoint(10, 150), EndPoint = new DnaPoint(34, 199), Brush = new DnaBrush(255, 255, 0, 0) }, this._drawCanvas);
 
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(10, 150), Height = 49, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
-            //this._drawElipse.Render(new DnaElipse() { Middle = new DnaPoint(36, 150), Height = 48, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
-         
+            this._drawRectangle.Render(new DnaRectangle() { StartPoint = new DnaPoint(36, 150), EndPoint = new DnaPoint(60, 198), Brush = new DnaBrush(255, 255, 0, 0) }, this._drawCanvas);
+
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(10, 150), Height = 49, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
+            this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(36, 150), Height = 48, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
+         */
         }
 
     }

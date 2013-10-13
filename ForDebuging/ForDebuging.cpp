@@ -63,6 +63,8 @@ void TestBlendColor128()
 
 }
 
+
+
 void TestSumSquare()
 {
     unsigned char field1[] = {2,3,4,250,2,3,4,250,2,3,4,250,2,3,4,250};
@@ -136,6 +138,69 @@ void TestSumSquare()
 //
 //  }
 
+void Apply4ColorPixelSSE2(unsigned char * canvas,int count,int color, int alpha)
+  {
+      int invAlpha = 256 - alpha;
+
+      __m128i mColorTimeAlpha = _mm_set1_epi32(color&0xffffff);
+
+      mColorTimeAlpha = _mm_cvtepu8_epi16(mColorTimeAlpha);
+      __m128i mColorTimeAlphaMull = _mm_set1_epi16((short)alpha);
+      mColorTimeAlpha = _mm_mullo_epi16(mColorTimeAlpha,mColorTimeAlphaMull);
+
+
+      __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+      __m128i mZero = _mm_setzero_si128();
+       while(count > 3)
+      {
+          __m128i source = _mm_loadu_si128((__m128i*)canvas); // load    ArgbArgbArgbArgb
+         //_mm_prefetch((char *)canvas+16,_MM_HINT_T0);
+         __m128i sourceLow = source;
+         sourceLow         = _mm_slli_si128(sourceLow,8); 
+         sourceLow         = _mm_srli_si128(sourceLow,8); 
+         source            = _mm_srli_si128(source,8);
+
+         
+         
+
+      //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+      source = _mm_cvtepu8_epi16(source);
+      sourceLow = _mm_cvtepu8_epi16(sourceLow);
+
+      __m128i sourceLowOrig = sourceLow;
+      __m128i sourceOrig = source;
+
+      source  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+      sourceLow  = _mm_mullo_epi16(sourceLow,mMullInvAlpha);    // source*invalpha
+
+      source          = _mm_adds_epu16(source,mColorTimeAlpha);     // t
+      sourceLow          = _mm_adds_epu16(sourceLow,mColorTimeAlpha);     // t
+
+      source          = _mm_srli_epi16(source,8); 
+      sourceLow       = _mm_srli_epi16(sourceLow,8); 
+
+      source        = _mm_blend_epi16(source,sourceOrig,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+      sourceLow        = _mm_blend_epi16(sourceLow,sourceLowOrig,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+
+      //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
+      //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
+      //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+
+      source        = _mm_packus_epi16(source, mZero );         // pack
+      sourceLow     = _mm_packus_epi16(sourceLow, mZero );         // pack
+
+      source        = _mm_slli_si128(source,8);
+      source        = _mm_or_si128(source,sourceLow);
+
+       _mm_storeu_si128((__m128i*)canvas,source);
+      
+      canvas += 16;
+      count-=4;
+       }
+
+
+  }
+
 void ApplyColorPixelSSE(unsigned char * canvas,int r,int g, int b, int alpha)
   {
       int invAlpha = 256 - alpha;
@@ -207,6 +272,44 @@ void ApplyColorPixel(unsigned char * canvas,int r,int g, int b, int alpha)
         line[2] = (unsigned char)tr;
   }
 
+void FastRowApplyColor(unsigned char * canvas, int len, int r , int g, int b, int alpha)
+{
+    //if(alpha> 0) alpha++;
+    // convert alpha value from range 0-255 to 0-256
+    alpha = (alpha*256)/255;
+
+    int invAlpha = 256-alpha;
+
+    unsigned char * line = canvas;
+
+    b *= alpha;
+    g *= alpha;
+    r *= alpha;
+
+    while(len > 0)
+    {
+        unsigned int tb = *line;
+        unsigned int tg = line[1];
+        unsigned int tr = line[2];
+
+
+        tb = (b + (tb*invAlpha))>>8;
+        tg=(g + (tg*invAlpha))>>8;
+        tr=(r + (tr*invAlpha))>>8;
+
+        /*tb = tb + (((b-tb)*alpha)>>8);
+        tg=tg + (((g-tg)*alpha)>>8);
+        tr=tr + (((r-tr)*alpha)>>8);*/
+
+        *line = (unsigned char)tb;
+        line[1] = (unsigned char)tg;
+        line[2] = (unsigned char)tr;
+
+
+        len --;
+        line+=4;
+    }
+}
 
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -217,9 +320,17 @@ int _tmain(int argc, _TCHAR* argv[])
     unsigned char fieldtest[] = {255,3,4,255,2,3,4,255,2,3,4,255,2,3,4,255};
 
     //ApplyColorPixelSSE(field1,50,100,150,255);
+    int r = 255;
+    int g = 0;
+    int b = 254;
+    int a  = 128;
+    int color = (r<<16)+(g<<8)+b;
 
-    ApplyColorPixel(field1,255,0,254,128);
-    ApplyColorPixelSSE(fieldtest,255,0,254,128);
+    //ApplyColorPixel(field1,255,0,254,a);
+    //ApplyColorPixelSSE(fieldtest,255,0,254,a);
+    FastRowApplyColor(field1,4,r,g,b,a);
+
+    Apply4ColorPixelSSE2(fieldtest,4,color, a);
 
     bool equal = true;
     for(int i = 0;i < 16;i++)

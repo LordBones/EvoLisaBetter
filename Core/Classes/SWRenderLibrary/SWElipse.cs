@@ -35,38 +35,46 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int a = color.A;
 
             float hw = width / 2.0f;
+            float hwSquare = hw * hw;
+
             int hh = (height - 1) / 2;
             float fhh = height / 2.0f;
-
+            float fhhSquare = fhh * fhh;
             //TestPoint(canvas, x, y + hh);
             //TestPoint(canvas, x + width - 1, y + hh);
 
             int upY =  (y + hh) * canvas.Width;
             int upX1 = (x) * 4 + upY;
-            int upX2 = (x + width - 1) * 4 + upY;
+            int c = color.ToArgb();
 
-            nativeFunc.RowApplyColor(canvas.Data, upX1, upX2, r, g, b, a);
-            //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+            //nativeFunc.RowApplyColor(canvas.Data, upX1, width, r, g, b, a);
+            nativeFunc.NewRowApplyColor64(canvas.Data, upX1, width, c, a);
+            //if (upX1 + width <= canvas.Data.Length)
+            //{
+            //    int i = 0;
+            //}
+            //RowApplyColorSafe(canvas.Data, upX1, width, r, g, b, a);
 
             for (int dy = 1; dy <= hh; dy++)
             {
-                double tmpx = Math.Sqrt(hw * hw * (1.0 - (dy * dy) / ((float)fhh * fhh)));
+                double tmpx = Math.Sqrt(hwSquare * (1.0 - (dy * dy) / (fhhSquare)));
                   
                 upY =  (y + hh - dy)*canvas.Width;
                 upX1 = ((int)(x + hw - tmpx)) * 4 + upY;
-                upX2 = ((int)(x + hw + tmpx)) * 4 + upY;
+                int count = (int)(hw + tmpx);
 
-
-                nativeFunc.RowApplyColor(canvas.Data, upX1, upX2,r,g,b,a);
-                //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+                //nativeFunc.RowApplyColor(canvas.Data, upX1, count,r,g,b,a);
+                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c, a);
+                //RowApplyColorSafe(canvas.Data, upX1, count, r, g, b, a);
 
                 upY =  (y + hh + dy) * canvas.Width;
                 upX1 = ((int)(x + hw - tmpx)) * 4 + upY;
-                upX2 = ((int)(x + hw + tmpx)) * 4 + upY;
+             
 
-
-                nativeFunc.RowApplyColor(canvas.Data, upX1, upX2, r, g, b, a);
-                //RowApplyColorSafe(canvas.Data, upX1, upX2, r, g, b, a);
+                //nativeFunc.NewRowApplyColor64(canvas.Data, upX1, upX2, color.ToArgb(), a);
+                //nativeFunc.RowApplyColor(canvas.Data, upX1, count, r, g, b, a);
+                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c, a);
+                //RowApplyColorSafe(canvas.Data, upX1, count, r, g, b, a);
 
             }
         }
@@ -147,7 +155,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private void RowApplyColorSafe(byte[] data, int startIndex, int endIndex, int r, int g, int b, int alpha)
+        private void RowApplyColorSafe(byte[] data, int startIndex, int countPixel, int r, int g, int b, int alpha)
         {
             alpha = (alpha * 256) / 255;
 
@@ -157,7 +165,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int cg = g * alpha;
             int cr = r * alpha;
 
-            while (startIndex <= endIndex)
+            while (countPixel > 0)
             {
                 int tb = data[startIndex];
                 int tg = data[startIndex + 1];
@@ -179,6 +187,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
                 startIndex += 4;
+                countPixel--;
             }
 
         }

@@ -120,7 +120,7 @@ namespace GenArt.AST
                             AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         }
                         else
-                        {
+                        { 
                             AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         }
 
@@ -135,7 +135,7 @@ namespace GenArt.AST
                         //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         //}
 
-                        
+                        break;
                     }
                 }
 
@@ -143,18 +143,21 @@ namespace GenArt.AST
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
+                    break;
                    
                 }
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //SwapPolygon();
                     SwapPolygon2();
+                    break;
                     
                 }
 
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     RandomExchangeElipseRectangle();
+                    break;
                 }
 
 
@@ -885,13 +888,16 @@ namespace GenArt.AST
 
                     int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
                     Rectangle tileArea = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
-
+                    DnaRectangle rec = new DnaRectangle((short) tileArea.X, (short) tileArea.Y,(short) tileArea.Width,(short) tileArea.Height);
+                    
                     for (int index = 0; index < this.Polygons.Length; index++)
                     {
                         DnaPrimitive polygon = this.Polygons[index];
-                        if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
-                        else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
-                        else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
+                        if(IsPrimitiveInterleaving(rec, polygon)) polygonsId.Add(index);
+
+                        //if ( IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
+                        //else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
+                        //else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
                        
 
                     }
@@ -901,7 +907,7 @@ namespace GenArt.AST
                 return polygonsId[polygonIndex];
             }
 
-            // if no pygons in dna
+            // if no pygons in dna   
             return null;
         }
 

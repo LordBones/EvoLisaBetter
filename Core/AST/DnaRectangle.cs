@@ -19,6 +19,11 @@ namespace GenArt.Core.AST
         {
 
         }
+        public DnaRectangle(short x,short y,short widht,short height)
+        {
+            StartPoint = new DnaPoint(x, y);
+            EndPoint = new DnaPoint((short)(x + widht - 1),(short)( y + height - 1));
+        }
 
         public short Width
         {

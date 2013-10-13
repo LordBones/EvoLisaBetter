@@ -391,6 +391,8 @@ namespace GenArt.Core.AST
                 //  this._fittness[tmpindexParent2])
                 //    indexParent1 = tmpindexParent2;
 
+               
+
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)

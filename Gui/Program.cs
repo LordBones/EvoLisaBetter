@@ -38,7 +38,7 @@ namespace GenArt
             const int CONST_LoopCount = 1000000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
 
-            int end = 15;
+            int end = 2000;
             NativeFunctions nativeFunc = new NativeFunctions();
 
             int color = Color.FromArgb(128, 100, 230).ToArgb();
@@ -46,8 +46,8 @@ namespace GenArt
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                nativeFunc.RowApplyColor(canvas.Data, 0, end, 128, 100, 230, 135);
-                //nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color, 135);
+                //nativeFunc.RowApplyColorSSE128(canvas.Data, 0, end, 128, 100, 230, 135);
+                nativeFunc.NewRowApplyColor128(canvas.Data, 0, end, color, 135);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             } 
             long ticks = PerfEnd();
@@ -55,7 +55,7 @@ namespace GenArt
             TimeSpan ts = new TimeSpan(ticks);
             Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds,CONST_LoopCount,ticks/(double)CONST_LoopCount);
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
-            long mpoints = (((end + 1) / 4) * CONST_LoopCount);
+            long mpoints = (((end)) * CONST_LoopCount);
             Console.Out.WriteLine("points fill: {0} Mpoints/s", (((1.0 / ts.TotalSeconds)* mpoints) / 1000000));
             Console.Out.WriteLine("points fill: {0} Mpoints", (mpoints / 1000000));
 

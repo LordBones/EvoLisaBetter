@@ -134,7 +134,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     int index2 = ((int)xForMax + canvasY) * 4;
                     int endIndex = ((int)xx + canvasY) * 4;
 
-                    nativeFunc.RowApplyColor(canvas, index2, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
+                    //nativeFunc.RowApplyColor(canvas, index2, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
 
                     /*for (int x = (xf < width ? (int)xf : width -1); x >= xForMax; x--)
                     {
@@ -248,7 +248,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
            
                 //if (points.End - points.Start + 1 > 2)
                 {
-                    nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
+                    //nativeFunc.RowApplyColor(canvas, index, endIndex, colorABRrem, colorAGRrem, colorARRrem, colorRem);
                 }
                 //else
                 {
@@ -426,20 +426,27 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             //if(alpha> 0) alpha++;
             // convert alpha value from range 0-255 to 0-256
-            
 
+            int color = Color.FromArgb(r, g, b).ToArgb();
 
             int rowStartIndex = (rangeStartY) * canvasWidth;
-
-            for (int i = rangeStartY * 2; i < rangeEndY * 2; i += 2)
+            rangeStartY *= 2;
+            rangeEndY *= 2;
+            for (int i = rangeStartY; i < rangeEndY; i += 2)
             {
                 int index = rowStartIndex + (ranges[i]) * 4;
 
                 // 
-                int end = rowStartIndex + (ranges[i + 1]+1) * 4-1;
+                int count = ranges[i+1] -  ranges[i]+1;
 
-                nativeFunc.RowApplyColorSSE64(canvas, index, end, r,g,b, alpha);
+                //nativeFunc.RowApplyColorSSE64(canvas,  r,g,b, alpha);
 
+                //if(count > 100)
+                //nativeFunc.NewRowApplyColor128(canvas, index, count, color, alpha);
+                //else
+                    nativeFunc.NewRowApplyColor64(canvas, index, count, color, alpha);
+                
+                //nativeFunc.NewRowApplyColor64(canvas, index, end, color, alpha);
 
                 
 
