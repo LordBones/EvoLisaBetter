@@ -313,7 +313,7 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       __m128i mMaskAAnd = _mm_setr_epi16(0,0xff00,0,0xff00,0,0xff00,0,0xff00);*/
 
       __m128i sourceRB = _mm_load_si128((__m128i*)canvas); // load    ArgbArgbArgbArgb
-      _mm_prefetch((char *)canvas+16,_MM_HINT_T0);
+      //_mm_prefetch((char *)canvas+16,_MM_HINT_T0);
       __m128i sourceG = _mm_and_si128(sourceRB,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
       sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
       __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
@@ -369,7 +369,7 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       __m128i mMaskAAnd = _mm_setr_epi16(0,0xff00,0,0xff00,0,0xff00,0,0xff00);*/
 
       __m128i sourceRB = _mm_load_si128((__m128i*)canvas); // load    ArgbArgbArgbArgb
-      _mm_prefetch((char *)canvas+16,_MM_HINT_T0);
+      //_mm_prefetch((char *)canvas+16,_MM_HINT_T0);
       __m128i sourceG = _mm_and_si128(sourceRB,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
       sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
       __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
@@ -408,6 +408,8 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
   /*
    alpha : 0 - 256
 */
+  
+
   void Apply4ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
   {
       int invAlpha = 256 - alpha;
@@ -417,11 +419,11 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       //  __m128i mColorTimeAlpha = _mm_set1_epi32(color&0xff00ff);
 
       //mColorTimeAlpha = _mm_cvtepu8_epi16(mColorTimeAlpha);
-      __m128i mColorTimeAlphaMull = _mm_set1_epi16((short)alpha);
+      //__m128i mColorTimeAlphaMull = _mm_set1_epi16((short)alpha);
       
 
-      __m128i mColorRBTimeAlpha = _mm_set1_epi32(color&0xff00ff);
-      mColorRBTimeAlpha = _mm_mullo_epi16(mColorRBTimeAlpha,mColorTimeAlphaMull);
+      __m128i mColorRBTimeAlpha = _mm_set1_epi32(((unsigned int)(color&0xff00ff))*alpha);
+      //mColorRBTimeAlpha = _mm_mullo_epi16(mColorRBTimeAlpha,mColorTimeAlphaMull);
       
       //__m128i mColorRBTimeAlpha = _mm_setr_epi16(b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha,b*alpha,r*alpha);
       __m128i mColorGTimeAlpha = _mm_set1_epi16(((color>>8)&0xff)*alpha);
@@ -429,21 +431,28 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
 
 
       __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
-      __m128i mMaskGAnd = _mm_set1_epi32(0x0000ff00);
-      __m128i mMaskAAnd = _mm_set1_epi32(0xff000000);
+      __m128i mMullInvAlphaG = _mm_set1_epi32((256<<16)+invAlpha);
+
+      //__m128i mMaskGAnd = _mm_set1_epi32(0x0000ff00);
+      //__m128i mMaskAAnd = _mm_set1_epi32(0xff000000);
+      __m128i mMaskGAAnd = _mm_set1_epi32(0xff00FF00);
+
       while(count > 0)
       {
    /*   __m128i mMaskGAnd = _mm_setr_epi16(0xff00,0,0xff00,0,0xff00,0,0xff00,0);
       __m128i mMaskAAnd = _mm_setr_epi16(0,0xff00,0,0xff00,0,0xff00,0,0xff00);*/
 
       __m128i sourceRB = _mm_load_si128((__m128i*)canvas); // load    ArgbArgbArgbArgb
-      _mm_prefetch((char *)canvas+16,_MM_HINT_T0);
+      //_mm_prefetch((char *)canvas+16,_MM_HINT_T0);
 
       __m128i sourceG = sourceRB;
-      sourceG = _mm_and_si128(sourceG,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
-      sourceRB = _mm_andnot_si128(mMaskGAnd,sourceRB);
-      __m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
-      sourceRB = _mm_andnot_si128(mMaskAAnd,sourceRB);
+     
+      
+
+      //sourceG = _mm_and_si128(sourceG,mMaskGAnd);  // masked  xxgxxxgxxxgxxxgx
+      sourceRB = _mm_andnot_si128(mMaskGAAnd,sourceRB);
+      //__m128i savealpha = _mm_and_si128(sourceRB,mMaskAAnd);
+      //sourceRB = _mm_andnot_si128(mMaskAAnd,sourceRB);
 
 
       sourceG = _mm_srli_epi16(sourceG,8);                 // shift for compute    xxxgxxxgxxxgxxxg
@@ -451,22 +460,20 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       sourceRB = _mm_mullo_epi16(sourceRB,mMullInvAlpha);    // sourceRB <= sourceRB*invAlpha
       sourceRB = _mm_adds_epu16(sourceRB,mColorRBTimeAlpha); // sourceRB <= sourceRB+(colorRB*Alpha)
       sourceRB = _mm_srli_epi16(sourceRB,8);                         // now in sourceRB is sourceRB/255
-      sourceG = _mm_mullo_epi16(sourceG,mMullInvAlpha);    // sourceG <= sourceG*invAlpha
+      sourceG = _mm_mullo_epi16(sourceG,mMullInvAlphaG);    // sourceG <= sourceG*invAlpha
       sourceG = _mm_adds_epu16(sourceG,mColorGTimeAlpha); // sourceG <= sourceG+(colorG*Alpha)
 
       //sourceG = _mm_srli_epi16(sourceG,8);                           // now in sourceG is sourceG/255
 
       // now merge back xrxb.... xxxg.... into xrgb....
 
-      //sourceG = _mm_slli_epi16(sourceG,8);
-      //sourceG = _mm_and_si128(mMaskGAnd,sourceG);
-      //sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
+      
+
+
+      sourceG = _mm_and_si128(mMaskGAAnd,sourceG);
+
       //sourceRB = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
-
-
-      sourceG = _mm_and_si128(mMaskGAnd,sourceG);
-      __m128i tmp = _mm_or_si128(sourceRB,savealpha); // restore alpha now argb....
-      sourceRB =_mm_or_si128(tmp,sourceG);         // now in sourceRB is xrgbxrgb....
+      sourceRB =_mm_or_si128(sourceRB,sourceG);         // now in sourceRB is xrgbxrgb....
 
       _mm_store_si128((__m128i*)canvas,sourceRB);
 
@@ -526,12 +533,7 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       source          = _mm_srli_epi16(source,8); 
       sourceLow       = _mm_srli_epi16(sourceLow,8); 
 
-      //source        = _mm_blend_epi16(source,sourceOrig,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
-      //sourceLow        = _mm_blend_epi16(sourceLow,sourceLowOrig,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
-
-      //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
-      //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
-      //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
+     
 
       source        = _mm_packus_epi16(source, mZero );         // pack
       sourceLow     = _mm_packus_epi16(sourceLow, mZero );         // pack
