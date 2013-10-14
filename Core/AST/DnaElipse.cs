@@ -52,49 +52,85 @@ namespace GenArt.Core.AST
         {
             var origin = new DnaPoint();
             origin.Init();
-
-            Rectangle tile = new Rectangle(0, 0, 1, 1);
-            if (errorMatrix != null)
+            if (edgePoints == null)
             {
-                int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
-                tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
+                Rectangle tile = new Rectangle(0, 0, 1, 1);
+                if (errorMatrix != null)
+                {
+                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
+                    tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
 
-                origin.X = (short)(tile.X + Tools.GetRandomNumber(0, tile.Width));
-                origin.Y = (short)(tile.Y + Tools.GetRandomNumber(0, tile.Height));
+                    origin.X = (short)(tile.X + Tools.GetRandomNumber(0, tile.Width));
+                    origin.Y = (short)(tile.Y + Tools.GetRandomNumber(0, tile.Height));
+                }
+
+
+                this._startPoint = origin;
+
+
+                //int mutationMaxy = Math.Max(5, ( (Math.Min(Tools.MaxHeight- origin.Y - 1,20) )) );
+                int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1, 20))) / (256));
+                //int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
+                //int mutationMiddley = mutationMaxy / 2;
+
+                //int mutationMaxx = Math.Max(5, ( (Math.Min(Tools.MaxWidth - origin.X - 1,20))) );
+                int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1, 20))) / (256));
+                //int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
+                //int mutationMiddlex = mutationMaxx / 2;
+
+                var point = new DnaPoint();
+
+
+
+                int tmp = Tools.GetRandomNumber(4, mutationMaxx);
+
+                point.X = (short)Math.Min(origin.X + tmp, Tools.MaxWidth - 1);
+                if (point.X == origin.X)
+                    tmp = Tools.GetRandomNumber(1, mutationMaxy);
+                else
+                    tmp = Tools.GetRandomNumber(4, mutationMaxy);
+
+                point.Y = (short)Math.Min(origin.Y + tmp, Tools.MaxHeight - 1);
+
+                _width = (short)(point.X - origin.X + 1);
+                _height = (short)(point.Y - origin.Y + 1);
+            }
+            else
+            {
+                DnaPoint ? resultStart = null;
+
+                while (!resultStart.HasValue)
+                {
+                    DnaPoint endPoint = edgePoints.GetRandomBorderPoint(origin.X, origin.Y);
+                    resultStart = edgePoints.GetFirstEdgeOnLineDirection(origin.X, origin.Y, endPoint.X, endPoint.Y);
+                }
+
+                this.StartPoint = resultStart.Value;
+
+                DnaPoint ? resultEnd = null;
+
+                while (!resultEnd.HasValue)
+                {
+                    DnaPoint endPoint = edgePoints.GetRandomBorderPoint(origin.X, origin.Y);
+                    resultEnd = edgePoints.GetFirstEdgeOnLineDirection(origin.X, origin.Y, endPoint.X, endPoint.Y);
+                }
+                DnaPoint EndPoint = resultEnd.Value;
+
+                if (EndPoint.X < StartPoint.X)
+                {
+                    Tools.swap<short>(ref EndPoint.X, ref _startPoint.X);
+                }
+
+                if (EndPoint.Y < StartPoint.Y)
+                {
+                    Tools.swap<short>(ref EndPoint.Y, ref _startPoint.Y);
+                }
+
+                _width = (short)(EndPoint.X - _startPoint.X + 1);
+                _height = (short)(EndPoint.Y - _startPoint.Y + 1);
             }
 
-
-            this._startPoint = origin;
-
-
-            //int mutationMaxy = Math.Max(5, ( (Math.Min(Tools.MaxHeight- origin.Y - 1,20) )) );
-            int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxHeight - origin.Y - 1, 20))) / (256));
-            //int mutationMaxy = Math.Max(5, ((mutationRate + 1) * (Tools.MaxHeight - origin.Y - 1)) / (256));
-            //int mutationMiddley = mutationMaxy / 2;
-
-            //int mutationMaxx = Math.Max(5, ( (Math.Min(Tools.MaxWidth - origin.X - 1,20))) );
-            int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Math.Min(Tools.MaxWidth - origin.X - 1, 20))) / (256));
-            //int mutationMaxx = Math.Max(5, ((mutationRate + 1) * (Tools.MaxWidth - origin.X - 1)) / (256));
-            //int mutationMiddlex = mutationMaxx / 2;
-
-            var point = new DnaPoint();
-
-            
-
-            int tmp = Tools.GetRandomNumber(4, mutationMaxx);
-
-            point.X = (short)Math.Min(origin.X + tmp, Tools.MaxWidth - 1);
-            if (point.X == origin.X)
-                tmp = Tools.GetRandomNumber(1, mutationMaxy);
-            else
-                tmp = Tools.GetRandomNumber(4, mutationMaxy);
-
-            point.Y = (short)Math.Min(origin.Y + tmp, Tools.MaxHeight - 1);
-
-            _width = (short)(point.X - origin.X + 1);
-            _height = (short)(point.Y - origin.Y + 1);
-
-            Brush = new DnaBrush(0, 255, 0, 0);
+            Brush = new DnaBrush(255, 255, 0, 0);
             CreateNewUniqueId();
         }
 

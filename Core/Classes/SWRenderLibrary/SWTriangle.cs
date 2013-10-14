@@ -36,12 +36,6 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private static void swap<T>(ref T p1, ref T p2)
-        {
-            T tmp =  p1;
-            p1 = p2;
-            p2 = tmp;
-        }
 
         private static int GetREM(byte alpha)
         {
@@ -92,18 +86,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             // sort the points vertically
             if (y1 > y2)
             {
-                swap<short>(ref x1, ref x2);
-                swap<short>(ref y1, ref y2);
+                Tools.swap<short>(ref x1, ref x2);
+                Tools.swap<short>(ref y1, ref y2);
             }
             if (y0 > y1)
             {
-                swap<short>(ref x0, ref x1);
-                swap<short>(ref y0, ref y1);
+                Tools.swap<short>(ref x0, ref x1);
+                Tools.swap<short>(ref y0, ref y1);
             }
             if (y1 > y2)
             {
-                swap<short>(ref x1, ref x2);
-                swap<short>(ref y1, ref y2);
+                Tools.swap<short>(ref x1, ref x2);
+                Tools.swap<short>(ref y1, ref y2);
             }
 
             double dx_far = Convert.ToDouble(x2 - x0) / (y2 - y0 + 1);
@@ -303,7 +297,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
-                swap<int>(ref longest, ref shortest);
+                Tools.swap<int>(ref longest, ref shortest);
                 
                 if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
                 dx2 = 0;
@@ -415,11 +409,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             byte [] canvas = drawCanvas.Data;
 
-
+            nativeFunc.RenderTriangleByRanges(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.ToArgb(), color.A);
             //nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
 
             //FastRowsApplyColor(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
-            FastRowsApplyColorNative(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+            //FastRowsApplyColorNative(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
         }
 
         void FastRowsApplyColorNative(byte[] canvas, int canvasWidth, short[] ranges, int rangeStartY, int rangeEndY, int r, int g, int b, int alpha)
@@ -528,7 +522,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
-                swap<int>(ref longest, ref shortest);
+                Tools.swap<int>(ref longest, ref shortest);
 
                 if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
                 dx2 = 0;
@@ -600,7 +594,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int shortest = Tools.fastAbs(h);
             if (!(longest > shortest))
             {
-                swap<int>(ref longest, ref shortest);
+                Tools.swap<int>(ref longest, ref shortest);
 
                 if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
                 dx2 = 0;

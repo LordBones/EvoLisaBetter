@@ -13,7 +13,9 @@ public:
     static  void NewFastRowApplyColorSSE(unsigned char * canvas, int countPixel, int color , int alpha);
     static  void NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color , int alpha);
     static  void NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color , int alpha);
-    
+    static  void RenderRectangle(unsigned char * canvas,int canvasWidth, int x,int y, int width, int height, int color , int alpha);
+    static  void RenderTriangleByRanges(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int startY, int color, int alpha);
+
 
 	static  void FastRowApplyColor(unsigned char * canvas, int countPixel, int r , int g, int b, int alpha);
     static  void FastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int r , int g, int b, int alpha);

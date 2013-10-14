@@ -60,6 +60,32 @@ namespace GenArtCoreNative {
 
         }
 
+         void RenderRectangle(array<System::Byte>^ canvas, 
+             int canvasWidth, int x,int y, int width, int height, int color, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+            FastFunctions::RenderRectangle(pinCanvas, canvasWidth, x, y, width, height, color, alpha);
+
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+        }
+
+        void RenderTriangleByRanges(array<System::Byte>^ canvas,int canvasWidth, array<System::Int16>^ ranges, int startY, int endY, int color, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			pin_ptr<System::Int16> pinRanges(&ranges[0]);
+
+
+			//FastFunctions::
+            //    FastRowsApplyColorSSE128(pinCanvas,canvasWidth,pinRanges,ranges->Length, startY, color, alpha);
+            FastFunctions::RenderTriangleByRanges(pinCanvas,canvasWidth,
+                &pinRanges[startY*2],(endY-startY)*2,startY,color,alpha);
+            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+
+        }
+
+
         void RowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int r , int g, int b, int alpha)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);

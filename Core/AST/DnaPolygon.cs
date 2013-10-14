@@ -259,7 +259,7 @@ namespace GenArt.AST
 
                 DnaPoint [] points = this._Points;
 
-                if (edgePoints != null)
+                if (edgePoints != null && false)
                 {
                     while (true)
                     {

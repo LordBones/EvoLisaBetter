@@ -661,25 +661,22 @@ namespace GenArt.AST
                         //newPolygon.Brush.InitRandom();
                     }
 
-                    //int index = Tools.GetRandomNumber(0, Polygons.Count);
+                    
+                    //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    //if (polygons.Count == 0)
+                    //    polygons.Add(newPolygon);
+                    //else
+                    //{
+                    //    int index = Tools.GetRandomNumber(0, Polygons.Length); 
+                    //    polygons.Insert(index, newPolygon);
+                    //}
+                    //this.Polygons = polygons.ToArray();
 
-                    //Polygons.Insert(index, newPolygon);
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
 
-                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
-                    if (polygons.Count == 0)
-                        polygons.Add(newPolygon);
-                    else
-                    {
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
-                        polygons.Insert(index, newPolygon);
-                    }
-                    this.Polygons = polygons.ToArray();
-
-                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
-                    //Array.Copy(Polygons, polygons, Polygons.Length);
-
-                    //polygons[polygons.Length - 1] = newPolygon;
-                    //Polygons = polygons;
+                    polygons[polygons.Length - 1] = newPolygon;
+                    Polygons = polygons;
 
                     SetDirty();
                 }
@@ -709,26 +706,22 @@ namespace GenArt.AST
                         //newPolygon.Brush.InitRandom();
                     }
 
-                    //int index = Tools.GetRandomNumber(0, Polygons.Count);
-
-                    //Polygons.Insert(index, newPolygon);
-
-                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
-                    if (polygons.Count == 0)
-                        polygons.Add(newRectangle);
-                    else
-                    {
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
-                        polygons.Insert(index, newRectangle);
-                    }
-                    this.Polygons = polygons.ToArray();
+                    //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    //if (polygons.Count == 0)
+                    //    polygons.Add(newRectangle);
+                    //else
+                    //{
+                    //    int index = Tools.GetRandomNumber(0, Polygons.Length);
+                    //    polygons.Insert(index, newRectangle);
+                    //}
+                    //this.Polygons = polygons.ToArray();
 
 
-                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
-                    //Array.Copy(Polygons, polygons, Polygons.Length);
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
 
-                    //polygons[polygons.Length - 1] = newRectangle;
-                    //Polygons = polygons;
+                    polygons[polygons.Length - 1] = newRectangle;
+                    Polygons = polygons;
 
                     SetDirty();
                 }
@@ -759,22 +752,22 @@ namespace GenArt.AST
                     }
 
                 
-                    List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
-                    if (polygons.Count == 0)
-                        polygons.Add(newElipse);
-                    else
-                    {
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
-                        polygons.Insert(index, newElipse);
-                    }
-                    this.Polygons = polygons.ToArray();
+                    //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    //if (polygons.Count == 0)
+                    //    polygons.Add(newElipse);
+                    //else
+                    //{
+                    //    int index = Tools.GetRandomNumber(0, Polygons.Length);
+                    //    polygons.Insert(index, newElipse);
+                    //}
+                    //this.Polygons = polygons.ToArray();
 
 
-                    //DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
-                    //Array.Copy(Polygons, polygons, Polygons.Length);
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
 
-                    //polygons[polygons.Length - 1] = newRectangle;
-                    //Polygons = polygons;
+                    polygons[polygons.Length - 1] = newElipse;
+                    Polygons = polygons;
 
                     SetDirty();
                 }

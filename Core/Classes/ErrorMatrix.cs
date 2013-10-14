@@ -187,11 +187,11 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            //return (int)(median.Median  + 
-            //    median.StdDev 
-            //    + 1.0);
+            return (int)(median.Median  + 
+                median.StdDev 
+                + 1.0);
 
-            return median.MaxValue + 1;
+            //return median.MaxValue + 1;
         }
 
         #region ICloneable Members

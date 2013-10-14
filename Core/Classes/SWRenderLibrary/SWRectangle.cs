@@ -24,8 +24,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
 
-            FillRectangle(canvas, rectangle.StartPoint.X, rectangle.StartPoint.Y,
-               rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
+            //FillRectangle(canvas, rectangle.StartPoint.X, rectangle.StartPoint.Y,
+            //   rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
+
+            nativeFunc.RenderRectangle(canvas.Data, canvas.Width,
+               rectangle.StartPoint.X, rectangle.StartPoint.Y,
+               rectangle.Width, rectangle.Height, 
+               rectangle.Brush.BrushColor.ToArgb(), 
+               rectangle.Brush.BrushColor.A);
         }
 
         private void FillRectangle(CanvasBGRA canvas, int x, int y, int width, int height, Color color)

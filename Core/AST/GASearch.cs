@@ -135,7 +135,9 @@ namespace GenArt.Core.AST
             this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
 
-            DnaBrush backGround = ComputeBackgroundColor(this._destCanvas);
+            DnaBrush backGround = new DnaBrush(255, 0, 0, 0);
+            //ComputeBackgroundColor(this._destCanvas);
+
 
             for (int i =0; i < this._population.Length; i++)
             {
@@ -396,8 +398,10 @@ namespace GenArt.Core.AST
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
-                    dna.MutateBetter(currMutatioRate, this._errorMatrix, this._destCanvas,
-                        null//_edgePoints
+                    dna.MutateBetter(currMutatioRate, 
+                        this._errorMatrix, 
+                        this._destCanvas,
+                        _edgePoints
                         );
 
                 this._population[index] = dna;

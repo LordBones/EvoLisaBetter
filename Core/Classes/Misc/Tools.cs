@@ -127,7 +127,12 @@ namespace GenArt.Classes
         //    return (tmp >= ignore) ? tmp + 1 : tmp;
         //}
 
-        
+        public static void swap<T>(ref T p1, ref T p2)
+        {
+            T tmp =  p1;
+            p1 = p2;
+            p2 = tmp;
+        }
 
         public static int MaxWidth = 200;
         public static int MaxHeight = 200;
