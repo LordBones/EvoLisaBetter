@@ -24,6 +24,8 @@ void ApplyColorPixelSSE(unsigned char * canvas,int color, int alpha)
       mColorTimeAlpha =  _mm_mullo_epi16(mColorTimeAlpha,mColorTimeAlphaMull);
 
       __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+      mMullInvAlpha.m128i_i16[3] = 256;
+
       __m128i source = _mm_cvtsi32_si128(*((int*)canvas));
 
       //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
@@ -34,13 +36,13 @@ void ApplyColorPixelSSE(unsigned char * canvas,int color, int alpha)
 
       tmp1          = _mm_srli_epi16(tmp1,8); 
 
-      source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+      //source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
 
       //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
       //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
       //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
 
-      source        = _mm_packus_epi16(source, _mm_setzero_si128() );         // pack
+      source        = _mm_packus_epi16(tmp1, tmp1);// _mm_setzero_si128() );         // pack
 
       *((int*)canvas) =  _mm_cvtsi128_si32(source);
 
@@ -61,8 +63,9 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
           _mm_mullo_epi16(mColorTimeAlpha,mColorTimeAlphaMull);
 
       __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+       mMullInvAlpha.m128i_i16[3] = 256;
 
-      __m128i mZero =  _mm_setzero_si128();
+     // __m128i mZero =  _mm_setzero_si128();
 
        while(count > 0)
       {
@@ -76,13 +79,13 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
 
       tmp1          = _mm_srli_epi16(tmp1,8); 
 
-      source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+      //source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
 
       //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
       //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
       //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
 
-      source        = _mm_packus_epi16(source,mZero );         // pack
+      source        = _mm_packus_epi16(tmp1,tmp1);//mZero );         // pack
 
       *((int*)canvas) =  _mm_cvtsi128_si32(source);
 
@@ -225,7 +228,11 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
       mColorTimeAlpha = _mm_mullo_epi16(mColorTimeAlpha,mColorTimeAlphaMull);
 
       __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
-      __m128i mZero = _mm_setzero_si128();
+      
+       mMullInvAlpha.m128i_i16[3] = 256;
+       mMullInvAlpha.m128i_i16[7] = 256;
+
+      //__m128i mZero = _mm_setzero_si128();
 
        while(count > 1)
       {
@@ -239,13 +246,14 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int r,int g, int b, int
 
       tmp1          = _mm_srli_epi16(tmp1,8); 
 
-      source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
+      //source        = _mm_blend_epi16(tmp1,source,0x88);        // a,b,c,d  | e,f,g,h => a,b,c,h
 
       //source        = _mm_andnot_si128(mMaskAnd,source);        // mask alpha
       //tmp2          = _mm_and_si128(mMaskAnd,tmp2);             // mask colors
       //source        = _mm_or_si128(tmp2,source);                // 00XXXXXX | XX000000 = xxxxxxxx
 
-      source        = _mm_packus_epi16(source, mZero );         // pack
+      //source        = _mm_packus_epi16(source,source );// mZero );         // pack
+      source        = _mm_packus_epi16(tmp1,tmp1 );// mZero );         // pack
 
       *((long long*)canvas) =  _mm_cvtsi128_si64(source);
 

@@ -50,7 +50,10 @@ namespace GenArt.Core.Classes
             get { return ComputeSumStdDev()/TotalCount; }
         }
 
-      
+        public byte MaxValue
+        {
+            get { return GetMaxValue(); }
+        }
 
         #endregion
 
@@ -71,6 +74,21 @@ namespace GenArt.Core.Classes
         public void InsertData(byte data)
         {
             _medianTable[data]++;
+        }
+
+        private byte GetMaxValue()
+        {
+            byte result = 0;
+            for (int i = 255; i >= 0; i--)
+            {
+                if (_medianTable[i] > 0)
+                {
+                    result = (byte)i;
+                    break;
+                }
+            }
+
+            return result;
         }
 
         private double ComputeSumStdDev()
