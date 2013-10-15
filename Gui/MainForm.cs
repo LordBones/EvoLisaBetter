@@ -512,6 +512,18 @@ namespace GenArt
                (rec.Brush.Alpha / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
            
                 }
+
+                DnaElipse elipse = item as DnaElipse;
+
+                if (elipse != null)
+                {
+                    sb.AppendFormat("<ellipse cx=\"{0}\" cy=\"{1}\" rx=\"{2}\" ry=\"{3}\"" +
+               " style=\"fill:rgb({4},{5},{6});fill-opacity:{7};\"/>",
+               elipse.StartPoint.X+elipse.Width/2, elipse.StartPoint.Y+elipse.Height/2, 
+               elipse.Width/2, elipse.Height/2, elipse.Brush.Red, elipse.Brush.Green, elipse.Brush.Blue,
+               (elipse.Brush.Alpha / 255.0).ToString("0.###", CultureInfo.InvariantCulture));
+
+                }
                 sb.AppendLine();
 
             }
