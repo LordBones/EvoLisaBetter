@@ -220,7 +220,7 @@ namespace GenArt.AST
 
             this._Points = points;
 
-            Brush = new DnaBrush(0,255,0,0);
+            Brush = new DnaBrush(255,255,0,0);
             CreateNewUniqueId();
         }
 

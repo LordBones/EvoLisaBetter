@@ -34,6 +34,37 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                rectangle.Brush.BrushColor.A);
         }
 
+        public void RenderRow(int y,int color, int alpha, DnaRectangle rectangle, CanvasBGRA canvas)
+        {
+            if (rectangle.Width <= 0 || rectangle.Height <= 0)
+                throw new Exception("Toto nesmi nastat");
+
+            // radek neprotina obdelnik nic se nekresli
+            if (y < rectangle.StartPoint.Y || rectangle.EndPoint.Y < y)
+                return;
+            //FillRectangle(canvas, rectangle.StartPoint.X, rectangle.StartPoint.Y,
+            //   rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
+
+            FillRowRectangle(y, rectangle, canvas, color, alpha);
+
+
+            //nativeFunc.RenderRectangle(canvas.Data, canvas.Width,
+            //   rectangle.StartPoint.X, rectangle.StartPoint.Y,
+            //   rectangle.Width, rectangle.Height,
+            //   rectangle.Brush.BrushColor.ToArgb(),
+            //   rectangle.Brush.BrushColor.A);
+        }
+
+        private void FillRowRectangle(int y, DnaRectangle rectangle, CanvasBGRA canvas, int color, int alpha)
+        {
+            int startIndex = canvas.Width * y + rectangle.StartPoint.X * 4;
+            //nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
+
+            nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color, alpha);
+            //RowApplyColorSafe(canvas.Data, startIndex, startIndex+(rectangle.Width-1)*4, color.R, color.G, color.B, color.A);
+
+        }
+        
         private void FillRectangle(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
         {
             int rowStartIndex = y * canvas.Width + x * 4;

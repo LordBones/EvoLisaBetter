@@ -27,6 +27,15 @@ namespace GenArtCoreNative {
 
 		}
 
+        void ClearFieldByColor(array<System::Byte>^ canvas,int startIndexPixel,  int countPixel, int color)
+		{
+			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+			FastFunctions::
+                ClearFieldByColor(pinCanvas+startIndexPixel, countPixel*4, color);
+
+		}
+
         void NewRowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);

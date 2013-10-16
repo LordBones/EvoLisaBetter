@@ -204,7 +204,7 @@ namespace GenArt.Core.AST
         {
             for (int index = 0; index < this._popSize; index++)
             {
-                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareTriangle);
+                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.Software);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
@@ -271,7 +271,7 @@ namespace GenArt.Core.AST
 
         private void ComputeCurrentBestErrorMatrix()
         {
-            _dnaRender.RenderDNA(this._currentBest, DNARenderer.RenderType.SoftwareTriangle);
+            _dnaRender.RenderDNA(this._currentBest, DNARenderer.RenderType.Software);
 
             _errorMatrix.ComputeErrorMatrix(this._destCanvas, _dnaRender.Canvas);
       
@@ -279,7 +279,7 @@ namespace GenArt.Core.AST
 
         private void ComputeCurrentBestErrorMatrix(DnaDrawing dna)
         {
-            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.SoftwareTriangle);
+            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.Software);
 
             _errorMatrix.ComputeErrorMatrix(this._destCanvas, _dnaRender.Canvas);
 

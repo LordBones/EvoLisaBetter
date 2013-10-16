@@ -30,8 +30,12 @@ namespace GenArt
         {
             DNARenderer dr = new DNARenderer(200, 200);
             //CanvasBGRA tc = new CanvasBGRA(200, 200);
-            dr.RenderDNA(new DnaDrawing(200, 200), DNARenderer.RenderType.SoftwareTriangle);
+            DnaDrawing dna = new DnaDrawing(200, 200);
+            dna.AddRectangle(255,null,null,null);
+            //dr.RenderDNA(dna, DNARenderer.RenderType.Software);
             CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test.bmp");
+            dr.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
+            CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test2.bmp");
 
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 

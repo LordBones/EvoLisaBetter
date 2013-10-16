@@ -440,7 +440,7 @@ namespace GenArt
         static private void SaveDNAAsSVG(DnaDrawing dna, CanvasBGRA sourceImage, string fileName)
         {
             DNARenderer _dnaRender = new DNARenderer(dna.Width, dna.Height);
-            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.SoftwareTriangle);
+            _dnaRender.RenderDNA(dna, DNARenderer.RenderType.Software);
             MatchStatistics ms = new MatchStatistics();
             ms.ComputeImageMatchStatAvg(sourceImage, _dnaRender.Canvas);
 
@@ -542,7 +542,7 @@ namespace GenArt
 
         private void StatRefresh(DnaDrawing guiDrawing)
         {
-            _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.SoftwareTriangle);
+            _dnaRender.RenderDNA(guiDrawing, DNARenderer.RenderType.Software);
             MatchStatistics ms = new MatchStatistics();
             ms.ComputeImageMatchStatAvg(sourceBitmapAsCanvas, _dnaRender.Canvas);
 
