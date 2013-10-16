@@ -367,7 +367,7 @@ namespace GenArt.Core.AST
             //ComputeSimilarity();
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
             //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
-            RankTableFill(this._fittness,this._rankTable,out maxNormalizeValue);
+            RankTableFill2(this._fittness,this._rankTable,out maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
@@ -499,6 +499,37 @@ namespace GenArt.Core.AST
             }
 
             MaxValueRankTable = nextRankValue;
+        }
+
+        private static void RankTableFill2(long[] fittness, int[] rankTable, out int MaxValueRankTable)
+        {
+            int [] rankIndexSorted = new int[fittness.Length];
+
+            for (int i = 0; i < rankIndexSorted.Length; i++)
+            {
+                rankIndexSorted[i] = i;
+            }
+
+            //Array.Sort(rankIndexSorted, fittness);
+            rankIndexSorted = rankIndexSorted.OrderBy(x => fittness[x], new compare()).ToArray();
+
+            int rankbasevalue = 10000;
+            double sp = 2.0;
+            // implementace vzorce
+            // 2-sp+(2*(sp-1)*((pos-1)/(n-1)  
+            // pos = 1 nejmensi fittness, sp = <1.0,2.0>  1.0 - linearni
+
+            int lastValue = 0;
+            for (int i = 0; i < rankTable.Length; i++)
+            {
+                double currentRank = 2.0 - sp + (2 * (sp - 1.0) * ((i) / ((double)rankTable.Length-1)));
+
+                rankTable[i] = lastValue+(int)(currentRank*rankbasevalue)+100;
+                lastValue = rankTable[i];
+            }
+
+
+            MaxValueRankTable = rankTable[rankTable.Length-1]+rankbasevalue;
         }
 
         private static void RouletteTableNormalize(long[] fittness, int[] rouleteTable, int maxNormalizeValue)
