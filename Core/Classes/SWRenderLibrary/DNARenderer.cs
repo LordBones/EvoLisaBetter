@@ -92,7 +92,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private void DnaRender_SoftwareByRows(DnaDrawing dna)
         {
             int [] colors = new int[dna.Polygons.Length];
-            byte [] colorsAlpha = new byte[dna.Polygons.Length];
+            //byte [] colorsAlpha = new byte[dna.Polygons.Length];
 
             //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
             DnaPrimitive [] dnaPolygons = dna.Polygons;
@@ -102,7 +102,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             {
                 Color c = dnaPolygons[i].Brush.BrushColor;
                 colors[i] = c.ToArgb();
-                colorsAlpha[i] = c.A;
+                //colorsAlpha[i] = c.A;
             }
 
             
@@ -110,9 +110,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
             int canvasIndexRow = 0;
-            for (int y = 0; y < this._drawCanvas.HeightPixel; y++)
+            int pixelHigh = this._drawCanvas.HeightPixel;
+            int colorBackground = _black.ToArgb();
+            for (int y = 0; y < pixelHigh; y++)
             {
-                nativefunc.ClearFieldByColor(this._drawCanvas.Data,canvasIndexRow,_drawCanvas.WidthPixel, _black.ToArgb());
+                nativefunc.ClearFieldByColor(this._drawCanvas.Data,canvasIndexRow,_drawCanvas.WidthPixel, colorBackground);
 
                 for (int i = 0; i < polyCount; i++)
                 {
@@ -128,7 +130,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     }
                     else if (rec != null)
                     {
-                        this._drawRectangle.RenderRow(y,colors[i],colorsAlpha[i], rec, _drawCanvas);
+                        this._drawRectangle.RenderRow(y,colors[i], rec, _drawCanvas);
                     }
                     else if (elips != null)
                     {
