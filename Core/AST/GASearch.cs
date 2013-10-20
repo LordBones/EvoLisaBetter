@@ -366,9 +366,9 @@ namespace GenArt.Core.AST
                     else 
                     {
                         if (this._currentBestFittness == this._crLastBestFittness)
-                            this._crLastMutationRate = (byte)Math.Min(255, this._crLastMutationRate +1);
+                            this._crLastMutationRate >>= 1;
                         else
-                            this._crLastMutationRate>>=1;
+                            this._crLastMutationRate--;
                         
                     }
 
