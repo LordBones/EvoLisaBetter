@@ -18,6 +18,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (elipse.Width <= 0 || elipse.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
 
+         
+
 
             //if((elipse.Height&1) == 0)
             // FillElipseEven(canvas, elipse.Middle.X, elipse.Middle.Y, elipse.Width, elipse.Height, elipse.Brush.BrushColor);

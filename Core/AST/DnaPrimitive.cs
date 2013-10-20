@@ -32,6 +32,7 @@ namespace GenArt.Core.AST
 
         public abstract void Init(byte mutationRate, ErrorMatrix errorMatrix, ImageEdges edgePoints = null);
 
+        public abstract void GetRangeHighSize(ref int startY, ref int endY);
         public abstract bool IsPointInside(DnaPoint point);
         public abstract bool IsLineCrossed(DnaPoint startLine, DnaPoint endLine);
 

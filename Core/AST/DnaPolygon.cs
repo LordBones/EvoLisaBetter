@@ -322,31 +322,18 @@ namespace GenArt.AST
 
                         DnaPoint newPoint = new DnaPoint();
 
-                        // musi byt alespon 2, jinak pada generovani nahodneho cisla
-                        //int mutationMax = Math.Max(2, ((MutationRate + 1) * (Tools.MaxWidth - oldPoint.X - 1 )) / (256));
-                        int mutationMax = Math.Max(2, Math.Min(Tools.MaxWidth - oldPoint.X - 1,20));
-                        int mutationMiddle = mutationMax / 2;
+                        int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.X,
+                            0,Tools.MaxWidth  - 1,MutationRate);
 
-                        int tmp = Tools.GetRandomNumber(0, mutationMax);
+                        newPoint.X = (short)Math.Min(Math.Max(0, newValue), Tools.MaxWidth - 1);
 
-                        newPoint.X = (short)Math.Min(Math.Max(0, oldPoint.X + tmp - mutationMiddle), Tools.MaxWidth - 1);
-                           
-                        //mutationMax = Math.Max(2,((MutationRate + 1) * (Tools.MaxHeight - oldPoint.Y-1)) / (256));
-                        mutationMax = Math.Max(2, Math.Min(Tools.MaxHeight - oldPoint.Y - 1,20));
-                        mutationMiddle = mutationMax / 2;
+                        newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.Y,
+                            0, Tools.MaxHeight - 1, MutationRate);
 
+                        newPoint.Y = (short)Math.Min(Math.Max(0, newValue), Tools.MaxHeight - 1);
 
-                        if(newPoint.X == oldPoint.X)
-                            tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle);
-                        else
-                            tmp = Tools.GetRandomNumber(0, mutationMax);
-
-                        newPoint.Y = (short)Math.Min(Math.Max(0, oldPoint.Y + tmp - mutationMiddle), Tools.MaxHeight - 1);
-
-                        //DnaPoint newPoint = new DnaPoint(
-                        //    (short)Tools.GetRandomNumber(0, destImage.WidthPixel),
-                        //    (short)Tools.GetRandomNumber(0, destImage.HeightPixel));
-
+                        if (newPoint.X == oldPoint.X && newPoint.Y == oldPoint.Y)
+                            break;
 
 
 
@@ -372,13 +359,15 @@ namespace GenArt.AST
                             //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
                             //this.Brush = brush;
 
+                            
+
                             drawing.SetDirty();
                             CreateNewUniqueId();
                             break;
                         }
 
 
-                        points[pointIndex] = oldPoint;
+                        //points[pointIndex] = oldPoint;
                     }
                 }
 
@@ -526,6 +515,20 @@ namespace GenArt.AST
             }
 
         }
+
+        public override void GetRangeHighSize(ref int startY, ref int endY)
+        {
+            startY = this._Points[0].Y;
+            endY = startY;
+            int tmp = this._Points[1].Y;
+            if (startY > tmp) startY = tmp;
+            if (endY < tmp) endY = tmp;
+
+            tmp = this._Points[2].Y;
+            if (startY > tmp) startY = tmp;
+            if (endY < tmp) endY = tmp;
+        }
+
 
         public override bool IsPointInside(DnaPoint point)
         {

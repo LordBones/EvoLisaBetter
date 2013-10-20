@@ -151,33 +151,28 @@ namespace GenArt.Core.AST
         {
             
             DnaPoint point = new DnaPoint();
-           
-            int newValue = Tools.GetRandomChangeValue(this.EndPoint.X, this.StartPoint.X, Tools.MaxWidth - 1,MutationRate);
+
+            int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.EndPoint.X,
+                           this.StartPoint.X, Tools.MaxWidth  - 1, MutationRate);
 
             point.X = (short)Math.Max(this.StartPoint.X, Math.Min(newValue, Tools.MaxWidth - 1));
 
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.EndPoint.Y,
+                           this.StartPoint.Y , Tools.MaxHeight - 1, MutationRate);
 
-            if (point.X == this.EndPoint.X)
-                newValue = Tools.GetRandomChangeValueGuaranted(this.EndPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1,MutationRate);
-            else
-                newValue = Tools.GetRandomChangeValue(this.EndPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1, MutationRate);
-            
             point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(newValue, Tools.MaxHeight - 1));
 
             this.EndPoint = point;
 
             point = new DnaPoint();
-          
 
-            newValue = Tools.GetRandomChangeValue(this.StartPoint.X, 0,this.EndPoint.X, MutationRate);
-
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.StartPoint.X,
+                         0, this.EndPoint.X , MutationRate);
 
             point.X = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.X));
-            if (point.X == this.StartPoint.X)
-                newValue = Tools.GetRandomChangeValueGuaranted(this.StartPoint.Y, 0, this.EndPoint.Y, MutationRate);
-            else
-                newValue = Tools.GetRandomChangeValue(this.StartPoint.Y,0, this.EndPoint.Y,MutationRate);
-          
+            
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.StartPoint.Y,
+                        0, this.EndPoint.Y , MutationRate);
 
             point.Y = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.Y));
 
@@ -242,6 +237,12 @@ namespace GenArt.Core.AST
             this.EndPoint.Y += (short)heightDelta;
 
             drawing.SetDirty();
+        }
+
+        public override void GetRangeHighSize(ref int startY, ref int endY)
+        {
+            startY = this.StartPoint.Y;
+            endY = this.EndPoint.Y;
         }
 
         public override bool IsPointInside(DnaPoint point)

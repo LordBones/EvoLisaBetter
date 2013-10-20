@@ -401,7 +401,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (maxY < y1) maxY = y1;
             if (maxY < y2) maxY = y2;
 
-            
+        
 
             DrawLineBetter(rangePoints, x0, y0, x1, y1);
             DrawLineBetter(rangePoints, x1, y1, x2, y2);

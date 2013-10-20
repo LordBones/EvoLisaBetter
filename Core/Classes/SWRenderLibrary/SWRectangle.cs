@@ -24,14 +24,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
 
+          
             //FillRectangle(canvas, rectangle.StartPoint.X, rectangle.StartPoint.Y,
             //   rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
 
             nativeFunc.RenderRectangle(canvas.Data, canvas.Width,
                rectangle.StartPoint.X, rectangle.StartPoint.Y,
                rectangle.Width, rectangle.Height, 
-               rectangle.Brush.BrushColor.ToArgb(), 
-               rectangle.Brush.BrushColor.A);
+               (int)rectangle.Brush.ColorAsUInt, 
+               rectangle.Brush.Alpha);
         }
 
         public void RenderRow(int y,int color, DnaRectangle rectangle, CanvasBGRA canvas)

@@ -4,20 +4,23 @@ using System.Drawing;
 using GenArt.Core.Classes;
 
 namespace GenArt.AST
-{   
+{
     public struct DnaBrush
     {
-        public byte Red;
-        public byte Green;
-        public byte Blue;
-        public byte Alpha;
+        /// <summary>
+        /// argb
+        /// </summary>
+        public uint ColorAsUInt;
+        public byte Red { get { return (byte)((ColorAsUInt >> 16) & 0xff); } set { ColorAsUInt &= (uint)~((uint)0xff << 16); ColorAsUInt |= (uint)((uint)value << 16); } }
+        public byte Green { get { return (byte)((ColorAsUInt >> 8) & 0xff); } set { ColorAsUInt &= (uint)~((uint)0xff << 8); ColorAsUInt |= (uint)((uint)value << 8); } }
+        public byte Blue { get { return (byte)((ColorAsUInt) & 0xff); } set { ColorAsUInt &= (uint)~((uint)0xff); ColorAsUInt |= (uint)((uint)value); } }
+        public byte Alpha { get { return (byte)((ColorAsUInt >> 24) & 0xff); } set { ColorAsUInt &= (uint)~((uint)0xff << 24); ColorAsUInt |= (uint)((uint)value << 24); } }
 
         public Color BrushColor
         {
             get
             {
-                return Color.FromArgb(Alpha
-                    , Red, Green, Blue);
+                return Color.FromArgb((int)ColorAsUInt);
             }
         }
         public System.Windows.Media.Brush brushWPF { get { return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(Alpha, Red, Green, Blue)); } }
@@ -25,6 +28,7 @@ namespace GenArt.AST
 
         public DnaBrush(int alpha, int red, int green, int blue)
         {
+            ColorAsUInt = 0;
             Red = (byte)red;
             Green = (byte)green;
             Blue = (byte)blue;
@@ -32,7 +36,7 @@ namespace GenArt.AST
 
         }
 
-       
+
         public void InitRandom()
         {
             Red = (byte)Tools.GetRandomNumber(0, 256);
@@ -40,7 +44,7 @@ namespace GenArt.AST
             Blue = (byte)Tools.GetRandomNumber(0, 256);
             Alpha = (byte)Tools.GetRandomNumber(1, 256);
 
-       
+
         }
 
         public void InitRandomWithoutAlpha()
@@ -57,55 +61,58 @@ namespace GenArt.AST
             this.Green = color.G;
             this.Red = color.R;
         }
-     
+
         private DnaBrush Clone()
         {
             return new DnaBrush
                        {
-                           Alpha = Alpha,
-                           Blue = Blue,
-                           Green = Green,
-                           Red = Red,
+                           ColorAsUInt = ColorAsUInt,
                        };
         }
 
-       
+
 
         public bool MutateRGBOld(byte mutationRate, DnaDrawing drawing)
         {
-            
+
 
             int colorPart =  Tools.GetRandomNumber(1, 5);
 
-        
-                if (colorPart == 1)
-                {
-                    int value = Tools.GetRandomChangeValue(Red, 0, 255, mutationRate);
-                    Red = (byte)Math.Max(Math.Min(value, 255), 0);
-                }
-                else if (colorPart == 2)
-                {
-                    int value = Tools.GetRandomChangeValue(Green, 0, 255, mutationRate);
-                    Green = (byte)Math.Max(Math.Min(value, 255), 0);
-                } 
-                else if (colorPart == 3)
-                {
-                    int value = Tools.GetRandomChangeValue(Blue, 0, 255, mutationRate);
-                    Blue = (byte)Math.Max(Math.Min(value, 255), 0);
-                }
-                else if (colorPart >= 4)
-                {
-                    int value = Tools.GetRandomChangeValue(Alpha, 5, 255, mutationRate);
-                    Alpha = (byte)Math.Max(Math.Min(value, 255), 5);
 
-                    //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
-                    //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
-                }
-                
-                drawing.SetDirty();
+            if (colorPart == 1)
+            {
+                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Red, 0, 255, mutationRate);
+                if (value == Red) return false;
+                Red = (byte)Math.Max(Math.Min(value, 255), 0);
+            }
+            else if (colorPart == 2)
+            {
+                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Green, 0, 255, mutationRate);
+                if (value == Green) return false;
+                Green = (byte)Math.Max(Math.Min(value, 255), 0);
+            }
+            else if (colorPart == 3)
+            {
+                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Blue, 0, 255, mutationRate);
+                if (value == Blue) return false;
+               
+                Blue = (byte)Math.Max(Math.Min(value, 255), 0);
+            }
+            else if (colorPart >= 4)
+            {
+                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Alpha, 5, 255, mutationRate);
+                if (value == Alpha) return false;
+               
+                Alpha = (byte)Math.Max(Math.Min(value, 255), 5);
 
-                return true;
-            
+                //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
+                //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
+            }
+
+            drawing.SetDirty();
+
+            return true;
+
         }
 
         public bool MutateRGBOld3(byte mutationRate, DnaDrawing drawing)
@@ -118,31 +125,31 @@ namespace GenArt.AST
 
             int tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle) - mutationMiddle;
 
-                if (colorPart == 1)
-                {
-                    Red = (byte)Math.Max(Math.Min(Red + tmp, 255), 0);
-                }
-                else if (colorPart == 2)
-                {
-                    Green = (byte)Math.Max(Math.Min(Green + tmp, 255), 0);
-                }
-                else if (colorPart == 3)
-                {
-                    Blue = (byte)Math.Max(Math.Min(Blue + tmp, 255), 0);
-                }
-                else if (colorPart >= 4)
-                {
-                    tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle) - mutationMiddle;
-                    Alpha = (byte)Math.Max(Math.Min(Alpha + tmp, 255), 5);
+            if (colorPart == 1)
+            {
+                Red = (byte)Math.Max(Math.Min(Red + tmp, 255), 0);
+            }
+            else if (colorPart == 2)
+            {
+                Green = (byte)Math.Max(Math.Min(Green + tmp, 255), 0);
+            }
+            else if (colorPart == 3)
+            {
+                Blue = (byte)Math.Max(Math.Min(Blue + tmp, 255), 0);
+            }
+            else if (colorPart >= 4)
+            {
+                tmp = Tools.GetRandomNumber(0, mutationMax, mutationMiddle) - mutationMiddle;
+                Alpha = (byte)Math.Max(Math.Min(Alpha + tmp, 255), 5);
 
-                    //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
-                    //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
-                }
-                
-                drawing.SetDirty();
+                //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
+                //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
+            }
 
-                return true;
-            
+            drawing.SetDirty();
+
+            return true;
+
         }
 
         public bool MutateRGBOld2(DnaDrawing drawing)
@@ -167,7 +174,7 @@ namespace GenArt.AST
             else if (colorPart >= 4)
             {
                 Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
-                
+
                 //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
             }
@@ -188,15 +195,15 @@ namespace GenArt.AST
 
             if (colorPart == 1)
             {
-                Red = (byte)Math.Max(Math.Min(Red + tmp , 255), 0);
+                Red = (byte)Math.Max(Math.Min(Red + tmp, 255), 0);
             }
             else if (colorPart == 2)
             {
-                Green = (byte)Math.Max(Math.Min(Green + tmp , 255), 0);
+                Green = (byte)Math.Max(Math.Min(Green + tmp, 255), 0);
             }
             else if (colorPart == 3)
             {
-                Blue = (byte)Math.Max(Math.Min(Blue + tmp , 255), 0);
+                Blue = (byte)Math.Max(Math.Min(Blue + tmp, 255), 0);
             }
 
             drawing.SetDirty();
@@ -215,7 +222,7 @@ namespace GenArt.AST
             if (Tools.GetRandomNumber(0, 101) < 25)
             {
                 int tmp = Tools.GetRandomNumber(0, 20, 10);
-                
+
                 Red = (byte)Math.Max(Math.Min(Red + tmp - 10, 255), 5);
                 wasMutate = true;
             }

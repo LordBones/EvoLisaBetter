@@ -120,7 +120,7 @@ namespace GenArt.AST
                             AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         }
                         else
-                        { 
+                        {
                             AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         }
 
@@ -135,7 +135,7 @@ namespace GenArt.AST
                         //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         //}
 
-                        break;
+                       // break;
                     }
                 }
 
@@ -143,21 +143,21 @@ namespace GenArt.AST
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
-                    break;
+                    //break;
                    
                 }
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //SwapPolygon();
                     SwapPolygon2();
-                    break;
+                    //break;
                     
                 }
 
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     RandomExchangeElipseRectangle();
-                    break;
+                    //break;
                 }
 
 

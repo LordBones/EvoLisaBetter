@@ -28,7 +28,7 @@ namespace GenArt
 
         private long lastErrorLevel = long.MaxValue;
         private long lastWorstErrorLevelDiff = 0;
-
+        private byte lastMutationRate = 0;
 
         private long errorLevel = long.MaxValue;
         private int generation;
@@ -129,6 +129,7 @@ namespace GenArt
                 lastDrawing = gaSearch.LastBest;
                 lastErrorLevel = gaSearch.LastBestFittness;
                 lastWorstErrorLevelDiff = gaSearch.LastWorstFittness;
+                lastMutationRate = gaSearch.CurrMutateRate;
 
                 if(gaSearch.CurrentBestFittness < errorLevel)
                 {
@@ -296,7 +297,9 @@ namespace GenArt
             this.Text = "speed: " + string.Format("{0:######.000}", speed) +" gen/s"+
                 "    fillRate: " + string.Format("{0:######.000}", fillrate) +" M pix"+
                 "    Last Fittness: " + this.lastErrorLevel +
-                "    Worst Fittness Diff: " + string.Format("{0:####.000 }%", (this.lastWorstErrorLevelDiff / (this.lastErrorLevel/100.0d)) );
+                "    Worst Fittness Diff: " + string.Format("{0:####.000 }%", (this.lastWorstErrorLevelDiff / (this.lastErrorLevel/100.0d)) )+
+                "    Last Mutation rate: "+lastMutationRate
+                ;
                 //" Bad Angle: "+ guiDrawing.HasSomePolygonBadAngles();
             last = DateTime.Now;
             lastGenetation = generation;

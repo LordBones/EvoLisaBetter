@@ -134,6 +134,13 @@ namespace GenArt.Core.AST
             CreateNewUniqueId();
         }
 
+        public override void GetRangeHighSize(ref int startY, ref int endY)
+        {
+            startY = this._startPoint.Y;
+            endY = this._startPoint.Y+this.Height-1;
+        }
+
+
         public override bool IsPointInside(GenArt.AST.DnaPoint point)
         {
             //return true;
@@ -171,18 +178,16 @@ namespace GenArt.Core.AST
 
         public override void Mutate(byte MutationRate, GenArt.AST.DnaDrawing drawing, Classes.CanvasBGRA destImage = null, Classes.ImageEdges edgePoints = null)
         {
-            DnaPoint endPoint = new DnaPoint((short)(this._startPoint.X + this._width - 1),(short)( this._startPoint.Y + this._height - 1));
+            DnaPoint endPoint = this.EndPoint;
             DnaPoint point = new DnaPoint();
 
-            int newValue = Tools.GetRandomChangeValue(endPoint.X, this.StartPoint.X, Tools.MaxWidth - 1, MutationRate);
+            int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(endPoint.X,
+                          this._startPoint.X, Tools.MaxWidth - 1, MutationRate);
 
             point.X = (short)Math.Max(this._startPoint.X, Math.Min(newValue, Tools.MaxWidth - 1));
 
-
-            if (point.X == endPoint.X)
-                newValue = Tools.GetRandomChangeValueGuaranted(endPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1, MutationRate);
-            else
-                newValue = Tools.GetRandomChangeValue(endPoint.Y, this.StartPoint.Y, Tools.MaxHeight - 1, MutationRate);
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(endPoint.Y,
+                         this._startPoint.Y, Tools.MaxHeight - 1, MutationRate);
 
             point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(newValue, Tools.MaxHeight - 1));
 
@@ -193,16 +198,13 @@ namespace GenArt.Core.AST
 
             point = new DnaPoint();
 
-
-            newValue = Tools.GetRandomChangeValue(this.StartPoint.X, 0, endPoint.X, MutationRate);
-
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this._startPoint.X,
+                         0, endPoint.X, MutationRate);
 
             point.X = (short)Math.Max(0, Math.Min(newValue, endPoint.X));
-            if (point.X == this.StartPoint.X)
-                newValue = Tools.GetRandomChangeValueGuaranted(this.StartPoint.Y, 0, endPoint.Y, MutationRate);
-            else
-                newValue = Tools.GetRandomChangeValue(this.StartPoint.Y, 0, endPoint.Y, MutationRate);
 
+            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(_startPoint.Y,
+                       0, endPoint.Y, MutationRate);
 
             point.Y = (short)Math.Max(0, Math.Min(newValue, endPoint.Y));
 

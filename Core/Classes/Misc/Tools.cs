@@ -49,6 +49,50 @@ namespace GenArt.Classes
             }
         }
 
+        public static double GetRandomNumberDouble()
+        {
+            if (buffIndex >= buff.Length)
+            {
+                random.NextBytes(buff);
+                //rng.GetBytes(buff);
+                buffIndex = 0;
+            }
+
+            randomCall++;
+
+            uint randValue = (uint)((buff[buffIndex] << 24) + (buff[buffIndex + 1] << 16) + (buff[buffIndex + 2] << 8) + buff[buffIndex + 3]);
+            buffIndex += 4;
+
+            
+            return  (1.0/uint.MaxValue)*randValue;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static int GetRandomNumberNoLinear_MinMoreOften(int maxValue, byte mutationRate)
+        {
+            double rnd = GetRandomNumberDouble();
+            double power = 3 - 2*(mutationRate/255.0);
+
+            return (int)(maxValue- Math.Pow(rnd, 1.0 / power) * maxValue);
+        }
+
+        public static int GetRandomNumberNoLinear_MinMoreOften(int value, int leftMinValue, int rightMaxValue, byte mutationRate)
+        {
+            int leftDiff = value - leftMinValue + 1;
+            int rightDiff = rightMaxValue - value + 1;
+            int randomMark = (Tools.GetRandomNumber(0, 2) == 0) ? 1 : -1;
+
+            int mutationMax =  (randomMark >= 0) ? rightDiff : leftDiff;
+            int tmp = Tools.GetRandomNumberNoLinear_MinMoreOften(mutationMax, mutationRate) * randomMark;
+
+            return value + tmp;
+        }
+
         public static int GetRandomNumber(int min, int max, int ignore)
         {
             if (!(min <= ignore && ignore < max)) return GetRandomNumber(min, max);

@@ -1184,15 +1184,33 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
         case 0xc: if (Count >= 1) { *M++ = Fill; Count--; }
         }
     }
+    f = _mm_set1_epi32(Fill);
+    
+    //f.m128i_i32[0] = Fill;
+    //f.m128i_i32[1] = Fill;
+    //f.m128i_i32[2] = Fill;
+    //f.m128i_i32[3] = Fill;
 
-    f.m128i_i32[0] = Fill;
-    f.m128i_i32[1] = Fill;
-    f.m128i_i32[2] = Fill;
-    f.m128i_i32[3] = Fill;
 
 
+    //while (Count >= 4)
+    //{
+    //    _mm_store_si128((__m128i *)M, f);
+    //    //_mm_stream_si128((__m128i *)M, f);
+    //    M += 4;
+    //    Count -= 4;
+    //}
 
-    while (Count >= 4)
+    while (Count >= 8)
+    {
+        _mm_store_si128((__m128i *)M, f);
+        _mm_store_si128((__m128i *)(M+4), f);
+        //_mm_stream_si128((__m128i *)M, f);
+        M += 8;
+        Count -= 8;
+    }
+
+    if (Count >= 4)
     {
         _mm_store_si128((__m128i *)M, f);
         //_mm_stream_si128((__m128i *)M, f);
@@ -1268,8 +1286,8 @@ unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr
 {
     __int64 result = 0;
 
-    __m128i mMaskGAAnd = _mm_setr_epi8(0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff,0,0xff);
-    __m128i mMaskEven = _mm_setr_epi16(0xffff,0,0xffff,0,0xffff,0,0xffff,0);
+    __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
+    __m128i mMaskEven = _mm_set1_epi32(0xffff);
     __m128i mResult = _mm_setzero_si128();
 
     int c = 1000;
