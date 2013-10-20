@@ -365,13 +365,15 @@ namespace GenArt.Core.AST
                     if (this._crLastMutationRate == 0) this._crLastMutationRate = 255;
                     else 
                     {
-                        //if (this._currentBestFittness == this._crLastBestFittness)
-                        //    this._crLastMutationRate = (byte)Math.Max(0, this._crLastMutationRate - 10);
-                        //else
-                            this._crLastMutationRate--;
-                        _crLastBestFittness = this._currentBestFittness;
-                        _crLastGenerationNumber = _generation;
+                        if (this._currentBestFittness == this._crLastBestFittness)
+                            this._crLastMutationRate = (byte)Math.Min(255, this._crLastMutationRate +1);
+                        else
+                            this._crLastMutationRate>>=1;
+                        
                     }
+
+                    _crLastBestFittness = this._currentBestFittness;
+                    _crLastGenerationNumber = _generation;
                 }
 
             }
