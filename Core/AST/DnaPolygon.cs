@@ -529,6 +529,12 @@ namespace GenArt.AST
             if (endY < tmp) endY = tmp;
         }
 
+        public override void GetRangeWidthByRow(int y, ref int startX, ref int endX)
+        {
+            startX = 0;
+            endX = -1;
+        }
+
 
         public override bool IsPointInside(DnaPoint point)
         {
