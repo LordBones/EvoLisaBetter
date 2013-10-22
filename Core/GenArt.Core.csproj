@@ -115,6 +115,7 @@
     <Compile Include="Classes\SoftwareRender.cs" />
     <Compile Include="Classes\SWRenderLibrary\DNARenderer.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWElipse.cs" />
+    <Compile Include="Classes\SWRenderLibrary\SWHelpers.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWPolygon.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWRectangle.cs" />
     <Compile Include="Classes\SWRenderLibrary\SWTriangle.cs" />

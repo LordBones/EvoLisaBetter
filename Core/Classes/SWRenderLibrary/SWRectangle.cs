@@ -24,18 +24,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
 
-          
+
             //FillRectangle(canvas, rectangle.StartPoint.X, rectangle.StartPoint.Y,
             //   rectangle.Width, rectangle.Height, rectangle.Brush.BrushColor);
 
             nativeFunc.RenderRectangle(canvas.Data, canvas.Width,
                rectangle.StartPoint.X, rectangle.StartPoint.Y,
-               rectangle.Width, rectangle.Height, 
-               (int)rectangle.Brush.ColorAsUInt, 
+               rectangle.Width, rectangle.Height,
+               (int)rectangle.Brush.ColorAsUInt,
                rectangle.Brush.Alpha);
         }
 
-        public void RenderRow(int y,int startIndexRow, int color, DnaRectangle rectangle, CanvasBGRA canvas)
+        public void RenderRow(int y, int startIndexRow, int color, DnaRectangle rectangle, CanvasBGRA canvas)
         {
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
@@ -61,36 +61,36 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int startIndex = startIndexRow + rectangle.StartPoint.X * 4;
             //nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
 
-            nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color, (int)(((uint)color>>24)&0xff));
+            nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color, (int)(((uint)color >> 24) & 0xff));
             //RowApplyColorSafe(canvas.Data, startIndex, startIndex+(rectangle.Width-1)*4, color.R, color.G, color.B, color.A);
 
         }
-        
+
         private void FillRectangle(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
         {
             int rowStartIndex = y * canvas.Width + x * 4;
-           
 
-           
+
+
             int a = color.A;
             int c = color.ToArgb();
-             
+
             //int indexY = minY * this._canvasWidth;
             for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
             {
                 //int length = rowEndIndex - rowStartIndex + 1;
                 //byte [] test = new byte[length];
-                 
+
                 //Array.Copy(canvas.Data, rowStartIndex, test, 0, length);
-                 
+
                 //nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, r,g,b,a);
                 //nativeFunc.NewRowApplyColor(canvas.Data, rowStartIndex, width, color.ToArgb(), a);
                 nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
 
                 //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, width, color.R, color.G, color.B, color.A);
-                //RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
+                //SWHelpers.RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);
 
-              
+
 
                 //nativeFunc.RowApplyColor(test, 0, length-1, color.R, color.G, color.B, color.A);
 
@@ -105,45 +105,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //    }
                 //}
 
-                    rowStartIndex += canvas.Width;
-                
+                rowStartIndex += canvas.Width;
+
             }
-        }
-
-        private void RowApplyColorSafe(byte[] data, int startIndex, int endIndex, int r, int g, int b, int alpha)
-        {
-            alpha = (alpha * 256) / 255;
-
-            int invAlpha = 256 - alpha;
-
-            int cb = b * alpha;
-            int cg = g * alpha;
-            int cr = r * alpha;
-
-            while (startIndex <= endIndex)
-            {
-                int tb = data[startIndex];
-                int tg = data[startIndex + 1];
-                int tr = data[startIndex + 2];
-
-
-                tb = (cb + (tb * invAlpha)) >> 8;
-                tg = (cg + (tg * invAlpha)) >> 8;
-                tr = (cr + (tr * invAlpha)) >> 8;
-
-                /*tb = tb + (((b-tb)*alpha)>>8);
-                tg=tg + (((g-tg)*alpha)>>8);
-                tr=tr + (((r-tr)*alpha)>>8);*/
-
-                data[startIndex] = (byte)tb;
-                data[startIndex + 1] = (byte)tg;
-                data[startIndex + 2] = (byte)tr;
-
-
-
-                startIndex += 4;
-            }
-
         }
     }
 }
