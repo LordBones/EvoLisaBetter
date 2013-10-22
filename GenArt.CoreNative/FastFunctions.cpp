@@ -1151,7 +1151,7 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
 
         /*if(count > 63)
         {
-            NewFastRowApplyColorSSE128(canvas+index, count, color, alpha);
+        NewFastRowApplyColorSSE128(canvas+index, count, color, alpha);
         }
         else*/
         {
@@ -1161,6 +1161,7 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
         rowStartIndex += canvasWidth;
     }
 }
+
 
 
 
@@ -1185,7 +1186,7 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
         }
     }
     f = _mm_set1_epi32(Fill);
-    
+
     //f.m128i_i32[0] = Fill;
     //f.m128i_i32[1] = Fill;
     //f.m128i_i32[2] = Fill;
@@ -1233,28 +1234,58 @@ void FastFunctions::ClearFieldByColor(unsigned char * curr, int length, int colo
     //std::fill((unsigned int *)curr,((unsigned int *)curr)+length/4,  color);
 }
 
+void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas)
+{
+    ClearFieldByColor(canvas+listRowsForApply[0]*4,listRowsForApply[1]*4,listRowsForApply[2]);
+
+    int index = 3;
+    for(int rows = 0;rows < countRows;rows++)
+    {
+        int color = listRowsForApply[index + 2];
+        int alpha = ((((unsigned int)color)>>24)&0xff);
+        NewFastRowApplyColorSSE64(canvas+
+            listRowsForApply[index] * 4, listRowsForApply[index + 1], color, alpha);
+
+        index +=3;
+    }
+}
+
+
 __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 {
-    NativeMedian8Bit medR = NativeMedian8Bit();
-    NativeMedian8Bit medG = NativeMedian8Bit();
+   // NativeMedian8Bit medR = NativeMedian8Bit();
+   // NativeMedian8Bit medG = NativeMedian8Bit();
     NativeMedian8Bit medB = NativeMedian8Bit();
 
 
     //int index = 0;
     //while (index < length)
-    for(int index = 0;index < length;index+=4)
+    for(int index = 0;index < length;index+=16)
     {
         medB.InsertData(labs(curr[index] - orig[index]));
-        medG.InsertData(labs(curr[index + 1] - orig[index + 1]));
-        medR.InsertData(labs(curr[index + 2] - orig[index + 2]));
+        medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
+        medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
+        
+      /*  int tmp = (labs(curr[index] - orig[index])>>2) +
+            (labs(curr[index+1] - orig[index+1])>>2) +
+            (labs(curr[index+2] - orig[index+2])>>2) ;
+        medB.InsertData(tmp);*/
+
+    
+       
+        
         //  index += 4;
     }
 
 
     __int64 result = 0;
     result += (medB.ValueSum() + medB.SumStdDev());
-    result += (medG.ValueSum() + medG.SumStdDev());
-    result += (medR.ValueSum() + medR.SumStdDev());
+    
+
+    //result += (medB.Median()) + medB.SumStdDev());
+
+   // result += (medG.ValueSum() + medG.SumStdDev());
+   // result += (medR.ValueSum() + medR.SumStdDev());
 
     return result;
 

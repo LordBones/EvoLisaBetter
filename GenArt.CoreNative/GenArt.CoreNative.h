@@ -93,6 +93,17 @@ namespace GenArtCoreNative {
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
         }
+        ///
+        /// listRowsForElements => format : [pixelStartIndex][count pixel][color]
+        /// first is clear row
+        /// countRows - sekvence others row from primites for render into same line
+        void RenderOneRow(array<System::Int32>^ listRowsForApply, int countRows, array<System::Byte>^ canvas)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+            pin_ptr<System::Int32> pinListRows(&listRowsForApply[0]);
+
+            FastFunctions::RenderOneRow(pinListRows,countRows,pinCanvas);
+        }
 
 
         void RowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int r , int g, int b, int alpha)
