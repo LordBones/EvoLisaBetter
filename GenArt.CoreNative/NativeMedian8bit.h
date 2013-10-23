@@ -15,6 +15,8 @@ public:
     NativeMedian8Bit(void);
     ~NativeMedian8Bit(void);
 
+    void _fastcall Clear(void);
+
     void _fastcall InsertData(unsigned char data){
     
         _medianTable[data]++;

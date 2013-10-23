@@ -1250,6 +1250,54 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     }
 }
 
+__int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel)
+{
+    // NativeMedian8Bit medR = NativeMedian8Bit();
+   // NativeMedian8Bit medG = NativeMedian8Bit();
+    NativeMedian8Bit medB = NativeMedian8Bit();
+    widthPixel*=10;
+    __int64 result = 0;
+
+    int pixelOnRow = 0;
+    for(int index = 0;index < length;index+=4)
+    {
+        if(pixelOnRow >= widthPixel)
+        {
+            result += (medB.ValueSum() + medB.SumStdDev());
+            medB.Clear();
+            pixelOnRow = 0;
+        }
+
+        medB.InsertData(labs(curr[index] - orig[index]));
+        medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
+        medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
+        
+        pixelOnRow++;
+
+        
+      /*  int tmp = (labs(curr[index] - orig[index])>>2) +
+            (labs(curr[index+1] - orig[index+1])>>2) +
+            (labs(curr[index+2] - orig[index+2])>>2) ;
+        medB.InsertData(tmp);*/
+
+    
+       
+        
+        //  index += 4;
+    }
+
+    
+    result += (medB.ValueSum() + medB.SumStdDev());
+    
+
+    //result += (medB.Median()) + medB.SumStdDev());
+
+   // result += (medG.ValueSum() + medG.SumStdDev());
+   // result += (medR.ValueSum() + medR.SumStdDev());
+
+    return result;
+}
+
 
 __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 {
@@ -1260,7 +1308,7 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
 
     //int index = 0;
     //while (index < length)
-    for(int index = 0;index < length;index+=16)
+    for(int index = 0;index < length;index+=4)
     {
         medB.InsertData(labs(curr[index] - orig[index]));
         medB.InsertData(labs(curr[index + 1] - orig[index + 1]));

@@ -173,6 +173,14 @@ namespace GenArtCoreNative {
             
             return  FastFunctions::computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
         }
+        __int64 ComputeFittnessTile(array<System::Byte>^ current, array<System::Byte>^ orig, int widthPixel)
+		{
+			pin_ptr<System::Byte> pinCurr(&current[0]);
+			pin_ptr<System::Byte> pinOrig(&orig[0]);
+
+            
+            return  FastFunctions::computeFittnessTile(pinCurr,pinOrig,orig->Length,widthPixel);
+        }
 
 		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{

@@ -76,9 +76,9 @@ namespace GenArt.Classes
         public static int GetRandomNumberNoLinear_MinMoreOften(int maxValue, byte mutationRate)
         {
             double rnd = GetRandomNumberDouble();
-            double power = 3 - 2*(mutationRate/255.0);
+            double power = 4 - 3*(mutationRate/255.0);
 
-            return (int)(maxValue- Math.Pow(rnd, 1.0 / power) * maxValue);
+            return (int)(maxValue- Math.Pow(rnd, 1.0 / power) * maxValue); 
         }
 
         public static int GetRandomNumberNoLinear_MinMoreOften(int value, int leftMinValue, int rightMaxValue, byte mutationRate)

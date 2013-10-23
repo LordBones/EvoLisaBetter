@@ -219,7 +219,8 @@ namespace GenArt.Core.AST
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
-                long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
+                //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = this._population[index].Polygons.Length;
@@ -355,7 +356,7 @@ namespace GenArt.Core.AST
         {
             if (_generation - _crLastGenerationNumber >= CONST_DynamicMutationGenInterval/1000)
             {
-                if (this._currentBestFittness < (this._crLastBestFittness - this._crLastBestFittness / 100))
+                if (this._currentBestFittness < (this._crLastBestFittness))// - this._crLastBestFittness / 1000))
                 {
                     _crLastBestFittness = this._currentBestFittness;
                     _crLastGenerationNumber = _generation;
@@ -365,9 +366,9 @@ namespace GenArt.Core.AST
                     if (this._crLastMutationRate == 0) this._crLastMutationRate = 255;
                     else 
                     {
-                        if (this._currentBestFittness == this._crLastBestFittness)
-                            this._crLastMutationRate >>= 1;
-                        else
+                        //if (this._currentBestFittness == this._crLastBestFittness)
+                        //    this._crLastMutationRate >>= 1;
+                        //else
                             this._crLastMutationRate--;
                         
                     }
@@ -543,6 +544,39 @@ namespace GenArt.Core.AST
         }
 
         private static void RankTableFill2(long[] fittness, int[] rankTable, out int MaxValueRankTable)
+        {
+            int [] rankIndexSorted = new int[fittness.Length];
+
+            for (int i = 0; i < rankIndexSorted.Length; i++)
+            {
+                rankIndexSorted[i] = i;
+            }
+
+            //Array.Sort(rankIndexSorted, fittness);
+            rankIndexSorted = rankIndexSorted.OrderBy(x => fittness[x], new compare()).ToArray();
+
+            int rankbasevalue = 10000;
+            double sp = 1.9;
+            // implementace vzorce
+            // 2-sp+(2*(sp-1)*((pos-1)/(n-1)  
+            // pos = 1 nejmensi fittness, sp = <1.0,2.0>  1.0 - linearni
+
+            int lastValue = 0;
+            for (int i = 0; i < rankTable.Length; i++)
+            {
+                double rnd = (i) / ((double)rankTable.Length - 1);
+               
+                double currentRank = Math.Pow(rnd, 2);
+
+                rankTable[i] = lastValue + (int)(currentRank * rankbasevalue);
+                lastValue = rankTable[i];
+            }
+
+
+            MaxValueRankTable = rankTable[rankTable.Length - 1] + rankbasevalue;
+        }
+
+        private static void RankTableFill3(long[] fittness, int[] rankTable, out int MaxValueRankTable)
         {
             int [] rankIndexSorted = new int[fittness.Length];
 
