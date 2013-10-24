@@ -415,7 +415,7 @@ namespace GenArt.Core.AST
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
-            byte currMutatioRate = GetCurrentMutationRate2();
+            byte currMutatioRate = GetCurrentMutationRate();
 
             for (int index = 0; index < _popSize; index++)
             {
