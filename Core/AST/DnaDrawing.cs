@@ -117,11 +117,11 @@ namespace GenArt.AST
                             AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         else if (tmp == 1)
                         {
-                            AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
+                           // AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         }
                         else
                         {
-                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
+                            //AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         }
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
@@ -156,7 +156,7 @@ namespace GenArt.AST
 
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
-                    RandomExchangeElipseRectangle();
+                    //RandomExchangeElipseRectangle();
                     //break;
                 }
 
@@ -203,12 +203,12 @@ namespace GenArt.AST
                     if (!this.IsDirty ||
                        (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
                     {
-                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix); 
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
                         int tindex = tmpIndex.Value;
                         //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                        Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
+                        Polygons[tindex].Brush.MutateRGBOldnew(mutationRate, this);
 
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }

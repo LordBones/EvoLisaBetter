@@ -15,7 +15,7 @@ namespace GenArt.Classes
     {
         #region new fittness methods
 
-        public static long ComputeFittness_Basic(byte[] current, byte[] orig)
+        public static long ComputeFittness_Basic(byte[] current, byte[] orig, int increment)
         {
             long result = 0;
 
@@ -30,12 +30,12 @@ namespace GenArt.Classes
 
                 result += tmpres;
 
-                index += 4;
+                index += 4*increment;
             }
 
 
 
-            return result;
+            return result*increment;
         }
 
         #endregion
