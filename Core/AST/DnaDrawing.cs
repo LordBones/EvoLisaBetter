@@ -149,7 +149,7 @@ namespace GenArt.AST
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //SwapPolygon();
-                    SwapPolygon2();
+                    SwapPolygon2(); 
                     //break;
                     
                 }
@@ -209,6 +209,7 @@ namespace GenArt.AST
                         int tindex = tmpIndex.Value;
                         //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[tindex].Brush.MutateRGBOldnew(mutationRate, this);
+                        //SortOnePolygonByAlpa(tindex);
 
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
@@ -607,6 +608,26 @@ namespace GenArt.AST
 
         }
 
+        private void SortOnePolygonByAlpa(int polygonIndex)
+        {
+            DnaPrimitive polygon = Polygons[polygonIndex];
+
+
+            int tmp = polygonIndex;
+            // down
+            while (tmp > 0)
+            {
+                if (Polygons[tmp].Brush.Alpha < Polygons[tmp - 1].Brush.Alpha)
+                    break;
+
+                Polygons[tmp] = Polygons[tmp-1];
+                
+                tmp--;
+            }
+
+            Polygons[tmp] = polygon;
+        }
+
         public void RemovePolygon(ErrorMatrix errorMatrix)
         {
             if (Polygons.Length > Settings.ActivePolygonsMin)
@@ -635,7 +656,7 @@ namespace GenArt.AST
             }
         }
 
-       
+        
 
 
         public void AddPolygon(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
@@ -677,6 +698,7 @@ namespace GenArt.AST
 
                     polygons[polygons.Length - 1] = newPolygon;
                     Polygons = polygons;
+                    //SortOnePolygonByAlpa(polygons.Length - 1);
 
                     SetDirty();
                 }

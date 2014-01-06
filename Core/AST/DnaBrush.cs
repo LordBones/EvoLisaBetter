@@ -149,7 +149,7 @@ namespace GenArt.AST
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Alpha, 5, 255, mutationRate);
                 if (value == Alpha) return false;
 
-                Alpha = (byte)Math.Max(Math.Min(value, 64), 5);
+                Alpha = (byte)Math.Max(Math.Min(value, 255), 5);
 
                 //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);

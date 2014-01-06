@@ -45,7 +45,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private readonly static Color _black = Color.FromArgb(255, 0, 0, 0);
         private readonly static int _blackInt = _black.ToArgb();
-
+         
         public void RenderDNA(DnaDrawing dna, RenderType typeRender)
         {
             if (typeRender == RenderType.Software) DnaRender_SoftwareTriangle(dna);
