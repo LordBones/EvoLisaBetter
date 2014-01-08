@@ -106,23 +106,23 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 1001) < 11)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
                         int tmp = Tools.GetRandomNumber(0, 3);
-                        if (tmp == 0)
-                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
-                        else if (tmp == 1)
+                        //if (tmp == 0)
+                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
+                        /*else if (tmp == 1)
                         {
-                           // AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
+                             AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         }
                         else
                         {
-                            //AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
-                        }
+                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
+                        }*/
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -135,23 +135,23 @@ namespace GenArt.AST
                         //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
                         //}
 
-                       // break;
+                        // break;
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 1001) < 201)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                     //break;
-                   
+
                 }
                 if (Tools.GetRandomNumber(0, 101) < 11)
                 {
                     //SwapPolygon();
-                    SwapPolygon2(); 
+                    SwapPolygon2();
                     //break;
-                    
+
                 }
 
                 if (Tools.GetRandomNumber(0, 101) < 11)
@@ -161,7 +161,7 @@ namespace GenArt.AST
                 }
 
 
-                
+
 
                 if (Polygons.Length > 0)
                 {
@@ -182,7 +182,7 @@ namespace GenArt.AST
                         //else
                         //{
                         Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
-                        
+
                         //Color nearColor = Color.Black;
 
                         //if (Polygons[index] is DnaPolygon)
@@ -203,7 +203,7 @@ namespace GenArt.AST
                     if (!this.IsDirty ||
                        (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
                     {
-                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix); 
+                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
                         int tindex = tmpIndex.Value;
@@ -214,9 +214,9 @@ namespace GenArt.AST
                         //Polygons[tindex].Brush.MutateRGBOld(this);
                     }
                 }
-                
-            } while (false);
-            // while (Tools.GetRandomNumber(1, 11) <= 5);
+
+              //  } while (false);
+            } while (Tools.GetRandomNumber(1, 101) <= 25);
         }
 
         public void MutateBetter2(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
