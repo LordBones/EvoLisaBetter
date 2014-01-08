@@ -283,5 +283,73 @@ namespace GenArt.Classes
 
             return result;
         }
+
+        public static long ComputeFittness_Basic2(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            int lastDiffBr = 0;
+            int lastDiffBg = 0;
+            int lastDiffBb = 0;
+
+            int index = 0;
+            while (index < orig.Length)
+            {
+                int br = Tools.fastAbs(current[index] - orig[index]);
+                int bg = Tools.fastAbs(current[index + 1] - orig[index + 1]);
+                int bb = Tools.fastAbs(current[index + 2] - orig[index + 2]);
+
+                long tmpres = br + bg + bb;
+                tmpres += Tools.fastAbs(br - lastDiffBr);
+                tmpres += Tools.fastAbs(bg - lastDiffBg);
+                tmpres += Tools.fastAbs(bb- lastDiffBb);
+
+                lastDiffBb = bb;
+                lastDiffBg = bg;
+                lastDiffBr = br;
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+
+
+            return result;
+        }
+
+        public static long ComputeFittness_Basic3(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            int lastDiffBr = 0;
+            int lastDiffBg = 0;
+            int lastDiffBb = 0;
+
+            int index = 0;
+            while (index < orig.Length)
+            {
+                int br = Tools.fastAbs(current[index] - orig[index]);
+                int bg = Tools.fastAbs(current[index + 1] - orig[index + 1]);
+                int bb = Tools.fastAbs(current[index + 2] - orig[index + 2]);
+
+                long tmpres = br + bg + bb;
+                tmpres += (256-Tools.fastAbs(br - lastDiffBr)+1)*br;
+                tmpres += (256-Tools.fastAbs(bg - lastDiffBg)+1)*bg;
+                tmpres += (256-Tools.fastAbs(bb - lastDiffBb)+1)*bb;
+
+                lastDiffBb = bb;
+                lastDiffBg = bg;
+                lastDiffBr = br;
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+
+
+            return result;
+        }
     }
 }

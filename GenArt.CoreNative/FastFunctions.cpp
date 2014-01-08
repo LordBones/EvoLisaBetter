@@ -1201,13 +1201,18 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
     //    M += 4;
     //    Count -= 4;
     //}
-
+    unsigned long * M2 = M + ((Count&(~7))>>1);
     while (Count >= 8)
     {
         _mm_store_si128((__m128i *)M, f);
         _mm_store_si128((__m128i *)(M+4), f);
+        //_mm_store_si128((__m128i *)M2, f);
         //_mm_stream_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)(M+4), f);
         M += 8;
+        //M += 4;
+        //M2 += 4;
+
         Count -= 8;
     }
 
