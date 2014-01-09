@@ -141,7 +141,7 @@ namespace GenArt.Core.AST
 
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
 
-            this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
+            //this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
 
             DnaBrush backGround = new DnaBrush(255, 0, 0, 0);
@@ -218,7 +218,7 @@ namespace GenArt.Core.AST
                 _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.Software);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data, this._generation%10+1);
-                long fittness = FitnessCalculator.ComputeFittness_Basic3(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
@@ -425,7 +425,7 @@ namespace GenArt.Core.AST
 
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                //indexParent1 = this._fittness.Length - 1;
+                indexParent1 = this._fittness.Length - 1;
 
 
 

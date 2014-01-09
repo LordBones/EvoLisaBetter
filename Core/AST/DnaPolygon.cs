@@ -311,15 +311,15 @@ namespace GenArt.AST
                 }
                 else
                 {
-                    if (Tools.GetRandomNumber(0, 10) < 5 && drawing.Polygons.Length > 1)
-                    {
-                        int polyIndex = Tools.GetRandomNumber(0, drawing.Polygons.Length);
-                        int pointIndex = Tools.GetRandomNumber(0, drawing.Polygons[polyIndex].Points.Length);
+                    //if (Tools.GetRandomNumber(0, 10) < 5 && drawing.Polygons.Length > 1)
+                    //{
+                    //    int polyIndex = Tools.GetRandomNumber(0, drawing.Polygons.Length);
+                    //    int pointIndex = Tools.GetRandomNumber(0, drawing.Polygons[polyIndex].Points.Length);
 
-                        int pointNewIndex = Tools.GetRandomNumber(0, points.Length);
-                        points[pointIndex] = drawing.Polygons[polyIndex].Points[pointIndex];
-                    }
-                    else
+                    //    int pointNewIndex = Tools.GetRandomNumber(0, points.Length);
+                    //    points[pointIndex] = drawing.Polygons[polyIndex].Points[pointIndex];
+                    //}
+                    //else
                     {
                         while (true)
                         {
