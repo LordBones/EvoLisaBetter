@@ -106,16 +106,18 @@ namespace GenArt.AST
 
 
 
-                if (Tools.GetRandomNumber(0, 1001) < 11)
+                if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
-                        int tmp = Tools.GetRandomNumber(0, 3);
-                        //if (tmp == 0)
+                        AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
+
+                        /*int tmp = Tools.GetRandomNumber(0, 3);
+                        if (tmp == 0)
                             AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
-                        /*else if (tmp == 1)
+                        else if (tmp == 1)
                         {
                              AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         }

@@ -334,9 +334,9 @@ namespace GenArt.Classes
                 int bb = Tools.fastAbs(current[index + 2] - orig[index + 2]);
 
                 long tmpres = br + bg + bb;
-                tmpres += (256-Tools.fastAbs(br - lastDiffBr)+1)*br;
-                tmpres += (256-Tools.fastAbs(bg - lastDiffBg)+1)*bg;
-                tmpres += (256-Tools.fastAbs(bb - lastDiffBb)+1)*bb;
+                tmpres += (br - lastDiffBr>=0)? br - lastDiffBr : 0;
+                tmpres += (bg - lastDiffBg >= 0) ? bg - lastDiffBg : 0;
+                tmpres += (bb - lastDiffBb >= 0) ? bb - lastDiffBb : 0;
 
                 lastDiffBb = bb;
                 lastDiffBg = bg;
