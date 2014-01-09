@@ -311,63 +311,74 @@ namespace GenArt.AST
                 }
                 else
                 {
-                    while (true)
+                    if (Tools.GetRandomNumber(0, 10) < 5 && drawing.Polygons.Length > 1)
                     {
-                        int pointIndex = Tools.GetRandomNumber(0, points.Length);
-                        DnaPoint oldPoint = points[pointIndex];
+                        int polyIndex = Tools.GetRandomNumber(0, drawing.Polygons.Length);
+                        int pointIndex = Tools.GetRandomNumber(0, drawing.Polygons[polyIndex].Points.Length);
 
-                        //get random end line on border canvas
-                        //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
-
-
-                        DnaPoint newPoint = new DnaPoint();
-
-                        int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.X,
-                            0,Tools.MaxWidth  - 1,MutationRate);
-
-                        newPoint.X = (short)Math.Min(Math.Max(0, newValue), Tools.MaxWidth - 1);
-
-                        newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.Y,
-                            0, Tools.MaxHeight - 1, MutationRate);
-
-                        newPoint.Y = (short)Math.Min(Math.Max(0, newValue), Tools.MaxHeight - 1);
-
-                        if (newPoint.X == oldPoint.X && newPoint.Y == oldPoint.Y)
-                            break;
-
-
-
-                        bool p1 = DnaPoint.Compare(newPoint, points[0]);
-                        bool p2 = DnaPoint.Compare(newPoint, points[1]);
-                        bool p3 = DnaPoint.Compare(newPoint, points[2]);
-
-                        if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
+                        int pointNewIndex = Tools.GetRandomNumber(0, points.Length);
+                        points[pointIndex] = drawing.Polygons[polyIndex].Points[pointIndex];
+                    }
+                    else
+                    {
+                        while (true)
                         {
-                            points[pointIndex] = oldPoint;
-                            continue;
+                            int pointIndex = Tools.GetRandomNumber(0, points.Length);
+                            DnaPoint oldPoint = points[pointIndex];
+
+                            //get random end line on border canvas
+                            //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
+
+
+                            DnaPoint newPoint = new DnaPoint();
+
+                            int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.X,
+                                0, Tools.MaxWidth - 1, MutationRate);
+
+                            newPoint.X = (short)Math.Min(Math.Max(0, newValue), Tools.MaxWidth - 1);
+
+                            newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.Y,
+                                0, Tools.MaxHeight - 1, MutationRate);
+
+                            newPoint.Y = (short)Math.Min(Math.Max(0, newValue), Tools.MaxHeight - 1);
+
+                            if (newPoint.X == oldPoint.X && newPoint.Y == oldPoint.Y)
+                                break;
+
+
+
+                            bool p1 = DnaPoint.Compare(newPoint, points[0]);
+                            bool p2 = DnaPoint.Compare(newPoint, points[1]);
+                            bool p3 = DnaPoint.Compare(newPoint, points[2]);
+
+                            if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
+                            {
+                                points[pointIndex] = oldPoint;
+                                continue;
+                            }
+
+                            points[pointIndex] = newPoint;
+
+                            if (IsNotSmallAngles(points) &&
+                                //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
+                                !IsIntersect(points))
+                            {
+                                // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
+                                //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                //DnaBrush brush = this.Brush;
+                                //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
+                                //this.Brush = brush;
+
+
+
+                                drawing.SetDirty();
+                                CreateNewUniqueId();
+                                break;
+                            }
+
+
+                            //points[pointIndex] = oldPoint;
                         }
-
-                        points[pointIndex] = newPoint;
-
-                        if (IsNotSmallAngles(points) && 
-                            //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
-                            !IsIntersect(points))
-                        {
-                            // dojde-li k posunu trojuhelniku, snizi se jeho pruhlednost o 10procent
-                            //this.Brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
-                            //DnaBrush brush = this.Brush;
-                            //brush.Alpha = (byte)Math.Max(this.Brush.Alpha - 10, 5);
-                            //this.Brush = brush;
-
-                            
-
-                            drawing.SetDirty();
-                            CreateNewUniqueId();
-                            break;
-                        }
-
-
-                        //points[pointIndex] = oldPoint;
                     }
                 }
 

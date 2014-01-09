@@ -217,8 +217,8 @@ namespace GenArt.AST
                     }
                 }
 
-              //  } while (false);
-            } while (Tools.GetRandomNumber(1, 101) <= 25);
+                } while (false);
+            //} while (Tools.GetRandomNumber(1, 101) <= 25);
         }
 
         public void MutateBetter2(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)

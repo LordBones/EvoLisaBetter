@@ -425,7 +425,7 @@ namespace GenArt.Core.AST
 
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                indexParent1 = this._fittness.Length - 1;
+                //indexParent1 = this._fittness.Length - 1;
 
 
 
