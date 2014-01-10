@@ -112,9 +112,9 @@ namespace GenArt.AST
                     //    RemovePolygon();
                     if (Settings.ActivePolygonsMax > this.Polygons.Length)
                     {
-                        AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
+                        //AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
 
-                        /*int tmp = Tools.GetRandomNumber(0, 3);
+                        int tmp = Tools.GetRandomNumber(0, 3);
                         if (tmp == 0)
                             AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
                         else if (tmp == 1)
@@ -124,7 +124,7 @@ namespace GenArt.AST
                         else
                         {
                             AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
-                        }*/
+                        }
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
