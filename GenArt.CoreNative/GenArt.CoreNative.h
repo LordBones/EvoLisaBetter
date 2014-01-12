@@ -182,6 +182,23 @@ namespace GenArtCoreNative {
             return  FastFunctions::computeFittnessTile(pinCurr,pinOrig,orig->Length,widthPixel);
         }
 
+        __int64 ComputeFittness_2d(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
+		{
+			pin_ptr<System::Byte> pinCurr(&current[0]);
+			pin_ptr<System::Byte> pinOrig(&orig[0]);
+
+            
+            return  FastFunctions::computeFittness_2d(pinCurr,pinOrig,orig->Length,width);
+        }
+
+        __int64 ComputeFittness_2d_2x2(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
+		{
+			pin_ptr<System::Byte> pinCurr(&current[0]);
+			pin_ptr<System::Byte> pinOrig(&orig[0]);
+
+            
+            return  FastFunctions::computeFittness_2d_2x2(pinCurr,pinOrig,orig->Length,width);
+        }
 		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;

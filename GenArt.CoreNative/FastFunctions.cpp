@@ -1258,7 +1258,7 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
 __int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel)
 {
     // NativeMedian8Bit medR = NativeMedian8Bit();
-   // NativeMedian8Bit medG = NativeMedian8Bit();
+    // NativeMedian8Bit medG = NativeMedian8Bit();
     NativeMedian8Bit medB = NativeMedian8Bit();
     widthPixel*=10;
     __int64 result = 0;
@@ -1276,38 +1276,288 @@ __int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char *
         medB.InsertData(labs(curr[index] - orig[index]));
         medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
         medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
-        
+
         pixelOnRow++;
 
-        
-      /*  int tmp = (labs(curr[index] - orig[index])>>2) +
-            (labs(curr[index+1] - orig[index+1])>>2) +
-            (labs(curr[index+2] - orig[index+2])>>2) ;
+
+        /*  int tmp = (labs(curr[index] - orig[index])>>2) +
+        (labs(curr[index+1] - orig[index+1])>>2) +
+        (labs(curr[index+2] - orig[index+2])>>2) ;
         medB.InsertData(tmp);*/
 
-    
-       
-        
+
+
+
         //  index += 4;
     }
 
-    
+
     result += (medB.ValueSum() + medB.SumStdDev());
-    
+
 
     //result += (medB.Median()) + medB.SumStdDev());
 
-   // result += (medG.ValueSum() + medG.SumStdDev());
-   // result += (medR.ValueSum() + medR.SumStdDev());
+    // result += (medG.ValueSum() + medG.SumStdDev());
+    // result += (medR.ValueSum() + medR.SumStdDev());
 
     return result;
+}
+
+__int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char * orig, int length, int width)
+{
+   __int64 result = 0;
+    int height = (length / (width));
+
+    int rowIndexUp = 0;
+    int rowIndex = width;
+    int rowIndexDown = width*2;
+
+    for (int y = 1; y < height - 1; y+=2)
+    {
+        int tmpRowIndexUp = rowIndexUp+8;
+        int tmpRowIndex = rowIndex + 8;
+        int tmpRowIndexDown = rowIndexDown + 8;
+
+        int lastBr = current[tmpRowIndex-8] - orig[tmpRowIndex-8];lastBr*=lastBr;
+        int lastBg = current[tmpRowIndex-8+1] - orig[tmpRowIndex-8+1];lastBg*=lastBg;
+        int lastBb = current[tmpRowIndex-8+2] - orig[tmpRowIndex-8+2];lastBb*=lastBb;
+
+        int lastBrDown = current[tmpRowIndexDown-8] - orig[tmpRowIndexDown-8];lastBrDown*=lastBrDown;
+        int lastBgDown = current[tmpRowIndexDown-8+1] - orig[tmpRowIndexDown-8+1];lastBgDown*=lastBgDown;
+        int lastBbDown = current[tmpRowIndexDown-8+2] - orig[tmpRowIndexDown-8+2];lastBbDown*=lastBbDown;
+
+        for (int x = 8; x < width; x += 8)
+        {
+            // compute 2d fittness
+
+            int br = current[tmpRowIndex] - orig[tmpRowIndex];
+            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
+            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
+            br *= br;
+            bg *= bg;
+            bb *= bb;
+
+            int br2 = current[tmpRowIndex-4] - orig[tmpRowIndex-4];
+            int bg2 = current[tmpRowIndex-4 + 1] - orig[tmpRowIndex-4 + 1];
+            int bb2 = current[tmpRowIndex-4 + 2] - orig[tmpRowIndex-4 + 2];
+            br2 *= br2;
+            bg2 *= bg2;
+            bb2 *= bb2;
+
+            int br3 = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
+            int bg3 = current[tmpRowIndexDown + 1] - orig[tmpRowIndexDown + 1];
+            int bb3 = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
+            br3 *= br3;
+            bg3 *= bg3;
+            bb3 *= bb3;
+
+            int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
+            int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
+            int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
+            br4 *= br4;
+            bg4 *= bg4;
+            bb4 *= bb4;
+
+            const int fixMul = 1;
+            const int fixMul2 = 1;
+            result += (br + bb + bg + 
+                br2 + bb2 + bg2 +
+                br3 + bb3 + bg3 +
+                br4 + bb4 + bg4)*fixMul ;
+
+            result += (labs(br - br4)+labs(bg - bg4)+labs(bb - bb4))*fixMul2;
+            result += (labs(br2 - br3) + labs(bg2 - bg3) + labs(bb2 - bb3))*fixMul2;
+           
+            int tmpbr = current[tmpRowIndexUp] - orig[tmpRowIndexUp];
+            int tmpbg = current[tmpRowIndexUp+1] - orig[tmpRowIndexUp+1];
+            int tmpbb = current[tmpRowIndexUp+2] - orig[tmpRowIndexUp+2];
+            result += (labs(br - tmpbr*tmpbr)+labs(bg - tmpbg*tmpbg)+labs(bb - tmpbb*tmpbb))*fixMul2;
+
+            tmpbr = current[tmpRowIndexUp-4] - orig[tmpRowIndexUp-4];
+            tmpbg = current[tmpRowIndexUp-4+1] - orig[tmpRowIndexUp-4+1];
+            tmpbb = current[tmpRowIndexUp-4+2] - orig[tmpRowIndexUp-4+2];
+            result += (labs(br2 - tmpbr*tmpbr)+labs(bg2 - tmpbg*tmpbg)+labs(bb2 - tmpbb*tmpbb))*fixMul2;
+            
+            result += (labs(br2 - lastBr)+labs(bg2 - lastBg)+labs(bb2 - lastBb))*fixMul2;
+            result += (labs(br4 - lastBrDown)+labs(bg4 - lastBgDown)+labs(bb4 - lastBbDown))*fixMul2;
+            
+            lastBr = br2;
+            lastBg = bg2;
+            lastBb = bb2;
+
+            lastBrDown = br4;
+            lastBgDown = bg4;
+            lastBbDown = bb4;
+
+            tmpRowIndex += 8;
+            tmpRowIndexDown += 8;
+
+        }
+
+        rowIndex += width*2;
+        rowIndexDown += width*2;
+    }
+
+
+    return result;
+
+
+
+}
+
+//__int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char * orig, int length, int width)
+//{
+//    __int64 result = 0;
+//    int height = (length / (width));
+//
+//    int rowIndex = 0;
+//    int rowIndexDown = width;
+//
+//    for (int y = 0; y < height - 1; y++)
+//    {
+//        int tmpRowIndex = rowIndex + 4;
+//        int tmpRowIndexDown = rowIndexDown + 4;
+//
+//        int brLast = current[tmpRowIndex - 4] - orig[tmpRowIndex - 4];
+//        int bgLast = current[tmpRowIndex - 4+1] - orig[tmpRowIndex - 4+1];
+//        int bbLast = current[tmpRowIndex - 4+2] - orig[tmpRowIndex - 4+2];
+//        brLast*=brLast;
+//        bgLast *= bgLast;
+//        bbLast *= bbLast;
+//
+//        for (int x = 4; x < width; x += 4)
+//        {
+//            // compute 2d fittness
+//
+//            int br = current[tmpRowIndex] - orig[tmpRowIndex];
+//            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
+//            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
+//            br *= br;
+//            bg *= bg;
+//            bb *= bb;
+//
+//            const int fixMul = 1;
+//            const int fixMul2 = 2;
+//            result += (br + bb + bg)*fixMul;
+//
+//            result += (labs(br - brLast)+labs(bg - bgLast) + labs(bb - bbLast))*fixMul2;
+//           
+//            brLast = br;
+//            bgLast = bg;
+//            bbLast = bb;
+//
+//            int tmp = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
+//            result += labs(br - tmp*tmp)*fixMul2;
+//            tmp = current[tmpRowIndexDown  + 1] - orig[tmpRowIndexDown + 1];
+//            result += labs(bg - tmp*tmp)*fixMul2;
+//            tmp = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
+//            result += labs(bb - tmp*tmp)*fixMul2;
+//
+//            tmpRowIndex += 4;
+//            tmpRowIndexDown += 4;
+//
+//        }
+//
+//        rowIndex += width;
+//        rowIndexDown += width;
+//    }
+//
+//
+//    return result;
+//
+//
+//}
+
+
+__int64 FastFunctions::computeFittness_2d_2x2(unsigned char * current, unsigned char * orig, int length, int width)
+{
+    __int64 result = 0;
+    int height = (length / (width));
+
+    int rowIndex = 0;
+    int rowIndexDown = width;
+
+    for (int y = 0; y < height - 1; y+=2)
+    {
+        int tmpRowIndex = rowIndex + 4;
+        int tmpRowIndexDown = rowIndexDown + 4;
+
+        for (int x = 4; x < width; x += 8)
+        {
+            // compute 2d fittness
+
+            int br = current[tmpRowIndex] - orig[tmpRowIndex];
+            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
+            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
+            br *= br;
+            bg *= bg;
+            bb *= bb;
+
+            int br2 = current[tmpRowIndex-4] - orig[tmpRowIndex-4];
+            int bg2 = current[tmpRowIndex-4 + 1] - orig[tmpRowIndex-4 + 1];
+            int bb2 = current[tmpRowIndex-4 + 2] - orig[tmpRowIndex-4 + 2];
+            br2 *= br2;
+            bg2 *= bg2;
+            bb2 *= bb2;
+
+            int br3 = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
+            int bg3 = current[tmpRowIndexDown + 1] - orig[tmpRowIndexDown + 1];
+            int bb3 = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
+            br3 *= br3;
+            bg3 *= bg3;
+            bb3 *= bb3;
+
+            int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
+            int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
+            int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
+            br4 *= br4;
+            bg4 *= bg4;
+            bb4 *= bb4;
+
+            const int fixMul = 1;
+            const int fixMul2 = 2;
+            result += br*fixMul + bb*fixMul + bg*fixMul + 
+                br2*fixMul + bb2*fixMul + bg2*fixMul +
+                br3*fixMul + bb3*fixMul + bg3*fixMul +
+                br4*fixMul + bb4*fixMul + bg4*fixMul ;
+
+            int tmp = labs(br - br2); result += tmp*fixMul2;
+            tmp = labs(bg - bg2); result += tmp*fixMul2;
+            tmp = labs(bb - bb2); result += tmp*fixMul2;
+
+            tmp = labs(br4 - br2);  result += tmp*fixMul2;
+            tmp = labs(bg4 - bg2);  result += tmp*fixMul2;
+            tmp = labs(bb4 - bb2);  result += tmp*fixMul2;
+
+            tmp = labs(br4 - br3);  result += tmp*fixMul2;
+            tmp = labs(bg4 - bg3);  result += tmp*fixMul2;
+            tmp = labs(bb4 - bb3);  result += tmp*fixMul2;
+
+            tmp = labs(br - br3); result += tmp*fixMul2;
+            tmp = labs(bg - bg3); result += tmp*fixMul2;
+            tmp = labs(bb - bb3); result += tmp*fixMul2;
+
+
+            tmpRowIndex += 8;
+            tmpRowIndexDown += 8;
+
+        }
+
+        rowIndex += width*2;
+        rowIndexDown += width*2;
+    }
+
+
+    return result;
+
+
 }
 
 
 __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 {
-   // NativeMedian8Bit medR = NativeMedian8Bit();
-   // NativeMedian8Bit medG = NativeMedian8Bit();
+    // NativeMedian8Bit medR = NativeMedian8Bit();
+    // NativeMedian8Bit medG = NativeMedian8Bit();
     NativeMedian8Bit medB = NativeMedian8Bit();
 
 
@@ -1318,27 +1568,27 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
         medB.InsertData(labs(curr[index] - orig[index]));
         medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
         medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
-        
-      /*  int tmp = (labs(curr[index] - orig[index])>>2) +
-            (labs(curr[index+1] - orig[index+1])>>2) +
-            (labs(curr[index+2] - orig[index+2])>>2) ;
+
+        /*  int tmp = (labs(curr[index] - orig[index])>>2) +
+        (labs(curr[index+1] - orig[index+1])>>2) +
+        (labs(curr[index+2] - orig[index+2])>>2) ;
         medB.InsertData(tmp);*/
 
-    
-       
-        
+
+
+
         //  index += 4;
     }
 
 
     __int64 result = 0;
     result += (medB.ValueSum() + medB.SumStdDev());
-    
+
 
     //result += (medB.Median()) + medB.SumStdDev());
 
-   // result += (medG.ValueSum() + medG.SumStdDev());
-   // result += (medR.ValueSum() + medR.SumStdDev());
+    // result += (medG.ValueSum() + medG.SumStdDev());
+    // result += (medR.ValueSum() + medR.SumStdDev());
 
     return result;
 

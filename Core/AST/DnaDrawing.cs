@@ -105,7 +105,7 @@ namespace GenArt.AST
                 //int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
-
+                 
                 if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
                     //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
@@ -114,17 +114,15 @@ namespace GenArt.AST
                     {
                         //AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
 
+                        //int tmp = Tools.GetRandomNumber(0, 3);
+                        //if (tmp == 0)        AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
+                        //else if (tmp == 1) AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
+                        //else AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
+
                         int tmp = Tools.GetRandomNumber(0, 3);
-                        if (tmp == 0)
-                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);  
-                        else if (tmp == 1)
-                        {
-                             AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
-                        }
-                        else
-                        {
-                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
-                        }
+                        if (tmp == 0) AddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
+                        else AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -141,14 +139,14 @@ namespace GenArt.AST
                     }
                 }
 
-                if (Tools.GetRandomNumber(0, 1001) < 201)
+                if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
                     RemovePolygon(errorMatrix);
                     //RemovePolygon(errorMatrix);
                     //break;
 
                 }
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
                     //SwapPolygon();
                     SwapPolygon2();
@@ -156,9 +154,9 @@ namespace GenArt.AST
 
                 }
 
-                if (Tools.GetRandomNumber(0, 101) < 11)
+                if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
-                    //RandomExchangeElipseRectangle();
+                    RandomExchangeElipseRectangle();
                     //break;
                 }
 
@@ -167,7 +165,7 @@ namespace GenArt.AST
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 101) < 11)
+                    if (Tools.GetRandomNumber(0, 1001) < 101)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
@@ -203,9 +201,9 @@ namespace GenArt.AST
                     }
 
                     if (!this.IsDirty ||
-                       (this.IsDirty && Tools.GetRandomNumber(0, 101) < 11))
+                       (this.IsDirty && Tools.GetRandomNumber(0, 1001) < 101))
                     {
-                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                        int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
                         int tindex = tmpIndex.Value;
@@ -610,26 +608,6 @@ namespace GenArt.AST
 
         }
 
-        private void SortOnePolygonByAlpa(int polygonIndex)
-        {
-            DnaPrimitive polygon = Polygons[polygonIndex];
-
-
-            int tmp = polygonIndex;
-            // down
-            while (tmp > 0)
-            {
-                if (Polygons[tmp].Brush.Alpha < Polygons[tmp - 1].Brush.Alpha)
-                    break;
-
-                Polygons[tmp] = Polygons[tmp-1];
-                
-                tmp--;
-            }
-
-            Polygons[tmp] = polygon;
-        }
-
         public void RemovePolygon(ErrorMatrix errorMatrix)
         {
             if (Polygons.Length > Settings.ActivePolygonsMin)
@@ -637,11 +615,12 @@ namespace GenArt.AST
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
                 //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
+                int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
                 //int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
-                //if (!tmpIndex.HasValue) return;
+                if (!tmpIndex.HasValue) return;
 
-                //int index = tmpIndex.Value;
-                int index = Tools.GetRandomNumber(0, Polygons.Length);
+                int index = tmpIndex.Value;
+                //int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length -1];
 
@@ -682,6 +661,10 @@ namespace GenArt.AST
 
                         newPolygon.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();
+                    }
+                    else
+                    {
+                        newPolygon.Brush.InitRandom();
                     }
 
                     
@@ -729,6 +712,11 @@ namespace GenArt.AST
                         newRectangle.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();
                     }
+                    else
+                    {
+                        newRectangle.Brush.InitRandom();
+                    }
+
 
                     //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
                     //if (polygons.Count == 0)
@@ -774,6 +762,10 @@ namespace GenArt.AST
                         newElipse.Brush.SetByColor(nearColor);
                         //newPolygon.Brush.InitRandom();
                     }
+                    else
+                    {
+                        newElipse.Brush.InitRandom();
+                    }
 
                 
                     //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
@@ -801,7 +793,7 @@ namespace GenArt.AST
         
         private int ? GetRNDPolygonIndex(ErrorMatrix errorMatrix)
         {
-            
+            throw new NotImplementedException();
 
             if (this.Polygons.Length == 1)
             {
@@ -809,9 +801,9 @@ namespace GenArt.AST
             }
             else if (this.Polygons.Length > 1)
             {
-                return Tools.GetRandomNumber(0, Polygons.Length);
+                //return Tools.GetRandomNumber(0, Polygons.Length);
                  
-                /*
+                
                 List<int> polygonsId = new List<int>();
 
                 do
@@ -857,18 +849,18 @@ namespace GenArt.AST
                             else
                             {
                                 // test if some edge cross tile
-                                if (DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftDown, tPointRightTop))
+                                if (GraphicFunctions.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightDown) ||
+                                GraphicFunctions.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
                                 }
-                                else if (DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftDown, tPointRightTop))
+                                else if (GraphicFunctions.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightDown) ||
+                                GraphicFunctions.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
                                 }
-                                else if (DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightDown) ||
-                                DnaPolygon.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftDown, tPointRightTop))
+                                else if (GraphicFunctions.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightDown) ||
+                                GraphicFunctions.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftDown, tPointRightTop))
                                 {
                                     polygonsId.Add(index);
                                 }
@@ -881,7 +873,7 @@ namespace GenArt.AST
 
                 int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
                 return polygonsId[polygonIndex];
-                 */
+                 
             }
                 
             // if no pygons in dna

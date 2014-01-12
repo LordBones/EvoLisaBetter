@@ -31,6 +31,8 @@ public:
 	static void  ClearFieldByColor(unsigned char * curr, int length, int color);
 
     static __int64 computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel);
+    static __int64 computeFittness_2d(unsigned char * curr, unsigned char * orig, int length, int width);
+    static __int64 computeFittness_2d_2x2(unsigned char * curr, unsigned char * orig, int length, int width);
 
     static __int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
     static __int64 computeFittnessSumSquare(unsigned char * curr, unsigned char * orig, int length);

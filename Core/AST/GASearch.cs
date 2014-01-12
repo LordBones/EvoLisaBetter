@@ -219,7 +219,12 @@ namespace GenArt.Core.AST
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
                 //);
-                long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = FitnessCalculator.ComputeFittness_2d3(_destCanvas.Data, _dnaRender.Canvas.Data, _destCanvas.Width);
+                
+                long fittness = _nativeFunc.ComputeFittness_2d(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
+                //long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
+                
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
@@ -255,7 +260,7 @@ namespace GenArt.Core.AST
                 }
             }
 
-            if (bestFittness < this._currentBestFittness)
+            if (bestFittness <= this._currentBestFittness)
             {
                 this._currentBestFittness = bestFittness;
                 this._currentBest = this._population[bestIndex];
@@ -265,6 +270,8 @@ namespace GenArt.Core.AST
 
             this._lastBest = this._population[bestIndex];
             this._lastBestFittness = bestFittness;
+
+            //ComputeCurrentBestErrorMatrix(this.LastBest);
 
             // aplikovani pridani nejlepsiho do kolekce
             if (_generation % 1 == 5)
@@ -349,7 +356,6 @@ namespace GenArt.Core.AST
 
 
             byte mutatioRate =  (byte)((positionInMutationRate * CONST_MutationMaxRate) / CONST_DynamicMutationGenInterval);
-
 
             return mutatioRate;
         }

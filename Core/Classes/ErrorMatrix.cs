@@ -10,7 +10,7 @@ namespace GenArt.Core.Classes
 {
     public class ErrorMatrix 
     {
-        public int CONST_TileSize = 50;
+        public int CONST_TileSize = 20;
 
         private int _inputPixelWidth;
         private int _inputPixelHeight;
@@ -101,6 +101,7 @@ namespace GenArt.Core.Classes
                     int indexTileStart = matrixY * CONST_TileSize * this._inputPixelWidth + matrixX * CONST_TileSize;
 
                     this.Matrix[matrixY * this.MatrixWidth + matrixX] = ComputeErrorTile_Median(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
+                    
                 }
             }
 
@@ -162,6 +163,35 @@ namespace GenArt.Core.Classes
                 return result/(imageLenX*imageLenY*3) + 1;
         }
 
+        private int ComputeErrorTileMax(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
+        {
+            int result = 0;
+            int maxr = 0;
+            int maxg = 0;
+            int maxb = 0;
+
+            int imageIndex = imageStartIndex * 4;
+
+            for (int tileY = 0; tileY < imageLenY; tileY++)
+            {
+                int imageIndexX = imageIndex;
+                for (int tileX = 0; tileX < imageLenX; tileX++)
+                {
+                    // copmute sumDiff
+
+                    result += Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]);
+                    result += Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]);
+                    result += Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]);
+                    
+                    imageIndexX += 4;
+                }
+
+                imageIndex += this._inputPixelWidth * 4;
+            }
+
+            return result / (imageLenX * imageLenY * 3) + 1;
+        }
+
         private int ComputeErrorTile_Median(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
             Median8bit median = new Median8bit();
@@ -187,7 +217,7 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            return (int)(median.Median  + 
+            return (int)(//median.Median  + 
                 median.StdDev 
                 + 1.0);
 
