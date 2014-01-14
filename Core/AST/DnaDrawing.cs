@@ -170,12 +170,12 @@ namespace GenArt.AST
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                        //int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
-                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+                        int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
+                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
-                        //int index = tmpIndex.Value;
+                        int index = tmpIndex.Value;
 
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                         //if (Tools.GetRandomNumber(0, 2) == 3)
                         //    Polygons[index].MutateTranspozite(this, destImage);
@@ -199,19 +199,24 @@ namespace GenArt.AST
                         //Polygons[index].Brush.Alpha = alpha;
                         //}
                     }
-
+                     
                     if (!this.IsDirty ||
                        (this.IsDirty && Tools.GetRandomNumber(0, 1001) < 101))
                     {
-                        int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
+                        int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
                         if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
                         int tindex = tmpIndex.Value;
                         //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[tindex].Brush.MutateRGBOldnew(mutationRate, this);
-                        //SortOnePolygonByAlpa(tindex);
+                         
 
-                        //Polygons[tindex].Brush.MutateRGBOld(this);
+                        /*List<int> tmpIndex = GetRNDPolygonListIndex_ByErrorMatrix(errorMatrix);
+                        for (int i = 0; i < tmpIndex.Count; i++)
+                        {
+                            Polygons[tmpIndex[i]].Brush.MutateRGBOldnew(mutationRate, this);
+                        }*/
+                        
                     }
                 }
 
@@ -219,110 +224,7 @@ namespace GenArt.AST
             //} while (Tools.GetRandomNumber(1, 101) <= 25);
         }
 
-        public void MutateBetter2(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
-        {
-            /// k mutaci pozadi dochazi pouze jednou 
-            //if (Tools.GetRandomNumber(0, 10) == 9)
-            //    BackGround.MutateRGBOldWithoutAlpha(this);
-
-            do
-            {
-                this.IsDirty = false;
-                int mutateChange = Tools.GetRandomNumber(0, 1001);
-
-
-
-                if (mutateChange < 50)
-                {
-                    //if (Settings.ActivePolygonsMax <= this.Polygons.Length)
-                    //    RemovePolygon();
-                    if (Settings.ActivePolygonsMax > this.Polygons.Length)
-                    {
-                        if (Tools.GetRandomNumber(0, 2) < 1)
-                            AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
-                        else
-                        {
-                            AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
-                        }
-                        continue;
-                    }
-                }
-                if (mutateChange < 100)
-                {
-                    RemovePolygon(errorMatrix);
-                    //RemovePolygon(errorMatrix);
-                    continue;
-                }
-                if (mutateChange < 150)
-                {
-                    SwapPolygon();
-                    //if (SwapPolygon2())
-                    continue;
-                }
-
-                // else
-
-                while (!this.IsDirty)
-                {
-                    if (Polygons.Length == 0)
-                        break;
-
-                    //for (int index = 0; index < Polygons.Length; index++)
-                    //    Polygons[index].Mutate(this,destImage, edgePoints);
-
-                    //if (Tools.GetRandomNumber(0, 2) >= 1)
-                    if (mutateChange < 650)
-                    {
-                        //int index = GetRNDIndexPolygonBySize(this.Polygons);
-                        //int index = GetRNDIndexPolygonByLive(this.Polygons);
-
-                        //int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
-                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
-
-                        //int index = tmpIndex.Value;
-
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
-
-                        //if (Tools.GetRandomNumber(0, 2) == 3)
-                        //    Polygons[index].MutateTranspozite(this, destImage);
-                        //else
-                        //{
-                        Polygons[index].Mutate(mutationRate, this, destImage, edgePoints);
-
-                        //Color nearColor = Color.Black;
-
-                        //if (Polygons[index] is DnaPolygon)
-                        //{
-                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
-                        //}
-                        //else if (Polygons[index] is DnaRectangle)
-                        //{
-                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
-                        //}
-
-                        //byte alpha = Polygons[index].Brush.Alpha;
-                        //Polygons[index].Brush.SetByColor(nearColor);
-                        //Polygons[index].Brush.Alpha = alpha;
-                        //}
-
-                    }
-                    else
-                    {
-                        int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
-                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
-
-                        int tindex = tmpIndex.Value;
-                        //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                        Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
-
-                        //Polygons[tindex].Brush.MutateRGBOld(this);
-                    }
-                }
-
-            } while (false);
-            // while (Tools.GetRandomNumber(1, 11) <= 5);
-        }
-
+       
        
         bool IsPrimitiveInterleaving(DnaPrimitive who, DnaPrimitive interWith)
         {
@@ -615,8 +517,8 @@ namespace GenArt.AST
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
                 //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                int ? tmpIndex = GetRNDPolygonIndexOnlyPoints(errorMatrix);
-                //int ? tmpIndex = GetRNDPolygonIndex(errorMatrix);
+                int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
+                
                 if (!tmpIndex.HasValue) return;
 
                 int index = tmpIndex.Value;
@@ -790,108 +692,27 @@ namespace GenArt.AST
             }
         }
 
-        
-        private int ? GetRNDPolygonIndex(ErrorMatrix errorMatrix)
+        private int? GetRNDPolygonIndex_ByErrorMatrix(ErrorMatrix errorMatrix)
         {
-            throw new NotImplementedException();
+            List<int> polygons = GetRNDPolygonListIndex_ByErrorMatrix(errorMatrix);
 
-            if (this.Polygons.Length == 1)
-            {
-                return 0;
-            }
-            else if (this.Polygons.Length > 1)
-            {
-                //return Tools.GetRandomNumber(0, Polygons.Length);
-                 
-                
-                List<int> polygonsId = new List<int>();
+            if (polygons.Count == 0) return null;
 
-                do
-                {
-
-                    int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
-                    Rectangle tileArea = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
-
-                    for (int index = 0; index < this.Polygons.Length; index++)
-                    {
-                        DnaPrimitive polygon = this.Polygons[index];
-                        if (IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
-                        else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
-                        else if (IsPointInRectangle(tileArea, polygon.Points[2])) polygonsId.Add(index);
-                        else
-                        {
-                            DnaPoint tPointLeftTop = new DnaPoint((short)tileArea.X, (short)tileArea.Y);
-                            DnaPoint tPointRightTop = new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)tileArea.Y);
-                            DnaPoint tPointLeftDown = new DnaPoint((short)tileArea.X, (short)(tileArea.Y + tileArea.Height - 1));
-                            DnaPoint tPointRightDown = new DnaPoint((short)(tileArea.X + tileArea.Width - 1), (short)(tileArea.Y + tileArea.Height - 1));
-                            
-
-                            // test if tile is inside triangle
-                            if (GraphicFunctions.IsPointInTriangle(
-                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                tPointLeftTop) &&
-
-                                GraphicFunctions.IsPointInTriangle(
-                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                tPointRightTop) &&
-
-                                GraphicFunctions.IsPointInTriangle(
-                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                tPointLeftDown) &&
-
-                                GraphicFunctions.IsPointInTriangle(
-                                polygon.Points[0], polygon.Points[1], polygon.Points[2],
-                                tPointRightDown)
-                                )
-                            {
-                                polygonsId.Add(index);
-                            }
-                            else
-                            {
-                                // test if some edge cross tile
-                                if (GraphicFunctions.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftTop, tPointRightDown) ||
-                                GraphicFunctions.LineIntersect(polygon.Points[0], polygon.Points[1], tPointLeftDown, tPointRightTop))
-                                {
-                                    polygonsId.Add(index);
-                                }
-                                else if (GraphicFunctions.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftTop, tPointRightDown) ||
-                                GraphicFunctions.LineIntersect(polygon.Points[1], polygon.Points[2], tPointLeftDown, tPointRightTop))
-                                {
-                                    polygonsId.Add(index);
-                                }
-                                else if (GraphicFunctions.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftTop, tPointRightDown) ||
-                                GraphicFunctions.LineIntersect(polygon.Points[2], polygon.Points[0], tPointLeftDown, tPointRightTop))
-                                {
-                                    polygonsId.Add(index);
-                                }
-                            }
-
-                        }
-
-                    }
-                } while (polygonsId.Count == 0);
-
-                int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
-                return polygonsId[polygonIndex];
-                 
-            }
-                
-            // if no pygons in dna
-            return null;
+            int polygonIndex = Tools.GetRandomNumber(0, polygons.Count);
+            return polygons[polygonIndex];
         }
 
-        private int? GetRNDPolygonIndexOnlyPoints(ErrorMatrix errorMatrix)
-        {
 
+        private List<int> GetRNDPolygonListIndex_ByErrorMatrix(ErrorMatrix errorMatrix)
+        {
+            List<int> result = new List<int>();
 
             if (this.Polygons.Length == 1)
             {
-                return 0;
+                return result;
             }
             else if (this.Polygons.Length > 1)
             {
-                List<int> polygonsId = new List<int>();
-
                 do
                 {
 
@@ -902,7 +723,7 @@ namespace GenArt.AST
                     for (int index = 0; index < this.Polygons.Length; index++)
                     {
                         DnaPrimitive polygon = this.Polygons[index];
-                        if(IsPrimitiveInterleaving(rec, polygon)) polygonsId.Add(index);
+                        if(IsPrimitiveInterleaving(rec, polygon)) result.Add(index);
 
                         //if ( IsPointInRectangle(tileArea, polygon.Points[0])) polygonsId.Add(index);
                         //else if (IsPointInRectangle(tileArea, polygon.Points[1])) polygonsId.Add(index);
@@ -910,14 +731,11 @@ namespace GenArt.AST
                        
 
                     }
-                } while (polygonsId.Count == 0);
-
-                int polygonIndex = Tools.GetRandomNumber(0, polygonsId.Count);
-                return polygonsId[polygonIndex];
+                } while (result.Count == 0);
             }
 
             // if no pygons in dna   
-            return null;
+            return result;
         }
 
         private static bool IsPointInRectangle(Rectangle area, DnaPoint point)

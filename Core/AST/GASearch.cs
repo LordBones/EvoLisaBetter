@@ -423,7 +423,8 @@ namespace GenArt.Core.AST
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
-            byte currMutatioRate = GetCurrentMutationRate();
+            byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
+             GetCurrentMutationRate();
 
             for (int index = 0; index < _popSize; index++)
             {
@@ -432,7 +433,7 @@ namespace GenArt.Core.AST
 
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                //indexParent1 = this._fittness.Length - 1;
+                indexParent1 = this._fittness.Length - 1;
 
 
 
