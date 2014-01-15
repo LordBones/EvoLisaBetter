@@ -120,9 +120,10 @@ namespace GenArt.AST
                         //else AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
 
                         int tmp = Tools.GetRandomNumber(0, 3);
-                        if (tmp == 0) AddPolygon(mutationRate, errorMatrix, null, edgePoints);
-                        else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
-                        else AddRectangle(mutationRate, errorMatrix, null, edgePoints);
+                        //if (tmp == 0) AddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        //else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
+                        //else 
+                            AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -709,12 +710,19 @@ namespace GenArt.AST
 
             if (this.Polygons.Length == 1)
             {
+                result.Add(0);
                 return result;
             }
             else if (this.Polygons.Length > 1)
             {
+                int counter = 0;
                 do
                 {
+                    if (counter >= 10)
+                    {
+                        result.Add(0);
+                        break;
+                    }
 
                     int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
                     Rectangle tileArea = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
@@ -731,6 +739,8 @@ namespace GenArt.AST
                        
 
                     }
+
+                    counter++;
                 } while (result.Count == 0);
             }
 
