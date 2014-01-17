@@ -32,8 +32,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             //FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
             //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
-            FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
-            //FillTriangleTile(canvas.Data, canvas.Width, x1, y1, x2, y2, x3, y3, color);
+            //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -49,32 +49,145 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             return (0x10000 * alpha / 255) * colorChanel;
         }
 
+
         private static void ApplyColor(byte[] canvas, int index, Color color)
         {
-            int canvasIndex = index * 4;
+            // convert alpha value from range 0-255 to 0-256
+            int alpha = (color.R * 256) / 255;
 
-            int aMult = 0x10000 * color.A / 255;
-            int rem = 0x10000 - aMult;
-            int arrem = aMult * color.R;
-            int abrem = aMult * color.B;
-            int agrem = aMult * color.G;
+            int invAlpha = 256 - alpha;
 
-            canvas[canvasIndex] = (byte)((abrem + rem * canvas[canvasIndex]) >> 16);
-            canvas[canvasIndex + 1] = (byte)((agrem + rem * canvas[canvasIndex + 1]) >> 16);
-            canvas[canvasIndex + 2] = (byte)((arrem + rem * canvas[canvasIndex + 2]) >> 16);
+            int b = color.B * alpha;
+            int g = color.G * alpha;
+            int r = color.R * alpha;
+
+            int tb = canvas[index];
+            int tg = canvas[index + 1];
+            int tr = canvas[index + 2];
+
+
+            canvas[index] = (byte)((b + (tb * invAlpha)) >> 8);
+            canvas[index + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+            canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+
         }
 
-        private static void ApplyColor(byte[] canvas, int index, int axrem, int rem)
+
+        private static void FillTriangleTile(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
-            canvas[index] = (byte)((axrem + rem * canvas[index]) >> 16);
+            int alpha = (color.R * 256) / 255;
+
+            int invAlpha = 256 - alpha;
+
+            int b = color.B * alpha;
+            int g = color.G * alpha;
+            int r = color.R * alpha;
+
+            int v0x,v1x,v2x,v0y,v1y,v2y;
+
+            v0x = px1 - px0;
+            v0y = py1 - py0;
+
+            v1x = px2 - px1;
+            v1y = py2 - py1;
+
+            v2x = px0 - px2;
+            v2y = py0 - py2;
+
+            // process all points
+            int rowIndex = 0;
+
+            int sz1 =  (0 - py0) * v0x;
+            int sz2 =  (0 - py1) * v1x;
+            int sz3 =  (0 - py2) * v2x;
+            for (int y = 0; y < canvas.HeightPixel; y++)
+            {
+                int z1 = (0 - px0) * v0y - sz1;
+                int z2 = (0 - px1) * v1y - sz2;
+                int z3 = (0 - px2) * v2y - sz3;
+                
+
+                int currIndex = rowIndex;
+                for (int x = 0; x < canvas.WidthPixel; x++)
+                {
+                    
+
+                    if ((z1 * z2 > 0) && (z1 * z3 > 0))
+                    {
+                        //int index = (canvas.Width * y) + x * 4;
+
+                        //ApplyColor(canvas.Data, currIndex, color);
+
+                        
+
+                        int tb = canvas.Data[currIndex];
+                        int tg = canvas.Data[currIndex + 1];
+                        int tr = canvas.Data[currIndex + 2];
+
+
+                        canvas.Data[currIndex] = (byte)((b + (tb * invAlpha)) >> 8);
+                        canvas.Data[currIndex+1] = (byte)((g + (tg * invAlpha)) >> 8);
+                        canvas.Data[currIndex+2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+                    }
+
+                    z1 += v0y;
+                    z2 += v1y;
+                    z3 += v2y;
+                    currIndex += 4;
+                }
+
+                sz1 += v0x;
+                sz2 += v1x;
+                sz3 += v2x;
+
+                rowIndex += canvas.Width;
+            }
         }
 
-        private static byte ApplyColor(int colorChanel, int axrem, int rem)
+        private static void FillTriangleTile2(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
-            return (byte)((axrem + rem * colorChanel) >> 16);
+            int v0x,v1x,v2x,v0y,v1y,v2y;
+
+            v0x = px1 - px0;
+            v0y = py1 - py0;
+
+            v1x = px2 - px1;
+            v1y = py2 - py1;
+
+            v2x = px0 - px2;
+            v2y = py0 - py2;
+
+            // process all points
+            int rowIndex = 0;
+            for (int y = 0; y < canvas.HeightPixel; y++)
+            {
+
+
+                int currIndex = rowIndex;
+                for (int x = 0; x < canvas.WidthPixel; x++)
+                {
+                    int z1 = (x - px0) * v0y - (y - py0) * v0x;
+                    int z2 = (x - px1) * v1y - (y - py1) * v1x;
+                    int z3 = (x - px2) * v2y - (y - py2) * v2x;
+
+                    if ((z1 * z2 > 0) && (z1 * z3 > 0))
+                    {
+                        //int index = (canvas.Width * y) + x * 4;
+
+                        ApplyColor(canvas.Data, currIndex, color);
+
+                    }
+
+                    currIndex += 4;
+                }
+
+                rowIndex += canvas.Width;
+            }
         }
 
-        private static void FillTriangleTile(byte[] canvas, int canvasWidth, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
+        private static void FillTriangleTile2(byte[] canvas, int canvasWidth, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
             // 28.4 fixed-point coordinates
             int Y1 = py0;
@@ -175,10 +288,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         {
                             for (int ix = x; ix < x + q; ix++)
                             {
-                                canvas[tmpCanvasIndex + ix*4] = 128; // Green
-                                canvas[tmpCanvasIndex + ix*4 + 1] = 0xFF; // Green
-                                canvas[tmpCanvasIndex + ix*4 + 2] = 0xFF; // Green
-                                canvas[tmpCanvasIndex + ix*4 + 3] = 128; // Green
+                                canvas[tmpCanvasIndex + ix * 4] = 128; // Green
+                                canvas[tmpCanvasIndex + ix * 4 + 1] = 0xFF; // Green
+                                canvas[tmpCanvasIndex + ix * 4 + 2] = 0xFF; // Green
+                                canvas[tmpCanvasIndex + ix * 4 + 3] = 128; // Green
                             }
 
                             tmpCanvasIndex += canvasWidth;
@@ -200,9 +313,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                             {
                                 if (CX1 > 0 && CX2 > 0 && CX3 > 0)
                                 {
-                                    canvas[tmpCanvasIndex + ix*4] = 128; // Green
-                                    canvas[tmpCanvasIndex + ix*4 + 1] = 0xFF; // Green
-                                    canvas[tmpCanvasIndex + ix*4 + 2] = 0xFF; // Green
+                                    canvas[tmpCanvasIndex + ix * 4] = 128; // Green
+                                    canvas[tmpCanvasIndex + ix * 4 + 1] = 0xFF; // Green
+                                    canvas[tmpCanvasIndex + ix * 4 + 2] = 0xFF; // Green
                                     canvas[tmpCanvasIndex + ix * 4 + 2] = 128;
                                 }
 
@@ -268,10 +381,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     {
                         int index = (x + canvasY) * 4;
                         //ApplyColor(canvas, index, color);
-                        ApplyColor(canvas, index, colorABRrem, colorRem);
-                        ApplyColor(canvas, index + 1, colorAGRrem, colorRem);
-                        ApplyColor(canvas, index + 2, colorARRrem, colorRem);
-
+                        ApplyColor(canvas, index, color);
+                    
                     }
 
                     xForMax = (xt > 0 ? xt : 0);

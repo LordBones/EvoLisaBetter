@@ -101,40 +101,51 @@ namespace GenArt
         {
             const int CONST_Width = 200;
             const int CONST_Height = 200;
-            const int CONST_LOOP = 10000;
+            const int CONST_LOOP = 1000;
 
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
 
+            /*for (int i =0; i < 100; i++)
+            {
+                dna.MutationAddPolygon(255, null);
+
+            }*/
+
             for (int i =0; i < 25; i++)
             {
+
                 DnaPolygon dp = new DnaPolygon();
                 dp.InitTestPolygon();
                 dp._Points[0] = new DnaPoint(0, 0);
                 dp._Points[1] = new DnaPoint(CONST_Width-1, 0);
                 dp._Points[2] = new DnaPoint(CONST_Width - 1, CONST_Height-1);
+                dp.Brush.SetByColor(Color.FromArgb(128, 255, 0, 0));
                 dna.AddDnaPrimitive(dp);
 
-                //dp = new DnaPolygon();
-                //dp.InitTestPolygon();
-                //dp._Points[0] = new DnaPoint(CONST_Width - 1, 0);
-                //dp._Points[1] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
-                //dp._Points[2] = new DnaPoint(0, CONST_Height - 1);
-                //dna.AddDnaPrimitive(dp);
+                dp = new DnaPolygon();
+                dp.InitTestPolygon();
+                dp._Points[0] = new DnaPoint(CONST_Width - 1, 0);
+                dp._Points[1] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
+                dp._Points[2] = new DnaPoint(0, CONST_Height - 1);
+                dp.Brush.SetByColor(Color.FromArgb(128, 0, 255, 0));
+                dna.AddDnaPrimitive(dp);
 
-                //dp = new DnaPolygon();
-                //dp.InitTestPolygon();
-                //dp._Points[0] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
-                //dp._Points[1] = new DnaPoint(0, CONST_Height - 1);
-                //dp._Points[2] = new DnaPoint(0,0);
-                //dna.AddDnaPrimitive(dp);
+                dp = new DnaPolygon();
+                dp.InitTestPolygon();
+                dp._Points[0] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
+                dp._Points[1] = new DnaPoint(0, CONST_Height - 1);
+                dp._Points[2] = new DnaPoint(0, 0);
+                dp.Brush.SetByColor(Color.FromArgb(128, 0, 128, 255));
+                dna.AddDnaPrimitive(dp);
 
-                //dp = new DnaPolygon();
-                //dp.InitTestPolygon();
-                //dp._Points[0] = new DnaPoint(0, CONST_Height - 1);
-                //dp._Points[1] = new DnaPoint(0, 0);
-                //dp._Points[2] = new DnaPoint(CONST_Width - 1, 0);
-                //dna.AddDnaPrimitive(dp);
+                dp = new DnaPolygon();
+                dp.InitTestPolygon();
+                dp._Points[0] = new DnaPoint(0, CONST_Height - 1);
+                dp._Points[1] = new DnaPoint(0, 0);
+                dp._Points[2] = new DnaPoint(CONST_Width - 1, 0);
+                dp.Brush.SetByColor(Color.FromArgb(128, 128, 0, 128));
+                dna.AddDnaPrimitive(dp);
 
             }
 
@@ -163,7 +174,7 @@ namespace GenArt
                     //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
 
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, Color.PaleGreen);
+                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
 
 
                     //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
