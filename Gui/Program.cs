@@ -51,7 +51,7 @@ namespace GenArt
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
                 //nativeFunc.RowApplyColorSSE64(canvas.Data, 0, end, 128, 100, 230, 135);
-                nativeFunc.NewRowApplyColor64(canvas.Data, 0, end, color, 135);
+                nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color, 135);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             } 
             long ticks = PerfEnd();
@@ -101,12 +101,42 @@ namespace GenArt
         {
             const int CONST_Width = 200;
             const int CONST_Height = 200;
+            const int CONST_LOOP = 10000;
 
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
-            
-            for (int i =0; i < 100; i++)
-                dna.AddPolygon(255,null);
+
+            for (int i =0; i < 25; i++)
+            {
+                DnaPolygon dp = new DnaPolygon();
+                dp.InitTestPolygon();
+                dp._Points[0] = new DnaPoint(0, 0);
+                dp._Points[1] = new DnaPoint(CONST_Width-1, 0);
+                dp._Points[2] = new DnaPoint(CONST_Width - 1, CONST_Height-1);
+                dna.AddDnaPrimitive(dp);
+
+                //dp = new DnaPolygon();
+                //dp.InitTestPolygon();
+                //dp._Points[0] = new DnaPoint(CONST_Width - 1, 0);
+                //dp._Points[1] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
+                //dp._Points[2] = new DnaPoint(0, CONST_Height - 1);
+                //dna.AddDnaPrimitive(dp);
+
+                //dp = new DnaPolygon();
+                //dp.InitTestPolygon();
+                //dp._Points[0] = new DnaPoint(CONST_Width - 1, CONST_Height - 1);
+                //dp._Points[1] = new DnaPoint(0, CONST_Height - 1);
+                //dp._Points[2] = new DnaPoint(0,0);
+                //dna.AddDnaPrimitive(dp);
+
+                //dp = new DnaPolygon();
+                //dp.InitTestPolygon();
+                //dp._Points[0] = new DnaPoint(0, CONST_Height - 1);
+                //dp._Points[1] = new DnaPoint(0, 0);
+                //dp._Points[2] = new DnaPoint(CONST_Width - 1, 0);
+                //dna.AddDnaPrimitive(dp);
+
+            }
 
             
 
@@ -125,7 +155,7 @@ namespace GenArt
             polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
 
             PerfStart();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < CONST_LOOP; i++)
             {
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
@@ -145,8 +175,30 @@ namespace GenArt
                     }
 
                 }
-                PerfEnd();
+                
             }
+
+            Bitmap bmp = new Bitmap(CONST_Width, CONST_Height, PixelFormat.Format32bppPArgb);
+            var lockBmp = bmp.LockBits(new Rectangle(0, 0, CONST_Width, CONST_Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
+
+            unsafe
+            {
+                byte * ll = (byte*)lockBmp.Scan0.ToPointer();
+
+                for (int index = 0; index < canvasTest.Data.Length; index++)
+                {
+                    *(ll + index) = canvasTest.Data[index];
+                }
+            }
+
+            bmp.UnlockBits(lockBmp);
+            bmp.Save("canvasTestsw.bmp", ImageFormat.Bmp);
+            long ticks = PerfEnd();
+
+            TimeSpan ts = new TimeSpan(ticks);
+
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LOOP, ticks / (double)CONST_LOOP);
+            Console.Out.WriteLine("polygons : {0} K/s", ((CONST_LOOP*dna.Polygons.Length)/ts.TotalSeconds) / 1000);
 
         }
 
@@ -176,7 +228,7 @@ namespace GenArt
                 dna.Init();
 
                 for (int i =0; i < 2; i++)
-                    dna.AddPolygon(255,null);
+                    dna.MutationAddPolygon(255,null);
 
 
                 for (int i =0; i < dna.Polygons.Length; i++)

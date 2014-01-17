@@ -226,13 +226,12 @@ namespace GenArt.AST
 
         public void InitTestPolygon()
         {
-            //this.Points.Clear();
-            //this.Points.Add(new DnaPoint(){ X=0,Y=0});
-            //this.Points.Add(new DnaPoint() { X = Tools.MaxWidth-1, Y = 0 });
-            //this.Points.Add(new DnaPoint() { X = Tools.MaxWidth - 1, Y = Tools.MaxHeight - 1 });
-            //this.Points.Add(new DnaPoint() { X = 0, Y = Tools.MaxHeight - 1 });
-            //this.Brush = new DnaBrush() { Alpha = 255, Blue = 255, Green = 255, Red = 0 };
-     
+            _Points = new DnaPoint[3];
+
+            this.Points[0] = new DnaPoint(){ X=0,Y=0};
+            this.Points[1] = new DnaPoint() { X = 0, Y = 0 };
+            this.Points[2] = new DnaPoint() { X = 0, Y = 0 };
+            Brush = new DnaBrush(255, 255, 0, 0);
         }
 
         public override object Clone()

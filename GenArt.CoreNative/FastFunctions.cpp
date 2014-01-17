@@ -1142,24 +1142,62 @@ void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int 
 
 void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen,int startY, int color, int alpha)
 {
-    int rowStartIndex = (startY) * canvasWidth;
+    /*int rowStartIndex = (startY) * canvasWidth;
     //startY *= 2;
     for (int i = 0; i < rlen; i += 2)
     {
         int index = rowStartIndex + (ranges[i]) * 4;
         int count = ranges[i+1] -  ranges[i]+1;
 
-        /*if(count > 63)
-        {
-        NewFastRowApplyColorSSE128(canvas+index, count, color, alpha);
-        }
-        else*/
-        {
             NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
-        }
-
+        
         rowStartIndex += canvasWidth;
+    }*/
+
+    canvas += (startY) * canvasWidth;
+    //startY *= 2;
+    for (int i = 0; i < rlen; i += 2)
+    {
+        int index = (ranges[i]) * 4;
+        int count = ranges[i+1] -  ranges[i]+1;
+
+            NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+        
+            canvas += canvasWidth;
     }
+
+    /*canvas += (startY) * canvasWidth;
+    
+    for (int i = 0; i < rlen-4; i += 4)
+    {
+        int range = ranges[i];
+        int index =  (range) * 4;
+        //int index = rowStartIndex + (range+range+range+range);
+        int count = ranges[i+1] -  range+1;
+
+        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+
+        canvas += canvasWidth;
+        index = (ranges[i+2]) * 4;
+        count = ranges[i+1+2] -  ranges[i+2]+1;
+
+        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+      
+        canvas +=canvasWidth;
+
+    }
+
+    if(rlen&3 != 0)
+    {
+        int tmp = rlen-2;
+        int index = (ranges[tmp]) * 4;
+        int count = ranges[tmp+1] -  ranges[tmp]+1;
+
+        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+
+    }*/
+
+
 }
 
 

@@ -157,7 +157,7 @@ namespace GenArt.Core.AST
                 for (int k =0; k < 10; k++)
                 {
                     //dna.AddRectangle(null, this._destCanvas, this._edgePoints);
-                    dna.AddPolygon(255, null, this._destCanvas, this._edgePoints);
+                    dna.MutationAddPolygon(255, null, this._destCanvas, this._edgePoints);
 
                 }
 
