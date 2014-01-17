@@ -120,9 +120,9 @@ namespace GenArt.AST
                         //else AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
 
                         int tmp = Tools.GetRandomNumber(0, 3);
-                        //if (tmp == 0) AddPolygon(mutationRate, errorMatrix, null, edgePoints);
-                        //else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
-                        //else 
+                        if (tmp == 0) AddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
+                        else 
                             AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
@@ -227,7 +227,7 @@ namespace GenArt.AST
 
        
        
-        bool IsPrimitiveInterleaving(DnaPrimitive who, DnaPrimitive interWith)
+        public static bool IsPrimitiveInterleaving(DnaPrimitive who, DnaPrimitive interWith)
         {
             DnaPolygon poly = who as DnaPolygon;
             if (poly != null)

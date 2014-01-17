@@ -55,12 +55,31 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
         {
+            
             //nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
-            _nativefunc.ClearFieldByColor(this._drawCanvas.Data, _blackInt);
+            
             //FillPixels += this._drawCanvas.CountPixels;
             //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
 
             DnaPrimitive [] dnaPolygons = dna.Polygons;
+            /*DnaPrimitive [] dnaPolygons = dna.Polygons.ToArray();
+
+            for (int i = 1; i < dnaPolygons.Length; i++)
+            {
+                int index = i;
+
+                DnaPrimitive tmp = dnaPolygons[index];
+                   
+                while(index>0 && !DnaDrawing.IsPrimitiveInterleaving(dnaPolygons[index],dnaPolygons[index-1]))
+                {
+                    dnaPolygons[index] = dnaPolygons[index - 1];
+                    index--;
+                }
+
+                dnaPolygons[index] = tmp; 
+            }*/
+
+            _nativefunc.ClearFieldByColor(this._drawCanvas.Data, _blackInt);
             int polyCount = dnaPolygons.Length;
             for (int i = 0; i < polyCount; i++)
             {

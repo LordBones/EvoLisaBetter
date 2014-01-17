@@ -1202,7 +1202,23 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
     //    Count -= 4;
     //}
     unsigned long * M2 = M + ((Count&(~7))>>1);
-    while (Count >= 8)
+    while (Count >= 16)
+    {
+        _mm_store_si128((__m128i *)M, f);
+        _mm_store_si128((__m128i *)(M+4), f);
+        _mm_store_si128((__m128i *)(M+8), f);
+        _mm_store_si128((__m128i *)(M+12), f);
+        //_mm_store_si128((__m128i *)M2, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)(M+4), f);
+        M += 16;
+        //M += 4;
+        //M2 += 4;
+
+        Count -= 16;
+    }
+
+    if (Count >= 8)
     {
         _mm_store_si128((__m128i *)M, f);
         _mm_store_si128((__m128i *)(M+4), f);
@@ -1215,6 +1231,7 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
 
         Count -= 8;
     }
+
 
     if (Count >= 4)
     {
@@ -1328,6 +1345,15 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
 
         for (int x = 8; x < width; x += 8)
         {
+            /*if(x+16<width)
+            {
+                _mm_prefetch((char *)current+tmpRowIndexUp+16,_MM_HINT_T0);
+                _mm_prefetch((char *)orig+tmpRowIndexUp+16,_MM_HINT_T0);
+                _mm_prefetch((char *)current+tmpRowIndex+16,_MM_HINT_T0);
+                _mm_prefetch((char *)orig+tmpRowIndex+16,_MM_HINT_T0);
+                _mm_prefetch((char *)current+tmpRowIndexDown+16,_MM_HINT_T0);
+                _mm_prefetch((char *)orig+tmpRowIndexDown+16,_MM_HINT_T0);
+            }*/
             // compute 2d fittness
 
             int br = current[tmpRowIndex] - orig[tmpRowIndex];
@@ -1354,9 +1380,12 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
             int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
             int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
             int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
+            
             br4 *= br4;
             bg4 *= bg4;
             bb4 *= bb4;
+
+            
 
             const int fixMul = 1;
             const int fixMul2 = 1;

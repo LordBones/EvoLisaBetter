@@ -217,7 +217,7 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            return (int)(//median.Median  + 
+            return (int)((median.Median * median.Median) + 
                 median.StdDev 
                 + 1.0);
 

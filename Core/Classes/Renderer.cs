@@ -62,9 +62,9 @@ namespace GenArt.Classes
 
                     //int r = (errorMatrix.Matrix[matrixY*errorMatrix.MatrixWidth+matrixX]*255)/maxError;
                     int r = errorMatrix.Matrix[matrixY * errorMatrix.MatrixWidth + matrixX];
-                    r *= 8;
+                    //r *= 8;
                     r = (r > 255 )? 255 : r;
-                    using (Brush brush = new SolidBrush(Color.FromArgb(255, r, r, r)))
+                    using (Brush brush = new SolidBrush(Color.FromArgb(255, r, 0, 255-r)))
                     {
                         //int indexTileStart = matrixY * errorMatrix.InputPixelWidth + matrixX * ErrorMatrix.CONST_TileSize;
 
