@@ -1146,12 +1146,12 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
     //startY *= 2;
     for (int i = 0; i < rlen; i += 2)
     {
-        int index = rowStartIndex + (ranges[i]) * 4;
-        int count = ranges[i+1] -  ranges[i]+1;
+    int index = rowStartIndex + (ranges[i]) * 4;
+    int count = ranges[i+1] -  ranges[i]+1;
 
-            NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
-        
-        rowStartIndex += canvasWidth;
+    NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+
+    rowStartIndex += canvasWidth;
     }*/
 
     canvas += (startY) * canvasWidth;
@@ -1161,44 +1161,124 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
         int index = (ranges[i]) * 4;
         int count = ranges[i+1] -  ranges[i]+1;
 
-            NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
-        
-            canvas += canvasWidth;
-    }
-
-    /*canvas += (startY) * canvasWidth;
-    
-    for (int i = 0; i < rlen-4; i += 4)
-    {
-        int range = ranges[i];
-        int index =  (range) * 4;
-        //int index = rowStartIndex + (range+range+range+range);
-        int count = ranges[i+1] -  range+1;
-
         NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
 
         canvas += canvasWidth;
-        index = (ranges[i+2]) * 4;
-        count = ranges[i+1+2] -  ranges[i+2]+1;
+    }
 
-        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
-      
-        canvas +=canvasWidth;
+    /*canvas += (startY) * canvasWidth;
+
+    for (int i = 0; i < rlen-4; i += 4)
+    {
+    int range = ranges[i];
+    int index =  (range) * 4;
+    //int index = rowStartIndex + (range+range+range+range);
+    int count = ranges[i+1] -  range+1;
+
+    NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+
+    canvas += canvasWidth;
+    index = (ranges[i+2]) * 4;
+    count = ranges[i+1+2] -  ranges[i+2]+1;
+
+    NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+
+    canvas +=canvasWidth;
 
     }
 
     if(rlen&3 != 0)
     {
-        int tmp = rlen-2;
-        int index = (ranges[tmp]) * 4;
-        int count = ranges[tmp+1] -  ranges[tmp]+1;
+    int tmp = rlen-2;
+    int index = (ranges[tmp]) * 4;
+    int count = ranges[tmp+1] -  ranges[tmp]+1;
 
-        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+    NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
 
     }*/
 
 
 }
+
+
+
+void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int canvasHeight, 
+short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+{
+int v0x,v1x,v2x,v0y,v1y,v2y;
+
+v0x = px1 - px0;
+v0y = py1 - py0;
+
+v1x = px2 - px1;
+v1y = py2 - py1;
+
+v2x = px0 - px2;
+v2y = py0 - py2;
+
+
+alpha = (alpha * 256) / 255;
+
+int invAlpha = 256 - alpha;
+
+int b = ((color)&0xff) * alpha;
+int g = ((color>>8)&0xff) * alpha;
+int r = ((color>>16)&0xff) * alpha;
+// process all points
+int rowIndex = 0;
+
+int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
+int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
+int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
+for (int y = 0; y < canvasHeight; y++)
+{
+int z1 = sz1;
+int z2 = sz2;
+int z3 = sz3;
+
+
+int currIndex = rowIndex;
+for (int x = 0; x < canvasWidth; x+=4)
+{
+if((((z1^z2)|(z1^z3))>>31) == 0)
+
+
+//if ((z1 * z2 > 0) && (z1 * z3 > 0))
+{
+//int index = (canvas.Width * y) + x * 4;
+
+
+//ApplyColorPixelSSE(canvas+currIndex,color,alpha);
+
+
+int tb = canvas[currIndex];
+int tg = canvas[currIndex + 1];
+int tr = canvas[currIndex + 2];
+
+
+canvas[currIndex] = (unsigned char)((b + (tb * invAlpha)) >> 8);
+canvas[currIndex+1] = (unsigned char)((g + (tg * invAlpha)) >> 8);
+canvas[currIndex+2] = (unsigned char)((r + (tr * invAlpha)) >> 8);
+
+
+
+}
+
+z1 += v0y;
+z2 += v1y;
+z3 += v2y;
+currIndex += 4;
+}
+
+sz1 -= v0x;
+sz2 -= v1x;
+sz3 -= v2x;
+
+rowIndex += canvasWidth;
+
+}
+}
+
 
 
 
@@ -1360,7 +1440,7 @@ __int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char *
 
 __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char * orig, int length, int width)
 {
-   __int64 result = 0;
+    __int64 result = 0;
     int height = (length / (width));
 
     int rowIndexUp = 0;
@@ -1385,12 +1465,12 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
         {
             /*if(x+16<width)
             {
-                _mm_prefetch((char *)current+tmpRowIndexUp+16,_MM_HINT_T0);
-                _mm_prefetch((char *)orig+tmpRowIndexUp+16,_MM_HINT_T0);
-                _mm_prefetch((char *)current+tmpRowIndex+16,_MM_HINT_T0);
-                _mm_prefetch((char *)orig+tmpRowIndex+16,_MM_HINT_T0);
-                _mm_prefetch((char *)current+tmpRowIndexDown+16,_MM_HINT_T0);
-                _mm_prefetch((char *)orig+tmpRowIndexDown+16,_MM_HINT_T0);
+            _mm_prefetch((char *)current+tmpRowIndexUp+16,_MM_HINT_T0);
+            _mm_prefetch((char *)orig+tmpRowIndexUp+16,_MM_HINT_T0);
+            _mm_prefetch((char *)current+tmpRowIndex+16,_MM_HINT_T0);
+            _mm_prefetch((char *)orig+tmpRowIndex+16,_MM_HINT_T0);
+            _mm_prefetch((char *)current+tmpRowIndexDown+16,_MM_HINT_T0);
+            _mm_prefetch((char *)orig+tmpRowIndexDown+16,_MM_HINT_T0);
             }*/
             // compute 2d fittness
 
@@ -1418,12 +1498,12 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
             int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
             int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
             int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
-            
+
             br4 *= br4;
             bg4 *= bg4;
             bb4 *= bb4;
 
-            
+
 
             const int fixMul = 1;
             const int fixMul2 = 1;
@@ -1434,7 +1514,7 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
 
             result += (labs(br - br4)+labs(bg - bg4)+labs(bb - bb4))*fixMul2;
             result += (labs(br2 - br3) + labs(bg2 - bg3) + labs(bb2 - bb3))*fixMul2;
-           
+
             int tmpbr = current[tmpRowIndexUp] - orig[tmpRowIndexUp];
             int tmpbg = current[tmpRowIndexUp+1] - orig[tmpRowIndexUp+1];
             int tmpbb = current[tmpRowIndexUp+2] - orig[tmpRowIndexUp+2];
@@ -1444,10 +1524,10 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
             tmpbg = current[tmpRowIndexUp-4+1] - orig[tmpRowIndexUp-4+1];
             tmpbb = current[tmpRowIndexUp-4+2] - orig[tmpRowIndexUp-4+2];
             result += (labs(br2 - tmpbr*tmpbr)+labs(bg2 - tmpbg*tmpbg)+labs(bb2 - tmpbb*tmpbb))*fixMul2;
-            
+
             result += (labs(br2 - lastBr)+labs(bg2 - lastBg)+labs(bb2 - lastBb))*fixMul2;
             result += (labs(br4 - lastBrDown)+labs(bg4 - lastBgDown)+labs(bb4 - lastBbDown))*fixMul2;
-            
+
             lastBr = br2;
             lastBg = bg2;
             lastBb = bb2;

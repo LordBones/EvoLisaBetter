@@ -33,7 +33,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
             //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
             //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
-            FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
+            //FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleTilePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+
 
         }
 
@@ -73,10 +75,140 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
+        private static void FillTriangleTilePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
+        {
+            /*nativeFunc.RenderTriangle(canvas.Data, canvas.Width, canvas.HeightPixel,
+                px0, py0, px1, py1, px2, py2, color.ToArgb(), color.A);
+
+            return;*/
+
+            int alpha = (color.A * 256) / 255;
+
+            /*int invAlpha = 256 - alpha;
+
+            int b = color.B * alpha;
+            int g = color.G * alpha;
+            int r = color.R * alpha;*/
+
+            int rgba = color.ToArgb();
+
+            int v0x,v1x,v2x,v0y,v1y,v2y;
+
+            v0x = px1 - px0;
+            v0y = py1 - py0;
+
+            v1x = px2 - px1;
+            v1y = py2 - py1;
+
+            v2x = px0 - px2;
+            v2y = py0 - py2;
+
+            // process all points
+            int rowIndex = 0;
+
+            int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
+            int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
+            int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
+            for (int y = 0; y < canvas.HeightPixel; y++)
+            {
+                int z1 = sz1;
+                int z2 = sz2;
+                int z3 = sz3;
+
+
+                int currIndex = rowIndex;
+
+                int x  = 0;
+                int start = -1;
+                
+                while (x < canvas.WidthPixel)
+                {
+                    if ((z1 * z2 > 0) && (z1 * z3 > 0))
+                    {
+                        start = currIndex;
+                        break;
+                    }
+
+                    z1 += v0y;
+                    z2 += v1y;
+                    z3 += v2y;
+                    currIndex += 4;
+                    x++;
+                }
+
+                if (start >= 0)
+                {
+                    int tmpx = x;
+                    
+                    while (x < canvas.WidthPixel)
+                    {
+                        if (!((z1 * z2 > 0) && (z1 * z3 > 0)))
+                        {
+                            //end = currIndex;
+                            break;
+                        }
+
+                        
+                        z1 += v0y;
+                        z2 += v1y;
+                        z3 += v2y;
+                        
+                        x++;
+                    }
+
+                    //if (end < 0) throw new Exception();
+
+                    nativeFunc.NewRowApplyColor64(canvas.Data, start, x-tmpx + 1, rgba, alpha);
+
+                    /*for(int i = 0;i<=count;i++)
+                    {
+                        int tb = canvas.Data[start];
+                        int tg = canvas.Data[start + 1];
+                        int tr = canvas.Data[start + 2];
+
+
+                        canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
+                        canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                        canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+                        start += 4;
+
+                    }*/
+
+                    /*while (start <= end)
+                    {
+                        int tb = canvas.Data[start];
+                        int tg = canvas.Data[start + 1];
+                        int tr = canvas.Data[start + 2];
+
+
+                        canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
+                        canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                        canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+                        start += 4;
+
+                    }*/
+
+                    
+                }
+
+                sz1 -= v0x;
+                sz2 -= v1x;
+                sz3 -= v2x;
+
+                rowIndex += canvas.Width;
+            }
+        }
 
         private static void FillTriangleTile(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
-            int alpha = (color.R * 256) / 255;
+            nativeFunc.RenderTriangle(canvas.Data, canvas.Width, canvas.HeightPixel,
+                px0, py0, px1, py1, px2, py2, color.ToArgb(), color.A);
+
+            return;
+
+            int alpha = (color.A * 256) / 255;
 
             int invAlpha = 256 - alpha;
 
@@ -98,20 +230,21 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             // process all points
             int rowIndex = 0;
 
-            int sz1 =  (0 - py0) * v0x;
-            int sz2 =  (0 - py1) * v1x;
-            int sz3 =  (0 - py2) * v2x;
+            int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
+            int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
+            int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
             for (int y = 0; y < canvas.HeightPixel; y++)
             {
-                int z1 = (0 - px0) * v0y - sz1;
-                int z2 = (0 - px1) * v1y - sz2;
-                int z3 = (0 - px2) * v2y - sz3;
+                int z1 = sz1;
+                int z2 = sz2;
+                int z3 = sz3;
                 
 
                 int currIndex = rowIndex;
                 for (int x = 0; x < canvas.WidthPixel; x++)
                 {
-                    
+                    //if((((z1^z2)|(z1^z3))>>31) == 0)
+
 
                     if ((z1 * z2 > 0) && (z1 * z3 > 0))
                     {
@@ -138,9 +271,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     currIndex += 4;
                 }
 
-                sz1 += v0x;
-                sz2 += v1x;
-                sz3 += v2x;
+                sz1 -= v0x;
+                sz2 -= v1x;
+                sz3 -= v2x;
 
                 rowIndex += canvas.Width;
             }
@@ -672,11 +805,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             byte [] canvas = drawCanvas.Data;
 
-            nativeFunc.RenderTriangleByRanges(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.ToArgb(), color.A);
+            //nativeFunc.RenderTriangleByRanges(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.ToArgb(), color.A);
             //nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
 
             //FastRowsApplyColor(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
-            //FastRowsApplyColorNative(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
+            FastRowsApplyColorNative(canvas, drawCanvas.Width, rangePoints, minY, maxY, color.R, color.G, color.B, color.A);
         }
 
         void FastRowsApplyColorNative(byte[] canvas, int canvasWidth, short[] ranges, int rangeStartY, int rangeEndY, int r, int g, int b, int alpha)

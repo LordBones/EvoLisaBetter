@@ -93,6 +93,16 @@ namespace GenArtCoreNative {
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
         }
+
+        void RenderTriangle(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color, int alpha)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			
+			FastFunctions::RenderTriangle(pinCanvas,canvasWidth,canvasHeight,
+                px0,py0,px1,py1,px2,py2,color,alpha);
+        }
+
         ///
         /// listRowsForElements => format : [pixelStartIndex][count pixel][color]
         /// first is clear row
