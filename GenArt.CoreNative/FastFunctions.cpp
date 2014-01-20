@@ -1203,80 +1203,205 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
 
 
 void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+                                   short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
 {
-int v0x,v1x,v2x,v0y,v1y,v2y;
+    int v0x,v1x,v2x,v0y,v1y,v2y;
 
-v0x = px1 - px0;
-v0y = py1 - py0;
+    v0x = px1 - px0;
+    v0y = py1 - py0;
 
-v1x = px2 - px1;
-v1y = py2 - py1;
+    v1x = px2 - px1;
+    v1y = py2 - py1;
 
-v2x = px0 - px2;
-v2y = py0 - py2;
-
-
-alpha = (alpha * 256) / 255;
-
-int invAlpha = 256 - alpha;
-
-int b = ((color)&0xff) * alpha;
-int g = ((color>>8)&0xff) * alpha;
-int r = ((color>>16)&0xff) * alpha;
-// process all points
-int rowIndex = 0;
-
-int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
-int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
-int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
-for (int y = 0; y < canvasHeight; y++)
-{
-int z1 = sz1;
-int z2 = sz2;
-int z3 = sz3;
+    v2x = px0 - px2;
+    v2y = py0 - py2;
 
 
-int currIndex = rowIndex;
-for (int x = 0; x < canvasWidth; x+=4)
-{
-if((((z1^z2)|(z1^z3))>>31) == 0)
+    alpha = (alpha * 256) / 255;
+
+    int invAlpha = 256 - alpha;
+
+    int b = ((color)&0xff) * alpha;
+    int g = ((color>>8)&0xff) * alpha;
+    int r = ((color>>16)&0xff) * alpha;
+    // process all points
+    int rowIndex = 0;
+
+    int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
+    int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
+    int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
+    for (int y = 0; y < canvasHeight; y++)
+    {
+        int z1 = sz1;
+        int z2 = sz2;
+        int z3 = sz3;
 
 
-//if ((z1 * z2 > 0) && (z1 * z3 > 0))
-{
-//int index = (canvas.Width * y) + x * 4;
+        int currIndex = rowIndex;
+        for (int x = 0; x < canvasWidth; x+=4)
+        {
+            if((((z1^z2)|(z1^z3))>>31) == 0)
 
 
-//ApplyColorPixelSSE(canvas+currIndex,color,alpha);
+                //if ((z1 * z2 > 0) && (z1 * z3 > 0))
+            {
+                //int index = (canvas.Width * y) + x * 4;
 
 
-int tb = canvas[currIndex];
-int tg = canvas[currIndex + 1];
-int tr = canvas[currIndex + 2];
+                //ApplyColorPixelSSE(canvas+currIndex,color,alpha);
 
 
-canvas[currIndex] = (unsigned char)((b + (tb * invAlpha)) >> 8);
-canvas[currIndex+1] = (unsigned char)((g + (tg * invAlpha)) >> 8);
-canvas[currIndex+2] = (unsigned char)((r + (tr * invAlpha)) >> 8);
+                int tb = canvas[currIndex];
+                int tg = canvas[currIndex + 1];
+                int tr = canvas[currIndex + 2];
+
+
+                canvas[currIndex] = (unsigned char)((b + (tb * invAlpha)) >> 8);
+                canvas[currIndex+1] = (unsigned char)((g + (tg * invAlpha)) >> 8);
+                canvas[currIndex+2] = (unsigned char)((r + (tr * invAlpha)) >> 8);
 
 
 
+            }
+
+            z1 += v0y;
+            z2 += v1y;
+            z3 += v2y;
+            currIndex += 4;
+        }
+
+        sz1 -= v0x;
+        sz2 -= v1x;
+        sz3 -= v2x;
+
+        rowIndex += canvasWidth;
+
+    }
 }
 
-z1 += v0y;
-z2 += v1y;
-z3 += v2y;
-currIndex += 4;
-}
 
-sz1 -= v0x;
-sz2 -= v1x;
-sz3 -= v2x;
+void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,int canvasHeight, 
+                                        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+{
 
-rowIndex += canvasWidth;
+     alpha = (alpha * 256) / 255;
 
-}
+    /*int invAlpha = 256 - alpha;
+
+    int b = color.B * alpha;
+    int g = color.G * alpha;
+    int r = color.R * alpha;*/
+
+    int rgba = color;
+
+    int v0x,v1x,v2x,v0y,v1y,v2y;
+
+    v0x = px1 - px0;
+    v0y = py1 - py0;
+
+    v1x = px2 - px1;
+    v1y = py2 - py1;
+
+    v2x = px0 - px2;
+    v2y = py0 - py2;
+
+    // process all points
+    int rowIndex = 0;
+
+    int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
+    int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
+    int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
+    for (int y = 0; y < canvasHeight; y++)
+    {
+        int z1 = sz1;
+        int z2 = sz2;
+        int z3 = sz3;
+
+
+        int currIndex = rowIndex;
+
+        int x  = 0;
+        int start = -1;
+
+        while (x < canvasWidth)
+        {
+            if((((z1^z2)|(z1^z3))>>31) == 0)
+            //if ((z1 * z2 > 0) && (z1 * z3 > 0))
+            {
+                start = currIndex;
+                break;
+            }
+
+            z1 += v0y;
+            z2 += v1y;
+            z3 += v2y;
+            currIndex += 4;
+            x+=4;
+        }
+
+        if (start >= 0)
+        {
+            int tmpx = x;
+
+            while (x < canvasWidth)
+            {
+                if((((z1^z2)|(z1^z3))>>31) != 0)
+                //if (!((z1 * z2 > 0) && (z1 * z3 > 0)))
+                {
+                    //end = currIndex;
+                    break;
+                }
+
+
+                z1 += v0y;
+                z2 += v1y;
+                z3 += v2y;
+
+                x+=4;
+            }
+
+            //if (end < 0) throw new Exception();
+            NewFastRowApplyColorSSE64(canvas+start, (((x-tmpx)/4) + 1), rgba, alpha);
+
+            /*for(int i = 0;i<=count;i++)
+            {
+            int tb = canvas.Data[start];
+            int tg = canvas.Data[start + 1];
+            int tr = canvas.Data[start + 2];
+
+
+            canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
+            canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+            canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+            start += 4;
+
+            }*/
+
+            /*while (start <= end)
+            {
+            int tb = canvas.Data[start];
+            int tg = canvas.Data[start + 1];
+            int tr = canvas.Data[start + 2];
+
+
+            canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
+            canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+            canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+            start += 4;
+
+            }*/
+
+
+        }
+
+        sz1 -= v0x;
+        sz2 -= v1x;
+        sz3 -= v2x;
+
+        rowIndex += canvasWidth;
+    }
 }
 
 

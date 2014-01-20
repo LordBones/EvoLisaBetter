@@ -77,10 +77,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private static void FillTriangleTilePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
-            /*nativeFunc.RenderTriangle(canvas.Data, canvas.Width, canvas.HeightPixel,
+            nativeFunc.RenderTrianglePokus(canvas.Data, canvas.Width, canvas.HeightPixel,
                 px0, py0, px1, py1, px2, py2, color.ToArgb(), color.A);
 
-            return;*/
+            return;
 
             int alpha = (color.A * 256) / 255;
 

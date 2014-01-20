@@ -17,6 +17,8 @@ public:
     static  void RenderTriangleByRanges(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int startY, int color, int alpha);
     static  void RenderTriangle(unsigned char * canvas, int canvasWidth, int canvasHeight, 
         short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha);
+    static  void RenderTrianglePokus(unsigned char * canvas, int canvasWidth, int canvasHeight, 
+        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha);
 
 
     static  void RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas);
