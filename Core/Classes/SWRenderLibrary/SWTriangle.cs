@@ -34,7 +34,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
             //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
             //FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
-            FillTriangleTilePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+            //FillTriangleTilePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTrianglePokus(canvas, x1, y1, x2, y2, x3, y3, color);
 
 
         }
@@ -73,6 +74,114 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
 
 
+        }
+
+        private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
+        {
+            
+            int alpha = (color.A * 256) / 255;
+
+            int invAlpha = 256 - alpha;
+
+            int b = color.B * alpha;
+            int g = color.G * alpha;
+            int r = color.R * alpha;
+
+            int rgba = color.ToArgb();
+
+            int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
+
+            v0x = px1 - px0;
+            v0y = py1 - py0;
+
+            v1x = px2 - px1;
+            v1y = py2 - py1;
+
+            v2x = px0 - px2;
+            v2y = py0 - py2;
+
+            Tools.swap<int>(ref v0x, ref v0y);
+            Tools.swap<int>(ref v1x, ref v1y);
+            Tools.swap<int>(ref v2x, ref v2y);
+
+            if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
+            if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
+            if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
+
+            v0c = -(v0x*px0+v0y*py0);
+            v1c = -(v1x*px1+v1y*py1);
+            v2c = -(v2x*px2+v2y*py2);
+
+
+            // process all points
+            int rowIndex = 0;
+
+            
+            for (int y = 0; y < canvas.HeightPixel; y++)
+            {
+                // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
+                int tmpx0 = (v0x == 0)? px0 : (v0y * y - v0c) / v0x;
+                int tmpx1 = (v1x == 0) ? px2 : (v1y * y - v1c) / v1x;
+                int tmpx2 = (v2x == 0) ? px2 : (v2y * y - v2c) / v2x;
+
+                int start = 0;
+                int end = 0;
+
+                int isCrossLine0 = (py0 == py1)? -1 : (y - py0) * (py1 - y);
+                int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+                int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
+
+                if (isCrossLine0 >= 0)
+                {
+                    if (isCrossLine1 >= 0)
+                    {
+                        start = tmpx0;
+                        end = tmpx1;
+                    }
+                    else
+                    {
+                        start = tmpx0;
+                        end = tmpx2;
+
+                    }
+                }
+                else
+                {
+                    start = tmpx1;
+                    end = tmpx2;
+                }
+
+                if (start > end) Tools.swap<int>(ref start, ref end);
+
+                
+
+                int currIndex = rowIndex+start*4;
+
+                    
+                    //nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, alpha);
+
+                    
+
+                    while (start <= end  && start < canvas.WidthPixel)
+                    {
+                        int tb = canvas.Data[currIndex];
+                        int tg = canvas.Data[currIndex + 1];
+                        int tr = canvas.Data[currIndex + 2];
+
+
+                        canvas.Data[currIndex] = (byte)((b + (tb * invAlpha)) >> 8);
+                        canvas.Data[currIndex + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                        canvas.Data[currIndex + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+                        start ++;
+                        currIndex+= 4;
+                    }
+
+
+                
+                
+                rowIndex += canvas.Width;
+            }
         }
 
         private static void FillTriangleTilePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
