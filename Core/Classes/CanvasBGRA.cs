@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using GenArt.Classes;
 
 namespace GenArt.Core.Classes
 {
@@ -141,7 +142,7 @@ namespace GenArt.Core.Classes
             }
         }
 
-       public void ReduceNoiseMedian()
+       public void ReduceNoiseMedian(bool meanSimilar = false)
         {
             Median8bit median = new Median8bit();
 
@@ -149,15 +150,18 @@ namespace GenArt.Core.Classes
             int midRowIndex = this._width;
             int downRowIndex = this._width * 2;
 
-            byte [] img = this.Data;
+            byte [] img = new byte[this.Length];
 
+            this.Data.CopyTo(img, 0);
 
+            int threshold = 16;
             for (int y = 1; y < this.HeightPixel - 1; y++)
             {
                 int upIndex = upRowIndex + CONST_PixelSize;
                 int midIndex = midRowIndex + CONST_PixelSize;
                 int downIndex = downRowIndex + CONST_PixelSize;
 
+                
                 for (int x = 1; x < this.WidthPixel - 1; x++)
                 {
                     median.Clear();
@@ -165,14 +169,17 @@ namespace GenArt.Core.Classes
                     median.InsertData(img[upIndex]);
                     median.InsertData(img[upIndex + CONST_PixelSize]);
                     median.InsertData(img[midIndex - CONST_PixelSize]);
-                    median.InsertData(img[midIndex]);
+                   // median.InsertData(img[midIndex]);
                     median.InsertData(img[midIndex + CONST_PixelSize]);
                     median.InsertData(img[downIndex - CONST_PixelSize]);
                     median.InsertData(img[downIndex]);
                     median.InsertData(img[downIndex + CONST_PixelSize]);
 
-
-                    img[midIndex] = (byte)median.Median;
+                    if ((!meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) < threshold) ||
+                        (meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) > threshold)) 
+                        this.Data[midIndex] = img[midIndex];
+                    else
+                        this.Data[midIndex] = (byte)median.Median;
 
                     upIndex++;
                     midIndex++;
@@ -183,14 +190,18 @@ namespace GenArt.Core.Classes
                     median.InsertData(img[upIndex]);
                     median.InsertData(img[upIndex + CONST_PixelSize]);
                     median.InsertData(img[midIndex - CONST_PixelSize]);
-                    median.InsertData(img[midIndex]);
+                    //median.InsertData(img[midIndex]);
                     median.InsertData(img[midIndex + CONST_PixelSize]);
                     median.InsertData(img[downIndex - CONST_PixelSize]);
                     median.InsertData(img[downIndex]);
                     median.InsertData(img[downIndex + CONST_PixelSize]);
 
+                    if ((!meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) < threshold) ||
+                        (meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) > threshold))
+                        this.Data[midIndex] = img[midIndex];
+                    else
+                        this.Data[midIndex] = (byte)median.Median;
 
-                    img[midIndex] = (byte)median.Median;
 
                     upIndex++;
                     midIndex++;
@@ -201,14 +212,18 @@ namespace GenArt.Core.Classes
                     median.InsertData(img[upIndex]);
                     median.InsertData(img[upIndex + CONST_PixelSize]);
                     median.InsertData(img[midIndex - CONST_PixelSize]);
-                    median.InsertData(img[midIndex]);
+                    //median.InsertData(img[midIndex]);
                     median.InsertData(img[midIndex + CONST_PixelSize]);
                     median.InsertData(img[downIndex - CONST_PixelSize]);
                     median.InsertData(img[downIndex]);
                     median.InsertData(img[downIndex + CONST_PixelSize]);
 
+                    if ((!meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) < threshold) ||
+                                            (meanSimilar && Tools.fastAbs((int)median.Median - img[midIndex]) > threshold))
+                        this.Data[midIndex] = img[midIndex];
+                    else
+                        this.Data[midIndex] = (byte)median.Median;
 
-                    img[midIndex] = (byte)median.Median;
 
                     upIndex++;
                     midIndex++;

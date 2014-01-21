@@ -233,10 +233,10 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
     mMullInvAlpha.m128i_i16[7] = 256;
 
     //__m128i mZero = _mm_setzero_si128();
-
+    int x=0;
     while(count > 1)
     {
-        __m128i source = _mm_cvtsi64_si128(*((long long*)canvas));
+        __m128i source = _mm_cvtsi64_si128(*(((long long*)canvas)+x));
 
         //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
         source = _mm_cvtepu8_epi16(source);
@@ -255,9 +255,10 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
         //source        = _mm_packus_epi16(source,source );// mZero );         // pack
         source        = _mm_packus_epi16(tmp1,tmp1 );// mZero );         // pack
 
-        *((long long*)canvas) =  _mm_cvtsi128_si64(source);
+        *(((long long*)canvas)+x) =  _mm_cvtsi128_si64(source);
 
-        canvas += 8;
+        x++;//=8;
+        //canvas += 8;
         count-=2;
     }
 
@@ -1120,23 +1121,25 @@ void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int 
 {
     int rowStartIndex = y * canvasWidth + x * 4;
 
-    if(width > 127)
-    {
-        for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
-        {
-            NewFastRowApplyColorSSE128(&canvas[rowStartIndex], width, color, alpha);
+    //if(width > 127)
+    //{
+    //    for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
+    //    {
+    //        NewFastRowApplyColorSSE128(&canvas[rowStartIndex], width, color, alpha);
 
-            rowStartIndex += canvasWidth;
-        }
-    }
-    else
+    //        rowStartIndex += canvasWidth;
+    //    }
+    //}
+    //else
     {
-        for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
-        {
-            NewFastRowApplyColorSSE64(&canvas[rowStartIndex], width, color, alpha);
+        canvas+=rowStartIndex;
+       
+       for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
+       {
+            NewFastRowApplyColorSSE64(canvas, width, color, alpha);
 
-            rowStartIndex += canvasWidth;
-        }
+            canvas += canvasWidth;
+       }
     }
 }
 
@@ -2009,7 +2012,7 @@ __int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned c
         int bg = curr[index + 1] - orig[index + 1];
         int bb = curr[index + 2] - orig[index + 2];
 
-        result += br*br*2+bg*bg*8 + bb*bb;
+        result += br*br+bg*bg + bb*bb;
 
         //  index += 4;
     }

@@ -132,7 +132,15 @@ namespace GenArt.Core.AST
             this._generation = 0;
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
             this._destCanvas.ReduceNoiseMedian();
-            this._destCanvas.ReduceNoiseMedian();
+            this._destCanvas.ReduceNoiseMedian(true);
+
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian();
             CanvasBGRA.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
 
             this._currentBestFittness = long.MaxValue;
@@ -224,12 +232,12 @@ namespace GenArt.Core.AST
                 //long fittness = FitnessCalculator.ComputeFittness_2d3(_destCanvas.Data, _dnaRender.Canvas.Data, _destCanvas.Width);
                 
                 //long fittness = _nativeFunc.ComputeFittness_2d(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
-                long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
+                //long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
                 
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
-                //long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
+                long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = this._population[index].Polygons.Length;
 

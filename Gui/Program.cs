@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using GenArt.AST;
 using GenArt.Classes;
+using GenArt.Core.AST;
 using GenArt.Core.Classes;
 using GenArt.Core.Classes.SWRenderLibrary;
 using GenArtCoreNative;
@@ -193,11 +194,15 @@ namespace GenArt
             CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
 
             SWTriangle triangleTest = new SWTriangle();
+            SWRectangle rectangleTest = new SWRectangle();
 
             Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
             polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
             Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
             polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
+
+            DnaRectangle dnaRectangle = new DnaRectangle(0,0,CONST_Width-1, CONST_Height-1);
+            dnaRectangle.Brush.SetByColor(Color.FromArgb(255,255,0,0));
 
             PerfStart();
             for (int i = 0; i < CONST_LOOP; i++)
@@ -208,8 +213,8 @@ namespace GenArt
                     //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
 
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
-
+                    //triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+                    rectangleTest.Render(dnaRectangle, canvasTest);
 
                     //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))
                     {

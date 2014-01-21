@@ -237,7 +237,7 @@ namespace GenArtCoreNative {
 			
 			
 
-            result = FastFunctions::computeFittnessSumSquare(pinCurr,pinOrig,orig->Length);
+            result = FastFunctions::computeFittnessSumSquareASM(pinCurr,pinOrig,orig->Length);
             
 			return result;
 		}
