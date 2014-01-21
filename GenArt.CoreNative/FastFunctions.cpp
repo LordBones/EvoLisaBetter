@@ -1284,7 +1284,7 @@ void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,
                                         short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
 {
 
-     alpha = (alpha * 256) / 255;
+    alpha = (alpha * 256) / 255;
 
     /*int invAlpha = 256 - alpha;
 
@@ -1326,7 +1326,7 @@ void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,
         while (x < canvasWidth)
         {
             if((((z1^z2)|(z1^z3))>>31) == 0)
-            //if ((z1 * z2 > 0) && (z1 * z3 > 0))
+                //if ((z1 * z2 > 0) && (z1 * z3 > 0))
             {
                 start = currIndex;
                 break;
@@ -1346,7 +1346,7 @@ void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,
             while (x < canvasWidth)
             {
                 if((((z1^z2)|(z1^z3))>>31) != 0)
-                //if (!((z1 * z2 > 0) && (z1 * z3 > 0)))
+                    //if (!((z1 * z2 > 0) && (z1 * z3 > 0)))
                 {
                     //end = currIndex;
                     break;
@@ -1399,6 +1399,132 @@ void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,
         sz1 -= v0x;
         sz2 -= v1x;
         sz3 -= v2x;
+
+        rowIndex += canvasWidth;
+    }
+}
+
+
+void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,int canvasHeight, 
+                                      short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+{
+
+    alpha = (alpha * 256) / 255;
+
+
+
+    int rgba = color;
+
+    int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
+
+    v0x = px1 - px0;
+    v0y = py1 - py0;
+
+    v1x = px2 - px1;
+    v1y = py2 - py1;
+
+    v2x = px0 - px2;
+    v2y = py0 - py2;
+
+    int tmp = 0;
+    tmp = v0x;v0x=v0y;v0y=tmp;
+    tmp = v1x;v1x=v1y;v1y=tmp;
+    tmp = v2x;v2x=v2y;v2y=tmp;
+
+    /*Tools.swap<int>(ref v0x, ref v0y);
+    Tools.swap<int>(ref v1x, ref v1y);
+    Tools.swap<int>(ref v2x, ref v2y);*/
+
+    if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
+    if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
+    if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
+
+    v0c = -(v0x*px0+v0y*py0);
+    v1c = -(v1x*px1+v1y*py1);
+    v2c = -(v2x*px2+v2y*py2);
+
+
+    // process all points
+    int minY = (py0 < py1) ? py0 : py1;
+    minY = (minY < py2) ? minY : py2;
+    int maxY = (py0 > py1) ? py0 : py1;
+    maxY = (maxY > py2) ? maxY : py2;
+
+    int rowIndex = minY * canvasWidth;
+
+    for (int y = minY; y <= maxY; y++)
+    {
+        // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
+        //int tmpx0 = (v0x == 0)? px0 : (-v0y * y - v0c) / v0x;
+        //int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+        //int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
+
+        int start = 0;
+        int end = 0;
+
+        int isCrossLine0 = (py0 == py1)? -1 : (y - py0) * (py1 - y);
+        //int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+        //int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
+
+        if (isCrossLine0 >= 0)
+        {
+
+            int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+
+            if (isCrossLine1 >= 0)
+            {
+                int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
+                int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+
+                start = tmpx0;
+                end = tmpx1;
+            }
+            else
+            {
+                int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
+                int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
+
+                start = tmpx0;
+                end = tmpx2;
+
+            }
+        }
+        else
+        {
+            int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+            int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
+            start = tmpx1;
+            end = tmpx2;
+        }
+
+        if (start > end)
+        {
+            tmp = start;start=end;end=tmp;
+            //Tools.swap<int>(ref start, ref end);
+        }
+
+
+
+        int currIndex = rowIndex+start*4;
+
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,rgba,alpha);
+
+
+
+        /*while (start <= end )// && start < canvas.WidthPixel)
+        {
+        int tb = canvas.Data[currIndex];
+        int tg = canvas.Data[currIndex + 1];
+        int tr = canvas.Data[currIndex + 2];
+
+
+        canvas.Data[currIndex] = (byte)((b + (tb * invAlpha)) >> 8);
+        canvas.Data[currIndex + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+        canvas.Data[currIndex + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+        start ++;
+        currIndex+= 4;
+        }*/
 
         rowIndex += canvasWidth;
     }
@@ -1828,8 +1954,8 @@ __int64 FastFunctions::computeFittness_2d_2x2(unsigned char * current, unsigned 
 
 __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 {
-    // NativeMedian8Bit medR = NativeMedian8Bit();
-    // NativeMedian8Bit medG = NativeMedian8Bit();
+     NativeMedian8Bit medR = NativeMedian8Bit();
+     NativeMedian8Bit medG = NativeMedian8Bit();
     NativeMedian8Bit medB = NativeMedian8Bit();
 
 
@@ -1837,8 +1963,8 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
     //while (index < length)
     for(int index = 0;index < length;index+=4)
     {
-        medB.InsertData(labs(curr[index] - orig[index]));
-        medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
+        medR.InsertData(labs(curr[index] - orig[index]));
+        medG.InsertData(labs(curr[index + 1] - orig[index + 1]));
         medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
 
         /*  int tmp = (labs(curr[index] - orig[index])>>2) +
@@ -1854,7 +1980,9 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
 
 
     __int64 result = 0;
-    result += (medB.ValueSum() + medB.SumStdDev());
+    result += (medR.ValueSum() + medR.SumStdDev()+
+        medG.ValueSum() + medG.SumStdDev()+
+        medB.ValueSum() + medB.SumStdDev());
 
 
     //result += (medB.Median()) + medB.SumStdDev());
@@ -1881,7 +2009,8 @@ __int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned c
         int bg = curr[index + 1] - orig[index + 1];
         int bb = curr[index + 2] - orig[index + 2];
 
-        result += br*br+bg*bg + bb*bb;
+        result += br*br*2+bg*bg*8 + bb*bb;
+
         //  index += 4;
     }
 

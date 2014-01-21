@@ -78,7 +78,12 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
         {
-            
+
+            nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
+                px0, py0, px1, py1, px2, py2, color.ToArgb(), color.A);
+
+            return;
+
             int alpha = (color.A * 256) / 255;
 
             int invAlpha = 256 - alpha;
@@ -114,32 +119,45 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
             // process all points
-            int rowIndex = 0;
+            int minY = (py0 < py1) ? py0 : py1;
+            minY = (minY < py2) ? minY : py2;
+            int maxY = (py0 > py1) ? py0 : py1;
+            maxY = (maxY > py2) ? maxY : py2;
 
+            int rowIndex = minY * canvas.Width;
             
-            for (int y = 0; y < canvas.HeightPixel; y++)
+            for (int y = minY; y <= maxY; y++)
             {
                 // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
-                int tmpx0 = (v0x == 0)? px0 : (v0y * y - v0c) / v0x;
-                int tmpx1 = (v1x == 0) ? px2 : (v1y * y - v1c) / v1x;
-                int tmpx2 = (v2x == 0) ? px2 : (v2y * y - v2c) / v2x;
+                //int tmpx0 = (v0x == 0)? px0 : (-v0y * y - v0c) / v0x;
+                //int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+                //int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
 
                 int start = 0;
                 int end = 0;
 
                 int isCrossLine0 = (py0 == py1)? -1 : (y - py0) * (py1 - y);
-                int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
-                int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
+                //int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+                //int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
 
                 if (isCrossLine0 >= 0)
                 {
+                    
+                    int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+
                     if (isCrossLine1 >= 0)
                     {
+                        int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
+                        int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+                    
                         start = tmpx0;
                         end = tmpx1;
                     }
                     else
                     {
+                        int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
+                        int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
+
                         start = tmpx0;
                         end = tmpx2;
 
@@ -147,6 +165,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
                 else
                 {
+                    int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
+                    int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
                     start = tmpx1;
                     end = tmpx2;
                 }
@@ -158,11 +178,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 int currIndex = rowIndex+start*4;
 
                     
-                    //nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, alpha);
+                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, alpha);
 
                     
 
-                    while (start <= end  && start < canvas.WidthPixel)
+                    /*while (start <= end )// && start < canvas.WidthPixel)
                     {
                         int tb = canvas.Data[currIndex];
                         int tg = canvas.Data[currIndex + 1];
@@ -175,7 +195,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                         start ++;
                         currIndex+= 4;
-                    }
+                    }*/
 
 
                 
