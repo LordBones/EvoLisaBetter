@@ -12,7 +12,7 @@ namespace GenArt.Core.AST
 {
     public class DnaTriangleStrip : DnaPrimitive
     {
-        public const int CONST_MinPoints = 4;
+        public const int CONST_MinPoints = 3;
         public const int CONST_MaxPoints = 10;
 
         public DnaPoint [] _Points;
@@ -177,7 +177,9 @@ namespace GenArt.Core.AST
                 newPoint.Init();
 
                 List<DnaPoint> newPoints = new List<DnaPoint>(points);
-                int index = Tools.GetRandomNumber(0, points.Length);
+                //int index = Tools.GetRandomNumber(0, points.Length);
+                int index = Tools.GetRandomNumber(0, 2);
+                if (index == 1) index = points.Length - 1;
 
                 newPoints.Insert(index, newPoint);
                 this._Points = newPoints.ToArray();
@@ -185,7 +187,9 @@ namespace GenArt.Core.AST
             }
             else if (action == 1)
             {
-                int index = Tools.GetRandomNumber(0, points.Length);
+                //int index = Tools.GetRandomNumber(0, points.Length);
+                int index = Tools.GetRandomNumber(0, 2);
+                if (index == 1) index = points.Length - 1;
 
                 DnaPoint [] newPoints = new DnaPoint[points.Length - 1];
 

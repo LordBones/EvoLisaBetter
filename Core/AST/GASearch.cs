@@ -239,9 +239,9 @@ namespace GenArt.Core.AST
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat = this._population[index].Polygons.Length;
+                long bloat = this._population[index].PointCount;
 
-                _fittness[index] = fittness + bloat;
+                _fittness[index] = fittness + bloat*bloat;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
