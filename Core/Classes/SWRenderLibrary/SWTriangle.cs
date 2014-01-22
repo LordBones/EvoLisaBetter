@@ -40,6 +40,27 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
+        public void RenderTriangleStrip(DnaPoint[] points, CanvasBGRA canvas, Color color)
+        {
+            for (int i = 0; i <= points.Length - 3; i++)
+            {
+                short x1 = points[i].X;
+                short y1 = points[i].Y;
+                short x2 = points[i+1].X;
+                short y2 = points[i+1].Y;
+                short x3 = points[i+2].X;
+                short y3 = points[i+2].Y;
+
+                //FillTriangleSimple(canvas.Data, canvas.WidthPixel, x1, y1, x2, y2, x3, y3,color);
+                //FillTriangleMy(canvas, x1, y1, x2, y2, x3, y3, color);
+                //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
+                //FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
+                //FillTriangleTilePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+                FillTrianglePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+            }
+
+        }
+
 
         private static int GetREM(byte alpha)
         {

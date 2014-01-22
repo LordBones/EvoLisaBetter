@@ -27,6 +27,16 @@ namespace GenArt.Classes
                         Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
                         g.FillPolygon(brush, points);
                     }
+                    else if (drawing.Polygons[index] is DnaTriangleStrip)
+                    {
+                         int count = drawing.Polygons[index].Points.Length-3;
+                         for (int i = 0; i <= count; i++)
+                         {
+                             Point[] points = GetGdiPointsTriangle(drawing.Polygons[index].Points,i, scale);
+                             g.FillPolygon(brush, points);
+                         }
+                    }
+
                     else if (drawing.Polygons[index] is DnaRectangle)
                     {
                         DnaRectangle rectangle = (DnaRectangle)drawing.Polygons[index];
@@ -98,17 +108,36 @@ namespace GenArt.Classes
                 {
                     if (drawing.Polygons[index] is DnaPolygon)
                     {
-                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
+                            Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
 
-                        g.DrawPolygon(pen, points);
+                            g.DrawPolygon(pen, points);
 
-                        using (Brush b = new SolidBrush(Color.White))
-                        {
-                            for (int pi = 0; pi < points.Length; pi++)
+
+                            using (Brush b = new SolidBrush(Color.White))
                             {
-                                g.FillEllipse(b, points[pi].X - 1 * scale, points[pi].Y - 1 * scale, 3 * scale, 3 * scale);
+                                for (int pi = 0; pi < points.Length; pi++)
+                                {
+                                    g.FillEllipse(b, points[pi].X - 1 * scale, points[pi].Y - 1 * scale, 3 * scale, 3 * scale);
+                                }
                             }
-                        }
+                    }
+                    else if (drawing.Polygons[index] is DnaTriangleStrip)
+                    {
+                         int count = drawing.Polygons[index].Points.Length-3;
+                         for (int i = 0; i <= count; i++)
+                         {
+                             Point[] points = GetGdiPointsTriangle(drawing.Polygons[index].Points, i, scale);
+
+                             g.DrawPolygon(pen, points);
+
+                             using (Brush b = new SolidBrush(Color.White))
+                             {
+                                 for (int pi = 0; pi < points.Length; pi++)
+                                 {
+                                     g.FillEllipse(b, points[pi].X - 1 * scale, points[pi].Y - 1 * scale, 3 * scale, 3 * scale);
+                                 }
+                             }
+                         }
                     }
                     else if (drawing.Polygons[index] is DnaRectangle)
                     {
@@ -129,28 +158,6 @@ namespace GenArt.Classes
             //Render(polygon, g, scale);
         }
 
-
-        //Render a polygon
-        private static void Render(DnaPolygon polygon, Graphics g, int scale)
-        {
-            using (Brush brush = new SolidBrush(polygon.Brush.BrushColor))
-            {
-
-                //var tmpPoints = polygon.ClonePoints();
-                //tmpPoints.Add(tmpPoints[0]);
-
-                //Point[] points = GetGdiPoints(tmpPoints, scale);
-                Point[] points = GetGdiPoints(polygon._Points, scale);
-                //g.DrawLines(new Pen(polygon.Brush.Brush), points);
-                //Point[] points = GetGdiPoints(polygon.Points, scale);
-                g.FillPolygon(brush, points);
-                // g.DrawPolygon(new Pen(polygon.Brush.Brush), points);
-
-                //g.FillClosedCurve(polygon.Brush.Brush, points);
-
-            }
-        }
-
        
         //Convert a list of DnaPoint to a list of System.Drawing.Point's
         private static Point[] GetGdiPoints(IList<DnaPoint> points,int scale)
@@ -161,6 +168,19 @@ namespace GenArt.Classes
             {
                 pts[i++] = new Point(pt.X * scale, pt.Y * scale);
             }
+            return pts;
+        }
+
+        private static Point[] GetGdiPointsTriangle(IList<DnaPoint> points, int index, int scale)
+        {
+            Point[] pts = new Point[3];
+
+            for(int i = 0;i<3;i++)
+            {
+                pts[i] = new Point(points[index].X * scale, points[index].Y * scale);
+                index++;
+            }
+
             return pts;
         }
 

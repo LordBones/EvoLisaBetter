@@ -97,6 +97,7 @@
     <Compile Include="AST\DnaPolygon.cs" />
     <Compile Include="AST\DnaPrimitive.cs" />
     <Compile Include="AST\DnaRectangle.cs" />
+    <Compile Include="AST\DnaTriangleStrip.cs" />
     <Compile Include="AST\GASearch.cs" />
     <Compile Include="Classes\Array2D.cs" />
     <Compile Include="Classes\CanvasBGRA.cs" />

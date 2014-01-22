@@ -89,6 +89,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 {
                     this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
                 }
+                if (polygon is DnaTriangleStrip)
+                {
+                    this._drawTriangle.RenderTriangleStrip(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
+                }
                 else if (polygon is DnaRectangle)
                 {
                     this._drawRectangle.Render((DnaRectangle)polygon, _drawCanvas);

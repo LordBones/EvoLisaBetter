@@ -119,9 +119,10 @@ namespace GenArt.AST
                         //else if (tmp == 1) AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         //else AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
 
-                        int tmp = Tools.GetRandomNumber(0, 3);
+                        int tmp = Tools.GetRandomNumber(0, 4);
                         if (tmp == 0) MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
-                        else if (tmp == 1) AddElipse(mutationRate, errorMatrix, null, edgePoints);
+                        else if (tmp == 1) MutationAddTriangleStrip(mutationRate, errorMatrix, null, edgePoints);
+                        else if (tmp == 2) AddElipse(mutationRate, errorMatrix, null, edgePoints);
                         else 
                             AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
@@ -555,8 +556,6 @@ namespace GenArt.AST
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
-                if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
-                {
                     var newPolygon = new DnaPolygon();
                     newPolygon.Init(mutationRate,errorMatrix, edgePoints);
                     //newPolygon.Init(null);
@@ -597,7 +596,53 @@ namespace GenArt.AST
                     //SortOnePolygonByAlpa(polygons.Length - 1);
 
                     SetDirty();
-                }
+            }
+        }
+
+        public void MutationAddTriangleStrip(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        {
+            if (Polygons.Length < Settings.ActivePolygonsMax)
+            {
+                    var newTriangleStrip = new DnaTriangleStrip();
+                    newTriangleStrip.Init(mutationRate, errorMatrix, edgePoints);
+                    //newPolygon.Init(null);
+
+                    if (_rawDestImage != null)
+                    {
+                        //Color nearColor = GetColorByPolygonPoints(newPolygon.Points, _rawDestImage, width);
+                        Color nearColor = 
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            //PolygonColorPredict.GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(newPolygon.Points, _rawDestImage);
+                            PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newTriangleStrip._Points, _rawDestImage);
+
+                        newTriangleStrip.Brush.SetByColor(nearColor);
+                        //newPolygon.Brush.InitRandom();
+                    }
+                    else
+                    {
+                        newTriangleStrip.Brush.InitRandom();
+                    }
+
+
+                    //List<DnaPrimitive> polygons = new List<DnaPrimitive>(Polygons);
+                    //if (polygons.Count == 0)
+                    //    polygons.Add(newPolygon);
+                    //else
+                    //{
+                    //    int index = Tools.GetRandomNumber(0, Polygons.Length); 
+                    //    polygons.Insert(index, newPolygon);
+                    //}
+                    //this.Polygons = polygons.ToArray();
+
+                    DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length + 1];
+                    Array.Copy(Polygons, polygons, Polygons.Length);
+
+                    polygons[polygons.Length - 1] = newTriangleStrip;
+                    Polygons = polygons;
+                    //SortOnePolygonByAlpa(polygons.Length - 1);
+
+                    SetDirty();
             }
         }
 
@@ -605,8 +650,6 @@ namespace GenArt.AST
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
-                if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
-                {
                     var newRectangle = new DnaRectangle();
                     newRectangle.Init(mutationRate,errorMatrix, edgePoints);
                     
@@ -647,7 +690,6 @@ namespace GenArt.AST
                     Polygons = polygons;
 
                     SetDirty();
-                }
             }
         }
 
@@ -655,8 +697,6 @@ namespace GenArt.AST
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
-                if (PointCount < Settings.ActivePointsMax + Settings.ActivePointsPerPolygonMin)
-                {
                     var newElipse = new DnaElipse();
                     newElipse.Init(mutationRate, errorMatrix, edgePoints);
 
@@ -697,7 +737,6 @@ namespace GenArt.AST
                     Polygons = polygons;
 
                     SetDirty();
-                }
             }
         }
 
