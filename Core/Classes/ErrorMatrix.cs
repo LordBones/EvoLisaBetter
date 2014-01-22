@@ -194,7 +194,9 @@ namespace GenArt.Core.Classes
 
         private int ComputeErrorTile_Median(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
-            Median8bit median = new Median8bit();
+            Median8bit medianr = new Median8bit();
+            Median8bit mediang = new Median8bit();
+            Median8bit medianb = new Median8bit();
 
             int result = 0;
 
@@ -207,9 +209,9 @@ namespace GenArt.Core.Classes
                 {
                     // copmute sumDiff
 
-                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]));
-                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]));
-                    median.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]));
+                    medianr.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]));
+                    mediang.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]));
+                    medianb.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]));
 
                     imageIndexX += 4;
                 }
@@ -217,9 +219,15 @@ namespace GenArt.Core.Classes
                 imageIndex += this._inputPixelWidth * 4;
             }
 
-            return (int)((median.Median * median.Median) + 
-                median.StdDev 
-                + 1.0);
+            //return (int)((medianr.Median * medianr.Median) + (medianr.StdDev * medianr.StdDev) +
+            //    (mediang.Median * mediang.Median) + (mediang.StdDev * mediang.StdDev) +
+            //    (medianb.Median * medianb.Median) + (medianb.StdDev * medianb.StdDev) +
+            //    + 1.0);
+
+            return (int)(( medianr.Median) + (medianr.StdDev) +
+                (mediang.Median ) + ( mediang.StdDev) +
+                (medianb.Median ) + ( medianb.StdDev) +
+                +1.0);
 
             //return median.MaxValue + 1;
         }
