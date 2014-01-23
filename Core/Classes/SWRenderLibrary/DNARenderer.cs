@@ -162,7 +162,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 canvasIndexRow += _drawCanvas.WidthPixel;
 
-                if ((y & 1) == 1)
+                //if ((y & 1) == 1)
                 {
                     _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
                     listRowsFFIndex = 3;
@@ -170,7 +170,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
                 
 
-                
+                 
                 
                 
                 //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);

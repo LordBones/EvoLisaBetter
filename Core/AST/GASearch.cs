@@ -166,7 +166,7 @@ namespace GenArt.Core.AST
                 for (int k =0; k < 10; k++)
                 {
                     //dna.AddRectangle(null, this._destCanvas, this._edgePoints);
-                    dna.MutationAddPolygon(255, null, this._destCanvas, this._edgePoints);
+                    //dna.MutationAddPolygon(255, null, this._destCanvas, this._edgePoints);
 
                 }
 
@@ -224,7 +224,7 @@ namespace GenArt.Core.AST
         {
             for (int index = 0; index < this._popSize; index++)
             {
-                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.Software);
+                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareByRows);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
                 //);
