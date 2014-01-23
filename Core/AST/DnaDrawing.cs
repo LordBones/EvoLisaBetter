@@ -119,12 +119,16 @@ namespace GenArt.AST
                         //else if (tmp == 1) AddElipse(mutationRate, errorMatrix, destImage, edgePoints);
                         //else AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
 
-                        int tmp = Tools.GetRandomNumber(0, 4);
-                        if (tmp == 0) MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
-                        else if (tmp == 1) MutationAddTriangleStrip(mutationRate, errorMatrix, null, edgePoints);
-                        else if (tmp == 2) AddElipse(mutationRate, errorMatrix, null, edgePoints);
-                        else 
-                            AddRectangle(mutationRate, errorMatrix, null, edgePoints);
+                        //int tmp = Tools.GetRandomNumber(0, 2);
+                        //if (tmp == 0) MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        //else 
+                            //if (tmp == 1) 
+                                MutationAddTriangleStrip(mutationRate, errorMatrix, null, edgePoints);
+                       // else 
+                     //           if (tmp == 2) 
+                       //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
+                       // else 
+                       //     AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -156,11 +160,11 @@ namespace GenArt.AST
 
                 }
 
-                if (Tools.GetRandomNumber(0, 1001) < 101)
+                /*if (Tools.GetRandomNumber(0, 1001) < 101)
                 {
                     RandomExchangeElipseRectangle();
                     //break;
-                }
+                }*/
 
 
 

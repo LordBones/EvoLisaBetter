@@ -245,7 +245,7 @@ namespace GenArt
 
             double avg = 0;
             if (polygons != 0)
-                avg = points/polygons;
+                avg = points/(double)polygons;
 
             toolStripStatusLabelFitness.Text = errorLevel.ToString();
             toolStripStatusLabelGeneration.Text = generation.ToString();
