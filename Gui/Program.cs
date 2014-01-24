@@ -213,8 +213,8 @@ namespace GenArt
                     //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
 
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                    //triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
-                    rectangleTest.Render(dnaRectangle, canvasTest);
+                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+                    //rectangleTest.Render(dnaRectangle, canvasTest);
                     //rectangleTest.RenderRow(dnaRectangle, canvasTest);
 
                     //  if (!polyCorrect.IsMinAreaDataEqual(polyTest))

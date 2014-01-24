@@ -136,7 +136,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int colorBackground = _black.ToArgb();
 
             listRowsForFill[0] = 0;
-            listRowsForFill[1] = _drawCanvas.WidthPixel*2;
+            listRowsForFill[1] = _drawCanvas.WidthPixel;
             listRowsForFill[2] = colorBackground;
 
             for (int y = 0; y < pixelHigh; y++)
@@ -164,7 +164,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //if ((y & 1) == 1)
                 {
-                    _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
+                    //_nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
+                    SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
                     listRowsFFIndex = 3;
                     listRowsForFill[0] = canvasIndexRow;
                 }
@@ -173,7 +174,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                  
                 
                 
-                //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
+                
 
                 
             }

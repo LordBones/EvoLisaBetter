@@ -59,6 +59,7 @@ namespace GenArt
         private int InitPopulation { get { return (int)nudPopulation.Value; } }
         private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
         private int MaxPolygons { get { return (int)nudMaxPolygon.Value; } }
+        private GASearch.TypeRendering _typeRendering;
 
 
 
@@ -80,6 +81,7 @@ namespace GenArt
             Settings = new Settings();
 
             InitImage(Bitmap.FromFile(Path.Combine(Application.StartupPath,GenArt.Properties.Resources.ml1)));
+            cbRenderCore.SelectedIndex = 0;
 
            
         }
@@ -104,7 +106,9 @@ namespace GenArt
             bool enableMaxGeneration = cheMaxGeneration.Checked;
 
             Tools.ClearPseudoRandom();
+
             GASearch gaSearch = new GASearch(InitPopulation);
+            gaSearch.TypeRender = _typeRendering;
 
             if (enableMaxGeneration)
             {
@@ -178,8 +182,14 @@ namespace GenArt
         private void Start()
         {
             btnStart.Text = "Stop";
+            
             isRunning = true;
             tmrRedraw.Enabled = true;
+
+            _typeRendering = GASearch.TypeRendering.software;
+            if (cbRenderCore.SelectedIndex == 1) _typeRendering = GASearch.TypeRendering.softwareByRow;
+            if (cbRenderCore.SelectedIndex == 2) _typeRendering = GASearch.TypeRendering.softwareByRowWithFitness;
+
 
             if (thread != null)
                 KillThread();
@@ -189,6 +199,8 @@ namespace GenArt
             //                 IsBackground = true,
             //                 Priority = ThreadPriority.AboveNormal
             //             };
+
+
 
             thread = new Thread(StartEvolutionNew)
             {

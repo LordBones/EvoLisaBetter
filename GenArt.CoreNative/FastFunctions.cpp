@@ -1282,132 +1282,6 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
     }
 }
 
-
-void FastFunctions::RenderTrianglePokus(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-                                        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
-{
-
-    alpha = (alpha * 256) / 255;
-
-    /*int invAlpha = 256 - alpha;
-
-    int b = color.B * alpha;
-    int g = color.G * alpha;
-    int r = color.R * alpha;*/
-
-    int rgba = color;
-
-    int v0x,v1x,v2x,v0y,v1y,v2y;
-
-    v0x = px1 - px0;
-    v0y = py1 - py0;
-
-    v1x = px2 - px1;
-    v1y = py2 - py1;
-
-    v2x = px0 - px2;
-    v2y = py0 - py2;
-
-    // process all points
-    int rowIndex = 0;
-
-    int sz1 =  (0 - px0) * v0y - (0 - py0) * v0x;
-    int sz2 =  (0 - px1) * v1y - (0 - py1) * v1x;
-    int sz3 =  (0 - px2) * v2y - (0 - py2) * v2x;
-    for (int y = 0; y < canvasHeight; y++)
-    {
-        int z1 = sz1;
-        int z2 = sz2;
-        int z3 = sz3;
-
-
-        int currIndex = rowIndex;
-
-        int x  = 0;
-        int start = -1;
-
-        while (x < canvasWidth)
-        {
-            if((((z1^z2)|(z1^z3))>>31) == 0)
-                //if ((z1 * z2 > 0) && (z1 * z3 > 0))
-            {
-                start = currIndex;
-                break;
-            }
-
-            z1 += v0y;
-            z2 += v1y;
-            z3 += v2y;
-            currIndex += 4;
-            x+=4;
-        }
-
-        if (start >= 0)
-        {
-            int tmpx = x;
-
-            while (x < canvasWidth)
-            {
-                if((((z1^z2)|(z1^z3))>>31) != 0)
-                    //if (!((z1 * z2 > 0) && (z1 * z3 > 0)))
-                {
-                    //end = currIndex;
-                    break;
-                }
-
-
-                z1 += v0y;
-                z2 += v1y;
-                z3 += v2y;
-
-                x+=4;
-            }
-
-            //if (end < 0) throw new Exception();
-            NewFastRowApplyColorSSE64(canvas+start, (((x-tmpx)/4) + 1), rgba, alpha);
-
-            /*for(int i = 0;i<=count;i++)
-            {
-            int tb = canvas.Data[start];
-            int tg = canvas.Data[start + 1];
-            int tr = canvas.Data[start + 2];
-
-
-            canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
-            canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
-            canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
-
-            start += 4;
-
-            }*/
-
-            /*while (start <= end)
-            {
-            int tb = canvas.Data[start];
-            int tg = canvas.Data[start + 1];
-            int tr = canvas.Data[start + 2];
-
-
-            canvas.Data[start] = (byte)((b + (tb * invAlpha)) >> 8);
-            canvas.Data[start + 1] = (byte)((g + (tg * invAlpha)) >> 8);
-            canvas.Data[start + 2] = (byte)((r + (tr * invAlpha)) >> 8);
-
-            start += 4;
-
-            }*/
-
-
-        }
-
-        sz1 -= v0x;
-        sz2 -= v1x;
-        sz3 -= v2x;
-
-        rowIndex += canvasWidth;
-    }
-}
-
-
 void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,int canvasHeight, 
                                       short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
 {
@@ -1630,7 +1504,7 @@ void FastFunctions::ClearFieldByColor(unsigned char * curr, int length, int colo
 
 void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas)
 {
-    ClearFieldByColor(canvas+listRowsForApply[0]*4,listRowsForApply[1]*4,listRowsForApply[2]);
+    ClearFieldByColor(canvas+listRowsForApply[0]*4,listRowsForApply[1],listRowsForApply[2]);
 
     int index = 3;
     for(int rows = 0;rows < countRows;rows++)

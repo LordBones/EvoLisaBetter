@@ -15,6 +15,8 @@ namespace GenArt.Core.AST
 {
     public class GASearch : IDisposable
     {
+        public enum TypeRendering { software, softwareByRow, softwareByRowWithFitness };
+
         private DnaDrawing _currentBest;
         private long _currentBestFittness;
         private DnaDrawing _lastBest;
@@ -46,6 +48,9 @@ namespace GenArt.Core.AST
 
         private int _popSize=  1;
 
+        private TypeRendering _typeRendering = TypeRendering.software;
+
+        
         #region CanvasForRender
 
         DNARenderer _dnaRender = new DNARenderer(1, 1);
@@ -87,6 +92,13 @@ namespace GenArt.Core.AST
         }
 
         public byte CurrMutateRate { get { return this._crLastMutationRate; } }
+
+        public TypeRendering TypeRender
+        {
+            get { return _typeRendering; }
+            set { _typeRendering = value; }
+        }
+
 
         #endregion
 
@@ -222,9 +234,16 @@ namespace GenArt.Core.AST
 
         private void ComputeFittness()
         {
+            DNARenderer.RenderType renderType = DNARenderer.RenderType.Software;
+
+            if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
+            else  renderType = DNARenderer.RenderType.SoftwareByRows;
+
+
             for (int index = 0; index < this._popSize; index++)
             {
-                _dnaRender.RenderDNA(this._population[index], DNARenderer.RenderType.SoftwareByRows);
+                _dnaRender.RenderDNA(this._population[index], renderType);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
                 //);
