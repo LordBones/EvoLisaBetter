@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArt.Classes;
 using GenArt.Core.AST;
 using GenArtCoreNative;
 
@@ -18,10 +19,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private SWElipse _drawElipse;
 
         private List<DnaPrimitive> [] _primitivesOnRows;
+        private byte [] _oneRenderRow;
 
+        private CanvasBGRA _DestCanvas = null;
+
+       
         public long FillPixels = 0;
 
-        public enum RenderType { WPF, GDI, SoftwareUniversalPolygon, Software, SoftwareByRows };
+        public enum RenderType { WPF, GDI, SoftwareUniversalPolygon, Software, SoftwareByRows, SoftwareByRowsWithFittness };
 
         NativeFunctions _nativefunc = new NativeFunctions();
 
@@ -30,12 +35,20 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             get { return _drawCanvas; }
         }
 
+        public CanvasBGRA DestCanvas
+        {
+            set { _DestCanvas = value; }
+        }
+
+        public long Fittness;
+
         public DNARenderer(int width, int height)
         {
             this._drawTriangle = new SWTriangle();
             this._drawRectangle = new SWRectangle();
             this._drawCanvas = new CanvasBGRA(width, height);
             this._drawElipse = new SWElipse();
+            this._oneRenderRow = new byte[width * 4];
             _primitivesOnRows = new List<DnaPrimitive>[height];
             for (int i =0; i < height; i++)
             {
@@ -50,7 +63,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             if (typeRender == RenderType.Software) DnaRender_SoftwareTriangle(dna);
             else if (typeRender == RenderType.SoftwareByRows) DnaRender_SoftwareByRows(dna);
-
+            else if (typeRender == RenderType.SoftwareByRowsWithFittness) DnaRender_SoftwareByRowsWithFittness(dna);
+            
         }
 
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
@@ -89,7 +103,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 {
                     this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
                 }
-                if (polygon is DnaTriangleStrip)
+                else if (polygon is DnaTriangleStrip)
                 {
                     this._drawTriangle.RenderTriangleStrip(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
                 }
@@ -139,6 +153,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             listRowsForFill[1] = _drawCanvas.WidthPixel;
             listRowsForFill[2] = colorBackground;
 
+            byte [] tmp = this._drawCanvas.Data;
             for (int y = 0; y < pixelHigh; y++)
             {
                 int startRowIndex = canvasIndexRow;
@@ -149,9 +164,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     int endX = 0;
 
                     DnaPrimitive primitive = dnaPolygons[i];
-                    primitive.GetRangeWidthByRow(y, ref startX, ref endX);
+                    
 
-                    if (startX <= endX)
+                    if (primitive.GetRangeWidthByRow(y, ref startX, ref endX))
                     {
                         listRowsForFill[listRowsFFIndex] = startRowIndex+startX;
                         listRowsForFill[listRowsFFIndex+1] = endX - startX +1;
@@ -164,8 +179,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //if ((y & 1) == 1)
                 {
-                    //_nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
-                    SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
+                    _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, tmp);
+                    //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
                     listRowsFFIndex = 3;
                     listRowsForFill[0] = canvasIndexRow;
                 }
@@ -181,28 +196,32 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private void DnaRender_SoftwareByRows2(DnaDrawing dna)
+        private void DnaRender_SoftwareByRowsWithFittness(DnaDrawing dna)
         {
+            Fittness = 0;
+
             DnaPrimitive [] dnaPolygons = dna.Polygons;
             int polyCount = dnaPolygons.Length;
             int pixelHigh = this._drawCanvas.HeightPixel;
-
+            byte [] destCanvasData =  this._DestCanvas.Data;
             //int [] listRowsForFill = new int[dnaPolygons.Length * 3 + 3];
             int listRowsFFIndex = 3;
 
 
-            int canvasIndexRow = 0;
+           
             int colorBackground = _black.ToArgb();
 
+            //listRowsForFill[0] = 0;
+            //listRowsForFill[1] = _drawCanvas.WidthPixel;
+            //listRowsForFill[2] = colorBackground;
 
-            listRowsForFill[1] = _drawCanvas.WidthPixel;
-            listRowsForFill[2] = colorBackground;
+            int rowIndex = 0;
 
-            for (int y = 0; y < pixelHigh; y++)
+            byte [] tmp = this._oneRenderRow;
+
+            for (int y = 0; y < pixelHigh; y+=1)
             {
-                int startRowIndex = canvasIndexRow;
-
-                listRowsForFill[0] = startRowIndex;
+                _nativefunc.ClearFieldByColor(tmp,0, _drawCanvas.WidthPixel, colorBackground);
 
                 for (int i = 0; i < polyCount; i++)
                 {
@@ -210,25 +229,38 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     int endX = 0;
 
                     DnaPrimitive primitive = dnaPolygons[i];
-                    primitive.GetRangeWidthByRow(y, ref startX, ref endX);
+                    
 
-                    if (startX <= endX)
+                    if (primitive.GetRangeWidthByRow(y, ref startX, ref endX))
                     {
-                        listRowsForFill[listRowsFFIndex] = startRowIndex + startX;
+                        /*listRowsForFill[listRowsFFIndex] =  startX;
                         listRowsForFill[listRowsFFIndex + 1] = endX - startX + 1;
                         listRowsForFill[listRowsFFIndex + 2] = (int)primitive.Brush.ColorAsUInt;
-                        listRowsFFIndex += 3;
-                    }
+                        listRowsFFIndex += 3;*/
+
+                        _nativefunc.NewRowApplyColor64(tmp,
+                    startX * 4, endX - startX + 1, 
+                    (int)primitive.Brush.ColorAsUInt);
+                    } 
                 }
 
-                _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
-                //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._drawCanvas.Data);
+                //Fittness += FitnessCalculator.ComputeFittnessLine_SumSquare(tmp, _DestCanvas.Data, rowIndex);
+                Fittness += _nativefunc.ComputeFittnessSquareLineSSE(tmp, destCanvasData, rowIndex);
+                /*
+                //if ((y & 1) == 1)
+                {
+                    _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, tmp);
+                    //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._oneRenderRow);
+                    listRowsFFIndex = 3;
+                    
+                }*/
 
-                listRowsFFIndex = 3;
-                canvasIndexRow += _drawCanvas.WidthPixel;
+                rowIndex += _drawCanvas.Width*1;
             }
 
         }
+
+   
 
         private void DnaRender_SoftwareByRowsSecondVersion(DnaDrawing dna)
         {
@@ -346,7 +378,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private void SafeRenderOneRow(int [] listRowsForApply, int countRows, byte [] canvas)
         {
             _nativefunc.ClearFieldByColor(canvas, 
-                listRowsForApply[0]*4, listRowsForApply[1], listRowsForApply[2]);
+                listRowsForApply[0]*4
+                , listRowsForApply[1], listRowsForApply[2]);
 
             int index = 3;
             for(int rows = 0;rows < countRows;rows++)

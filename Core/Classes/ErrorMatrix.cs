@@ -10,6 +10,10 @@ namespace GenArt.Core.Classes
 {
     public class ErrorMatrix 
     {
+        private Median8bit _medianr = new Median8bit();
+        private Median8bit _mediang = new Median8bit();
+        private Median8bit _medianb = new Median8bit();
+
         public int CONST_TileSize = 30;
 
         private int _inputPixelWidth;
@@ -89,20 +93,27 @@ namespace GenArt.Core.Classes
                 this._inputPixelWidth == origImage.WidthPixel && this._inputPixelHeight == origImage.HeightPixel)
                 throw new ArgumentException();
 
+            int matrixYTileSize = 0;
             for (int matrixY = 0; matrixY < this.MatrixHeight; matrixY++)
             {
-                for (int matrixX = 0; matrixX < this.MatrixWidth; matrixX++)
+                int matrixXTileSize = 0;
+                int originalTileHeight = this._inputPixelHeight - matrixYTileSize;
+                if (originalTileHeight >= CONST_TileSize) originalTileHeight = CONST_TileSize;
+
+                for (int matrixX = 0; matrixX < this.MatrixWidth; matrixX++) 
                 {
-                    int originalTileHeight = this._inputPixelHeight - matrixY * CONST_TileSize;
-                    if(originalTileHeight >= CONST_TileSize)  originalTileHeight = CONST_TileSize;
-                    int originalTileWidth = this._inputPixelWidth - matrixX * CONST_TileSize;
+                    
+                    int originalTileWidth = this._inputPixelWidth - matrixXTileSize;
                     if (originalTileWidth >= CONST_TileSize) originalTileWidth = CONST_TileSize;
 
-                    int indexTileStart = matrixY * CONST_TileSize * this._inputPixelWidth + matrixX * CONST_TileSize;
+                    int indexTileStart = matrixYTileSize * this._inputPixelWidth + matrixXTileSize;
 
                     this.Matrix[matrixY * this.MatrixWidth + matrixX] = ComputeErrorTile_Median(origImage, newImage, indexTileStart, originalTileWidth, originalTileHeight);
                     
+                    matrixXTileSize += CONST_TileSize;
                 }
+
+                matrixYTileSize+=CONST_TileSize;
             }
 
             FillRouleteTable();
@@ -149,18 +160,19 @@ namespace GenArt.Core.Classes
                 for (int tileX = 0; tileX < imageLenX; tileX++)
                 {
                     // copmute sumDiff
+                    int tmp = 0;
+                    tmp += Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]);
+                    tmp += Tools.fastAbs(origImage.Data[imageIndexX+1] - newImage.Data[imageIndexX+1]);
+                    tmp += Tools.fastAbs(origImage.Data[imageIndexX+2] - newImage.Data[imageIndexX+2]);
 
-                    result += Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]);
-                    result += Tools.fastAbs(origImage.Data[imageIndexX+1] - newImage.Data[imageIndexX+1]);
-                    result += Tools.fastAbs(origImage.Data[imageIndexX+2] - newImage.Data[imageIndexX+2]);
-
+                    result += tmp * tmp;
                     imageIndexX += 4;
                 }
 
-                    imageIndex += this._inputPixelWidth * 4;
+                imageIndex += this._inputPixelWidth * 4;
             }
 
-                return result/(imageLenX*imageLenY*3) + 1;
+                return (int)Math.Sqrt(result/(imageLenX*imageLenY)) + 1;
         }
 
         private int ComputeErrorTileMax(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
@@ -194,9 +206,9 @@ namespace GenArt.Core.Classes
 
         private int ComputeErrorTile_Median(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
-            Median8bit medianr = new Median8bit();
-            Median8bit mediang = new Median8bit();
-            Median8bit medianb = new Median8bit();
+            _medianr.Clear(); 
+            _mediang.Clear(); 
+            _medianb.Clear(); 
 
             int result = 0;
 
@@ -209,9 +221,9 @@ namespace GenArt.Core.Classes
                 {
                     // copmute sumDiff
 
-                    medianr.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]));
-                    mediang.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]));
-                    medianb.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]));
+                    _medianr.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX] - newImage.Data[imageIndexX]));
+                    _mediang.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 1] - newImage.Data[imageIndexX + 1]));
+                    _medianb.InsertData((byte) Tools.fastAbs(origImage.Data[imageIndexX + 2] - newImage.Data[imageIndexX + 2]));
 
                     imageIndexX += 4;
                 }
@@ -224,9 +236,9 @@ namespace GenArt.Core.Classes
             //    (medianb.Median * medianb.Median) + (medianb.StdDev * medianb.StdDev) +
             //    + 1.0);
 
-            return (int)(( medianr.Median) + (medianr.StdDev) +
-                (mediang.Median ) + ( mediang.StdDev) +
-                (medianb.Median ) + ( medianb.StdDev) +
+            return (int)(( _medianr.Median) + (_medianr.StdDev) +
+                (_mediang.Median ) + ( _mediang.StdDev) +
+                (_medianb.Median ) + ( _medianb.StdDev) +
                 +1.0);
 
             //return median.MaxValue + 1;

@@ -181,7 +181,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 int currIndex = rowIndex+start*4;
 
                     
-                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, alpha);
+                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, color.A);
 
                     
 

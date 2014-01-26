@@ -21,6 +21,10 @@ namespace GenArt.AST
         public short Width { get{return _maxWidth;} }
         public short Height { get{return _maxHeight;} }
 
+        #region RecycleElements
+
+        private static Stack<DnaPolygon> _RecyclePool_Polygon = new Stack<DnaPolygon>();
+        #endregion
 
         public int PointCount
         {
@@ -47,6 +51,20 @@ namespace GenArt.AST
             IsDirty = true;
         }
 
+        public static void RecyclePrimitive(DnaPrimitive [] primitives)
+        {
+            Helper_RecyclePrimitiveSave(primitives);
+        }
+
+        public static void RecyclePrimitive(DnaPrimitive primitive)
+        {
+            Helper_RecyclePrimitiveSave(primitive);
+        }
+
+        public static void RecycleClear()
+        {
+            Helper_RecyclePrimitiveClear();
+        }
 
 
         public void Init()
@@ -68,7 +86,18 @@ namespace GenArt.AST
             drawing.BackGround = BackGround;
 
             for (int index = 0; index < Polygons.Length; index++)
+            {
+                DnaPolygon tmpPoly = Polygons[index] as DnaPolygon;
+                if (tmpPoly != null)
+                {
+                    DnaPolygon recyclePolygon = Helper_GetRecyclePolygon();
+                    tmpPoly.Copy(recyclePolygon);
+                    drawing.Polygons[index] = recyclePolygon;
+                    continue;
+                }
+
                 drawing.Polygons[index] = (DnaPrimitive)Polygons[index].Clone();
+            }
 
             return drawing;
         }
@@ -128,8 +157,8 @@ namespace GenArt.AST
                        // else 
                      //           if (tmp == 2) 
                        //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
-                       // else 
-                          //  AddRectangle(mutationRate, errorMatrix, null, edgePoints);
+                        //else 
+                        //    AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -253,16 +282,28 @@ namespace GenArt.AST
             DnaRectangle rec = who as DnaRectangle;
             if (rec != null)
             {
-                DnaPoint [] points = rec.Points;
+                //DnaPoint [] points = rec.Points;
 
-                if (interWith.IsLineCrossed(points[0], new DnaPoint(points[1].X, points[0].Y)) ||
-                    interWith.IsLineCrossed(points[0], new DnaPoint(points[0].X, points[1].Y)) ||
-                    interWith.IsLineCrossed(points[1], new DnaPoint(points[1].X, points[0].Y)) ||
-                    interWith.IsLineCrossed(points[1], new DnaPoint(points[0].X, points[1].Y)))
+                DnaPoint tmp = new DnaPoint(rec.EndPoint.X, rec.StartPoint.Y);
 
-                    return true;
-                else
-                    return false;
+                if (interWith.IsLineCrossed(rec.StartPoint, tmp)) return true;
+                if (interWith.IsLineCrossed(rec.EndPoint, tmp)) return true;
+
+                tmp.X = rec.StartPoint.X; tmp.Y = rec.EndPoint.Y;
+                if (interWith.IsLineCrossed(rec.StartPoint, tmp)) return true;
+                if (interWith.IsLineCrossed(rec.EndPoint, tmp)) return true;
+
+             
+                return false;
+
+                //if (interWith.IsLineCrossed(points[0], new DnaPoint(points[1].X, points[0].Y)) ||
+                //    interWith.IsLineCrossed(points[0], new DnaPoint(points[0].X, points[1].Y)) ||
+                //    interWith.IsLineCrossed(points[1], new DnaPoint(points[1].X, points[0].Y)) ||
+                //    interWith.IsLineCrossed(points[1], new DnaPoint(points[0].X, points[1].Y)))
+
+                //    return true;
+                //else
+                //    return false;
             }
 
             DnaElipse eli = who as DnaElipse;
@@ -561,7 +602,9 @@ namespace GenArt.AST
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
-                    var newPolygon = new DnaPolygon();
+                    //var newPolygon = new DnaPolygon();
+                    DnaPolygon newPolygon =  Helper_GetRecyclePolygon();
+
                     newPolygon.Init(mutationRate,errorMatrix, edgePoints);
                     //newPolygon.Init(null);
 
@@ -758,7 +801,7 @@ namespace GenArt.AST
 
         private List<int> GetRNDPolygonListIndex_ByErrorMatrix(ErrorMatrix errorMatrix)
         {
-            List<int> result = new List<int>();
+            List<int> result = new List<int>(16);
 
             if (this.Polygons.Length == 1)
             {
@@ -809,6 +852,49 @@ namespace GenArt.AST
                diffY >= 0 && diffY < area.Height;
 
         }
+
+        #region Helpers
+        private static object _RecyclePoolLock = new object();
+        private static DnaPolygon Helper_GetRecyclePolygon()
+        {
+            lock (_RecyclePoolLock) 
+            {
+                if (_RecyclePool_Polygon.Count > 0)
+                    return _RecyclePool_Polygon.Pop();
+            }
+
+            return new DnaPolygon();
+        }
+
+        private static void Helper_RecyclePrimitiveSave(DnaPrimitive [] primitives)
+        {
+            for(int i = 0;i < primitives.Length;i++)
+            {
+                Helper_RecyclePrimitiveSave(primitives[i]);
+            }
+        }
+
+        private static void Helper_RecyclePrimitiveSave(DnaPrimitive primitive)
+        {
+            DnaPolygon poly = primitive as DnaPolygon;
+            if (poly != null)
+                lock (_RecyclePoolLock)
+                {
+                    _RecyclePool_Polygon.Push(poly);
+                }
+
+        }
+
+        private static void Helper_RecyclePrimitiveClear()
+        {
+            lock (_RecyclePoolLock)
+            {
+                _RecyclePool_Polygon.Clear();
+            }
+        }
+
+
+        #endregion
         
 
     }

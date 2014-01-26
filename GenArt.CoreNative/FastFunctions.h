@@ -3,7 +3,7 @@
 class  FastFunctions
 {
 private :
-	static int ApplyColor(int colorChanel, int axrem, int rem);
+	
 
 public:
 
@@ -12,13 +12,15 @@ public:
 
     static  void NewFastRowApplyColorSSE(unsigned char * canvas, int countPixel, int color , int alpha);
     static  void NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color , int alpha);
+    static  void NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color);
+
     static  void NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color , int alpha);
     static  void RenderRectangle(unsigned char * canvas,int canvasWidth, int x,int y, int width, int height, int color , int alpha);
     static  void RenderTriangleByRanges(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int startY, int color, int alpha);
     static  void RenderTriangle(unsigned char * canvas, int canvasWidth, int canvasHeight, 
         short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha);
      static  void RenderTriangleNew(unsigned char * canvas, int canvasWidth, int canvasHeight, 
-        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha);
+        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha255);
 
 
     static  void RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas);
@@ -33,7 +35,7 @@ public:
     static  void FastRowsApplyColorSSE128_test(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r, int g, int b, int a);
 
 
-	static void  ClearFieldByColor(unsigned char * curr, int length, int color);
+	static void  ClearFieldByColor(unsigned char * curr, int lengthPixel, int color);
 
     static __int64 computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel);
     static __int64 computeFittness_2d(unsigned char * curr, unsigned char * orig, int length, int width);

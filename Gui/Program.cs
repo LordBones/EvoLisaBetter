@@ -109,13 +109,22 @@ namespace GenArt
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
 
-            /*for (int i =0; i < 100; i++)
+            //for (int i =0; i < 100; i++)
+            //{
+            //    dna.MutationAddPolygon(255, null);
+            //    DnaBrush db = dna.Polygons[dna.Polygons.Length - 1].Brush;
+            //    dna.Polygons[dna.Polygons.Length - 1].Brush.SetByColor(Color.FromArgb(1, db.Red, db.Green, db.Blue));
+
+            //}
+
+            for (int i =0; i < 100; i++)
             {
-                dna.MutationAddPolygon(255, null);
+                DnaRectangle dnaRectangle = new DnaRectangle(0, 0, CONST_Width, CONST_Height);
+                dnaRectangle.Brush.SetByColor(Color.FromArgb(127, 255, 0, 0));
+                dna.AddDnaPrimitive(dnaRectangle);
+            }
 
-            }*/
-
-            for (int i =0; i < 25; i++)
+            /*for (int i =0; i < 25; i++)
             {
 
                 DnaPolygon dp = new DnaPolygon();
@@ -150,7 +159,7 @@ namespace GenArt
                 dp.Brush.SetByColor(Color.FromArgb(128, 128, 0, 128));
                 dna.AddDnaPrimitive(dp);
 
-            }
+            }*/
 
             /*DnaPolygon dp = new DnaPolygon();
             dp.InitTestPolygon();
@@ -192,28 +201,36 @@ namespace GenArt
             //byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
             CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
-
+           
             SWTriangle triangleTest = new SWTriangle();
             SWRectangle rectangleTest = new SWRectangle();
 
-            Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
-            polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
-            Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
-            polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
+            //Polygon polyCorrect = new Polygon(CONST_Width, CONST_Height);
+            //polyCorrect.SetStartBufferSize(CONST_Width, CONST_Height);
+            //Polygon polyTest = new Polygon(CONST_Width, CONST_Height);
+            //polyTest.SetStartBufferSize(CONST_Width, CONST_Height);
 
-            DnaRectangle dnaRectangle = new DnaRectangle(0,0,CONST_Width-1, CONST_Height-1);
-            dnaRectangle.Brush.SetByColor(Color.FromArgb(255,255,0,0));
+            //DnaRectangle dnaRectangle = new DnaRectangle(0,0,CONST_Width-1, CONST_Height-1);
+            //dnaRectangle.Brush.SetByColor(Color.FromArgb(255,255,0,0));
 
+            DNARenderer dnar = new DNARenderer(CONST_Width, CONST_Height);
+            DNARenderer dnar2 = new DNARenderer(CONST_Width, CONST_Height);
+
+            dnar.DestCanvas = canvasTest;
             PerfStart();
-            for (int i = 0; i < CONST_LOOP; i++)
+            
+            for (int i = 0; i < CONST_LOOP; i++) 
             {
-                for (int index =0; index < dna.Polygons.Length; index++)
+                dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
+
+                //for (int index =0; index < dna.Polygons.Length; index++)
                 {
 
                     //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
 
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                    triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+                    //triangleTest.RenderTriangle(dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+                    //dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
                     //rectangleTest.Render(dnaRectangle, canvasTest);
                     //rectangleTest.RenderRow(dnaRectangle, canvasTest);
 
@@ -228,6 +245,22 @@ namespace GenArt
                 }
 
             }
+
+            long ticks = PerfEnd();
+
+            TimeSpan ts = new TimeSpan(ticks);
+
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LOOP, ticks / (double)(CONST_LOOP * dna.Polygons.Length));
+            Console.Out.WriteLine("polygons : {0} K/s", ((CONST_LOOP * dna.Polygons.Length) / ts.TotalSeconds) / 1000);
+
+
+            //DNARenderer dnar = new DNARenderer(CONST_Width, CONST_Height);
+            dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
+            CanvasBGRA.CreateBitmpaFromCanvas(dnar.Canvas).Save("Software.bmp");
+            dnar2.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
+            CanvasBGRA.CreateBitmpaFromCanvas(dnar2.Canvas).Save("SoftwareByRow.bmp");
+
+
 
             Bitmap bmp = new Bitmap(CONST_Width, CONST_Height, PixelFormat.Format32bppPArgb);
             var lockBmp = bmp.LockBits(new Rectangle(0, 0, CONST_Width, CONST_Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
@@ -244,13 +277,7 @@ namespace GenArt
 
             bmp.UnlockBits(lockBmp);
             bmp.Save("canvasTestsw.bmp", ImageFormat.Bmp);
-            long ticks = PerfEnd();
-
-            TimeSpan ts = new TimeSpan(ticks);
-
-            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LOOP, ticks / (double)CONST_LOOP);
-            Console.Out.WriteLine("polygons : {0} K/s", ((CONST_LOOP * dna.Polygons.Length) / ts.TotalSeconds) / 1000);
-
+            
         }
 
         private static void TestSoftwareRenderPolygon()

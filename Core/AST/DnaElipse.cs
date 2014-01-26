@@ -140,11 +140,9 @@ namespace GenArt.Core.AST
             endY = this._startPoint.Y+this.Height-1;
         }
 
-        public override void GetRangeWidthByRow(int y, ref int startX, ref int endX)
+        public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
-            startX = 0;
-            endX = -1;
-
+            return false;
         }
 
 

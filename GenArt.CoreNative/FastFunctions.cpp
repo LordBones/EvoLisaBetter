@@ -66,10 +66,10 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
     mMullInvAlpha.m128i_i16[3] = 256;
 
     // __m128i mZero =  _mm_setzero_si128();
-
+    int x =0;
     while(count > 0)
     {
-        __m128i source = _mm_cvtsi32_si128(*((int*)canvas));
+        __m128i source = _mm_cvtsi32_si128(*(((int*)canvas)+x));
 
         //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
         source = _mm_cvtepu8_epi16(source);
@@ -87,9 +87,9 @@ void ApplyColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
 
         source        = _mm_packus_epi16(tmp1,tmp1);//mZero );         // pack
 
-        *((int*)canvas) =  _mm_cvtsi128_si32(source);
+        *(((int*)canvas)+x) =  _mm_cvtsi128_si32(source);
 
-        canvas += 4;
+        x++;
         count--;
     }
 
@@ -561,12 +561,6 @@ void Apply4ColorPixelSSE2(unsigned char * canvas,int count,int color, int alpha)
 
 }
 
-
-int FastFunctions::ApplyColor(int colorChanel, int axrem, int rem)
-{
-    return ((axrem + rem * colorChanel) >> 16);
-}
-
 void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPixel, int color , int alpha)
 {
     alpha = (alpha*256)/255;
@@ -590,44 +584,50 @@ void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPix
     }*/
 }
 
-void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color , int alpha)
+void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color , int alpha255)
 {
     // convert alpha value from range 0-255 to 0-256
 
-    alpha = (alpha*256)/255;
+    int alpha = (alpha255*256)/255;
 
 
     unsigned char * line = canvas;
 
-
-    // fix bad align
-    // move if address is 0xc || 0x4
-    unsigned int tmp = ((((unsigned int)line) & 0xf)/4)&1; 
-
-    if((tmp != 0) && countPixel > 0)
+    if(countPixel < 8)
     {
-        ApplyColorPixelSSE(line,color,alpha);
-
-        countPixel -= 1;
-        line+=4;
+        ApplyColorPixelSSE(line,countPixel,color,alpha);
     }
-
-    if(countPixel > 1)
+    else
     {
-        int tmpLen = countPixel - (countPixel&1);
-        Apply2ColorPixelSSE(line,tmpLen, color,alpha);
+        // fix bad align
+        // move if address is 0xc || 0x4
+        unsigned int tmp = ((((unsigned int)line) & 0xf)/4)&1; 
 
-        countPixel -= tmpLen;
-        line+=tmpLen*4;
+        if((tmp != 0) //&& countPixel > 0
+            )
+        {
+            ApplyColorPixelSSE(line,color,alpha);
+
+            countPixel -= 1;
+            line+=4;
+        }
+
+        //if(countPixel > 1)
+        {
+            int tmpLen = countPixel - (countPixel&1);
+            Apply2ColorPixelSSE(line,tmpLen, color,alpha);
+
+            countPixel -= tmpLen;
+            line+=tmpLen*4;
+        }
+
+
+        if(countPixel > 0)
+        {
+            //ApplyColorPixelSSE(line,len,r,g,b,alpha);
+            ApplyColorPixelSSE(line,color,alpha);
+        }
     }
-
-
-    if(countPixel > 0)
-    {
-        //ApplyColorPixelSSE(line,len,r,g,b,alpha);
-        ApplyColorPixelSSE(line,color,alpha);
-    }
-
 
     /*while(len > 0)
     {
@@ -636,6 +636,11 @@ void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countP
     len -= 1;
     line+=4;
     }*/
+}
+
+void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color )
+{
+    NewFastRowApplyColorSSE64(canvas,countPixel,color,(((color) >> 24) & 0xff));
 }
 
 void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color , int alpha)
@@ -953,7 +958,7 @@ void FastFunctions::FastRowsApplyColorSSE64(unsigned char * canvas, int canvasWi
 
     short * end = ranges+rlen;
 
-    int invAlpha = 256-alpha;
+
 
     //int indexY = minY * this._canvasWidth;
     //for (int y  = 0; y < rlen; y+=2)//, indexY += this._canvasWidth)
@@ -1005,8 +1010,6 @@ void FastFunctions::FastRowsApplyColorSSE128(unsigned char * canvas, int canvasW
 
     int rowStartIndex = (rangeStartY) * canvasWidth;
     short * end = ranges+rlen;
-
-    int invAlpha = 256-alpha;
 
     //int indexY = minY * this._canvasWidth;
     //for (int y  = 0; y < rlen; y+=2)//, indexY += this._canvasWidth)
@@ -1133,13 +1136,13 @@ void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int 
     //else
     {
         canvas+=rowStartIndex;
-       
-       for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
-       {
+
+        for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
+        {
             NewFastRowApplyColorSSE64(canvas, width, color, alpha);
 
             canvas += canvasWidth;
-       }
+        }
     }
 }
 
@@ -1283,10 +1286,10 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
 }
 
 void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-                                      short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+                                      short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha255)
 {
 
-    alpha = (alpha * 256) / 255;
+    //alpha = (alpha * 256) / 255;
 
 
 
@@ -1312,9 +1315,14 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
     Tools.swap<int>(ref v1x, ref v1y);
     Tools.swap<int>(ref v2x, ref v2y);*/
 
-    if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
+    /*if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
     if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
     if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
+*/
+    v0x = -v0x;
+    v1x = -v1x;
+    v2x = -v2x;
+
 
     v0c = -(v0x*px0+v0y*py0);
     v1c = -(v1x*px1+v1y*py1);
@@ -1384,7 +1392,7 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
 
         int currIndex = rowIndex+start*4;
 
-        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,rgba,alpha);
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,rgba,alpha255);
 
 
 
@@ -1415,90 +1423,86 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
 
 
 
-void FillSSEInt32(unsigned long * M, long Fill, unsigned int Count)
+void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
 {
     __m128i f;
 
     // Fix mis-alignment.
-    if (((unsigned int)M) & 0xf)
+    /*if (((unsigned int)M) & 0xf)
     {
-        unsigned int tmp = ((unsigned int)M) & 0xf; 
+    unsigned int tmp = ((unsigned int)M) & 0xf; 
 
-        switch (tmp)
-        {
-        case 0x4: if (Count >= 1) { *M++ = Fill; Count--; }
-        case 0x8: if (Count >= 1) { *M++ = Fill; Count--; }
-        case 0xc: if (Count >= 1) { *M++ = Fill; Count--; }
-        }
+    switch (tmp)
+    {
+    case 0x4: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
+    case 0x8: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
+    case 0xc: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
     }
+    }*/
+
+    int tmpCount = 4-((((unsigned int)M)&0xf)/4);
+    if(tmpCount < 4 && tmpCount < CountFill)
+    {
+        switch (tmpCount)
+        {
+        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
+        case 0x2: {*M = Fill;M[1] = Fill;break;}
+        case 0x1: {*M = Fill;break;}
+        }
+
+        M+=tmpCount;
+        CountFill -= tmpCount;
+    }
+
+
     f = _mm_set1_epi32(Fill);
 
-    //f.m128i_i32[0] = Fill;
-    //f.m128i_i32[1] = Fill;
-    //f.m128i_i32[2] = Fill;
-    //f.m128i_i32[3] = Fill;
-
-
-
-    //while (Count >= 4)
-    //{
-    //    _mm_store_si128((__m128i *)M, f);
-    //    //_mm_stream_si128((__m128i *)M, f);
-    //    M += 4;
-    //    Count -= 4;
-    //}
-    unsigned long * M2 = M + ((Count&(~7))>>1);
-    while (Count >= 16)
-    {
-        _mm_store_si128((__m128i *)M, f);
-        _mm_store_si128((__m128i *)(M+4), f);
-        _mm_store_si128((__m128i *)(M+8), f);
-        _mm_store_si128((__m128i *)(M+12), f);
+    int index = 0;
+    while (CountFill >= 16)
+    { 
+        _mm_store_si128((__m128i *)(M+index), f);
+        _mm_store_si128((__m128i *)(M+index+4), f);
+        _mm_store_si128((__m128i *)(M+index+8), f);
+        _mm_store_si128((__m128i *)(M+index+12), f);
+        /*_mm_store_si128((__m128i *)(M+index+16), f);
+        _mm_store_si128((__m128i *)(M+index+20), f);
+        _mm_store_si128((__m128i *)(M+index+24), f);
+        _mm_store_si128((__m128i *)(M+index+28), f);*/
         //_mm_store_si128((__m128i *)M2, f);
         //_mm_stream_si128((__m128i *)M, f);
         //_mm_stream_si128((__m128i *)(M+4), f);
-        M += 16;
-        //M += 4;
-        //M2 += 4;
+        //M += 16;
 
-        Count -= 16;
+        index += 16;
+        CountFill -= 16;
     }
 
-    if (Count >= 8)
-    {
-        _mm_store_si128((__m128i *)M, f);
-        _mm_store_si128((__m128i *)(M+4), f);
-        //_mm_store_si128((__m128i *)M2, f);
-        //_mm_stream_si128((__m128i *)M, f);
-        //_mm_stream_si128((__m128i *)(M+4), f);
-        M += 8;
-        //M += 4;
-        //M2 += 4;
-
-        Count -= 8;
-    }
+    M += index;
+    
 
 
-    if (Count >= 4)
+    while (CountFill >= 4)
     {
         _mm_store_si128((__m128i *)M, f);
         //_mm_stream_si128((__m128i *)M, f);
         M += 4;
-        Count -= 4;
+        CountFill -= 4;
     }
 
-    // Fill remaining LONGs.
-    switch (Count & 0x3)
+    if(CountFill > 0)
     {
-    case 0x3: *M++ = Fill;
-    case 0x2: *M++ = Fill;
-    case 0x1: *M++ = Fill;
+        switch (CountFill )
+        {
+        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
+        case 0x2: {*M = Fill;M[1] = Fill;break;}
+        case 0x1: {*M = Fill;break;}
+        }
     }
 }
 
-void FastFunctions::ClearFieldByColor(unsigned char * curr, int length, int color)
+void FastFunctions::ClearFieldByColor(unsigned char * curr, int lengthPixel, int color)
 {
-    FillSSEInt32((unsigned long *)curr, color,length/4);
+    FillSSEInt32((unsigned long *)curr, color,lengthPixel);
     //std::fill((unsigned int *)curr,((unsigned int *)curr)+length/4,  color);
 }
 
@@ -1510,7 +1514,7 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     for(int rows = 0;rows < countRows;rows++)
     {
         int color = listRowsForApply[index + 2];
-        int alpha = ((((unsigned int)color)>>24)&0xff);
+        int alpha = (((color)>>24)&0xff);
         NewFastRowApplyColorSSE64(canvas+
             listRowsForApply[index] * 4, listRowsForApply[index + 1], color, alpha);
 
@@ -1831,8 +1835,8 @@ __int64 FastFunctions::computeFittness_2d_2x2(unsigned char * current, unsigned 
 
 __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
 {
-     NativeMedian8Bit medR = NativeMedian8Bit();
-     NativeMedian8Bit medG = NativeMedian8Bit();
+    NativeMedian8Bit medR = NativeMedian8Bit();
+    NativeMedian8Bit medG = NativeMedian8Bit();
     NativeMedian8Bit medB = NativeMedian8Bit();
 
 

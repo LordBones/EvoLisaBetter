@@ -23,7 +23,7 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-			ClearFieldByColor(pinCanvas, canvas->Length, color);
+			ClearFieldByColor(pinCanvas, canvas->Length/4, color);
 
 		}
 
@@ -54,8 +54,14 @@ namespace GenArtCoreNative {
 			FastFunctions::
             NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color, alpha);
 
-            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
+        }
 
+        void NewRowApplyColor64(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+			FastFunctions::
+            NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color);
         }
 
         void NewRowApplyColor128(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha)
@@ -104,12 +110,12 @@ namespace GenArtCoreNative {
         }
 
         void RenderTriangleNew(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
-            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color, int alpha)
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color, int alpha255)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 			
 			FastFunctions::RenderTriangleNew(pinCanvas,canvasWidth,canvasHeight,
-                px0,py0,px1,py1,px2,py2,color,alpha);
+                px0,py0,px1,py1,px2,py2,color,alpha255);
         }
 
         ///
@@ -218,7 +224,7 @@ namespace GenArtCoreNative {
             
             return  FastFunctions::computeFittness_2d_2x2(pinCurr,pinOrig,orig->Length,width);
         }
-		__int64 ComputeFittness(array<System::Byte>^ current, array<System::Byte>^ orig)
+		__int64 ComputeFittnessSquareSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
 
@@ -229,6 +235,45 @@ namespace GenArtCoreNative {
 			
 
             result = FastFunctions::computeFittnessSumSquareASM(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessSquare(array<System::Byte>^ current, array<System::Byte>^ orig)
+		{
+			__int64 result = 0;
+
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+			
+			
+
+            result = FastFunctions::computeFittnessSumSquare(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessSquareLine(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+		{
+			__int64 result = 0;
+
+            pin_ptr<System::Byte> pinLine = &line[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+            result = FastFunctions::computeFittnessSumSquare(pinLine,pinOrig+origStartIndex,line->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessSquareLineSSE(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+		{
+			__int64 result = 0;
+
+            pin_ptr<System::Byte> pinLine = &line[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+            result = FastFunctions::computeFittnessSumSquareASM(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}

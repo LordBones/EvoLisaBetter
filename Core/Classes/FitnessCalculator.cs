@@ -134,7 +134,7 @@ namespace GenArt.Classes
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             //error = ComputeFittnessBasic(drawCanvas.Data, sourceImage.Data);
-            error = nativeFunc.ComputeFittness(drawCanvas.Data, sourceImage.Data);
+            error = nativeFunc.ComputeFittnessSquare(drawCanvas.Data, sourceImage.Data);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
@@ -164,7 +164,7 @@ namespace GenArt.Classes
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
 
             GenArtCoreNative.NativeFunctions nc = new GenArtCoreNative.NativeFunctions();
-            error = nc.ComputeFittness(drawCanvas.Data, sourceImage.Data);
+            error = nc.ComputeFittnessSquare(drawCanvas.Data, sourceImage.Data);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             return (int)(error) + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));
@@ -255,6 +255,66 @@ namespace GenArt.Classes
             }
 
             
+
+            return result;
+        }
+
+        /// <summary>
+        /// spocita fittnesss pro dany jeden radek obrazku
+        /// </summary>
+        /// <param name="currentLine"></param>
+        /// <param name="orig"></param>
+        /// <param name="origStartIndex"></param>
+        /// <returns></returns>
+        public static long ComputeFittnessLine_SumSquare(byte[] currentLine, byte[] orig, int origStartIndex)
+        {
+            long result = 0;
+
+            int index = 0;
+            while (index < currentLine.Length)
+            {
+                int br = (currentLine[index] - orig[origStartIndex+index]);
+                int bg = (currentLine[index + 1] - orig[origStartIndex+index + 1]);
+                int bb = (currentLine[index + 2] - orig[origStartIndex+index + 2]);
+
+                long tmpres = br*br + bg*bg + bb*bb;
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+
+
+            return result;
+        }
+
+        /// <summary>
+        /// spocita fittnesss pro dany jeden radek obrazku
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="orig"></param>
+        /// <param name="origStartIndex"></param>
+        /// <returns></returns>
+        public static long ComputeFittnessLine_SumSquare(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            int index = 0;
+            while (index < current.Length)
+            {
+                int br = (current[index] - orig[ index]);
+                int bg = (current[index + 1] - orig[ index + 1]);
+                int bb = (current[index + 2] - orig[ index + 2]);
+
+                long tmpres = br * br + bg * bg + bb * bb;
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+
 
             return result;
         }

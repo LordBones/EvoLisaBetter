@@ -13,7 +13,6 @@ namespace GenArt.AST
 
         public DnaPolygon()
         {
-
         }
 
         public override DnaPoint[] Points
@@ -25,7 +24,7 @@ namespace GenArt.AST
         {
 
 
-            int countPoints = Math.Min(Settings.ActivePointsPerPolygonMax, 3);
+            int countPoints =3;// Math.Min(Settings.ActivePointsPerPolygonMax, 3);
             DnaPoint [] points = new DnaPoint[countPoints];
 
             if (edgePoints == null)
@@ -241,11 +240,29 @@ namespace GenArt.AST
             newPolygon.Brush = Brush;
             newPolygon.UniqueId = UniqueId;
 
-            Array.Copy(this._Points, newPolygon._Points, _Points.Length);
+            newPolygon._Points[0] = _Points[0];
+            newPolygon._Points[1] = _Points[1];
+            newPolygon._Points[2] = _Points[2];
+
+            //Array.Copy(this._Points, newPolygon._Points, _Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
 
             return newPolygon;
+        }
+
+        public void Copy(DnaPolygon destPoly)
+        {
+            
+            destPoly.Brush = Brush;
+            destPoly.UniqueId = UniqueId;
+
+            if (destPoly._Points == null)
+                destPoly._Points = new DnaPoint[3];
+
+            destPoly._Points[0] = _Points[0];
+            destPoly._Points[1] = _Points[1];
+            destPoly._Points[2] = _Points[2];
         }
 
         public override int GetCountPoints()
@@ -539,11 +556,8 @@ namespace GenArt.AST
             if (endY < tmp) endY = tmp;
         }
 
-        public override void GetRangeWidthByRow(int y, ref int startX, ref int endX)
+        public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
-            startX = 0;
-            endX = -1;
-
             int px0 = this._Points[0].X;
             int px1 = this._Points[1].X;
             int px2 = this._Points[2].X;
@@ -559,7 +573,7 @@ namespace GenArt.AST
 
             //if (minY > y || y > maxY) return;
 
-            if ((py0 > y && py1 > y && py2 > y) || (py0 < y && py1 < y && py2 < y)) return;
+            if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
             int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
@@ -570,11 +584,18 @@ namespace GenArt.AST
             v1y = py2 - py1;
 
             v2x = px0 - px2;
-            v2y = py0 - py2;
+            v2y = py0 - py2; 
 
-            Tools.swap<int>(ref v0x, ref v0y);
+            int tmp;
+
+            tmp = v0x; v0x = v0y; v0y = tmp;
+            tmp = v1x; v1x = v1y; v1y = tmp;
+            tmp = v2x; v2x = v2y; v2y = tmp;
+
+
+            /*Tools.swap<int>(ref v0x, ref v0y);
             Tools.swap<int>(ref v1x, ref v1y);
-            Tools.swap<int>(ref v2x, ref v2y);
+            Tools.swap<int>(ref v2x, ref v2y);*/
 
             //if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
             //if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
@@ -646,6 +667,7 @@ namespace GenArt.AST
                 endX = end;
             }
 
+            return true;
         }
 
 

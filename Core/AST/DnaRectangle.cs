@@ -14,15 +14,15 @@ namespace GenArt.Core.AST
     {
         public DnaPoint StartPoint;
         public DnaPoint EndPoint;
-      
+
         public DnaRectangle()
         {
 
         }
-        public DnaRectangle(short x,short y,short widht,short height)
+        public DnaRectangle(short x, short y, short widht, short height)
         {
             StartPoint = new DnaPoint(x, y);
-            EndPoint = new DnaPoint((short)(x + widht - 1),(short)( y + height - 1));
+            EndPoint = new DnaPoint((short)(x + widht - 1), (short)(y + height - 1));
         }
 
         public short Width
@@ -32,13 +32,14 @@ namespace GenArt.Core.AST
 
         public short Height
         {
-            get { return (short)( this.EndPoint.Y - this.StartPoint.Y + 1); }
+            get { return (short)(this.EndPoint.Y - this.StartPoint.Y + 1); }
         }
 
 
         public override DnaPoint[] Points
         {
-            get{
+            get
+            {
                 DnaPoint [] points = new DnaPoint[2];
                 points[0] = this.StartPoint;
                 points[1] = this.EndPoint;
@@ -149,16 +150,16 @@ namespace GenArt.Core.AST
 
         public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
-            
+
             DnaPoint point = new DnaPoint();
 
             int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.EndPoint.X,
-                           this.StartPoint.X, Tools.MaxWidth  - 1, MutationRate);
+                           this.StartPoint.X, Tools.MaxWidth - 1, MutationRate);
 
             point.X = (short)Math.Max(this.StartPoint.X, Math.Min(newValue, Tools.MaxWidth - 1));
 
             newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.EndPoint.Y,
-                           this.StartPoint.Y , Tools.MaxHeight - 1, MutationRate);
+                           this.StartPoint.Y, Tools.MaxHeight - 1, MutationRate);
 
             point.Y = (short)Math.Max(this.StartPoint.Y, Math.Min(newValue, Tools.MaxHeight - 1));
 
@@ -167,12 +168,12 @@ namespace GenArt.Core.AST
             point = new DnaPoint();
 
             newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.StartPoint.X,
-                         0, this.EndPoint.X , MutationRate);
+                         0, this.EndPoint.X, MutationRate);
 
             point.X = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.X));
-            
+
             newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(this.StartPoint.Y,
-                        0, this.EndPoint.Y , MutationRate);
+                        0, this.EndPoint.Y, MutationRate);
 
             point.Y = (short)Math.Max(0, Math.Min(newValue, this.EndPoint.Y));
 
@@ -204,7 +205,7 @@ namespace GenArt.Core.AST
         public override void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
         {
 
-            Rectangle polygonArea = new Rectangle(this.StartPoint.X, this.StartPoint.Y, 
+            Rectangle polygonArea = new Rectangle(this.StartPoint.X, this.StartPoint.Y,
                 this.Width, this.Height);
 
             const int defaultStepSize = 40;
@@ -245,15 +246,15 @@ namespace GenArt.Core.AST
             endY = this.EndPoint.Y;
         }
 
-        public override void GetRangeWidthByRow(int y, ref int startX, ref int endX)
+        public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
-            startX = 0;
-            endX = -1;
-            if (y >= this.StartPoint.Y && y <= this.EndPoint.Y)
-            {
-                startX = this.StartPoint.X;
-                endX = this.EndPoint.X;
-            }
+            if (y < this.StartPoint.Y || y > this.EndPoint.Y)
+                return false;
+
+            startX = this.StartPoint.X;
+            endX = this.EndPoint.X;
+
+            return true;
         }
 
         public override bool IsPointInside(DnaPoint point)
@@ -264,8 +265,8 @@ namespace GenArt.Core.AST
 
         public override bool IsLineCrossed(DnaPoint startLine, DnaPoint endLine)
         {
-            if (GraphicFunctions.LineIntersect(startLine, endLine, 
-                this.StartPoint, new DnaPoint(this.EndPoint.X,this.StartPoint.Y)))  return true;
+            if (GraphicFunctions.LineIntersect(startLine, endLine,
+                this.StartPoint, new DnaPoint(this.EndPoint.X, this.StartPoint.Y))) return true;
             if (GraphicFunctions.LineIntersect(startLine, endLine,
                 new DnaPoint(this.EndPoint.X, this.StartPoint.Y), this.EndPoint)) return true;
             if (GraphicFunctions.LineIntersect(startLine, endLine,

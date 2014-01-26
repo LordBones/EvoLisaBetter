@@ -50,7 +50,9 @@ namespace GenArt.Core.AST
 
         private TypeRendering _typeRendering = TypeRendering.software;
 
-        
+
+
+
         #region CanvasForRender
 
         DNARenderer _dnaRender = new DNARenderer(1, 1);
@@ -61,6 +63,8 @@ namespace GenArt.Core.AST
         }
 
         #endregion
+
+
 
         #region property
 
@@ -141,6 +145,8 @@ namespace GenArt.Core.AST
 
         public void InitFirstPopulation(Bitmap destImg, int EdgeTreshold)
         {
+            DnaDrawing.RecycleClear();
+
             this._generation = 0;
             this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
             this._destCanvas.ReduceNoiseMedian();
@@ -161,6 +167,7 @@ namespace GenArt.Core.AST
             _errorMatrix = new ErrorMatrix(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
 
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
+            _dnaRender.DestCanvas = this._destCanvas;
 
             //this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
@@ -238,7 +245,7 @@ namespace GenArt.Core.AST
 
             if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
             else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
-            else  renderType = DNARenderer.RenderType.SoftwareByRows;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitness) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittness;
 
 
             for (int index = 0; index < this._popSize; index++)
@@ -249,18 +256,24 @@ namespace GenArt.Core.AST
                 //);
                 //long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = FitnessCalculator.ComputeFittness_2d3(_destCanvas.Data, _dnaRender.Canvas.Data, _destCanvas.Width);
-                
+
                 //long fittness = _nativeFunc.ComputeFittness_2d(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
                 //long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
-                
+
                 //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
-                long fittness = _nativeFunc.ComputeFittness(_destCanvas.Data, _dnaRender.Canvas.Data);
+
+                long fittness = 0;
+                if (_typeRendering == TypeRendering.softwareByRowWithFitness)
+                    fittness = _dnaRender.Fittness;
+                else
+                    fittness = _nativeFunc.ComputeFittnessSquareSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = this._population[index].PointCount;
 
-                _fittness[index] = fittness + bloat*bloat;
+                _fittness[index] = fittness + bloat * bloat;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -291,12 +304,12 @@ namespace GenArt.Core.AST
             if (bestFittness <= this._currentBestFittness)
             {
                 this._currentBestFittness = bestFittness;
-                this._currentBest = this._population[bestIndex];
+                this._currentBest = this._population[bestIndex].Clone(); // klon nutny kvuli recyklaci primitiv
 
                 ComputeCurrentBestErrorMatrix();
             }
 
-            this._lastBest = this._population[bestIndex];
+            this._lastBest = this._population[bestIndex].Clone(); // klon nutny kvuli recyklaci primitiv
             this._lastBestFittness = bestFittness;
 
             //ComputeCurrentBestErrorMatrix(this.LastBest);
@@ -305,12 +318,12 @@ namespace GenArt.Core.AST
             if (_generation % 1 == 5)
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
-                _population[this._population.Length - 1] = this._currentBest;
+                _population[this._population.Length - 1] = this._currentBest.Clone(); // klon nutny kvuli recyklaci primitiv
             }
             else
             {
                 _fittness[this._population.Length - 1] = this._lastBestFittness;
-                _population[this._population.Length - 1] = this._lastBest;
+                _population[this._population.Length - 1] = this._lastBest.Clone(); // klon nutny kvuli recyklaci primitiv
             }
 
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
@@ -390,7 +403,7 @@ namespace GenArt.Core.AST
 
         private byte GetCurrentMutationRate2()
         {
-            if (_generation - _crLastGenerationNumber >= CONST_DynamicMutationGenInterval/1000)
+            if (_generation - _crLastGenerationNumber >= CONST_DynamicMutationGenInterval / 1000)
             {
                 if (this._currentBestFittness < (this._crLastBestFittness))// - this._crLastBestFittness / 1000))
                 {
@@ -400,13 +413,13 @@ namespace GenArt.Core.AST
                 else
                 {
                     if (this._crLastMutationRate == 0) this._crLastMutationRate = 255;
-                    else 
+                    else
                     {
                         //if (this._currentBestFittness == this._crLastBestFittness)
                         //    this._crLastMutationRate >>= 1;
                         //else
-                            this._crLastMutationRate--;
-                        
+                        this._crLastMutationRate--;
+
                     }
 
                     _crLastBestFittness = this._currentBestFittness;
@@ -492,6 +505,8 @@ namespace GenArt.Core.AST
                         _edgePoints
                         );
 
+                if (this._population[index] != null)
+                    DnaDrawing.RecyclePrimitive(this._population[index].Polygons);
                 this._population[index] = dna;
             }
 
@@ -602,7 +617,7 @@ namespace GenArt.Core.AST
             for (int i = 0; i < rankTable.Length; i++)
             {
                 double rnd = (i) / ((double)rankTable.Length - 1);
-               
+
                 double currentRank = Math.Pow(rnd, 2);
 
                 rankTable[i] = lastValue + (int)(currentRank * rankbasevalue);
@@ -888,5 +903,7 @@ namespace GenArt.Core.AST
         {
 
         }
+
+
     }
 }
