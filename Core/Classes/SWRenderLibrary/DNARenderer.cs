@@ -63,7 +63,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             if (typeRender == RenderType.Software) DnaRender_SoftwareTriangle(dna);
             else if (typeRender == RenderType.SoftwareByRows) DnaRender_SoftwareByRows(dna);
-            else if (typeRender == RenderType.SoftwareByRowsWithFittness) DnaRender_SoftwareByRowsWithFittness(dna);
+            else if (typeRender == RenderType.SoftwareByRowsWithFittness)
+                DnaRender_SoftwareByRowsWithFittness_Faster(dna);
+                //DnaRender_SoftwareByRowsWithFittness_Faster(dna);
             
         }
 
@@ -201,6 +203,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             Fittness = 0;
 
             DnaPrimitive [] dnaPolygons = dna.Polygons;
+ 
             int polyCount = dnaPolygons.Length;
             int pixelHigh = this._drawCanvas.HeightPixel;
             byte [] destCanvasData =  this._DestCanvas.Data;
@@ -259,6 +262,103 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
 
         }
+
+        private const int CONST_PART_Batch = 16;
+
+        private void DnaRender_SoftwareByRowsWithFittness_Faster(DnaDrawing dna)
+        {
+            Fittness = 0;
+
+            DnaPrimitive [] dnaPolygons = dna.Polygons;
+            
+            int polyCount = dnaPolygons.Length;
+            int pixelHigh = this._drawCanvas.HeightPixel;
+            byte [] destCanvasData =  this._DestCanvas.Data;
+            //int [] listRowsForFill = new int[dnaPolygons.Length * 3 + 3];
+            int listRowsFFIndex = 3;
+
+
+
+            int colorBackground = _black.ToArgb();
+
+            //listRowsForFill[0] = 0;
+            //listRowsForFill[1] = _drawCanvas.WidthPixel;
+            //listRowsForFill[2] = colorBackground;
+
+            DnaPrimitive [] partPrimitives = new DnaPrimitive[dnaPolygons.Length];
+            int countPartPrimitives = 0;
+            
+            int partRow = 0;
+
+            int rowIndex = 0;
+            int partRowCounter = CONST_PART_Batch;
+
+            byte [] tmp = this._oneRenderRow;
+
+            for (int y = 0; y < pixelHigh; y += 1)
+            {
+                if (partRowCounter == CONST_PART_Batch)
+                {
+                    countPartPrimitives = 0;
+
+                    for (int i =0; i < dnaPolygons.Length; i++)
+                    {
+                        int startY = -1,endY = -1;
+                        dnaPolygons[i].GetRangeHighSize(ref startY, ref endY);
+
+                        if (!((partRow > startY && partRow > endY) ||
+                            (partRow + CONST_PART_Batch <= startY && partRow + CONST_PART_Batch <= endY)))
+                        {
+                            partPrimitives[countPartPrimitives++] = dnaPolygons[i];
+                        }
+                    }
+
+
+                    partRowCounter = 1;
+                    partRow += CONST_PART_Batch;
+                }
+                else
+                    partRowCounter++;
+
+                _nativefunc.ClearFieldByColor(tmp, 0, _drawCanvas.WidthPixel, colorBackground);
+
+                for (int i = 0; i < countPartPrimitives; i++)
+                {
+                    int startX = 0;
+                    int endX = 0;
+
+                    DnaPrimitive primitive = partPrimitives[i];
+
+
+                    if (primitive.GetRangeWidthByRow(y, ref startX, ref endX))
+                    {
+                        /*listRowsForFill[listRowsFFIndex] =  startX;
+                        listRowsForFill[listRowsFFIndex + 1] = endX - startX + 1;
+                        listRowsForFill[listRowsFFIndex + 2] = (int)primitive.Brush.ColorAsUInt;
+                        listRowsFFIndex += 3;*/
+
+                        _nativefunc.NewRowApplyColor64(tmp,
+                    startX * 4, endX - startX + 1,
+                    (int)primitive.Brush.ColorAsUInt);
+                    }
+                }
+
+                //Fittness += FitnessCalculator.ComputeFittnessLine_SumSquare(tmp, _DestCanvas.Data, rowIndex);
+                Fittness += _nativefunc.ComputeFittnessSquareLineSSE(tmp, destCanvasData, rowIndex);
+                /*
+                //if ((y & 1) == 1)
+                {
+                    _nativefunc.RenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, tmp);
+                    //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._oneRenderRow);
+                    listRowsFFIndex = 3;
+                    
+                }*/
+
+                rowIndex += _drawCanvas.Width * 1;
+            }
+
+        }
+
 
    
 
