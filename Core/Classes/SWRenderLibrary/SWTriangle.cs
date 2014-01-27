@@ -21,7 +21,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         }
 
 
-        public void RenderTriangle(DnaPoint[] points, CanvasBGRA canvas, Color color)
+        public void RenderTriangle(DnaPoint[] points, CanvasBGRA canvas, int color)
         {
             short x1 = points[0].X;
             short y1 = points[0].Y;
@@ -35,7 +35,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        public void RenderTriangleStrip(DnaPoint[] points, CanvasBGRA canvas, Color color)
+        public void RenderTriangleStrip(DnaPoint[] points, CanvasBGRA canvas, int color)
         {
             for (int i = 0; i <= points.Length - 3; i++)
             {
@@ -79,24 +79,23 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, Color color)
+        private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
         {
 
             nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
-                px0, py0, px1, py1, px2, py2, color.ToArgb(), color.A);
+                px0, py0, px1, py1, px2, py2, color);
 
             return;
 
-            int alpha = (color.A * 256) / 255;
+            //int alpha = (color.A * 256) / 255;
 
-            int invAlpha = 256 - alpha;
+            //int invAlpha = 256 - alpha;
 
-            int b = color.B * alpha;
-            int g = color.G * alpha;
-            int r = color.R * alpha;
-
-            int rgba = color.ToArgb();
-
+            //int b = color.B * alpha;
+            //int g = color.G * alpha;
+            //int r = color.R * alpha;
+            int alpha255 = (color >> 24) & 0xff;
+            
             int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
             v0x = px1 - px0;
@@ -181,7 +180,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 int currIndex = rowIndex+start*4;
 
                     
-                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, rgba, color.A);
+                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, color, alpha255);
 
                     
 

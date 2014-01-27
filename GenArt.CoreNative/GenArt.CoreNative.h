@@ -110,12 +110,12 @@ namespace GenArtCoreNative {
         }
 
         void RenderTriangleNew(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
-            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color, int alpha255)
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 			
 			FastFunctions::RenderTriangleNew(pinCanvas,canvasWidth,canvasHeight,
-                px0,py0,px1,py1,px2,py2,color,alpha255);
+                px0,py0,px1,py1,px2,py2,color);
         }
 
         ///

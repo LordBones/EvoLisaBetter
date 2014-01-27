@@ -336,7 +336,7 @@ namespace GenArt
                     polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, dna.Polygons[index].Brush.BrushColor);
 
                     triangleTest.RenderTriangle(
-                        dna.Polygons[index].Points, canvasTest, dna.Polygons[index].Brush.BrushColor);
+                        dna.Polygons[index].Points, canvasTest, (int)dna.Polygons[index].Brush.ColorAsUInt);
 
                     //polyTest.FillPolygon(points, canvasTest, dna.Polygons[index].Brush.BrushColor);
 

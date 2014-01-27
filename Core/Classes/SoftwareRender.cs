@@ -191,7 +191,7 @@ namespace GenArt.Core.Classes
                 //this._drawPolygon.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 
                 //this._drawTriangle.RenderTriangle(points[0],points[1],points[2], data, polygon.Brush.BrushColor);
-                this._drawTriangle.RenderTriangle(polygon.Points, drawCanvas, polygon.Brush.BrushColor);
+                this._drawTriangle.RenderTriangle(polygon.Points, drawCanvas, (int)polygon.Brush.ColorAsUInt);
 
                 //this._drawPolygonCorrect.FillPolygon(polygon.Points, data, polygon.Brush.BrushColor);
 

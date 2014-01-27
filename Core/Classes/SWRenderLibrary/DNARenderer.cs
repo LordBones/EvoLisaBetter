@@ -101,11 +101,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //FillPixels += polygon.GetPixelSizePolygon();
                 if (polygon is DnaPolygon)
                 {
-                    this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
+                    this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvas, (int)polygon.Brush.ColorAsUInt);
                 }
                 else if (polygon is DnaTriangleStrip)
                 {
-                    this._drawTriangle.RenderTriangleStrip(polygon.Points, _drawCanvas, polygon.Brush.BrushColor);
+                    this._drawTriangle.RenderTriangleStrip(polygon.Points, _drawCanvas, (int)polygon.Brush.ColorAsUInt);
                 }
                 else if (polygon is DnaRectangle)
                 {

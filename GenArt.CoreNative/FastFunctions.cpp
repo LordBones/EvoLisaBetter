@@ -1286,13 +1286,13 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
 }
 
 void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-                                      short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha255)
+                                      short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
 {
 
     //alpha = (alpha * 256) / 255;
 
 
-
+    int alpha255 = (color >> 24)&0xff;
     int rgba = color;
 
     int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
