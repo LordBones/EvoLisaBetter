@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using GenArt.Core.Classes;
 using GenArt.Core.AST;
+using GenArt.Core.Classes.Misc;
 
 namespace GenArt.AST
 {
@@ -23,7 +24,9 @@ namespace GenArt.AST
 
         #region RecycleElements
 
-        private static Stack<DnaPolygon> _RecyclePool_Polygon = new Stack<DnaPolygon>();
+        private static ObjectRecyclerTS<DnaPolygon> _RecyclePool_Polygon = new ObjectRecyclerTS<DnaPolygon>();
+        private static ObjectRecyclerTS<DnaRectangle> _RecyclePool_Rectangle = new ObjectRecyclerTS<DnaRectangle>();
+
         #endregion
 
         public int PointCount
@@ -90,13 +93,22 @@ namespace GenArt.AST
                 DnaPolygon tmpPoly = Polygons[index] as DnaPolygon;
                 if (tmpPoly != null)
                 {
-                    DnaPolygon recyclePolygon = Helper_GetRecyclePolygon();
+                    DnaPolygon recyclePolygon = _RecyclePool_Polygon.GetNewOrRecycle();
                     tmpPoly.Copy(recyclePolygon);
                     drawing.Polygons[index] = recyclePolygon;
                     continue;
                 }
 
-                drawing.Polygons[index] = (DnaPrimitive)Polygons[index].Clone();
+                DnaRectangle tmpRect = Polygons[index] as DnaRectangle;
+                if (tmpRect != null)
+                {
+                    DnaRectangle recycleRectangle = _RecyclePool_Rectangle.GetNewOrRecycle();
+                    tmpRect.Copy(recycleRectangle);
+                    drawing.Polygons[index] = recycleRectangle;
+                    continue;
+                }
+
+                drawing.Polygons[index] = (DnaPrimitive)Polygons[index].Clone();  
             }
 
             return drawing;
@@ -114,7 +126,7 @@ namespace GenArt.AST
             else if (Tools.WillMutate(Settings.ActiveMovePolygonMutationRate))
                 SwapPolygon();
             
-            
+             
             {
                 for (int index = 0; index < Polygons.Length; index++)
                     Polygons[index].Mutate(0,this, destImage);
@@ -158,7 +170,7 @@ namespace GenArt.AST
                      //           if (tmp == 2) 
                        //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
                         //else 
-                        //    AddRectangle(mutationRate, errorMatrix, null, edgePoints);
+                           // AddRectangle(mutationRate, errorMatrix, null, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -603,7 +615,7 @@ namespace GenArt.AST
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
                     //var newPolygon = new DnaPolygon();
-                    DnaPolygon newPolygon =  Helper_GetRecyclePolygon();
+                    DnaPolygon newPolygon = _RecyclePool_Polygon.GetNewOrRecycle();
 
                     newPolygon.Init(mutationRate,errorMatrix, edgePoints);
                     //newPolygon.Init(null);
@@ -698,7 +710,7 @@ namespace GenArt.AST
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
-                    var newRectangle = new DnaRectangle();
+                var newRectangle = _RecyclePool_Rectangle.GetNewOrRecycle();
                     newRectangle.Init(mutationRate,errorMatrix, edgePoints);
                     
 
@@ -854,18 +866,7 @@ namespace GenArt.AST
         }
 
         #region Helpers
-        private static object _RecyclePoolLock = new object();
-        private static DnaPolygon Helper_GetRecyclePolygon()
-        {
-            lock (_RecyclePoolLock) 
-            {
-                if (_RecyclePool_Polygon.Count > 0)
-                    return _RecyclePool_Polygon.Pop();
-            }
-
-            return new DnaPolygon();
-        }
-
+       
         private static void Helper_RecyclePrimitiveSave(DnaPrimitive [] primitives)
         {
             for(int i = 0;i < primitives.Length;i++)
@@ -878,19 +879,18 @@ namespace GenArt.AST
         {
             DnaPolygon poly = primitive as DnaPolygon;
             if (poly != null)
-                lock (_RecyclePoolLock)
-                {
-                    _RecyclePool_Polygon.Push(poly);
-                }
-
+                    _RecyclePool_Polygon.PutForRecycle(poly);
+            DnaRectangle rect = primitive as DnaRectangle;
+            if (rect != null)
+                _RecyclePool_Rectangle.PutForRecycle(rect);
+       
         }
 
         private static void Helper_RecyclePrimitiveClear()
         {
-            lock (_RecyclePoolLock)
-            {
-                _RecyclePool_Polygon.Clear();
-            }
+
+            _RecyclePool_Polygon.Clear();
+            _RecyclePool_Rectangle.Clear();
         }
 
 

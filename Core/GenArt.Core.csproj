@@ -109,6 +109,7 @@
     <Compile Include="Classes\FitnessCalculator.cs" />
     <Compile Include="Classes\Misc\HSLColor.cs" />
     <Compile Include="Classes\MatchStatistics.cs" />
+    <Compile Include="Classes\Misc\ObjectRecyclerTS.cs" />
     <Compile Include="Classes\PolygonColorPredict.cs" />
     <Compile Include="Classes\RederWPF.cs" />
     <Compile Include="Classes\Renderer.cs" />

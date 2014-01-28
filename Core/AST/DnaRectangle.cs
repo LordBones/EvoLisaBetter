@@ -60,6 +60,17 @@ namespace GenArt.Core.AST
             return newObject;
         }
 
+        public void Copy(DnaRectangle destRec)
+        {
+
+            destRec.Brush = Brush;
+            destRec.UniqueId = UniqueId;
+
+
+            destRec.StartPoint = StartPoint;
+            destRec.EndPoint = EndPoint;
+        }
+
         public override int GetCountPoints()
         {
             return 2;
