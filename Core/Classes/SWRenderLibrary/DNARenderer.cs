@@ -264,7 +264,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         }
 
         private const int CONST_PART_Batch = 16;
-
+        DnaPrimitive [] partPrimitives = new DnaPrimitive[1000];
         private void DnaRender_SoftwareByRowsWithFittness_Faster(DnaDrawing dna)
         {
             Fittness = 0;
@@ -285,7 +285,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //listRowsForFill[1] = _drawCanvas.WidthPixel;
             //listRowsForFill[2] = colorBackground;
 
-            DnaPrimitive [] partPrimitives = new DnaPrimitive[dnaPolygons.Length];
+            
             int countPartPrimitives = 0;
             
             int partRow = 0;

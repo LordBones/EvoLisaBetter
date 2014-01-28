@@ -575,16 +575,6 @@ namespace GenArt.Core.AST
 
         private static void RankTableFill(long[] fittness, int[] rankTable, out int MaxValueRankTable)
         {
-            int [] rankIndexSorted = new int[fittness.Length];
-
-            for (int i = 0; i < rankIndexSorted.Length; i++)
-            {
-                rankIndexSorted[i] = i;
-            }
-
-            //Array.Sort(rankIndexSorted, fittness);
-            rankIndexSorted = rankIndexSorted.OrderBy(x => fittness[x], new compare()).ToArray();
-
             int nextRankValue = 100;
             for (int i = 0; i < rankTable.Length; i++)
             {
@@ -597,16 +587,6 @@ namespace GenArt.Core.AST
 
         private static void RankTableFill2(long[] fittness, int[] rankTable, out int MaxValueRankTable)
         {
-            int [] rankIndexSorted = new int[fittness.Length];
-
-            for (int i = 0; i < rankIndexSorted.Length; i++)
-            {
-                rankIndexSorted[i] = i;
-            }
-
-            //Array.Sort(rankIndexSorted, fittness);
-            rankIndexSorted = rankIndexSorted.OrderBy(x => fittness[x], new compare()).ToArray();
-
             int rankbasevalue = 10000;
             double sp = 1.9;
             // implementace vzorce
@@ -630,16 +610,6 @@ namespace GenArt.Core.AST
 
         private static void RankTableFill3(long[] fittness, int[] rankTable, out int MaxValueRankTable)
         {
-            int [] rankIndexSorted = new int[fittness.Length];
-
-            for (int i = 0; i < rankIndexSorted.Length; i++)
-            {
-                rankIndexSorted[i] = i;
-            }
-
-            //Array.Sort(rankIndexSorted, fittness);
-            rankIndexSorted = rankIndexSorted.OrderBy(x => fittness[x], new compare()).ToArray();
-
             int rankbasevalue = 10000;
             double sp = 1.9;
             // implementace vzorce

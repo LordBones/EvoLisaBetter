@@ -801,7 +801,7 @@ namespace GenArt.AST
 
         private List<int> GetRNDPolygonListIndex_ByErrorMatrix(ErrorMatrix errorMatrix)
         {
-            List<int> result = new List<int>(16);
+            List<int> result = new List<int>(2);
 
             if (this.Polygons.Length == 1)
             {
