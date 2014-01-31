@@ -225,13 +225,14 @@ namespace GenArt.Core.AST
         public void ExecuteGeneration()
         {
             GenerateNewPopulationByMutation();
+            //GenerateNewPopulationRoulete();
 
             ComputeFittness();
 
             UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();
-            //GenerateNewPopulationRoulete();
+            
 
 
             //MutatePopulation();
@@ -315,7 +316,7 @@ namespace GenArt.Core.AST
             //ComputeCurrentBestErrorMatrix(this.LastBest);
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 5)
+            if (_generation % 1 == 0)
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
                 _population[this._population.Length - 1] = this._currentBest.Clone(); // klon nutny kvuli recyklaci primitiv
@@ -520,32 +521,42 @@ namespace GenArt.Core.AST
             int maxNormalizeValue = this._fittness.Length * 100000;
             //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
             //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
-            RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
 
             DnaDrawing [] tmpPolulation = this._population;
             this._population = this._lastPopulation;
             this._lastPopulation = tmpPolulation;
 
+            byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
+             GetCurrentMutationRate();
 
             for (int index = 0; index < _popSize; index++)
             {
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
+                indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
 
 
                 int indexParent2 = indexParent1;
 
-                while (indexParent1 == indexParent2)
-                    indexParent2 = RouletteVheelParrentIndex(Tools.GetRandomNumber(0, maxNormalizeValue + 1), this._rouleteTable);
+                while (indexParent1 == indexParent2) 
+                {
+                    int tmp = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                    indexParent2 = RankVheelParrentIndex(tmp, this._rankTable);
+                }
 
                 //newPopulation[index] = CrossoverBasic(this._population[indexParent1], this._population[indexParent2]);
 
                 DnaDrawing  dna = CrossoverOnePoint(this._lastPopulation[indexParent1], this._lastPopulation[indexParent2]);
 
                 while (!dna.IsDirty)
-                    dna.MutateBetter(0, this._errorMatrix, this._destCanvas, _edgePoints);
+                    dna.MutateBetter(currMutatioRate, this._errorMatrix, this._destCanvas, _edgePoints);
+
+                if (this._population[index] != null)
+                    DnaDrawing.RecyclePrimitive(this._population[index].Polygons);
 
                 this._population[index] = dna;
+
             }
 
 

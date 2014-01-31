@@ -50,6 +50,7 @@ namespace GenArt.Core.Classes.Misc
 
             try
             {
+                if(_objects.Count < 1500)
                 _objects.Push(pobject);
             }
             finally
@@ -90,17 +91,18 @@ namespace GenArt.Core.Classes.Misc
 
         private void Helper_UnlockSection()
         {
+            //_isLock = CONST_UNLOCK;
             if (Interlocked.CompareExchange(ref _isLock, CONST_UNLOCK, CONST_LOCK) != CONST_LOCK)
             {
                 throw new Exception("Toto nesmi nastat");
 
-                /*var spinner = new SpinWait();
+                var spinner = new SpinWait();
 
                 do
                 {
                     spinner.SpinOnce();
                 }
-                while (Interlocked.CompareExchange(ref _isLock, CONST_UNLOCK, CONST_LOCK) != CONST_LOCK);*/
+                while (Interlocked.CompareExchange(ref _isLock, CONST_UNLOCK, CONST_LOCK) != CONST_LOCK);
             }
         }
     }
