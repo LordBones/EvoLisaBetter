@@ -26,6 +26,13 @@ namespace GenArt.Core.AST
         private DnaDrawing [] _lastPopulation;
         private DnaDrawing [] _population;
 
+        private byte [][] _PopulationCompressDNA;
+        private byte [][] _lastPopulationCompressDNA;
+        private byte [] _CurrentBestCompressDNA;
+        private byte [] _LastBestCompressDNA;
+
+
+
         private CanvasBGRA _destCanvas = new CanvasBGRA(1, 1);
 
         private NativeFunctions _nativeFunc = new NativeFunctions();
@@ -115,6 +122,11 @@ namespace GenArt.Core.AST
 
             _population = new DnaDrawing[popSize + 1];
             _lastPopulation = new DnaDrawing[popSize + 1];
+
+            _PopulationCompressDNA = new byte [popSize + 1][];
+            _lastPopulationCompressDNA = new byte [popSize + 1][];
+
+
             _rouleteTable = new int[popSize + 1];
             _rankTable = new int[popSize + 1];
             _diffFittness = new long[popSize + 1];
@@ -202,6 +214,9 @@ namespace GenArt.Core.AST
             _crLastMutationRate = 255;
             _crLastGenerationNumber = 0;
             _crLastBestFittness = long.MaxValue;
+
+            // compress version dna
+            Helper_InitPoluplation_CompressDNA();
         }
 
         private static DnaBrush ComputeBackgroundColor(CanvasBGRA image)
@@ -228,17 +243,23 @@ namespace GenArt.Core.AST
             //GenerateNewPopulationRoulete();
 
             ComputeFittness();
-
             UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();
+         
+            this._generation++;
+        }
+
+        public void ExecuteGenerationPure()
+        {
+            Helper_GenerateNewPopulation_CompressDNA();
             
-
-
-            //MutatePopulation();
+            Helper_ComputeFittness_CompressDNA();
+            Helper_UpdateStatsByFittness_CompressDNA();
 
             this._generation++;
         }
+
 
         private void ComputeFittness()
         {
@@ -461,10 +482,8 @@ namespace GenArt.Core.AST
             //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
             RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
 
-            DnaDrawing [] tmpPolulation = this._population;
-            this._population = this._lastPopulation;
-            this._lastPopulation = tmpPolulation;
-
+            Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
+           
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
 
@@ -524,10 +543,8 @@ namespace GenArt.Core.AST
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
             RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
 
-            DnaDrawing [] tmpPolulation = this._population;
-            this._population = this._lastPopulation;
-            this._lastPopulation = tmpPolulation;
-
+            Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
+           
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
 
@@ -868,6 +885,195 @@ namespace GenArt.Core.AST
 
             return result;
         }
+
+        #region dna compressed genetic algorithm
+
+        private void Helper_InitPoluplation_CompressDNA()
+        {
+            for (int i = 0; i < _PopulationCompressDNA.Length; i++)
+            {
+                byte [] dna = new byte[1024];
+                for (int di = 0; di < dna.Length; di++)
+                {
+                    dna[di] = (byte)Tools.GetRandomNumber(0, 256);
+                }
+
+                _PopulationCompressDNA[i] = dna;
+            }
+        }
+
+        private void Helper_ComputeFittness_CompressDNA()
+        {
+            DNARenderer.RenderType renderType = DNARenderer.RenderType.Software;
+
+            if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitness) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittness;
+
+
+            for (int index = 0; index < this._popSize; index++)
+            {
+                _dnaRender.RenderDNA(this._population[index], renderType);
+
+                //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
+                //);
+                //long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = FitnessCalculator.ComputeFittness_2d3(_destCanvas.Data, _dnaRender.Canvas.Data, _destCanvas.Width);
+
+                //long fittness = _nativeFunc.ComputeFittness_2d(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
+                //long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
+
+                //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
+                //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
+
+                long fittness = 0;
+                if (_typeRendering == TypeRendering.softwareByRowWithFitness)
+                    fittness = _dnaRender.Fittness;
+                else
+                    fittness = _nativeFunc.ComputeFittnessSquareSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
+
+                long bloat = this._population[index].PointCount;
+
+                _fittness[index] = fittness + bloat * bloat;
+
+                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
+                //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
+            }
+        }
+
+        private void Helper_UpdateStatsByFittness_CompressDNA()
+        {
+            int populationLastIndex = this._PopulationCompressDNA.Length - 1;
+
+            long bestFittness = long.MaxValue;
+            long WorstFittness = 0;
+            int bestIndex = -1;
+            for (int index = 0; index < populationLastIndex; index++)
+            {
+                if (_fittness[index] > WorstFittness)
+                {
+                    WorstFittness = this._fittness[index];
+                }
+
+                if (this._fittness[index] < bestFittness)
+                {
+                    bestFittness = this._fittness[index];
+                    bestIndex = index;
+                }
+            }
+
+            if (bestFittness <= this._currentBestFittness)
+            {
+                this._currentBestFittness = bestFittness;
+                this._CurrentBestCompressDNA = this._PopulationCompressDNA[bestIndex];
+            }
+
+            this._LastBestCompressDNA = this._PopulationCompressDNA[bestIndex]; 
+            this._lastBestFittness = bestFittness;
+
+            //ComputeCurrentBestErrorMatrix(this.LastBest);
+
+            // aplikovani pridani nejlepsiho do kolekce
+            if (_generation % 1 == 5)
+            {
+                _fittness[populationLastIndex] = this._currentBestFittness;
+                _PopulationCompressDNA[populationLastIndex] = this._CurrentBestCompressDNA;
+            }
+            else
+            {
+                _fittness[populationLastIndex] = this._lastBestFittness;
+                _PopulationCompressDNA[populationLastIndex] = this._LastBestCompressDNA; 
+            }
+
+            _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
+
+
+        }
+
+        private void Helper_GenerateNewPopulation_CompressDNA()
+        {
+            int maxNormalizeValue = this._fittness.Length * 100000;
+            //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
+            //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
+            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
+            RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
+
+            Tools.swap<byte [][]>(ref this._PopulationCompressDNA,ref this._lastPopulationCompressDNA);
+           
+            byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
+             GetCurrentMutationRate();
+
+            for (int index = 0; index < _popSize; index++)
+            {
+                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
+
+
+                int indexParent2 = indexParent1;
+
+                while (indexParent1 == indexParent2)
+                {
+                    int tmp = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                    indexParent2 = RankVheelParrentIndex(tmp, this._rankTable);
+                }
+
+                byte []  dna = Helper_CrossoverOnePoint_CompressDNA(
+                    this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
+
+                Helper_Mutate_CompressDna(ref dna);
+                
+                this._PopulationCompressDNA[index] = dna;
+
+            }
+
+
+
+
+        }
+
+        private byte [] Helper_CrossoverOnePoint_CompressDNA(byte [] parent1, byte [] parent2)
+        {
+            //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
+
+            double crossLine = 0.3;
+
+
+            int countCrossGenP1 = (int)(parent1.Length * crossLine);
+            int countCrossGenP2 = (int)(parent2.Length * (crossLine));
+            int newDnaSize = countCrossGenP1 + (parent2.Length - countCrossGenP2 * 1);
+
+            byte [] dnaResult = new byte[newDnaSize];
+
+            int dnaIndex = 0;
+
+            int maxIndex = Math.Max(parent1.Length, parent2.Length);
+
+            for (int index = 0; index < countCrossGenP1; index++)
+            {
+                dnaResult[dnaIndex++] = parent1[index];
+            }
+
+            for (int index = countCrossGenP2; index < parent2.Length; index++)
+            {
+                dnaResult[dnaIndex++] = parent2[index];
+            }
+
+            return dnaResult;
+        }
+
+        private void Helper_Mutate_CompressDna(ref byte [] dna)
+        {
+            if (dna.Length > 0)
+            {
+                dna[Tools.GetRandomNumber(0, dna.Length)] = (byte)Tools.GetRandomNumber(0, 256);
+            }
+        }
+
+        #endregion
 
         //private void MutatePopulation()
         //{
