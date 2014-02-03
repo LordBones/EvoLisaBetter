@@ -316,7 +316,7 @@ namespace GenArt.Core.AST
             //ComputeCurrentBestErrorMatrix(this.LastBest);
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 0)
+            if (_generation % 1 == 5)
             {
                 _fittness[this._population.Length - 1] = this._currentBestFittness;
                 _population[this._population.Length - 1] = this._currentBest.Clone(); // klon nutny kvuli recyklaci primitiv

@@ -82,10 +82,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
         {
 
-            nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
-                px0, py0, px1, py1, px2, py2, color);
+            //nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
+            //    px0, py0, px1, py1, px2, py2, color);
 
-            return;
+            //return;
 
             //int alpha = (color.A * 256) / 255;
 
@@ -147,7 +147,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     
                     int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
 
-                    if (isCrossLine1 >= 0)
+                    if (isCrossLine1 >= 0 )
                     {
                         int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
                         int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
@@ -175,7 +175,12 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 if (start > end) Tools.swap<int>(ref start, ref end);
 
-                
+                if (end >= 200)
+                {
+                    isCrossLine0++;
+                    int kkk = 454;
+                    continue;
+                }
 
                 int currIndex = rowIndex+start*4;
 
