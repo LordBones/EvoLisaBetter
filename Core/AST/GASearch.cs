@@ -26,10 +26,10 @@ namespace GenArt.Core.AST
         private DnaDrawing [] _lastPopulation;
         private DnaDrawing [] _population;
 
-        private byte [][] _PopulationCompressDNA;
+        private byte [][] _populationCompressDNA;
         private byte [][] _lastPopulationCompressDNA;
-        private byte [] _CurrentBestCompressDNA;
-        private byte [] _LastBestCompressDNA;
+        private byte [] _currentBestCompressDNA;
+        private byte [] _lastBestCompressDNA;
 
 
 
@@ -123,7 +123,7 @@ namespace GenArt.Core.AST
             _population = new DnaDrawing[popSize + 1];
             _lastPopulation = new DnaDrawing[popSize + 1];
 
-            _PopulationCompressDNA = new byte [popSize + 1][];
+            _populationCompressDNA = new byte [popSize + 1][];
             _lastPopulationCompressDNA = new byte [popSize + 1][];
 
 
@@ -890,7 +890,7 @@ namespace GenArt.Core.AST
 
         private void Helper_InitPoluplation_CompressDNA()
         {
-            for (int i = 0; i < _PopulationCompressDNA.Length; i++)
+            for (int i = 0; i < _populationCompressDNA.Length; i++)
             {
                 byte [] dna = new byte[1024];
                 for (int di = 0; di < dna.Length; di++)
@@ -898,7 +898,7 @@ namespace GenArt.Core.AST
                     dna[di] = (byte)Tools.GetRandomNumber(0, 256);
                 }
 
-                _PopulationCompressDNA[i] = dna;
+                _populationCompressDNA[i] = dna;
             }
         }
 
@@ -913,7 +913,7 @@ namespace GenArt.Core.AST
 
             for (int index = 0; index < this._popSize; index++)
             {
-                _dnaRender.RenderDNA(this._population[index], renderType);
+                _dnaRender.RenderDNA_CompressDNA(this._populationCompressDNA[index], renderType);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
                 //);
@@ -947,7 +947,7 @@ namespace GenArt.Core.AST
 
         private void Helper_UpdateStatsByFittness_CompressDNA()
         {
-            int populationLastIndex = this._PopulationCompressDNA.Length - 1;
+            int populationLastIndex = this._populationCompressDNA.Length - 1;
 
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
@@ -969,24 +969,27 @@ namespace GenArt.Core.AST
             if (bestFittness <= this._currentBestFittness)
             {
                 this._currentBestFittness = bestFittness;
-                this._CurrentBestCompressDNA = this._PopulationCompressDNA[bestIndex];
+                this._currentBestCompressDNA = this._populationCompressDNA[bestIndex];
+                this._currentBest = Helper_TranslateDNA(this._currentBestCompressDNA);
+
             }
 
-            this._LastBestCompressDNA = this._PopulationCompressDNA[bestIndex]; 
+            this._lastBestCompressDNA = this._populationCompressDNA[bestIndex]; 
             this._lastBestFittness = bestFittness;
+            this._lastBest = Helper_TranslateDNA(this._lastBestCompressDNA);
 
             //ComputeCurrentBestErrorMatrix(this.LastBest);
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 5)
+            if (_generation % 1 == 0)
             {
                 _fittness[populationLastIndex] = this._currentBestFittness;
-                _PopulationCompressDNA[populationLastIndex] = this._CurrentBestCompressDNA;
+                _populationCompressDNA[populationLastIndex] = this._currentBestCompressDNA;
             }
             else
             {
                 _fittness[populationLastIndex] = this._lastBestFittness;
-                _PopulationCompressDNA[populationLastIndex] = this._LastBestCompressDNA; 
+                _populationCompressDNA[populationLastIndex] = this._lastBestCompressDNA; 
             }
 
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
@@ -1002,7 +1005,7 @@ namespace GenArt.Core.AST
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
             RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
 
-            Tools.swap<byte [][]>(ref this._PopulationCompressDNA,ref this._lastPopulationCompressDNA);
+            Tools.swap<byte [][]>(ref this._populationCompressDNA,ref this._lastPopulationCompressDNA);
            
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
@@ -1026,7 +1029,7 @@ namespace GenArt.Core.AST
 
                 Helper_Mutate_CompressDna(ref dna);
                 
-                this._PopulationCompressDNA[index] = dna;
+                this._populationCompressDNA[index] = dna;
 
             }
 
@@ -1067,10 +1070,72 @@ namespace GenArt.Core.AST
 
         private void Helper_Mutate_CompressDna(ref byte [] dna)
         {
-            if (dna.Length > 0)
+            /*if (dna.Length > 0)
             {
                 dna[Tools.GetRandomNumber(0, dna.Length)] = (byte)Tools.GetRandomNumber(0, 256);
+                
+            }*/
+
+            for (int i =0; i < dna.Length; i++)
+            {
+                if (Tools.GetRandomNumber(0, 1000) < 1)
+                {
+                    dna[i] = (byte)Tools.GetRandomNumber(0, 256);
+                }
             }
+        }
+
+        private DnaDrawing Helper_TranslateDNA(byte [] dna)
+        {
+            DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
+
+            int maxWidht = this._destCanvas.WidthPixel-1;
+            int maxHeight = this._destCanvas.HeightPixel-1;
+
+
+            List<DnaPrimitive> primitives = new List<DnaPrimitive>();
+            int index = 0;
+            while (index < dna.Length)
+            {
+                if ((dna[index]&3) < 1 && 
+                    primitives.Count < Settings.ActivePolygonsMax &&
+                    index + 4 + 12 + 1 <= dna.Length)
+                {
+                    DnaPolygon triangle = new DnaPolygon();
+                    triangle.Brush.SetByColor(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
+
+                    DnaPoint [] points = new DnaPoint[3];
+
+                    int x = (((dna[index + 5] << 8) + dna[index + 6]) * maxWidht) / 65535;
+                    int y = (((dna[index + 7] << 8) + dna[index + 8]) * maxHeight) / 65535;
+
+                    points[0] = new DnaPoint((short)x, (short)y);
+
+                    x = (((dna[index + 9] << 8) + dna[index + 10]) * maxWidht) / 65535;
+                    y = (((dna[index + 11] << 8) + dna[index + 12]) * maxHeight) / 65535;
+
+                    points[1] = new DnaPoint((short)x, (short)y);
+
+                    x = (((dna[index + 13] << 8) + dna[index + 14]) * maxWidht) / 65535;
+                    y = (((dna[index + 15] << 8) + dna[index + 16]) * maxHeight) / 65535;
+
+                    points[2] = new DnaPoint((short)x, (short)y);
+
+                    triangle._Points = points;
+
+                    primitives.Add(triangle);
+
+                    index +=4 + 12 + 1;
+                }
+                else
+                {
+                    index++;
+                }
+
+            }
+
+            result.Polygons = primitives.ToArray();
+            return result;
         }
 
         #endregion

@@ -26,6 +26,11 @@ namespace GenArt.AST
         public System.Windows.Media.Brush brushWPF { get { return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(Alpha, Red, Green, Blue)); } }
 
 
+        public static uint GetColorAsUInt(int alpha, int red, int green, int blue)
+        {
+            return (uint)((alpha << 24) | (red << 16) | (green << 8) | (blue));
+        }
+
         public DnaBrush(int alpha, int red, int green, int blue)
         {
             ColorAsUInt = 0;
@@ -60,6 +65,15 @@ namespace GenArt.AST
             this.Blue = color.B;
             this.Green = color.G;
             this.Red = color.R;
+        }
+
+        public void SetByColor(byte a , byte r, byte g, byte b)
+        {
+            this.Alpha = a;
+            this.Blue = b;
+            this.Green = g;
+            this.Red = r;
+            
         }
 
         private DnaBrush Clone()

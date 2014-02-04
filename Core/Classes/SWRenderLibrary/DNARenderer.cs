@@ -69,6 +69,18 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             
         }
 
+        public void RenderDNA_CompressDNA(byte [] compressDNA, RenderType typeRender)
+        {
+            if (typeRender == RenderType.Software) DnaRender_SoftwareTriangle(compressDNA);
+            else throw new NotSupportedException();
+            //else if (typeRender == RenderType.SoftwareByRows) 
+            //    DnaRender_SoftwareByRows(dna);
+            //else if (typeRender == RenderType.SoftwareByRowsWithFittness)
+            //    DnaRender_SoftwareByRowsWithFittness_Faster(dna);
+            //DnaRender_SoftwareByRowsWithFittness_Faster(dna);
+
+        }
+
         private void DnaRender_SoftwareTriangle(DnaDrawing dna)
         {
             
@@ -134,6 +146,57 @@ namespace GenArt.Core.Classes.SWRenderLibrary
              this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(10, 150), Height = 49, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
              this._drawElipse.Render(new DnaElipse() { StartPoint = new DnaPoint(36, 150), Height = 48, Width = 25, Brush = new DnaBrush(255, 0, 255, 0) }, _drawCanvas);
           */
+        }
+
+        private void DnaRender_SoftwareTriangle(byte [] dna)
+        {
+            //nativefunc.ClearFieldByColor(this._drawCanvas.Data, dna.BackGround.BrushColor.ToArgb());
+
+            //FillPixels += this._drawCanvas.CountPixels;
+            //_drawCanvas.FastClearColor(dna.BackGround.BrushColor);
+
+            _nativefunc.ClearFieldByColor(this._drawCanvas.Data, _blackInt);
+
+            int maxWidth = this._drawCanvas.WidthPixel-1;
+            int maxHeight = this._drawCanvas.HeightPixel-1;
+
+            DnaPoint [] points = new DnaPoint[3];
+
+            int index = 0;
+            int countPrimitives = 0;
+            while (index < dna.Length)
+            {
+                if ((dna[index]&3) < 1 && 
+                    countPrimitives < Settings.ActivePolygonsMax &&
+                    index + 4 + 12 + 1 <= dna.Length)
+                {
+                    uint color = DnaBrush.GetColorAsUInt(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
+                    
+                    int x = (((dna[index + 5] << 8) + dna[index + 6]) * maxWidth) / 65535;
+                    int y = (((dna[index + 7] << 8) + dna[index + 8]) * maxHeight) / 65535;
+
+                    points[0] = new DnaPoint((short)x, (short)y);
+
+                    x = (((dna[index + 9] << 8) + dna[index + 10]) * maxWidth) / 65535;
+                    y = (((dna[index + 11] << 8) + dna[index + 12]) * maxHeight) / 65535;
+
+                    points[1] = new DnaPoint((short)x, (short)y);
+
+                    x = (((dna[index + 13] << 8) + dna[index + 14]) * maxWidth) / 65535;
+                    y = (((dna[index + 15] << 8) + dna[index + 16]) * maxHeight) / 65535;
+
+                    points[2] = new DnaPoint((short)x, (short)y);
+
+                    this._drawTriangle.RenderTriangle(points, _drawCanvas,  (int)color);
+
+                    index += 4 + 12 + 1;
+                    countPrimitives++;
+                }
+                else
+                {
+                    index++;
+                }
+            }
         }
 
         int [] listRowsForFill = new int[1000 * 3 + 3];
