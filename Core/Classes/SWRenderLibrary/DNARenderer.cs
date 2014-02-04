@@ -166,7 +166,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int countPrimitives = 0;
             while (index < dna.Length)
             {
-                if ((dna[index]&3) < 1 && 
+                if (//(dna[index]&3) < 1 && 
                     countPrimitives < Settings.ActivePolygonsMax &&
                     index + 4 + 12 + 1 <= dna.Length)
                 {

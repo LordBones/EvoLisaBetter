@@ -892,7 +892,7 @@ namespace GenArt.Core.AST
         {
             for (int i = 0; i < _populationCompressDNA.Length; i++)
             {
-                byte [] dna = new byte[1024];
+                byte [] dna = new byte[2048];
                 for (int di = 0; di < dna.Length; di++)
                 {
                     dna[di] = (byte)Tools.GetRandomNumber(0, 256);
@@ -934,15 +934,40 @@ namespace GenArt.Core.AST
                     fittness = _nativeFunc.ComputeFittnessSquareSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat = this._population[index].PointCount;
+                long bloat = Helper_DnaCountPoints(this._populationCompressDNA[index]);
 
-                _fittness[index] = fittness + bloat * bloat;
+                _fittness[index] = fittness + bloat * bloat + this._populationCompressDNA[index].Length;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
                 //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
             }
+        }
+
+        private int Helper_DnaCountPoints(byte [] dna)
+        {
+            int countPoints = 0;
+
+            int index = 0;
+            while (index < dna.Length)
+            {
+                if (//(dna[index] & 3) < 1 &&
+                    //primitives.Count < Settings.ActivePolygonsMax &&
+                    index + 4 + 12 + 1 <= dna.Length)
+                {
+                    countPoints += 3;
+
+                    index += 4 + 12 + 1;
+                }
+                else
+                {
+                    index++;
+                }
+
+            }
+
+            return countPoints;
         }
 
         private void Helper_UpdateStatsByFittness_CompressDNA()
@@ -981,7 +1006,7 @@ namespace GenArt.Core.AST
             //ComputeCurrentBestErrorMatrix(this.LastBest);
 
             // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 0)
+            if (_generation % 1 == 5)
             {
                 _fittness[populationLastIndex] = this._currentBestFittness;
                 _populationCompressDNA[populationLastIndex] = this._currentBestCompressDNA;
@@ -1024,10 +1049,11 @@ namespace GenArt.Core.AST
                     indexParent2 = RankVheelParrentIndex(tmp, this._rankTable);
                 }
 
-                byte []  dna = Helper_CrossoverOnePoint_CompressDNA(
-                    this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
-
-                Helper_Mutate_CompressDna(ref dna);
+                byte []  dna = Helper_CrossoverOnePoint_CompressDNA(this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
+                //byte []  dna = Helper_CrossoverUniform_CompressDNA(this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
+               
+                if(Tools.GetRandomNumber(0,100) < 10 )
+                    Helper_Mutate_CompressDna(ref dna);
                 
                 this._populationCompressDNA[index] = dna;
 
@@ -1040,14 +1066,17 @@ namespace GenArt.Core.AST
 
         private byte [] Helper_CrossoverOnePoint_CompressDNA(byte [] parent1, byte [] parent2)
         {
-            //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
+            double crossLine = Tools.GetRandomNumber(1,90)*0.01d;
+            //double crossLine2 = Tools.GetRandomNumber(1, 9) * 0.1d;
 
-            double crossLine = 0.3;
+            //double crossLine = 0.3;
 
+            if (Tools.GetRandomNumber(0, 2) == 0)
+                Tools.swap<byte[]>(ref parent1, ref parent2);
 
             int countCrossGenP1 = (int)(parent1.Length * crossLine);
             int countCrossGenP2 = (int)(parent2.Length * (crossLine));
-            int newDnaSize = countCrossGenP1 + (parent2.Length - countCrossGenP2 * 1);
+            int newDnaSize = countCrossGenP1 + (parent2.Length - countCrossGenP2);
 
             byte [] dnaResult = new byte[newDnaSize];
 
@@ -1068,21 +1097,36 @@ namespace GenArt.Core.AST
             return dnaResult;
         }
 
+        private byte[] Helper_CrossoverUniform_CompressDNA(byte[] parent1, byte[] parent2)
+        {
+            //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
+
+            byte [] dnaResult = new byte[parent1.Length];
+
+            for (int i = 0; i < parent1.Length; i++)
+            {
+                dnaResult[i] = (Tools.GetRandomNumber(0, 2) == 0) ?
+                    parent1[i] : parent2[i]; 
+            }
+
+            return dnaResult;
+        }
+
         private void Helper_Mutate_CompressDna(ref byte [] dna)
         {
-            /*if (dna.Length > 0)
+            if (dna.Length > 0)
             {
-                dna[Tools.GetRandomNumber(0, dna.Length)] = (byte)Tools.GetRandomNumber(0, 256);
-                
-            }*/
+                int countGenes = Tools.GetRandomNumber(1, 11);
 
-            for (int i =0; i < dna.Length; i++)
-            {
-                if (Tools.GetRandomNumber(0, 1000) < 1)
+                for (int i = 0; i < countGenes; i++)
                 {
-                    dna[i] = (byte)Tools.GetRandomNumber(0, 256);
+                    int index = Tools.GetRandomNumber(0, dna.Length);
+                    //dna[index] = (byte)Tools.GetRandomNumber(0, 256);
+                    dna[index] = (byte)Tools.GetRandomNumberNoLinear_MinMoreOften(dna[index], 0, 255,64);
                 }
             }
+
+            
         }
 
         private DnaDrawing Helper_TranslateDNA(byte [] dna)
@@ -1097,7 +1141,7 @@ namespace GenArt.Core.AST
             int index = 0;
             while (index < dna.Length)
             {
-                if ((dna[index]&3) < 1 && 
+                if (//(dna[index]&3) < 1 && 
                     primitives.Count < Settings.ActivePolygonsMax &&
                     index + 4 + 12 + 1 <= dna.Length)
                 {
