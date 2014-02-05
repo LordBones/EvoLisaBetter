@@ -111,9 +111,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             Tools.swap<int>(ref v1x, ref v1y);
             Tools.swap<int>(ref v2x, ref v2y);
 
-            if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
-            if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
-            if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
+             v0x = -v0x; 
+             v1x = -v1x;
+             v2x = -v2x; 
 
             v0c = -(v0x*px0+v0y*py0);
             v1c = -(v1x*px1+v1y*py1);
@@ -175,10 +175,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 if (start > end) Tools.swap<int>(ref start, ref end);
 
-                if (end >= 200)
+                if (end >= canvas.WidthPixel)
                 {
                     isCrossLine0++;
                     int kkk = 454;
+                    throw new Exception();
                     continue;
                 }
 

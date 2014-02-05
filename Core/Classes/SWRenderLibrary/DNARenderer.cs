@@ -168,28 +168,28 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             {
                 if (//(dna[index]&3) < 1 && 
                     countPrimitives < Settings.ActivePolygonsMax &&
-                    index + 4 + 12 + 1 <= dna.Length)
+                    index + 4 + 6 + 1 <= dna.Length)
                 {
                     uint color = DnaBrush.GetColorAsUInt(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
                     
-                    int x = (((dna[index + 5] << 8) + dna[index + 6]) * maxWidth) / 65535;
-                    int y = (((dna[index + 7] << 8) + dna[index + 8]) * maxHeight) / 65535;
+                    int x = (( dna[index + 5]) * maxWidth) / 255;
+                    int y = (( dna[index + 6]) * maxHeight) / 255;
 
                     points[0] = new DnaPoint((short)x, (short)y);
 
-                    x = (((dna[index + 9] << 8) + dna[index + 10]) * maxWidth) / 65535;
-                    y = (((dna[index + 11] << 8) + dna[index + 12]) * maxHeight) / 65535;
+                    x = (( dna[index + 7]) * maxWidth) / 255;
+                    y = (( dna[index + 8]) * maxHeight) / 255;
 
                     points[1] = new DnaPoint((short)x, (short)y);
 
-                    x = (((dna[index + 13] << 8) + dna[index + 14]) * maxWidth) / 65535;
-                    y = (((dna[index + 15] << 8) + dna[index + 16]) * maxHeight) / 65535;
+                    x = (( dna[index + 9]) * maxWidth) / 255;
+                    y = (( dna[index + 10]) * maxHeight) / 255;
 
                     points[2] = new DnaPoint((short)x, (short)y);
 
                     this._drawTriangle.RenderTriangle(points, _drawCanvas,  (int)color);
 
-                    index += 4 + 12 + 1;
+                    index += 4 + 6 + 1;
                     countPrimitives++;
                 }
                 else

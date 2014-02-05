@@ -124,8 +124,8 @@ namespace GenArt
 
                 if (enableMaxGeneration && generation > maxGeneration) break;
 
-                //gaSearch.ExecuteGeneration();
-                gaSearch.ExecuteGenerationPure();
+                gaSearch.ExecuteGeneration();
+                //gaSearch.ExecuteGenerationPure();
 
                 statsFillPixelsCurr = gaSearch.fillPixels;
 

@@ -295,7 +295,7 @@ namespace GenArt.Core.AST
 
                 long bloat = this._population[index].PointCount;
 
-                _fittness[index] = fittness + bloat * bloat;
+                _fittness[index] = fittness + bloat ;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -309,7 +309,7 @@ namespace GenArt.Core.AST
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
-            for (int index = 0; index < this._population.Length - 1; index++)
+            for (int index = 0; index < this._popSize; index++)
             {
                 if (_fittness[index] > WorstFittness)
                 {
@@ -494,7 +494,7 @@ namespace GenArt.Core.AST
 
                 int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                indexParent1 = this._fittness.Length - 1;
+                //indexParent1 = this._fittness.Length - 1;
 
 
 
@@ -954,11 +954,11 @@ namespace GenArt.Core.AST
             {
                 if (//(dna[index] & 3) < 1 &&
                     //primitives.Count < Settings.ActivePolygonsMax &&
-                    index + 4 + 12 + 1 <= dna.Length)
+                    index + 4 + 6 + 1 <= dna.Length)
                 {
                     countPoints += 3;
 
-                    index += 4 + 12 + 1;
+                    index += 4 + 6 + 1;
                 }
                 else
                 {
@@ -1143,25 +1143,25 @@ namespace GenArt.Core.AST
             {
                 if (//(dna[index]&3) < 1 && 
                     primitives.Count < Settings.ActivePolygonsMax &&
-                    index + 4 + 12 + 1 <= dna.Length)
+                    index + 4 + 6 + 1 <= dna.Length)
                 {
                     DnaPolygon triangle = new DnaPolygon();
                     triangle.Brush.SetByColor(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
 
                     DnaPoint [] points = new DnaPoint[3];
 
-                    int x = (((dna[index + 5] << 8) + dna[index + 6]) * maxWidht) / 65535;
-                    int y = (((dna[index + 7] << 8) + dna[index + 8]) * maxHeight) / 65535;
+                    int x = (( dna[index + 5]) * maxWidht) / 255;
+                    int y = (( dna[index + 6]) * maxHeight) / 255;
 
                     points[0] = new DnaPoint((short)x, (short)y);
 
-                    x = (((dna[index + 9] << 8) + dna[index + 10]) * maxWidht) / 65535;
-                    y = (((dna[index + 11] << 8) + dna[index + 12]) * maxHeight) / 65535;
+                    x = (( dna[index + 7]) * maxWidht) / 255;
+                    y = (( dna[index + 8]) * maxHeight) / 255;
 
                     points[1] = new DnaPoint((short)x, (short)y);
 
-                    x = (((dna[index + 13] << 8) + dna[index + 14]) * maxWidht) / 65535;
-                    y = (((dna[index + 15] << 8) + dna[index + 16]) * maxHeight) / 65535;
+                    x = (( dna[index + 9]) * maxWidht) / 255;
+                    y = (( dna[index + 10]) * maxHeight) / 255;
 
                     points[2] = new DnaPoint((short)x, (short)y);
 
@@ -1169,7 +1169,7 @@ namespace GenArt.Core.AST
 
                     primitives.Add(triangle);
 
-                    index +=4 + 12 + 1;
+                    index +=4 + 6 + 1;
                 }
                 else
                 {

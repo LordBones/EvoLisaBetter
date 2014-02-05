@@ -261,9 +261,9 @@ namespace GenArt.Core.AST
                     newPoint.Init();
 
                     List<DnaPoint> newPoints = new List<DnaPoint>(points);
-                    int index = Tools.GetRandomNumber(0, points.Length);
-                    //int index = Tools.GetRandomNumber(0, 2);
-                    //if (index == 1) index = points.Length - 1; 
+                    //int index = Tools.GetRandomNumber(0, points.Length);
+                    int index = Tools.GetRandomNumber(0, 2);
+                    if (index == 1) index = points.Length - 1; 
 
                     int mutationMaxy = Math.Max(2, ((MutationRate + 1) * Tools.MaxHeight - 1) / (256));
                     int mutationMiddley = mutationMaxy / 2;
@@ -299,9 +299,9 @@ namespace GenArt.Core.AST
             }
             else if (action == 1)
             {
-                int index = Tools.GetRandomNumber(0, points.Length);
-                //int index = Tools.GetRandomNumber(0, 2);
-                //if (index == 1) index = points.Length - 1;
+                //int index = Tools.GetRandomNumber(0, points.Length);
+                int index = Tools.GetRandomNumber(0, 2);
+                if (index == 1) index = points.Length - 1;
 
                 DnaPoint [] newPoints = new DnaPoint[points.Length - 1];
 

@@ -162,10 +162,10 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        //MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
                         //else 
                             //if (tmp == 1) 
-                        //        MutationAddTriangleStrip(mutationRate, errorMatrix, null, edgePoints);
+                                MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
                        // else 
                      //           if (tmp == 2) 
                        //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
