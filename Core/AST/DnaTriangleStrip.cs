@@ -246,10 +246,11 @@ namespace GenArt.Core.AST
             int action = -1;
             while(action < 0)
             {
-                int tmp = Tools.GetRandomNumber(0, 3);
+                int tmp = Tools.GetRandomNumber(0, 4);
                 if(points.Length < CONST_MaxPoints && tmp == 0) action = 0;
-                if(points.Length > CONST_MinPoints && tmp == 1) action = 1;
-                if(tmp == 2) action = 2;
+                else if(points.Length > CONST_MinPoints && tmp == 1) action = 1;
+                // dvakrat casteji se hybe s bodem nez se vklada a maze
+                else if(tmp >= 2) action = 2;
             }
 
             if (action == 0)

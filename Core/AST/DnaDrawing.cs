@@ -162,7 +162,7 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        //MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        //MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         //else 
                             //if (tmp == 1) 
                                 MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
@@ -218,12 +218,12 @@ namespace GenArt.AST
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
                         //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                        int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
-                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+                        //int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
+                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
-                        int index = tmpIndex.Value;
+                        //int index = tmpIndex.Value;
 
-                        //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                         //if (Tools.GetRandomNumber(0, 2) == 3)
                         //    Polygons[index].MutateTranspozite(this, destImage);
@@ -251,11 +251,11 @@ namespace GenArt.AST
                     if (!this.IsDirty ||
                        (this.IsDirty && Tools.GetRandomNumber(0, 1001) < 101))
                     {
-                        int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
-                        if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
+                        //int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
+                        //if (!tmpIndex.HasValue) throw new NotImplementedException("sem se to nesmi dostat.");
 
-                        int tindex = tmpIndex.Value;
-                        //int tindex = Tools.GetRandomNumber(0, Polygons.Length);
+                        //int tindex = tmpIndex.Value;
+                        int tindex = Tools.GetRandomNumber(0, Polygons.Length);
                         Polygons[tindex].Brush.MutateRGBOldnew(mutationRate, this);
                          
 
@@ -577,12 +577,12 @@ namespace GenArt.AST
                 //int index = GetRNDIndexPolygonBySize(this.Polygons);
                 //int index = GetRNDIndexPolygonByLive(this.Polygons);
 
-                int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
+                //int ? tmpIndex = GetRNDPolygonIndex_ByErrorMatrix(errorMatrix);
                 
-                if (!tmpIndex.HasValue) return;
+                //if (!tmpIndex.HasValue) return;
 
-                int index = tmpIndex.Value;
-                //int index = Tools.GetRandomNumber(0, Polygons.Length);
+                //int index = tmpIndex.Value;
+                int index = Tools.GetRandomNumber(0, Polygons.Length);
 
                 DnaPrimitive [] polygons = new DnaPrimitive[Polygons.Length -1];
 
@@ -630,6 +630,7 @@ namespace GenArt.AST
                             PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newPolygon._Points, _rawDestImage);
 
                         newPolygon.Brush.SetByColor(nearColor);
+                        newPolygon.Brush.Alpha = (byte)Tools.GetRandomNumber(0, 256);
                         //newPolygon.Brush.InitRandom();
                     }
                     else
@@ -677,6 +678,7 @@ namespace GenArt.AST
                             PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(newTriangleStrip._Points, _rawDestImage);
 
                         newTriangleStrip.Brush.SetByColor(nearColor);
+                        newTriangleStrip.Brush.Alpha = (byte)Tools.GetRandomNumber(0, 256);
                         //newPolygon.Brush.InitRandom();
                     }
                     else

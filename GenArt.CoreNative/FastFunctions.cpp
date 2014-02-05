@@ -1913,8 +1913,8 @@ unsigned __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr
 
         __m128i colors = _mm_loadu_si128((__m128i*)curr);
         __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
-        _mm_prefetch((char *)curr+16,_MM_HINT_T0);
-        _mm_prefetch((char *)orig+16,_MM_HINT_T0);
+        /*_mm_prefetch((char *)curr+16,_MM_HINT_T0);
+        _mm_prefetch((char *)orig+16,_MM_HINT_T0);*/
 
         __m128i tmp1 = _mm_min_epu8(colors,colors2);
         __m128i tmp2 = _mm_max_epu8(colors,colors2);

@@ -483,7 +483,9 @@ namespace GenArt.Core.AST
             RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
 
             Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
-           
+            
+            this._population[this._population.Length - 1] = null;
+
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
 
@@ -515,6 +517,11 @@ namespace GenArt.Core.AST
                 //    indexParent1 = tmpindexParent2;
 
 
+                if (this._population[index] != null)
+                {
+                    DnaDrawing.RecyclePrimitive(this._population[index].Polygons);
+                    this._population[index] = null;
+                }
 
                 DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
@@ -525,8 +532,8 @@ namespace GenArt.Core.AST
                         _edgePoints
                         );
 
-                if (this._population[index] != null)
-                    DnaDrawing.RecyclePrimitive(this._population[index].Polygons);
+                
+                
                 this._population[index] = dna;
             }
 
