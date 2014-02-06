@@ -43,7 +43,9 @@ public:
 
     static __int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
     static __int64 computeFittnessSumSquare(unsigned char * curr, unsigned char * orig, int length);
-    static unsigned __int64 computeFittnessSumSquareASM( unsigned char* p1, unsigned char* p2, int count );
+    static __int64 computeFittnessSumSquareASM( unsigned char* p1, unsigned char* p2, int count );
+    static __int64 computeFittnessSumABS(unsigned char * curr, unsigned char * orig, int length);
+    static __int64 computeFittnessSumABSASM( unsigned char* p1, unsigned char* p2, int count );
 
 		
 };

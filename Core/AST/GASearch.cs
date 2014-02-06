@@ -290,10 +290,10 @@ namespace GenArt.Core.AST
                 if (_typeRendering == TypeRendering.softwareByRowWithFitness)
                     fittness = _dnaRender.Fittness;
                 else
-                    fittness = _nativeFunc.ComputeFittnessSquareSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
-                //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    fittness = _nativeFunc.ComputeFittnessABSSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
+                //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat = this._population[index].PointCount;
+                long bloat =0;// this._population[index].PointCount;
 
                 _fittness[index] = fittness + bloat ;
 
@@ -309,6 +309,7 @@ namespace GenArt.Core.AST
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
+            int tmpPoints = int.MaxValue;
             for (int index = 0; index < this._popSize; index++)
             {
                 if (_fittness[index] > WorstFittness)
@@ -316,10 +317,12 @@ namespace GenArt.Core.AST
                     WorstFittness = this._fittness[index];
                 }
 
-                if (this._fittness[index] < bestFittness)
+                if (this._fittness[index] < bestFittness ||
+                    (this._fittness[index] == bestFittness && tmpPoints > this._population[index].PointCount))
                 {
                     bestFittness = this._fittness[index];
                     bestIndex = index;
+                    tmpPoints = this._population[index].PointCount;
                 }
             }
 

@@ -224,6 +224,7 @@ namespace GenArtCoreNative {
             
             return  FastFunctions::computeFittness_2d_2x2(pinCurr,pinOrig,orig->Length,width);
         }
+
 		__int64 ComputeFittnessSquareSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
@@ -274,6 +275,61 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Byte> pinOrig = &orig[0];
 
             result = FastFunctions::computeFittnessSumSquareASM(pinLine,pinOrig+origStartIndex,line->Length);
+            
+			return result;
+		}
+
+        
+        __int64 ComputeFittnessABSSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
+		{
+			__int64 result = 0;
+
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+			
+			
+
+            result = FastFunctions::computeFittnessSumABSASM(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessABS(array<System::Byte>^ current, array<System::Byte>^ orig)
+		{
+			__int64 result = 0;
+
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+			
+			
+
+            result = FastFunctions::computeFittnessSumABS(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessABSLine(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+		{
+			__int64 result = 0;
+
+            pin_ptr<System::Byte> pinLine = &line[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+            result = FastFunctions::computeFittnessSumABS(pinLine,pinOrig+origStartIndex,line->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessABSLineSSE(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+		{
+			__int64 result = 0;
+
+            pin_ptr<System::Byte> pinLine = &line[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+            result = FastFunctions::computeFittnessSumABSASM(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}

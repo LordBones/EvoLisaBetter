@@ -53,10 +53,10 @@ namespace GenArt.AST
 
                     for (int i = 0; i < countPoints; i++)
                     {
-                        int mutationMaxy = Math.Max(2, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+                        int mutationMaxy = Math.Max(4, ((mutationRate + 1) * Tools.MaxHeight) / (256));
                         int mutationMiddley = mutationMaxy / 2;
 
-                        int mutationMaxx = Math.Max(2, ((mutationRate + 1) * Tools.MaxWidth) / (256));
+                        int mutationMaxx = Math.Max(4, ((mutationRate + 1) * Tools.MaxWidth) / (256));
                         int mutationMiddlex = mutationMaxx / 2;
 
                         var point = new DnaPoint();
@@ -76,6 +76,27 @@ namespace GenArt.AST
                         points[i] = point;
                         lastPoint = point;
                     }
+
+                    int py0 = points[0].Y;
+                    int px0 = points[0].X;
+                    int py1 = points[1].Y;
+                    int px1 = points[1].X;
+                    int py2 = points[2].Y;
+                    int px2 = points[2].X;
+
+                    int tminY = (py0 < py1) ? py0 : py1;
+                    tminY = (tminY < py2) ? tminY : py2;
+                    int tmaxY = (py0 > py1) ? py0 : py1;
+                    tmaxY = (tmaxY > py2) ? tmaxY : py2;
+
+                    //if (tmaxY - tminY + 1 <= 3) return;
+
+                    int tminX = (px0 < px1) ? px0 : px1;
+                    tminX = (tminX < px2) ? tminX : px2;
+                    int tmaxX = (px0 > px1) ? px0 : px1;
+                    tmaxX = (tmaxX > px2) ? tmaxX : px2;
+
+                    if (tmaxX - tminX + 1 <= 3 || tmaxY - tminY + 1 <= 3) continue;
 
                     //
                     if (!IsIntersect(points) && IsNotSmallAngles(points))
@@ -375,6 +396,31 @@ namespace GenArt.AST
 
                         points[pointIndex] = newPoint;
 
+                        int py0 = points[0].Y;
+                        int px0 = points[0].X;
+                        int py1 = points[1].Y;
+                        int px1 = points[1].X;
+                        int py2 = points[2].Y;
+                        int px2 = points[2].X;
+
+                        int tminY = (py0 < py1) ? py0 : py1;
+                        tminY = (tminY < py2) ? tminY : py2;
+                        int tmaxY = (py0 > py1) ? py0 : py1;
+                        tmaxY = (tmaxY > py2) ? tmaxY : py2;
+
+                        //if (tmaxY - tminY + 1 <= 3) return;
+
+                        int tminX = (px0 < px1) ? px0 : px1;
+                        tminX = (tminX < px2) ? tminX : px2;
+                        int tmaxX = (px0 > px1) ? px0 : px1;
+                        tmaxX = (tmaxX > px2) ? tmaxX : px2;
+
+                        if (tmaxX - tminX + 1 <= 3 || tmaxY - tminY + 1 <= 3)
+                        {
+                            points[pointIndex] = oldPoint;
+                            continue;
+                        }
+
                         if (IsNotSmallAngles(points) &&
                             //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
                             !IsIntersect(points))
@@ -390,10 +436,11 @@ namespace GenArt.AST
                             drawing.SetDirty();
                             CreateNewUniqueId();
                             break;
+                        } 
+                        else
+                        {
+                            points[pointIndex] = oldPoint;
                         }
-
-
-                        //points[pointIndex] = oldPoint;
                     }
                 }
             }

@@ -81,7 +81,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
         {
-
+            
             nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
                px0, py0, px1, py1, px2, py2, color);
 

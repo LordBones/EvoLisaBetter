@@ -284,8 +284,6 @@ namespace GenArt.Classes
                 index += 4;
             }
 
-
-
             return result;
         }
 
@@ -314,7 +312,61 @@ namespace GenArt.Classes
                 index += 4;
             }
 
+            return result;
+        }
 
+        /// <summary>
+        /// spocita fittnesss pro dany jeden radek obrazku
+        /// </summary>
+        /// <param name="currentLine"></param>
+        /// <param name="orig"></param>
+        /// <param name="origStartIndex"></param>
+        /// <returns></returns>
+        public static long ComputeFittnessLine_SumABS(byte[] currentLine, byte[] orig, int origStartIndex)
+        {
+            long result = 0;
+
+            int index = 0;
+            while (index < currentLine.Length)
+            {
+                int br = (currentLine[index] - orig[origStartIndex + index]);
+                int bg = (currentLine[index + 1] - orig[origStartIndex + index + 1]);
+                int bb = (currentLine[index + 2] - orig[origStartIndex + index + 2]);
+
+                long tmpres = Tools.fastAbs(br) + Tools.fastAbs(bg) + Tools.fastAbs(bb);
+
+                result += tmpres;
+
+                index += 4;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// spocita fittnesss pro dany jeden radek obrazku
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="orig"></param>
+        /// <param name="origStartIndex"></param>
+        /// <returns></returns>
+        public static long ComputeFittnessLine_SumABS(byte[] current, byte[] orig)
+        {
+            long result = 0;
+
+            int index = 0;
+            while (index < current.Length)
+            {
+                int br = (current[index] - orig[index]);
+                int bg = (current[index + 1] - orig[index + 1]);
+                int bb = (current[index + 2] - orig[index + 2]);
+
+                long tmpres = Tools.fastAbs(br) + Tools.fastAbs(bg) + Tools.fastAbs(bb);
+
+                result += tmpres;
+
+                index += 4;
+            }
 
             return result;
         }

@@ -407,7 +407,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
 
                 //Fittness += FitnessCalculator.ComputeFittnessLine_SumSquare(tmp, _DestCanvas.Data, rowIndex);
-                Fittness += _nativefunc.ComputeFittnessSquareLineSSE(tmp, destCanvasData, rowIndex);
+                Fittness += _nativefunc.ComputeFittnessABSLineSSE(tmp, destCanvasData, rowIndex);
                 /*
                 //if ((y & 1) == 1)
                 {
