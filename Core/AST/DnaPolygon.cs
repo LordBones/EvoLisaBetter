@@ -566,14 +566,14 @@ namespace GenArt.AST
             int py2 = this._Points[2].Y;
 
             // test if is out of triangle
-            //int minY = (py0 < py1) ? py0 : py1;
-            //minY = (minY < py2) ? minY : py2;
-            //int maxY = (py0 > py1) ? py0 : py1;
-            //maxY = (maxY > py2) ? maxY : py2;
+            int minY = (py0 < py1) ? py0 : py1;
+            minY = (minY < py2) ? minY : py2;
+            int maxY = (py0 > py1) ? py0 : py1;
+            maxY = (maxY > py2) ? maxY : py2;
 
-            //if (minY > y || y > maxY) return;
+            if (minY > y || y > maxY) return false;
 
-            if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
+            //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
             int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
@@ -628,7 +628,9 @@ namespace GenArt.AST
             if (isCrossLine0 >= 0)
             {
 
-                int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+                int isCrossLine1 = (py1 == py2 ||
+                        (y == py1 && py1 > minY && py1 < maxY)
+                        ) ? -1 : (y - py1) * (py2 - y);
 
                 if (isCrossLine1 >= 0)
                 {

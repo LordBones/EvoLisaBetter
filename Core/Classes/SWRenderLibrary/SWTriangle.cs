@@ -145,7 +145,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 if (isCrossLine0 >= 0)
                 {
                     
-                    int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
+                    int isCrossLine1 = (py1 == py2 ||
+                        (y == py1 &&  py1 > minY && py1<maxY  )
+                        ) ? -1 : (y - py1) * (py2 - y);
 
                     if (isCrossLine1 >= 0 )
                     {
