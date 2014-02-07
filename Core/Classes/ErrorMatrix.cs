@@ -14,7 +14,7 @@ namespace GenArt.Core.Classes
         private Median8bit _mediang = new Median8bit();
         private Median8bit _medianb = new Median8bit();
 
-        public int CONST_TileSize = 30;
+        public int CONST_TileSize = 40;
 
         private int _inputPixelWidth;
         private int _inputPixelHeight;

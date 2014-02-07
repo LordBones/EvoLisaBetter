@@ -365,6 +365,25 @@ namespace GenArt.Core.AST
                             continue;
                         }
 
+                        bool has = false;
+
+                        if (pointIndex == points.Length - 1)
+                            has = GraphicFunctions.TriangleHasNotSmallAngle(
+                                points[pointIndex].X, points[pointIndex].Y, points[pointIndex - 1].X, points[pointIndex - 1].Y, points[pointIndex - 2].X, points[pointIndex - 2].Y);
+                        else if(pointIndex == 0)
+                            has = GraphicFunctions.TriangleHasNotSmallAngle(
+                        points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y);
+                        else
+                            has = GraphicFunctions.TriangleHasNotSmallAngle(
+                           points[pointIndex].X, points[pointIndex].Y, points[pointIndex - 1].X, points[pointIndex - 1].Y, points[pointIndex +1].X, points[pointIndex +1].Y);
+                       
+                     
+                        if (!has)
+                        {
+                            points[pointIndex] = oldPoint;
+                            continue;
+                        }
+
                         if (!IsIntersect(points)
                             //&& IsNotSmallAngles(points)
                         )

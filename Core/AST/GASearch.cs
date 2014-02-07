@@ -293,7 +293,7 @@ namespace GenArt.Core.AST
                     fittness = _nativeFunc.ComputeFittnessABSSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat =0;// this._population[index].PointCount;
+                long bloat = this._population[index].PointCount;
 
                 _fittness[index] = fittness + bloat ;
 
@@ -309,7 +309,6 @@ namespace GenArt.Core.AST
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
-            int tmpPoints = int.MaxValue;
             for (int index = 0; index < this._popSize; index++)
             {
                 if (_fittness[index] > WorstFittness)
@@ -317,12 +316,10 @@ namespace GenArt.Core.AST
                     WorstFittness = this._fittness[index];
                 }
 
-                if (this._fittness[index] < bestFittness ||
-                    (this._fittness[index] == bestFittness && tmpPoints > this._population[index].PointCount))
+                if (this._fittness[index] < bestFittness )
                 {
                     bestFittness = this._fittness[index];
                     bestIndex = index;
-                    tmpPoints = this._population[index].PointCount;
                 }
             }
 
@@ -331,7 +328,7 @@ namespace GenArt.Core.AST
                 this._currentBestFittness = bestFittness;
                 this._currentBest = this._population[bestIndex].Clone(); // klon nutny kvuli recyklaci primitiv
 
-                ComputeCurrentBestErrorMatrix();
+                //ComputeCurrentBestErrorMatrix();
             }
 
             this._lastBest = this._population[bestIndex].Clone(); // klon nutny kvuli recyklaci primitiv
@@ -497,9 +494,9 @@ namespace GenArt.Core.AST
                 //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 //indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                //indexParent1 = this._fittness.Length - 1;
+                //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                //indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
+                int indexParent1 = this._fittness.Length - 1;
 
 
 
@@ -530,7 +527,7 @@ namespace GenArt.Core.AST
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
                     dna.MutateBetter(currMutatioRate,
-                        this._errorMatrix,
+                        null,//this._errorMatrix,
                         this._destCanvas,
                         _edgePoints
                         );

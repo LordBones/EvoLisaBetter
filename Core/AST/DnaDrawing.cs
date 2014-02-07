@@ -162,7 +162,7 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
+                        MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         //else 
                             //if (tmp == 1) 
                             //    MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
@@ -170,7 +170,7 @@ namespace GenArt.AST
                      //           if (tmp == 2) 
                        //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
                         //else 
-                           // AddRectangle(mutationRate, errorMatrix, null, edgePoints);
+                        //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
 
                         //if (Tools.GetRandomNumber(0, 3) < 1)
                         //    AddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
@@ -230,6 +230,7 @@ namespace GenArt.AST
                         Polygons[index].Brush.SetByColor(nearColor);
 
                         Polygons[index].Brush.Alpha = alpha;
+                        this.SetDirty();
                     }
 
 
@@ -269,7 +270,7 @@ namespace GenArt.AST
 
                         //int tindex = tmpIndex.Value;
                         int tindex = Tools.GetRandomNumber(0, Polygons.Length);
-                        Polygons[tindex].Brush.MutateRGBOldnew(mutationRate, this);
+                        Polygons[tindex].Brush.MutateRGBOld(mutationRate, this);
                          
 
                         /*List<int> tmpIndex = GetRNDPolygonListIndex_ByErrorMatrix(errorMatrix);

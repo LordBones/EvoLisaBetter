@@ -86,14 +86,49 @@ namespace GenArt.Core.Classes
             
             c = -(v0x * lineX0 + v0y * lineY0);
 
-
             // distance = abs(a*pointx+b*pointy+c)/sqrt(a*a+b*b)
-
             int tmp = Tools.fastAbs(v0x * pointX + v0y * pointY + c);
 
             float result = (float)(tmp / Math.Sqrt(v0x * v0x + v0y * v0y));
             return result;
+        }
 
+        private const double CONST_ANGLE = System.Math.PI * (20 / 180.0);
+        private const double CONST_ANGLE_Inverse = System.Math.PI * 2 - CONST_ANGLE;
+
+        private static double PointsAngle2(double px1, double py1, double px2, double py2)
+        {
+            Double Angle = Math.Atan2(py1 - 0, px1 - 0) - Math.Atan2(py2 - 0, px2 - 0);
+
+            return Angle;
+        }
+        public static bool LinesHasMinimalAngle(int x1, int y1, int x2, int y2, int middleX, int middleY)
+        {
+            //return true;
+            double px1 = x1 - middleX;
+            double py1 = y1 - middleY;
+            double px2 = x2 - middleX;
+            double py2 = y2 - middleY;
+
+            double angle = Math.Abs(PointsAngle2(px1, py1, px2, py2));
+
+            if (angle < 0.0d)
+            {
+                throw new Exception("Error");
+            }
+
+            return angle >= CONST_ANGLE && (angle <= CONST_ANGLE_Inverse);
+            //return true;
+
+        }
+
+        public static bool TriangleHasNotSmallAngle(int x0,int y0,int x1,int y1,int x2,int y2)
+        {
+            if (!LinesHasMinimalAngle(x0, y0, x2, y2, x1, y1)) return false;
+            if (!LinesHasMinimalAngle(x2, y2, x1, y1,x0, y0)) return false;
+            if (!LinesHasMinimalAngle(x0, y0, x1, y1, x2, y2)) return false;
+
+            return true;
         }
     }
 }

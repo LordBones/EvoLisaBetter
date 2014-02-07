@@ -7,7 +7,7 @@ namespace GenArt.Classes
     public static class Tools
     {
         private static RandomNumberGenerator rng  = RandomNumberGenerator.Create();
-        private static byte [] buff = new byte[800000];
+        private static byte [] buff = new byte[1024];
         private static int buffIndex = 4500000;
         private static  Random random = new Random(0);
 

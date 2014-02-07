@@ -114,10 +114,10 @@ namespace GenArt.AST
             }
             else if (colorPart >= 4)
             {
-                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Alpha, 5, 255, mutationRate);
+                int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Alpha, 1, 255, mutationRate);
                 if (value == Alpha) return false;
                
-                Alpha = (byte)Math.Max(Math.Min(value, 255), 5);
+                Alpha = (byte)Math.Max(Math.Min(value, 255), 1);
 
                 //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
@@ -141,6 +141,7 @@ namespace GenArt.AST
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Red, 0, 255, mutationRate);
                 if (value == Red) return false;
                 Red = (byte)Math.Max(Math.Min(value, 255), 0);
+                drawing.SetDirty();
             }
             colorPart = Tools.GetRandomNumber(1, 5);
             if (colorPart == 2)
@@ -148,6 +149,7 @@ namespace GenArt.AST
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Green, 0, 255, mutationRate);
                 if (value == Green) return false;
                 Green = (byte)Math.Max(Math.Min(value, 255), 0);
+                drawing.SetDirty();
             }
             colorPart = Tools.GetRandomNumber(1, 5);
             if (colorPart == 3)
@@ -156,6 +158,7 @@ namespace GenArt.AST
                 if (value == Blue) return false;
 
                 Blue = (byte)Math.Max(Math.Min(value, 255), 0);
+                drawing.SetDirty();
             }
             colorPart = Tools.GetRandomNumber(1, 5);
             if (colorPart >= 4)
@@ -167,9 +170,10 @@ namespace GenArt.AST
 
                 //Alpha = (byte)Math.Max(Math.Min(Alpha + Tools.GetRandomNumber(0, 20, 10) - 10, 255), 5);
                 //Alpha = (byte)Tools.GetRandomNumber(5, 256, Alpha);
+                drawing.SetDirty();
             }
 
-            drawing.SetDirty();
+            
 
             return true;
 

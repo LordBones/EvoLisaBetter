@@ -53,10 +53,10 @@ namespace GenArt.AST
 
                     for (int i = 0; i < countPoints; i++)
                     {
-                        int mutationMaxy = Math.Max(4, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+                        int mutationMaxy = Math.Max(6, ((mutationRate + 1) * Tools.MaxHeight) / (256));
                         int mutationMiddley = mutationMaxy / 2;
 
-                        int mutationMaxx = Math.Max(4, ((mutationRate + 1) * Tools.MaxWidth) / (256));
+                        int mutationMaxx = Math.Max(6, ((mutationRate + 1) * Tools.MaxWidth) / (256));
                         int mutationMiddlex = mutationMaxx / 2;
 
                         var point = new DnaPoint();
@@ -105,7 +105,9 @@ namespace GenArt.AST
                     //if (!IsNotTriangleLinesTooClose(points[0], points[1], points[2],minDistance)) continue;
 
                     //
-                    if (!IsIntersect(points) && IsNotSmallAngles(points))
+                    if (!IsIntersect(points) &&
+                        GraphicFunctions.TriangleHasNotSmallAngle(
+                        points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) )
                     {
                         break;
                     }
@@ -333,7 +335,9 @@ namespace GenArt.AST
 
                         points[pointIndex] = resultPoint.Value;
 
-                        if (//IsNotSmallAngles(points) && 
+                        if (GraphicFunctions.TriangleHasNotSmallAngle(
+                        points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) &&
+                            
                             //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
                             !IsIntersect(points))
                         {
@@ -364,8 +368,10 @@ namespace GenArt.AST
                 //}
                 //else
                 {
-                    while (true)
+                    int counter = -1;
+                    while (counter < 10)
                     {
+                        counter++;
                         int pointIndex = Tools.GetRandomNumber(0, points.Length);
                         DnaPoint oldPoint = points[pointIndex];
 
@@ -431,7 +437,8 @@ namespace GenArt.AST
 
                         //float minDistance = (lenY > 10 || lenX > 10) ? 3.0f : 0.6f;
 
-                        if (IsNotSmallAngles(points) &&
+                        if (GraphicFunctions.TriangleHasNotSmallAngle(
+                        points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) &&
                             //IsNotTriangleLinesTooClose(points[0], points[1], points[2], minDistance) && 
                             //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
                             !IsIntersect(points))
