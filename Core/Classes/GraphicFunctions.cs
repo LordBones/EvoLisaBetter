@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GenArt.AST;
+using GenArt.Classes;
 
 namespace GenArt.Core.Classes
 {
@@ -17,7 +18,7 @@ namespace GenArt.Core.Classes
                 denominator;
 
             denominator = ((p2.Y - p3.Y) * (p1.X - p3.X) + (p3.X - p2.X) * (p1.Y - p3.Y));
-            float beta = (denominator == 0)? 1 :  ((p3.Y - p1.Y) * (p.X - p3.X) + (p1.X - p3.X) * (p.Y - p3.Y)) /
+            float beta = (denominator == 0) ? 1 : ((p3.Y - p1.Y) * (p.X - p3.X) + (p1.X - p3.X) * (p.Y - p3.Y)) /
                    denominator;
             float gamma = 1.0f - alpha - beta;
 
@@ -76,7 +77,23 @@ namespace GenArt.Core.Classes
             //return true;
         }
 
+        public static float GetDistancePointFromLine(int lineX0, int lineY0, int lineX1, int lineY1, int pointX, int pointY)
+        {
+            int v0x,v0y, c;
 
-      
+            v0x = lineX1 - lineX0;//-1
+            v0y = lineY1 - lineY0;//1
+            
+            c = -(v0x * lineX0 + v0y * lineY0);
+
+
+            // distance = abs(a*pointx+b*pointy+c)/sqrt(a*a+b*b)
+
+            int tmp = Tools.fastAbs(v0x * pointX + v0y * pointY + c);
+
+            float result = (float)(tmp / Math.Sqrt(v0x * v0x + v0y * v0y));
+            return result;
+
+        }
     }
 }

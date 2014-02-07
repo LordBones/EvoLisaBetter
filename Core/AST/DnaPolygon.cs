@@ -96,7 +96,13 @@ namespace GenArt.AST
                     int tmaxX = (px0 > px1) ? px0 : px1;
                     tmaxX = (tmaxX > px2) ? tmaxX : px2;
 
-                    if (tmaxX - tminX + 1 <= 3 || tmaxY - tminY + 1 <= 3) continue;
+                    int lenX = tmaxX - tminX + 1;
+                    int lenY = tmaxY - tminY + 1;
+                    if (lenX <= 3 || lenY <= 3) continue;
+
+                    //float minDistance = (lenY > 10 || lenX > 10) ? 3.0f : 0.6f;
+
+                    //if (!IsNotTriangleLinesTooClose(points[0], points[1], points[2],minDistance)) continue;
 
                     //
                     if (!IsIntersect(points) && IsNotSmallAngles(points))
@@ -415,13 +421,18 @@ namespace GenArt.AST
                         int tmaxX = (px0 > px1) ? px0 : px1;
                         tmaxX = (tmaxX > px2) ? tmaxX : px2;
 
-                        if (tmaxX - tminX + 1 <= 3 || tmaxY - tminY + 1 <= 3)
+                        int lenX = tmaxX - tminX + 1;
+                        int lenY = tmaxY - tminY + 1;
+                        if (lenX <= 3 || lenY <= 3)
                         {
                             points[pointIndex] = oldPoint;
                             continue;
                         }
 
+                        //float minDistance = (lenY > 10 || lenX > 10) ? 3.0f : 0.6f;
+
                         if (IsNotSmallAngles(points) &&
+                            //IsNotTriangleLinesTooClose(points[0], points[1], points[2], minDistance) && 
                             //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&
                             !IsIntersect(points))
                         {
@@ -883,6 +894,16 @@ namespace GenArt.AST
             return false;
         }
 
+        public static bool IsNotTriangleLinesTooClose(DnaPoint p1, DnaPoint p2, DnaPoint p3, float minDistance = 3.0f )
+        {
+            //float tmp = GraphicFunctions.GetDistancePointFromLine(0, 1, 1, 0, 0, 0);
+            if (GraphicFunctions.GetDistancePointFromLine(p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y) < minDistance) return false;
+            if (GraphicFunctions.GetDistancePointFromLine(p2.X, p2.Y, p3.X, p3.Y, p1.X, p1.Y) < minDistance) return false;
+            if (GraphicFunctions.GetDistancePointFromLine(p3.X, p3.Y, p1.X, p1.Y, p2.X, p2.Y) < minDistance) return false;
+
+            return true;
+        }
+
         public bool IsNotSmallAngles(List<DnaPoint> points)
         {
             return IsNotSmallAngles(points.ToArray());
@@ -986,7 +1007,7 @@ namespace GenArt.AST
                 throw new Exception("Error");
             }
 
-            return angle >= 10.0d && (angle <= (360.0d - 10.0d));
+            return angle >= 15.0d && (angle <= (360.0d - 15.0d));
             //return true;
 
         }

@@ -162,7 +162,7 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
+                        MutationAddPolygon(mutationRate, errorMatrix, null, edgePoints);
                         //else 
                             //if (tmp == 1) 
                             //    MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
@@ -208,11 +208,31 @@ namespace GenArt.AST
                     //break;
                 }*/
 
-
-
+                
 
                 if (Polygons.Length > 0)
                 {
+                    if (Tools.GetRandomNumber(0, 1001) < 51)
+                    {
+                        Color nearColor = Color.Black;
+
+                        int index = Tools.GetRandomNumber(0, Polygons.Length);
+                        if (Polygons[index] is DnaPolygon)
+                        {
+                            nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                        }
+                        else if (Polygons[index] is DnaRectangle)
+                        {
+                            nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                        }
+
+                        byte alpha = Polygons[index].Brush.Alpha;
+                        Polygons[index].Brush.SetByColor(nearColor);
+
+                        Polygons[index].Brush.Alpha = alpha;
+                    }
+
+
                     if (Tools.GetRandomNumber(0, 1001) < 101)
                     {
                         //int index = GetRNDIndexPolygonBySize(this.Polygons);
@@ -233,14 +253,7 @@ namespace GenArt.AST
 
                         //Color nearColor = Color.Black;
 
-                        //if (Polygons[index] is DnaPolygon)
-                        //{
-                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
-                        //}
-                        //else if (Polygons[index] is DnaRectangle)
-                        //{
-                        //    nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
-                        //}
+                        
 
                         //byte alpha = Polygons[index].Brush.Alpha;
                         //Polygons[index].Brush.SetByColor(nearColor);
