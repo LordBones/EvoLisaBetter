@@ -328,6 +328,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private const int CONST_PART_Batch = 16;
         DnaPrimitive [] partPrimitives = new DnaPrimitive[1000];
+        int [] computeAlpha = new int[1000];
         private void DnaRender_SoftwareByRowsWithFittness_Faster(DnaDrawing dna)
         {
             Fittness = 0;
@@ -372,7 +373,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         if (!((partRow > startY && partRow > endY) ||
                             (partRow + CONST_PART_Batch <= startY && partRow + CONST_PART_Batch <= endY)))
                         {
-                            partPrimitives[countPartPrimitives++] = dnaPolygons[i];
+                            partPrimitives[countPartPrimitives] = dnaPolygons[i];
+                            computeAlpha[countPartPrimitives] = (((((int)dnaPolygons[i].Brush.ColorAsUInt) >> 24) & 0xff) * 256) / 255;
+                            countPartPrimitives++;
                         }
                     }
 
@@ -399,10 +402,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         listRowsForFill[listRowsFFIndex + 1] = endX - startX + 1;
                         listRowsForFill[listRowsFFIndex + 2] = (int)primitive.Brush.ColorAsUInt;
                         listRowsFFIndex += 3;*/
+                        int alpha256 = computeAlpha[i];// (((((int)primitive.Brush.ColorAsUInt) >> 24) & 0xff) * 256) / 255;
 
                         _nativefunc.NewRowApplyColor64(tmp,
                     startX * 4, endX - startX + 1,
-                    (int)primitive.Brush.ColorAsUInt);
+                    (int)primitive.Brush.ColorAsUInt,alpha256);
                     }
                 }
 
@@ -553,7 +557,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 _nativefunc.NewRowApplyColor64(canvas,
                     listRowsForApply[index] * 4, listRowsForApply[index + 1],
-                    listRowsForApply[index + 2], (int)((((uint)listRowsForApply[index + 2]) >> 24) & 0xff));
+                    listRowsForApply[index + 2]);
 
                 index +=3;
             }

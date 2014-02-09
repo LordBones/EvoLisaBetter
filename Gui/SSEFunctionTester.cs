@@ -50,15 +50,15 @@ namespace GenArt
                 int g = rnd.Next(0, 256);
                 int b = rnd.Next(0, 256);
                 int a = rnd.Next(0, 256);
-                int color  = Color.FromArgb(r, g, b).ToArgb();
+                int color  = Color.FromArgb(a,r, g, b).ToArgb();
                 int count = 33;
                 native.RowApplyColor(colorsCorrect, 0, count, r, g, b, a);
                 native.RowApplyColorSSE64(TestOldSSE64, 0, count, r, g, b, a);
                 native.RowApplyColorSSE64(TestOldSSE128, 0, count, r, g, b, a);
 
-                native.NewRowApplyColor(TestNewSSE, 0, count, color, a);
-                native.NewRowApplyColor64(TestNewSSE64, 0, count, color, a);
-                native.NewRowApplyColor128(TestNewSSE128, 0, count, color, a);
+                native.NewRowApplyColor(TestNewSSE, 0, count, color);
+                native.NewRowApplyColor64(TestNewSSE64, 0, count, color);
+                native.NewRowApplyColor128(TestNewSSE128, 0, count, color);
 
 
 //                native.RowApplyColor(colorsCorrect, 0, 15, 128, 50, 90, 255);

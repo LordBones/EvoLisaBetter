@@ -630,13 +630,25 @@ namespace GenArt.AST
             int py1 = this._Points[1].Y;
             int py2 = this._Points[2].Y;
 
-            // test if is out of triangle
-            int minY = (py0 < py1) ? py0 : py1;
-            minY = (minY < py2) ? minY : py2;
-            int maxY = (py0 > py1) ? py0 : py1;
-            maxY = (maxY > py2) ? maxY : py2;
+            if (py0 > py1)
+            {
+                Tools.swap<int>(ref py0, ref py1);
+                Tools.swap<int>(ref px0, ref px1);
+            }
+            if (py1 > py2)
+            {
+                Tools.swap<int>(ref py1, ref py2);
+                Tools.swap<int>(ref px1, ref px2);
+            }
 
-            if (minY > y || y > maxY) return false;
+            if (py0 > py1)
+            {
+                Tools.swap<int>(ref py0, ref py1);
+                Tools.swap<int>(ref px0, ref px1);
+            }
+
+            // test if is out of triangle
+            if (py0 > y || y > py2) return false;
 
             //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
@@ -686,15 +698,43 @@ namespace GenArt.AST
             int start = 0;
             int end = 0;
 
-            int isCrossLine0 = (py0 == py1) ? -1 : (y - py0) * (py1 - y);
+            //int isCrossLine0 = (py0 == py1) ? -1 : (y - py0) * (py1 - y);
             //int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
             //int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
 
-            if (isCrossLine0 >= 0)
+            if (py0 <= y && py1 > y)
+            {
+                int tmpx0 =  (-v0y * y - v0c) / v0x;
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                start = tmpx0;
+                end = tmpx2;
+            }
+            else if (py1 == py2)
+            {
+                start = px1;
+                end = px2;
+            }
+            else if (py1 == py0)
+            {
+                start = px1;
+                end = px0;
+            }
+
+            else if (py1 < y && py2 >= y)
+            {
+                int tmpx1 =  (-v1y * y - v1c) / v0x;
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                start = tmpx1;
+                end = tmpx2;
+            }
+            else
+                return false;
+
+            /*if (isCrossLine0 >= 0)
             {
 
                 int isCrossLine1 = (py1 == py2 ||
-                        (y == py1 && py1 > minY && py1 < maxY)
+                        (y == py1 && py1 > py0 && py1 < py2)
                         ) ? -1 : (y - py1) * (py2 - y);
 
                 if (isCrossLine1 >= 0)
@@ -721,7 +761,7 @@ namespace GenArt.AST
                 int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
                 start = tmpx1;
                 end = tmpx2;
-            }
+            }*/
 
             if (start > end)
             {

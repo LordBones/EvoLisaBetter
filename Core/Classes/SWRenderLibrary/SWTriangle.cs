@@ -31,7 +31,21 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             short y3 = points[2].Y;
 
             //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
-            FillTrianglePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleOptimize(canvas, x1, y1, x2, y2, x3, y3, color);
+
+        }
+
+        public void RenderTriangleTest(DnaPoint[] points, CanvasBGRA canvas, int color)
+        {
+            short x1 = points[0].X;
+            short y1 = points[0].Y;
+            short x2 = points[1].X;
+            short y2 = points[1].Y;
+            short x3 = points[2].X;
+            short y3 = points[2].Y;
+
+            //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
+            FillTriangleOptimize(canvas, x1, y1, x2, y2, x3, y3, color);
 
         }
 
@@ -51,7 +65,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //FillTriangleMyBetter2(canvas, x1, y1, x2, y2, x3, y3, color);
                 //FillTriangleTile(canvas, x1, y1, x2, y2, x3, y3, color);
                 //FillTriangleTilePokus(canvas, x1, y1, x2, y2, x3, y3, color);
-                FillTrianglePokus(canvas, x1, y1, x2, y2, x3, y3, color);
+                FillTriangle(canvas, x1, y1, x2, y2, x3, y3, color);
             }
 
         }
@@ -59,7 +73,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private static void ApplyColor(byte[] canvas, int index, Color color)
         {
             // convert alpha value from range 0-255 to 0-256
-            int alpha = (color.R * 256) / 255;
+            int alpha = (color.A * 256) / 255;
 
             int invAlpha = 256 - alpha;
 
@@ -79,22 +93,59 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private static void FillTrianglePokus(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
+        private static void ApplyColor(byte[] canvas, int index, int count, int color)
+        {
+            // convert alpha value from range 0-255 to 0-256
+            int alpha = (((color >> 24)&0xff) * 256) / 255;
+
+            int invAlpha = 256 - alpha;
+
+            int b = (color&0xff) * alpha;
+            int g = ((color>>8) & 0xff) * alpha;
+            int r = ((color >> 16) & 0xff) * alpha;
+
+            while (count > 1)
+            {
+                int tb = canvas[index];
+                int tg = canvas[index + 1];
+                int tr = canvas[index + 2];
+                canvas[index] = (byte)((b + (tb * invAlpha)) >> 8);
+                canvas[index + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+                
+                int tb2 = canvas[index + 4];
+                int tg2 = canvas[index + 5];
+                int tr2 = canvas[index + 6];
+                canvas[index + 4] = (byte)((b + (tb2 * invAlpha)) >> 8);
+                canvas[index + 5] = (byte)((g + (tg2 * invAlpha)) >> 8);
+                canvas[index + 6] = (byte)((r + (tr2 * invAlpha)) >> 8);
+                
+                index += 8;
+                count-=2;
+            }
+
+            if (count > 0)
+            {
+                int tb = canvas[index];
+                int tg = canvas[index + 1];
+                int tr = canvas[index + 2];
+
+                canvas[index] = (byte)((b + (tb * invAlpha)) >> 8);
+                canvas[index + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+            }
+        }
+
+        private static void FillTriangle(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
         {
             
-            nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
-               px0, py0, px1, py1, px2, py2, color);
+            //nativeFunc.RenderTriangleNew(canvas.Data, canvas.Width, canvas.HeightPixel,
+            //   px0, py0, px1, py1, px2, py2, color);
 
-            return;
+            //return;
 
-            //int alpha = (color.A * 256) / 255;
-
-            //int invAlpha = 256 - alpha;
-
-            //int b = color.B * alpha;
-            //int g = color.G * alpha;
-            //int r = color.R * alpha;
-            int alpha255 = (color >> 24) & 0xff;
+            
+           
             
             int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
@@ -186,30 +237,169 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
 
                 int currIndex = rowIndex+start*4;
+                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, color);
+                    //ApplyColor(canvas.Data, currIndex, end - start + 1, color);
+                   
+                rowIndex += canvas.Width;
+            }
+        }
 
-                    
-                    nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end- start + 1, color, alpha255);
+        private static void FillTriangleOptimize(CanvasBGRA canvas, short px0, short py0, short px1, short py1, short px2, short py2, int color)
+        {
 
-                    
+            nativeFunc.RenderTriangleNewOptimize(canvas.Data, canvas.Width, canvas.HeightPixel,
+               px0, py0, px1, py1, px2, py2, color);
 
-                    /*while (start <= end )// && start < canvas.WidthPixel)
-                    {
-                        int tb = canvas.Data[currIndex];
-                        int tg = canvas.Data[currIndex + 1];
-                        int tr = canvas.Data[currIndex + 2];
+            return;
+
+            
 
 
-                        canvas.Data[currIndex] = (byte)((b + (tb * invAlpha)) >> 8);
-                        canvas.Data[currIndex + 1] = (byte)((g + (tg * invAlpha)) >> 8);
-                        canvas.Data[currIndex + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+            if (py0 > py1)
+            {
+                Tools.swap<short>(ref py0, ref py1);
+                Tools.swap<short>(ref px0, ref px1);
+            }
+            if (py1 > py2)
+            {
+                Tools.swap<short>(ref py1, ref py2);
+                Tools.swap<short>(ref px1, ref px2);
+            }
 
-                        start ++;
-                        currIndex+= 4;
-                    }*/
+            if (py0 > py1)
+            {
+                Tools.swap<short>(ref py0, ref py1);
+                Tools.swap<short>(ref px0, ref px1);
+            }
 
+            // compute vector and ax+by+c, compute vector (a,b) a coeficient c
+            int v01x,v20x,v01y,v20y,v01c,v20c;
+
+            //v01x = px1 - px0;
+            //v01y = py1 - py0;
+
+            //v20x = px0 - px2;
+            //v20y = py0 - py2;
+
+            //Tools.swap<int>(ref v01x, ref v01y);
+            //Tools.swap<int>(ref v20x, ref v20y);
+
+            v01x = py1 - py0;
+            v01y = px1 - px0;
+
+            v20x = py0 - py2;
+            v20y = px0 - px2;
+
+            
+
+            v01x = -v01x;
+            v20x = -v20x;
+
+            v01c = -(v01x * px0 + v01y * py0);
+            v20c = -(v20x * px2 + v20y * py2);
+
+            int middleY = py1;
+            int rowIndex = py0 * canvas.Width;
+
+            int tmpNominal0 = (-v01y * py0 - v01c);
+            int tmpNominal2 = (-v20y * py0 - v20c);
+
+            // fill first half
+            for (int y = py0; y < middleY; y++)
+            {
+                //int tmpx0 =  (-v01y * y - v01c) / v01x;
+                //int tmpx2 =  (-v20y * y - v20c) / v20x;
+
+                int tmpx0 =  tmpNominal0 / v01x;
+                int tmpx2 =  tmpNominal2 / v20x;
+
+                tmpNominal0 += -v01y;
+                tmpNominal2 += -v20y;
+
+
+                int start = tmpx0;
+            
+                int end = tmpx2;
+
+                if (start > end) Tools.swap<int>(ref start, ref end);
+
+                //if (end >= canvas.WidthPixel)
+                //{
+                //    int kkk = 454;
+                //    throw new Exception();
+                //    continue;
+                //}
+
+
+                int currIndex = rowIndex + start * 4;
+
+                nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
+                //ApplyColor(canvas.Data, currIndex, end - start + 1, color);
+
+                rowIndex += canvas.Width;
+            }
+
+            //int v12x = px2 - px1;
+            //int v12y = py2 - py1;
+            //Tools.swap<int>(ref v12x, ref v12y);
+            int v12x = py2 - py1;
+            int v12y = px2 - px1;
+            
+            v12x = -v12x;
+            int v12c = -(v12x * px1 + v12y * py1);
+
+            rowIndex = middleY * canvas.Width;
+
+            // osetreni specialniho pripadu kdy prostredni bod je v jedne lajne s spodnim
+            if (middleY == py2)
+            {
+                int start = px1;
+                int end = px2;
+
+                if (start > end) Tools.swap<int>(ref start, ref end);
+
+                int currIndex = rowIndex + start * 4;
+
+                nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
+                //ApplyColor(canvas.Data, currIndex, end - start + 1, color);
+                rowIndex += canvas.Width;
 
                 
+                middleY++;
+            }
+
+            int tmpNominal1 = (-v12y * middleY - v12c);
+            tmpNominal2 = (-v20y * middleY - v20c);
+
+            // fill first half
+            for (int y = middleY; y <= py2; y++)
+            {
+                int tmpx1 =  tmpNominal1 / v12x;
+                int tmpx2 = tmpNominal2 / v20x;
+
+                tmpNominal1 += -v12y;
+                tmpNominal2 += -v20y;
+
                 
+                int start = tmpx1;
+                int end = tmpx2;
+
+                if (start > end) Tools.swap<int>(ref start, ref end);
+
+                //if (end >= canvas.WidthPixel)
+                //{
+                    
+                //    int kkk = 454;
+                //    throw new Exception();
+                //    continue;
+                //}
+
+
+                int currIndex = rowIndex + start * 4;
+
+                nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
+                //ApplyColor(canvas.Data, currIndex, end - start + 1, color);
+
                 rowIndex += canvas.Width;
             }
         }
@@ -300,36 +490,6 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         }
 
 
-        private void FillTriangleMyBetter(CanvasBGRA drawCanvas, short x0, short y0, short x1, short y1, short x2, short y2, Color color)
-        {
-
-
-            short minY = y0;
-            short maxY = y0;
-
-            if (minY > y1) minY = y1;
-            if (minY > y2) minY = y2;
-            if (maxY < y1) maxY = y1;
-            if (maxY < y2) maxY = y2;
-
-            int triangleHigh = maxY - minY + 1;
-
-            // key is Y, value is List x values min 1 max 2
-            short [] rangePoints = new short[triangleHigh * 2];
-
-            for (int index=0; index < rangePoints.Length; index += 2)
-                rangePoints[index] = -1;
-
-            DrawLineBetter(rangePoints, minY, x0, y0, x1, y1);
-            DrawLineBetter(rangePoints, minY, x1, y1, x2, y2);
-            DrawLineBetter(rangePoints, minY, x2, y2, x0, y0);
-
-            byte [] canvas = drawCanvas.Data;
-
-
-            nativeFunc.RowApplyColorBetter(canvas, drawCanvas.Width, rangePoints, minY, color.R, color.G, color.B, color.A);
-
-        }
 
         private void InitRangePoints(CanvasBGRA drawCanvas)
         {
@@ -374,7 +534,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //if(alpha> 0) alpha++;
             // convert alpha value from range 0-255 to 0-256
 
-            int color = Color.FromArgb(r, g, b).ToArgb();
+            int color = Color.FromArgb(alpha,r, g, b).ToArgb();
 
             int rowStartIndex = (rangeStartY) * canvasWidth;
             rangeStartY *= 2;
@@ -391,7 +551,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //if(count > 100)
                 //nativeFunc.NewRowApplyColor128(canvas, index, count, color, alpha);
                 //else
-                nativeFunc.NewRowApplyColor64(canvas, index, count, color, alpha);
+                nativeFunc.NewRowApplyColor64(canvas, index, count, color);
 
                 //nativeFunc.NewRowApplyColor64(canvas, index, end, color, alpha);
 

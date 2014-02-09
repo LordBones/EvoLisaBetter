@@ -9,3 +9,8 @@ bin
 
 *.user
 Debug
+
+*.obj
+
+/ForDebuging/Console test bench debug x64
+Console test bench debug x64

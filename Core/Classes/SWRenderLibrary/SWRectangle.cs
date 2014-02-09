@@ -60,8 +60,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             int startIndex = startIndexRow + rectangle.StartPoint.X * 4;
             //nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
+            int alpha256 = ((((color) >> 24) & 0xff) * 256) / 255;
 
-            nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color, (int)(((uint)color >> 24) & 0xff));
+            nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color,alpha256);
             //RowApplyColorSafe(canvas.Data, startIndex, startIndex+(rectangle.Width-1)*4, color.R, color.G, color.B, color.A);
 
         }
@@ -72,7 +73,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
 
 
-            int a = color.A;
+           
             int c = color.ToArgb();
 
             //int indexY = minY * this._canvasWidth;
@@ -85,7 +86,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //nativeFunc.RowApplyColorSSE64(canvas.Data, rowStartIndex, rowEndIndex, r,g,b,a);
                 //nativeFunc.NewRowApplyColor(canvas.Data, rowStartIndex, width, color.ToArgb(), a);
-                nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
+                nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c);
 
                 //nativeFunc.RowApplyColor(canvas.Data, rowStartIndex, width, color.R, color.G, color.B, color.A);
                 //SWHelpers.RowApplyColorSafe(canvas.Data, rowStartIndex, rowEndIndex, color.R, color.G, color.B, color.A);

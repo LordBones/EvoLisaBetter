@@ -10,6 +10,10 @@
 #include "FastFunctions.h"
 #include "NativeMedian8bit.h"
 
+#define SWAP(t,a,b) ( (t) = (a), (a) = (b), (b) = (t) )
+#define SWAP2(a,b) ( (a) ^= (b), (b) ^= (a), (a) ^= (b) )
+
+
 /*
 alpha : 0 - 256
 */
@@ -561,9 +565,9 @@ void Apply4ColorPixelSSE2(unsigned char * canvas,int count,int color, int alpha)
 
 }
 
-void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPixel, int color , int alpha)
+void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPixel, int color )
 {
-    alpha = (alpha*256)/255;
+    int alpha = ((((color) >> 24) & 0xff)*256)/255;
 
     unsigned char * line = canvas;
 
@@ -584,11 +588,15 @@ void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPix
     }*/
 }
 
-void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color , int alpha255)
+void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color )
+{
+    NewFastRowApplyColorSSE64(canvas,countPixel,color,((((color) >> 24) & 0xff)*256)/255);
+}
+void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color, int alpha256 )
 {
     // convert alpha value from range 0-255 to 0-256
 
-    int alpha = (alpha255*256)/255;
+    int alpha = alpha256;// ((((color) >> 24) & 0xff)*256)/255;
 
 
     unsigned char * line = canvas;
@@ -638,92 +646,98 @@ void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countP
     }*/
 }
 
-void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color )
+void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color )
 {
-    NewFastRowApplyColorSSE64(canvas,countPixel,color,(((color) >> 24) & 0xff));
+    NewFastRowApplyColorSSE128(canvas,countPixel,color,((((color) >> 24) & 0xff)*256)/255);
 }
-
-void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color , int alpha)
+void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color, int alpha256 )
 {
     // convert alpha value from range 0-255 to 0-256
 
-    alpha = (alpha*256)/255;
-
+    
     unsigned char * line = canvas;
 
-    unsigned int tmp = (((unsigned int)line) & 0xf )/4; 
-    tmp = 4-tmp;
-    if(countPixel > 3 && tmp > 0)
+    if(countPixel < 64)
     {
-
-
-
-        ApplyColorPixelSSE(line,tmp,color,alpha);
-        countPixel -= tmp;
-        line+=tmp*4;
-
-
-
-        /*if(tmp == 0x4)
-        {
-        ApplyColorPixelSSE(line,3,color,alpha);
-        countPixel -= 3;
-        line+=12;
-        }
-        else if(tmp == 0x8)
-        {
-        ApplyColorPixelSSE(line,2,color,alpha);
-        countPixel -= 2;
-        line+=8;
-        }
-        else if(tmp == 0xc)
-        {
-        ApplyColorPixelSSE(line,color,alpha);
-
-        countPixel -= 1;
-        line+=4;
-        }*/
-    }
-
-    /* while( len > 0)
-    {
-    unsigned int tmp = ((unsigned int)line) & 0xf; 
-    if((tmp == 0xc || tmp == 0x4 || tmp == 0x8) )
-    {
-    ApplyColorPixelSSE(line,r,g,b,alpha);
-
-    len -= 1;
-    line+=4;
+        //ApplyColorPixelSSE(line,countPixel,color,alpha);
+        NewFastRowApplyColorSSE64(line,countPixel,color,alpha256);
     }
     else
     {
-    break;
-    }
-    }*/
+        unsigned int tmp = (((unsigned int)line) & 0xf )/4; 
+        tmp = 4-tmp;
+        if(tmp > 0)
+        {
 
-    if(countPixel > 63)
-    {
-        int tmpLen = countPixel - (countPixel&3);
-        //Apply4ColorPixelSSE(line,r,g,b,alpha);
-        Apply4ColorPixelSSE(line,tmpLen,color,alpha);
+
+
+            ApplyColorPixelSSE(line,tmp,color,alpha256);
+            countPixel -= tmp;
+            line+=tmp*4;
+
+
+
+            /*if(tmp == 0x4)
+            {
+            ApplyColorPixelSSE(line,3,color,alpha);
+            countPixel -= 3;
+            line+=12;
+            }
+            else if(tmp == 0x8)
+            {
+            ApplyColorPixelSSE(line,2,color,alpha);
+            countPixel -= 2;
+            line+=8;
+            }
+            else if(tmp == 0xc)
+            {
+            ApplyColorPixelSSE(line,color,alpha);
+
+            countPixel -= 1;
+            line+=4;
+            }*/
+        }
+
+        /* while( len > 0)
+        {
+        unsigned int tmp = ((unsigned int)line) & 0xf; 
+        if((tmp == 0xc || tmp == 0x4 || tmp == 0x8) )
+        {
+        ApplyColorPixelSSE(line,r,g,b,alpha);
+
+        len -= 1;
+        line+=4;
+        }
+        else
+        {
+        break;
+        }
+        }*/
+
+        //if(countPixel > 3)
+        {
+            int tmpLen = countPixel - (countPixel&3);
+            //Apply4ColorPixelSSE(line,r,g,b,alpha);
+            Apply4ColorPixelSSE(line,tmpLen,color,alpha256);
+            countPixel -= tmpLen;
+
+            line+=tmpLen*4;
+        }
+
+        /*if(countPixel > 1)
+        {
+        int tmpLen = countPixel - (countPixel&1);
+        Apply2ColorPixelSSE(line,tmpLen, color,alpha);
+
         countPixel -= tmpLen;
-
         line+=tmpLen*4;
-    }
-
-    /*if(countPixel > 1)
-    {
-    int tmpLen = countPixel - (countPixel&1);
-    Apply2ColorPixelSSE(line,tmpLen, color,alpha);
-
-    countPixel -= tmpLen;
-    line+=tmpLen*4;
-    }*/
+        }*/
 
 
-    if(countPixel > 0)
-    {
-        ApplyColorPixelSSE(line,countPixel,color,alpha);
+        if(countPixel > 0)
+        {
+            ApplyColorPixelSSE(line,countPixel,color,alpha256);
+        }
     }
 }
 
@@ -1135,11 +1149,12 @@ void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int 
     //}
     //else
     {
+        int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
         canvas+=rowStartIndex;
 
         for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
         {
-            NewFastRowApplyColorSSE64(canvas, width, color, alpha);
+            NewFastRowApplyColorSSE64(canvas, width, color,alpha256);
 
             canvas += canvasWidth;
         }
@@ -1160,6 +1175,7 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
     rowStartIndex += canvasWidth;
     }*/
 
+    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
     canvas += (startY) * canvasWidth;
     //startY *= 2;
     for (int i = 0; i < rlen; i += 2)
@@ -1167,7 +1183,7 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
         int index = (ranges[i]) * 4;
         int count = ranges[i+1] -  ranges[i]+1;
 
-        NewFastRowApplyColorSSE64(canvas+index, count, color, alpha);
+        NewFastRowApplyColorSSE64(canvas+index, count, color,alpha256);
 
         canvas += canvasWidth;
     }
@@ -1209,7 +1225,7 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
 
 
 void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-                                   short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color, int alpha)
+                                   short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
 {
     int v0x,v1x,v2x,v0y,v1y,v2y;
 
@@ -1223,7 +1239,7 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
     v2y = py0 - py2;
 
 
-    alpha = (alpha * 256) / 255;
+    int alpha = (((color>>24)&0xff) * 256) / 255;
 
     int invAlpha = 256 - alpha;
 
@@ -1288,12 +1304,8 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
 void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,int canvasHeight, 
                                       short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
 {
-
-    //alpha = (alpha * 256) / 255;
-
-
-    int alpha255 = (color >> 24)&0xff;
     int rgba = color;
+    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
 
     int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
@@ -1318,7 +1330,7 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
     /*if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
     if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
     if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
-*/
+    */
     v0x = -v0x;
     v1x = -v1x;
     v2x = -v2x;
@@ -1356,8 +1368,8 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
 
             int isCrossLine1 = (py1 == py2
                 ||
-                        (y == py1 &&  py1 > minY && py1<maxY  )
-                        ) ? -1 : (y - py1) * (py2 - y);
+                (y == py1 &&  py1 > minY && py1<maxY  )
+                ) ? -1 : (y - py1) * (py2 - y);
 
             if (isCrossLine1 >= 0)
             {
@@ -1395,33 +1407,190 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
 
         int currIndex = rowIndex+start*4;
 
-        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,rgba,alpha255);
-
-
-
-        /*while (start <= end )// && start < canvas.WidthPixel)
-        {
-        int tb = canvas.Data[currIndex];
-        int tg = canvas.Data[currIndex + 1];
-        int tr = canvas.Data[currIndex + 2];
-
-
-        canvas.Data[currIndex] = (byte)((b + (tb * invAlpha)) >> 8);
-        canvas.Data[currIndex + 1] = (byte)((g + (tg * invAlpha)) >> 8);
-        canvas.Data[currIndex + 2] = (byte)((r + (tr * invAlpha)) >> 8);
-
-        start ++;
-        currIndex+= 4;
-        }*/
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,rgba,alpha256);
 
         rowIndex += canvasWidth;
     }
 }
 
+void FastFunctions::RenderTriangleNewOptimize(unsigned char * canvas, int canvasWidth,int canvasHeight, 
+                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
+{
+
+    //int alpha255 = (color >> 24) & 0xff;
+    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+
+    if (py0 > py1)
+    {
+        short tmp;
+        SWAP(tmp,py0,py1);
+        SWAP(tmp,px0,px1);
+    }
+    if (py1 > py2)
+    {
+
+        short tmp;
+        SWAP(tmp,py1,py2);
+        SWAP(tmp,px1,px2);
+    }
+
+    if (py0 > py1)
+    {
+        short tmp;
+        SWAP(tmp,py0,py1);
+        SWAP(tmp,px0,px1);
+    }
+
+    // compute vector and ax+by+c, compute vector (a,b) a coeficient c
+    int v01x,v20x,v01y,v20y,v01c,v20c;
+
+    //v01x = px1 - px0;
+    //v01y = py1 - py0;
+
+    //v20x = px0 - px2;
+    //v20y = py0 - py2;
+
+    //Tools.swap<int>(ref v01x, ref v01y);
+    //Tools.swap<int>(ref v20x, ref v20y);
+
+    v01x = py1 - py0;
+    v01y = px1 - px0;
+
+    v20x = py0 - py2;
+    v20y = px0 - px2;
 
 
 
+    v01x = -v01x;
+    v20x = -v20x;
 
+    v01c = -(v01x * px0 + v01y * py0);
+    v20c = -(v20x * px2 + v20y * py2);
+
+    int middleY = py1;
+    int rowIndex = py0 * canvasWidth;
+
+    int tmpNominal0 = (-v01y * py0 - v01c);
+    int tmpNominal2 = (-v20y * py0 - v20c);
+
+    // fill first half
+    for (int y = py0; y < middleY; y++)
+    {
+        //int tmpx0 =  (-v01y * y - v01c) / v01x;
+        //int tmpx2 =  (-v20y * y - v20c) / v20x;
+
+        int tmpx0 =  tmpNominal0 / v01x;
+        int tmpx2 =  tmpNominal2 / v20x;
+
+        tmpNominal0 += -v01y;
+        tmpNominal2 += -v20y;
+
+
+        int start = tmpx0;
+
+        int end = tmpx2;
+
+        if (start > end)
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        //if (end >= canvas.WidthPixel)
+        //{
+        //    int kkk = 454;
+        //    throw new Exception();
+        //    continue;
+        //}
+
+
+        int currIndex = rowIndex + start * 4;
+
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,color,alpha256);
+
+        rowIndex += canvasWidth;
+    }
+
+    //int v12x = px2 - px1;
+    //int v12y = py2 - py1;
+    //Tools.swap<int>(ref v12x, ref v12y);
+    int v12x = py2 - py1;
+    int v12y = px2 - px1;
+
+    v12x = -v12x;
+    int v12c = -(v12x * px1 + v12y * py1);
+
+    //rowIndex = middleY * canvasWidth;
+
+    // osetreni specialniho pripadu kdy prostredni bod je v jedne lajne s spodnim
+    if (middleY == py2)
+    {
+        int start = px1;
+        int end = px2;
+
+        if (start > end)
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        int currIndex = rowIndex + start * 4;
+
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,color,alpha256);
+
+        rowIndex += canvasWidth;
+
+        middleY++;
+    }
+
+    int tmpNominal1 = (-v12y * middleY - v12c);
+    tmpNominal2 = (-v20y * middleY - v20c);
+
+    /*int tmp = (-v20y * middleY - v20c) / v20x;
+
+    if (px1 > tmp ) 
+    {
+    int tmp = 0;
+    SWAP(tmp,tmpNominal1,tmpNominal2);
+    SWAP(tmp,v20x,v12x);
+    SWAP(tmp,v20y,v12y);
+
+    }*/
+
+    // fill first half
+    for (int y = middleY; y <= py2; y++)
+    {
+        int tmpx1 =  tmpNominal1 / v12x;
+        int tmpx2 = tmpNominal2 / v20x;
+
+        tmpNominal1 += -v12y;
+        tmpNominal2 += -v20y;
+
+
+        int start = tmpx1;
+        int end = tmpx2;
+
+        if (start > end) 
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        //if (end >= canvas.WidthPixel)
+        //{
+
+        //    int kkk = 454;
+        //    throw new Exception();
+        //    continue;
+        //}
+
+
+        int currIndex = rowIndex + start * 4;
+        NewFastRowApplyColorSSE64(canvas+currIndex,end- start + 1,color,alpha256);
+
+        rowIndex += canvasWidth;
+    }
+}
 
 
 
@@ -1481,7 +1650,7 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
     }
 
     M += index;
-    
+
 
 
     while (CountFill >= 4)
@@ -1517,9 +1686,10 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     for(int rows = 0;rows < countRows;rows++)
     {
         int color = listRowsForApply[index + 2];
-        int alpha = (((color)>>24)&0xff);
+        int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+
         NewFastRowApplyColorSSE64(canvas+
-            listRowsForApply[index] * 4, listRowsForApply[index + 1], color, alpha);
+            listRowsForApply[index] * 4, listRowsForApply[index + 1], color,alpha256);
 
         index +=3;
     }
@@ -2027,7 +2197,7 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
         tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
 
         tmp2 =  _mm_srli_epi16(tmp2,8);
-        
+
         __m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
         mResult = _mm_add_epi32(tmp3,mResult);
         tmp1 = _mm_srli_epi32(tmp1,16);

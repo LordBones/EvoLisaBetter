@@ -36,24 +36,23 @@ namespace GenArtCoreNative {
 
 		}
 
-        void NewRowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha)
+        void NewRowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-            NewFastRowApplyColorSSE(pinCanvas+startPixelIndex,countPixel, color, alpha);
+            NewFastRowApplyColorSSE(pinCanvas+startPixelIndex,countPixel, color);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
         }
 
-        void NewRowApplyColor64(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha)
+        void NewRowApplyColor64(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha256)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-            NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color, alpha);
-
+                NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color,alpha256);
         }
 
         void NewRowApplyColor64(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color)
@@ -61,15 +60,15 @@ namespace GenArtCoreNative {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-            NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color);
+                NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color);
         }
 
-        void NewRowApplyColor128(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color, int alpha)
+        void NewRowApplyColor128(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-            NewFastRowApplyColorSSE128(pinCanvas+startPixelIndex,countPixel, color, alpha);
+            NewFastRowApplyColorSSE128(pinCanvas+startPixelIndex,countPixel, color);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
 
@@ -101,12 +100,12 @@ namespace GenArtCoreNative {
         }
 
         void RenderTriangle(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
-            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color, int alpha)
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 			
 			FastFunctions::RenderTriangle(pinCanvas,canvasWidth,canvasHeight,
-                px0,py0,px1,py1,px2,py2,color,alpha);
+                px0,py0,px1,py1,px2,py2,color);
         }
 
         void RenderTriangleNew(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
@@ -115,6 +114,15 @@ namespace GenArtCoreNative {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 			
 			FastFunctions::RenderTriangleNew(pinCanvas,canvasWidth,canvasHeight,
+                px0,py0,px1,py1,px2,py2,color);
+        }
+
+        void RenderTriangleNewOptimize(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,int color)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			
+            FastFunctions::RenderTriangleNewOptimize(pinCanvas,canvasWidth,canvasHeight,
                 px0,py0,px1,py1,px2,py2,color);
         }
 

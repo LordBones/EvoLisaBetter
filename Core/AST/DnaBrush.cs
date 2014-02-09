@@ -93,19 +93,19 @@ namespace GenArt.AST
             int colorPart = Tools.GetRandomNumber(1, 5);
 
 
-            if (colorPart == 1)
+            if (colorPart <= 1)
             {
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Red, 0, 255, mutationRate);
                 if (value == Red) return false;
                 Red = (byte)Math.Max(Math.Min(value, 255), 0);
             }
-            else if (colorPart == 2)
+            else if (colorPart <= 2)
             {
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Green, 0, 255, mutationRate);
                 if (value == Green) return false;
                 Green = (byte)Math.Max(Math.Min(value, 255), 0);
             }
-            else if (colorPart == 3)
+            else if (colorPart <= 3)
             {
                 int value = Tools.GetRandomNumberNoLinear_MinMoreOften(Blue, 0, 255, mutationRate);
                 if (value == Blue) return false;

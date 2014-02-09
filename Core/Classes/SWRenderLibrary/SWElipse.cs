@@ -36,6 +36,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int b = color.B;
             int a = color.A;
 
+            int alpha256 = (((a * 256) / 255));
+
+
             float hw = width / 2.0f;
             float hwSquare = hw * hw;
 
@@ -50,7 +53,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int c = color.ToArgb();
 
             //nativeFunc.RowApplyColor(canvas.Data, upX1, width, r, g, b, a);
-            nativeFunc.NewRowApplyColor64(canvas.Data, upX1, width, c, a);
+            nativeFunc.NewRowApplyColor64(canvas.Data, upX1, width, c,alpha256);
             //if (upX1 + width <= canvas.Data.Length)
             //{
             //    int i = 0;
@@ -66,7 +69,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 int count = (int)(hw + tmpx);
 
                 //nativeFunc.RowApplyColor(canvas.Data, upX1, count,r,g,b,a);
-                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c, a);
+                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c,alpha256);
                 //RowApplyColorSafe(canvas.Data, upX1, count, r, g, b, a);
 
                 upY =  (y + hh + dy) * canvas.Width;
@@ -75,7 +78,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 //nativeFunc.NewRowApplyColor64(canvas.Data, upX1, upX2, color.ToArgb(), a);
                 //nativeFunc.RowApplyColor(canvas.Data, upX1, count, r, g, b, a);
-                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c, a);
+                nativeFunc.NewRowApplyColor64(canvas.Data, upX1, count, c,alpha256);
                 //RowApplyColorSafe(canvas.Data, upX1, count, r, g, b, a);
 
             }
