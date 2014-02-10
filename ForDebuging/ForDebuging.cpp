@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <math.h>
 #include <emmintrin.h>
 #include <smmintrin.h>
 
@@ -100,6 +101,95 @@ void TestSumSquare()
 
       __int64 result = mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
       
+
+
+}
+
+void TestSumABS()
+{
+    unsigned char field1[] = {2,3,4,250,2,3,4,250,2,3,4,250,2,3,4,250};
+    unsigned char field2[] = {3,4,5,255,3,4,5,255,3,4,5,255,3,4,5,255};
+
+    __int64 result = 0;
+
+    __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
+    __m128i mMaskEven = _mm_set1_epi32(0xffff);
+    __m128i mResult = _mm_setzero_si128();
+
+    int c = 1000;
+    int count = 16;
+    int index = 0;
+    while(count > 15)
+    {
+
+        __m128i colors = _mm_loadu_si128((__m128i*)field1+index);
+        __m128i colors2 = _mm_loadu_si128((__m128i*)field2+index);
+        /*_mm_prefetch((char *)curr+16,_MM_HINT_T0);
+        _mm_prefetch((char *)orig+16,_MM_HINT_T0);*/
+
+        __m128i tmp1 = _mm_min_epu8(colors,colors2);
+        __m128i tmp2 = _mm_max_epu8(colors,colors2);
+        tmp1 = _mm_subs_epu8(tmp2,tmp1);
+
+       
+        
+        tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
+        tmp2 = _mm_and_si128(tmp2,mMaskEven);
+        tmp2 =  _mm_srli_epi16(tmp2,8);
+        tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
+
+        //tmp2 = _mm_add_epi16(tmp2,tmp1);
+        tmp2 = _mm_hadds_epi16(tmp2,tmp1);
+        tmp2 = _mm_hadds_epi16(tmp2,_mm_setzero_si128());
+        tmp2 = _mm_cvtepu16_epi32(tmp2);
+        
+        mResult = _mm_add_epi32(tmp2,mResult);
+       
+        /*__m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
+        mResult = _mm_add_epi32(tmp3,mResult);
+        tmp1 = _mm_srli_epi32(tmp1,16);
+        mResult = _mm_add_epi32(tmp1,mResult);
+
+        tmp3 = _mm_and_si128(tmp2,mMaskEven);
+        mResult = _mm_add_epi32(tmp3,mResult);*/
+
+
+
+        c--;
+        if(c == 0)
+        {
+            result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+            mResult = _mm_setzero_si128();
+            c = 1000;
+        }
+        //      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
+        //         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
+
+        count-=16;
+        index+=16;
+      
+    }
+
+    result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+
+
+    while(count > 3)
+    {
+        int br = field1[index] - field2[index];
+        int bg = field1[index+1] - field2[index+1];
+        int bb = field1[index+2] - field2[index+2];
+        
+        result += labs(br)+labs(bg) + labs(bb);
+
+        count-=4;
+        index+=4;
+        //curr+=4;
+        //orig+=4;
+        //  index += 4;
+    }
+
+
+    //return result;
 
 
 }
@@ -314,6 +404,7 @@ void FastRowApplyColor(unsigned char * canvas, int len, int r , int g, int b, in
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+    TestSumABS();
     TestSumSquare();
 
     unsigned char field1[] = {255,3,4,255,2,3,4,255,2,3,4,255,2,3,4,255};

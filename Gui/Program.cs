@@ -19,11 +19,11 @@ namespace GenArt
         private static Stopwatch sw = new Stopwatch();
 
         private static void PerfStart() { sw.Reset(); sw.Start(); }
-        private static long PerfEnd() 
+        private static long PerfEnd()
         {
             sw.Stop();
             return sw.ElapsedTicks;
-            
+
         }
 
 
@@ -32,7 +32,7 @@ namespace GenArt
             DNARenderer dr = new DNARenderer(200, 200);
             //CanvasBGRA tc = new CanvasBGRA(200, 200);
             DnaDrawing dna = new DnaDrawing(200, 200);
-            dna.AddRectangle(255,null,null,null);
+            dna.AddRectangle(255, null, null, null);
             //dr.RenderDNA(dna, DNARenderer.RenderType.Software);
             CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test.bmp");
             dr.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
@@ -46,7 +46,7 @@ namespace GenArt
             int end = 1000;
             NativeFunctions nativeFunc = new NativeFunctions();
 
-            int color = Color.FromArgb(135,128, 100, 230).ToArgb();
+            int color = Color.FromArgb(135, 128, 100, 230).ToArgb();
             PerfStart();
             for (int i = 0; i < CONST_LoopCount; i++)
             {
@@ -54,14 +54,14 @@ namespace GenArt
                 //nativeFunc.RowApplyColorSSE64(canvas.Data, 0, end, 128, 100, 230, 135);
                 nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
-            } 
+            }
             long ticks = PerfEnd();
-            
+
             TimeSpan ts = new TimeSpan(ticks);
-            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds,CONST_LoopCount,ticks/(double)CONST_LoopCount);
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LoopCount, ticks / (double)CONST_LoopCount);
             //Console.Out.WriteLine("points fill: {0} Mpoints", ((long)canvas.CountPixels * CONST_LoopCount) / 1000000);
             long mpoints = (((end)) * CONST_LoopCount);
-            Console.Out.WriteLine("points fill: {0} Mpoints/s", (((1.0 / ts.TotalSeconds)* mpoints) / 1000000));
+            Console.Out.WriteLine("points fill: {0} Mpoints/s", (((1.0 / ts.TotalSeconds) * mpoints) / 1000000));
             Console.Out.WriteLine("points fill: {0} Mpoints", (mpoints / 1000000));
 
         }
@@ -98,7 +98,7 @@ namespace GenArt
         }
 
 
-       
+
 
         private static void TestBenchmark()
         {
@@ -109,7 +109,7 @@ namespace GenArt
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
 
-            for (int i =0; i < 100; i++) 
+            for (int i =0; i < 100; i++)
             {
                 dna.MutationAddPolygon(255, null);
                 DnaBrush db = dna.Polygons[dna.Polygons.Length - 1].Brush;
@@ -201,7 +201,7 @@ namespace GenArt
             //byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
             CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
-           
+
             SWTriangle triangleTest = new SWTriangle();
             SWRectangle rectangleTest = new SWRectangle();
 
@@ -218,8 +218,8 @@ namespace GenArt
 
             dnar.DestCanvas = canvasTest;
             PerfStart();
-            
-            for (int i = 0; i < CONST_LOOP; i++) 
+
+            for (int i = 0; i < CONST_LOOP; i++)
             {
                 //dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
 
@@ -277,8 +277,61 @@ namespace GenArt
 
             bmp.UnlockBits(lockBmp);
             bmp.Save("canvasTestsw.bmp", ImageFormat.Bmp);
-            
+
         }
+
+        private static void TestBenchmarkFittness()
+        {
+            const long CONST_LOOP = 10000;
+            const long CONST_FieldSize =  640 * 480 * 4;
+
+            Random rnd = new Random(0);
+            byte [] orig = new byte[CONST_FieldSize];
+            byte [] dest = new byte[CONST_FieldSize];
+
+            rnd.NextBytes(orig);
+            rnd.NextBytes(dest);
+
+            /*for (int i =0; i < CONST_FieldSize; i++)
+            {
+                orig[i] = (byte)(i&0xff);
+                dest[i] = (byte)(0xff - (i & 0xff));
+            }*/
+
+            NativeFunctions nativeFunc = new NativeFunctions();
+
+            long origRes = nativeFunc.ComputeFittnessABS(orig, dest);
+            long destRes = nativeFunc.ComputeFittnessABSSSE(orig, dest);
+
+            Console.WriteLine("Fittness orig: {0} dest: {1}", origRes, destRes);
+            if (origRes != destRes)
+            {
+                Console.WriteLine("Fail, fittness are not the same");
+               // return;  
+            }
+
+
+            PerfStart();
+
+            for (int i = 0; i < CONST_LOOP; i++)
+            {
+                nativeFunc.ComputeFittnessABSSSE(orig, dest);
+                //nativeFunc.ComputeFittnessABS(orig, dest);
+                //nativeFunc.ComputeFittnessSquare(orig, dest);
+                //nativeFunc.ComputeFittnessSquareSSE(orig, dest);
+
+            }
+
+            long ticks = PerfEnd();
+
+            TimeSpan ts = new TimeSpan(ticks);
+
+            Console.Out.WriteLine("time: {0}.{1:d3}   Loop:{2} avg. ticks:{3:0.###}", (int)ts.TotalSeconds, ts.Milliseconds, CONST_LOOP, ticks / (double)(CONST_LOOP ));
+            Console.Out.WriteLine("FitSize:{0} KB compute fittness : {1} MB/s",CONST_FieldSize/1000, ((CONST_LOOP * CONST_FieldSize) / ts.TotalSeconds) / 1000000);
+
+        }
+
+
 
         private static void TestSoftwareRenderPolygon()
         {
@@ -306,7 +359,7 @@ namespace GenArt
                 dna.Init();
 
                 for (int i =0; i < 2; i++)
-                    dna.MutationAddPolygon(255,null);
+                    dna.MutationAddPolygon(255, null);
 
 
                 for (int i =0; i < dna.Polygons.Length; i++)
@@ -328,7 +381,7 @@ namespace GenArt
                 //g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
                 //g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
                 //g.Clear(Color.Black);
-                
+
                 bool end = false;
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
@@ -342,12 +395,12 @@ namespace GenArt
 
                     //using (Brush brush = new SolidBrush(dna.Polygons[index].Brush.BrushColor))
                     //{
-                        
+
                     //    Point[] gdipoints = GetGdiPoints(dna.Polygons[index].Points, 1);
-                        
+
                     //    g.FillPolygon(brush, gdipoints);
                     //}
-                    
+
 
                     bool canvasEqual = true;
                     for (int ieq = 0; ieq < canvasTest.Data.Length; ieq++)
@@ -359,28 +412,28 @@ namespace GenArt
                         }
                     }
 
-                       /* if (//!polyTest.IsMinAreaDataEqual(polyTest) 
-                            //|| 
-                            !canvasEqual)
-                        {
-                            polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
-                            polyTest.SaveMinAreaToFile("PolyTest.txt");
+                    /* if (//!polyTest.IsMinAreaDataEqual(polyTest) 
+                         //|| 
+                         !canvasEqual)
+                     {
+                         polyCorrect.SaveMinAreaToFile("PolyCorrect.txt");
+                         polyTest.SaveMinAreaToFile("PolyTest.txt");
 
-                            Console.Out.WriteLine("Test Fail");
-                            end = true;
-                            break;
-                        }*/
+                         Console.Out.WriteLine("Test Fail");
+                         end = true;
+                         break;
+                     }*/
 
                 }
 
                 //rbmp.Save("canvasTestswGDI.bmp");
                 //if (end)
-                    break;
+                break;
             }
 
 
 
-            
+
 
             Bitmap bmp = new Bitmap(CONST_Width, CONST_Height, PixelFormat.Format32bppPArgb);
             var lockBmp = bmp.LockBits(new Rectangle(0, 0, CONST_Width, CONST_Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppPArgb);
@@ -416,6 +469,8 @@ namespace GenArt
 
         }
 
+
+
         private static Point[] GetGdiPoints(IList<DnaPoint> points, int scale)
         {
             Point[] pts = new Point[points.Count];
@@ -431,7 +486,7 @@ namespace GenArt
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string [] args)
+        static void Main(string[] args)
         {
 
 
@@ -449,14 +504,18 @@ namespace GenArt
             }
             else
             {
-                
+
                 if (args[0] == "benchfill")
                 {
-                    TestBenchmarkColorFill();        
+                    TestBenchmarkColorFill();
                 }
-                if (args[0] == "bench")
+                else if (args[0] == "bench")
                 {
-                    TestBenchmark();     
+                    TestBenchmark();
+                }
+                else if (args[0] == "benchfitt")
+                {
+                    TestBenchmarkFittness();
                 }
                 else if (args[0] == "test")
                 {

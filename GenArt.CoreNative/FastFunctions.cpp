@@ -2162,8 +2162,9 @@ __int64 FastFunctions::computeFittnessSumABS(unsigned char * curr, unsigned char
         int br = curr[index] - orig[index];
         int bg = curr[index + 1] - orig[index + 1];
         int bb = curr[index + 2] - orig[index + 2];
+        //int ba = curr[index + 3] - orig[index + 3];
 
-        result += labs(br)+labs(bg) + labs(bb);
+        result += labs(br)+labs(bg) + labs(bb);// + labs(ba);
 
         //  index += 4;
     }
@@ -2178,6 +2179,7 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
     __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
     __m128i mMaskEven = _mm_set1_epi32(0xffff);
     __m128i mResult = _mm_setzero_si128();
+    __m128i mzero = _mm_setzero_si128();
 
     int c = 1000;
 
@@ -2186,8 +2188,103 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
         __m128i colors = _mm_loadu_si128((__m128i*)curr);
         __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
-        /*_mm_prefetch((char *)curr+16,_MM_HINT_T0);
-        _mm_prefetch((char *)orig+16,_MM_HINT_T0);*/
+        _mm_prefetch((char *)curr+16,_MM_HINT_T0);
+        _mm_prefetch((char *)orig+16,_MM_HINT_T0);
+        //_mm_prefetch((char *)curr+32,_MM_HINT_T0);
+        //_mm_prefetch((char *)orig+32,_MM_HINT_T0);
+
+        __m128i tmp1 = _mm_min_epu8(colors,colors2);
+        __m128i tmp2 = _mm_max_epu8(colors,colors2);
+        tmp1 = _mm_subs_epu8(tmp2,tmp1);
+
+       
+        
+        tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
+        tmp2 = _mm_and_si128(tmp2,mMaskEven);
+        tmp2 =  _mm_srli_epi16(tmp2,8);
+        tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
+        
+        tmp2 = _mm_adds_epu16(tmp1,tmp2);
+        /*__m128i tmp3 = _mm_srli_si128(tmp2,64);
+        tmp2 = _mm_adds_epu16(tmp2,tmp3);
+        tmp3 = _mm_srli_si128(tmp2,32);
+        tmp2 = _mm_adds_epu16(tmp2,tmp3);
+        tmp3 = _mm_srli_si128(tmp2,16);
+        tmp2 = _mm_adds_epu16(tmp2,tmp3);*/
+        
+
+        //tmp2 = _mm_hadds_epi16(tmp2,tmp1);
+        tmp2 = _mm_hadds_epi16(tmp2,mzero);
+        tmp2 = _mm_hadds_epi16(tmp2,mzero);
+        tmp2 = _mm_hadds_epi16(tmp2,mzero);
+
+        mResult = _mm_add_epi64(mResult,tmp2);
+
+       
+        
+        //result += tmp2.m128i_u32[0];
+        
+        
+
+
+        /*c--;
+        if(c == 0)
+        {
+            mResult = _mm_hadd_epi32(mResult,_mm_setzero_si128());
+            mResult = _mm_hadd_epi32(mResult,_mm_setzero_si128());
+            //result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+            result += mResult.m128i_u32[0];
+            mResult = _mm_setzero_si128();
+            c = 1000;
+        }*/
+        //      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
+        //         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
+
+        count-=16;
+        curr+=16;
+        orig+=16;
+
+    }
+
+    result += mResult.m128i_u64[0];//+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+
+
+    while(count > 3)
+    {
+        int br = curr[0] - orig[0];
+        int bg = curr[1] - orig[1];
+        int bb = curr[2] - orig[2];
+
+        result += labs(br)+labs(bg) + labs(bb);
+
+        count-=4;
+        curr+=4;
+        orig+=4;
+        //  index += 4;
+    }
+
+
+    return result;
+
+}
+
+
+/*__int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned char* orig, int count )
+{
+    __int64 result = 0;
+
+    __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
+    __m128i mMaskEven = _mm_set1_epi32(0xffff);
+    __m128i mResult = _mm_setzero_si128();
+
+    int c = 1000;
+
+    while(count > 15)
+    {
+
+        __m128i colors = _mm_loadu_si128((__m128i*)curr);
+        __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+       
 
         __m128i tmp1 = _mm_min_epu8(colors,colors2);
         __m128i tmp2 = _mm_max_epu8(colors,colors2);
@@ -2244,5 +2341,5 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
     return result;
 
-}
+}*/
 
