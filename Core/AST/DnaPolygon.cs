@@ -652,69 +652,44 @@ namespace GenArt.AST
 
             //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
-            int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
+            int v2x = -(py0 - py2);
+            int v2y = px0 - px2; 
 
-            v0x = px1 - px0;
-            v0y = py1 - py0;
-
-            v1x = px2 - px1;
-            v1y = py2 - py1;
-
-            v2x = px0 - px2;
-            v2y = py0 - py2; 
-
-            int tmp;
-
-            tmp = v0x; v0x = v0y; v0y = tmp;
-            tmp = v1x; v1x = v1y; v1y = tmp;
-            tmp = v2x; v2x = v2y; v2y = tmp;
-
-
-            /*Tools.swap<int>(ref v0x, ref v0y);
-            Tools.swap<int>(ref v1x, ref v1y);
-            Tools.swap<int>(ref v2x, ref v2y);*/
-
-            //if (v0x < 0) { v0x = -v0x; } else { v0y = -v0y; }
-            //if (v1x < 0) { v1x = -v1x; } else { v1y = -v1y; }
-            //if (v2x < 0) { v2x = -v2x; } else { v2y = -v2y; }
-
-             v0x = -v0x; 
-            v1x = -v1x; 
-            v2x = -v2x; 
-
-            v0c = -(v0x * px0 + v0y * py0);
-            v1c = -(v1x * px1 + v1y * py1);
-            v2c = -(v2x * px2 + v2y * py2);
-
+            int v2c = -(v2x * px2 + v2y * py2);
 
             // process all points
 
-
             // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
-            //int tmpx0 = (v0x == 0)? px0 : (-v0y * y - v0c) / v0x;
-            //int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
-            //int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
-
+            
             int start = 0;
             int end = 0;
 
-            //int isCrossLine0 = (py0 == py1) ? -1 : (y - py0) * (py1 - y);
-            //int isCrossLine1 = (py1 == py2) ? -1 : (y - py1) * (py2 - y);
-            //int isCrossLine2 = (py2 == py0) ? -1 : (y - py2) * (py0 - y);
-
             if (py0 <= y && py1 > y)
             {
+                //int v0x = px1 - px0;
+                //int v0y = py1 - py0;
+                //tmp = v0x; v0x = v0y; v0y = tmp;
+                //v0x = -v0x;
+
+                // zkraceny zapis, vypocteni normaloveho vektoru
+                // rozdil->prohozeni->negace
+
+                int v0x = -(py1 - py0);
+                int v0y = px1 - px0;
+                
+                int v0c = -(v0x * px0 + v0y * py0);
+
                 int tmpx0 =  (-v0y * y - v0c) / v0x;
                 int tmpx2 =  (-v2y * y - v2c) / v2x;
                 start = tmpx0;
                 end = tmpx2;
             }
-            else if (py1 == py2)
+            else if (y == py1 && py1 == py2 )
             {
                 start = px1;
                 end = px2;
             }
-            else if (py1 == py0)
+            else if (y == py1 && py1 == py0)
             {
                 start = px1;
                 end = px0;
@@ -722,7 +697,11 @@ namespace GenArt.AST
 
             else if (py1 < y && py2 >= y)
             {
-                int tmpx1 =  (-v1y * y - v1c) / v0x;
+                int v1x = -(py2 - py1);
+                int v1y = px2 - px1;
+                int v1c = -(v1x * px1 + v1y * py1);
+
+                int tmpx1 =  (-v1y * y - v1c) / v1x;
                 int tmpx2 =  (-v2y * y - v2c) / v2x;
                 start = tmpx1;
                 end = tmpx2;

@@ -2176,78 +2176,62 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 {
     __int64 result = 0;
 
-    __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
-    __m128i mMaskEven = _mm_set1_epi32(0xffff);
+    //__m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
+    //__m128i mMaskEven = _mm_set1_epi32(0xffff);
     __m128i mResult = _mm_setzero_si128();
-    __m128i mzero = _mm_setzero_si128();
+    __m128i mResult2 = _mm_setzero_si128();
+    //__m128i mzero = _mm_setzero_si128();
+    __m128i mMask = _mm_set1_epi32(0xffffff);
+
 
     int c = 1000;
 
-    while(count > 15)
+    /*while(count > 15)
     {
-
         __m128i colors = _mm_loadu_si128((__m128i*)curr);
         __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
         _mm_prefetch((char *)curr+16,_MM_HINT_T0);
         _mm_prefetch((char *)orig+16,_MM_HINT_T0);
-        //_mm_prefetch((char *)curr+32,_MM_HINT_T0);
-        //_mm_prefetch((char *)orig+32,_MM_HINT_T0);
-
-        __m128i tmp1 = _mm_min_epu8(colors,colors2);
-        __m128i tmp2 = _mm_max_epu8(colors,colors2);
-        tmp1 = _mm_subs_epu8(tmp2,tmp1);
-
-       
-        
-        tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
-        tmp2 = _mm_and_si128(tmp2,mMaskEven);
-        tmp2 =  _mm_srli_epi16(tmp2,8);
-        tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
-        
-        tmp2 = _mm_adds_epu16(tmp1,tmp2);
-        /*__m128i tmp3 = _mm_srli_si128(tmp2,64);
-        tmp2 = _mm_adds_epu16(tmp2,tmp3);
-        tmp3 = _mm_srli_si128(tmp2,32);
-        tmp2 = _mm_adds_epu16(tmp2,tmp3);
-        tmp3 = _mm_srli_si128(tmp2,16);
-        tmp2 = _mm_adds_epu16(tmp2,tmp3);*/
-        
-
-        //tmp2 = _mm_hadds_epi16(tmp2,tmp1);
-        tmp2 = _mm_hadds_epi16(tmp2,mzero);
-        tmp2 = _mm_hadds_epi16(tmp2,mzero);
-        tmp2 = _mm_hadds_epi16(tmp2,mzero);
-
-        mResult = _mm_add_epi64(mResult,tmp2);
-
-       
-        
-        //result += tmp2.m128i_u32[0];
-        
-        
-
-
-        /*c--;
-        if(c == 0)
-        {
-            mResult = _mm_hadd_epi32(mResult,_mm_setzero_si128());
-            mResult = _mm_hadd_epi32(mResult,_mm_setzero_si128());
-            //result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
-            result += mResult.m128i_u32[0];
-            mResult = _mm_setzero_si128();
-            c = 1000;
-        }*/
-        //      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
-        //         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
+      
+        colors = _mm_and_si128(colors,mMask);
+        colors2 = _mm_and_si128(colors2,mMask);
+        __m128i tmp1 = _mm_sad_epu8(colors,colors2);
+        mResult = _mm_add_epi64(mResult,tmp1);
 
         count-=16;
         curr+=16;
         orig+=16;
 
+    }*/
+    
+    while(count > 31)
+    {
+        __m128i colors = _mm_loadu_si128((__m128i*)curr);
+        __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+        __m128i colors3 = _mm_loadu_si128((__m128i*)(curr+16));
+        __m128i colors4 = _mm_loadu_si128((__m128i*)(orig+16));
+        //_mm_prefetch((char *)curr+32,_MM_HINT_T0);
+        //_mm_prefetch((char *)orig+32,_MM_HINT_T0);
+
+        colors = _mm_and_si128(colors,mMask);
+        colors2 = _mm_and_si128(colors2,mMask);
+        
+        
+        colors3 = _mm_and_si128(colors3,mMask);
+        colors4 = _mm_and_si128(colors4,mMask);
+        __m128i tmp1 = _mm_sad_epu8(colors,colors2);
+        __m128i tmp2 = _mm_sad_epu8(colors3,colors4);
+        mResult = _mm_add_epi64(mResult,tmp1);
+        mResult2 = _mm_add_epi64(mResult2,tmp2);
+
+        count-=32;
+        curr+=32;
+        orig+=32;
+
     }
 
-    result += mResult.m128i_u64[0];//+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
-
+    result += mResult.m128i_u64[0]+mResult.m128i_u64[1];//+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+    result += mResult2.m128i_u64[0]+mResult2.m128i_u64[1];
 
     while(count > 3)
     {

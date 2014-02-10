@@ -51,8 +51,8 @@ namespace GenArt
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                //nativeFunc.RowApplyColorSSE64(canvas.Data, 0, end, 128, 100, 230, 135);
-                nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color);
+                nativeFunc.NewRowApplyColor64(canvas.Data, 0, end, color);
+                //nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
             long ticks = PerfEnd();
@@ -104,7 +104,7 @@ namespace GenArt
         {
             const int CONST_Width = 200;
             const int CONST_Height = 200;
-            const int CONST_LOOP = 100000;
+            const int CONST_LOOP = 10000;
 
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
@@ -117,12 +117,20 @@ namespace GenArt
 
             }
 
-            //for (int i =0; i < 100; i++)
-            //{
-            //    DnaRectangle dnaRectangle = new DnaRectangle(0, 0, CONST_Width, CONST_Height);
-            //    dnaRectangle.Brush.SetByColor(Color.FromArgb(127, 255, 0, 0));
-            //    dna.AddDnaPrimitive(dnaRectangle);
-            //}
+            /*for (int i =0; i < 100; i++)
+            {
+                DnaPolygon dp = new DnaPolygon();
+                dp.InitTestPolygon();
+                dp._Points[0] = new DnaPoint(123, 77);
+                dp._Points[1] = new DnaPoint(64, 0);
+                dp._Points[2] = new DnaPoint(147, 6);
+                dp.Brush.SetByColor(Color.FromArgb(128, 255, 0, 0));
+                dna.AddDnaPrimitive(dp);
+
+                //DnaRectangle dnaRectangle = new DnaRectangle(0, 0, CONST_Width, CONST_Height);
+                //dnaRectangle.Brush.SetByColor(Color.FromArgb(127, 255, 0, 0));
+                //dna.AddDnaPrimitive(dnaRectangle);
+            }*/
 
             /*for (int i =0; i < 25; i++)
             {
@@ -221,7 +229,7 @@ namespace GenArt
 
             for (int i = 0; i < CONST_LOOP; i++)
             {
-                //dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
+                dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
 
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
@@ -229,7 +237,7 @@ namespace GenArt
                     //polyCorrect.FillPolygonCorrectSlow(points, canvasCorrect, Color.Black);
 
                     //polyTest.FillPolygonBenchmark(canvasTest, Color.Black);
-                    triangleTest.RenderTriangleTest(dna.Polygons[index].Points, canvasTest, (int)dna.Polygons[index].Brush.ColorAsUInt);
+                    //triangleTest.RenderTriangleTest(dna.Polygons[index].Points, canvasTest, (int)dna.Polygons[index].Brush.ColorAsUInt);
                     //dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
                     //rectangleTest.Render(dnaRectangle, canvasTest);
                     //rectangleTest.RenderRow(dnaRectangle, canvasTest);

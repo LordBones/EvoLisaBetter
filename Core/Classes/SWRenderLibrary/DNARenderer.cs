@@ -404,8 +404,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         listRowsFFIndex += 3;*/
                         int alpha256 = computeAlpha[i];// (((((int)primitive.Brush.ColorAsUInt) >> 24) & 0xff) * 256) / 255;
 
-                        _nativefunc.NewRowApplyColor64(tmp,
-                    startX * 4, endX - startX + 1,
+                        //ApplyColor(tmp, startX * 4, endX - startX + 1, (int)primitive.Brush.ColorAsUInt);
+
+                        _nativefunc.NewRowApplyColor64(tmp, startX * 4, endX - startX + 1,
                     (int)primitive.Brush.ColorAsUInt,alpha256);
                     }
                 }
@@ -560,6 +561,49 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                     listRowsForApply[index + 2]);
 
                 index +=3;
+            }
+        }
+
+        private static void ApplyColor(byte[] canvas, int index, int count, int color)
+        {
+            // convert alpha value from range 0-255 to 0-256
+            int alpha = (((color >> 24) & 0xff) * 256) / 255;
+
+            int invAlpha = 256 - alpha;
+
+            int b = (color & 0xff) * alpha;
+            int g = ((color >> 8) & 0xff) * alpha;
+            int r = ((color >> 16) & 0xff) * alpha;
+
+            while (count > 1)
+            {
+                int tb = canvas[index];
+                int tg = canvas[index + 1];
+                int tr = canvas[index + 2];
+                canvas[index] = (byte)((b + (tb * invAlpha)) >> 8);
+                canvas[index + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
+
+                int tb2 = canvas[index + 4];
+                int tg2 = canvas[index + 5];
+                int tr2 = canvas[index + 6];
+                canvas[index + 4] = (byte)((b + (tb2 * invAlpha)) >> 8);
+                canvas[index + 5] = (byte)((g + (tg2 * invAlpha)) >> 8);
+                canvas[index + 6] = (byte)((r + (tr2 * invAlpha)) >> 8);
+
+                index += 8;
+                count -= 2;
+            }
+
+            if (count > 0)
+            {
+                int tb = canvas[index];
+                int tg = canvas[index + 1];
+                int tr = canvas[index + 2];
+
+                canvas[index] = (byte)((b + (tb * invAlpha)) >> 8);
+                canvas[index + 1] = (byte)((g + (tg * invAlpha)) >> 8);
+                canvas[index + 2] = (byte)((r + (tr * invAlpha)) >> 8);
             }
         }
 
