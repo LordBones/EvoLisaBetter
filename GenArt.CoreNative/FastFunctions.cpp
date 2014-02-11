@@ -238,9 +238,80 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
 
     //__m128i mZero = _mm_setzero_si128();
     int x=0;
-    while(count > 1)
+    while(count > 3)
+    {
+        
+        __m128i source =  _mm_cvtsi64_si128(*(((long long*)canvas)+x));
+        __m128i source2 = _mm_cvtsi64_si128(*(((long long*)canvas)+x+1));
+
+        //__m128i source =  _mm_loadu_si128((__m128i*)(canvas+x*8));
+        //__m128i source2 = _mm_loadu_si128((__m128i*)(canvas+x*8));
+        //_mm_ctv
+        //source2  = _mm_srli_epi64(source2,64); 
+
+        source = _mm_unpacklo_epi8(source,_mm_setzero_si128());
+        source2 = _mm_unpacklo_epi8(source2,_mm_setzero_si128());
+
+        //source = _mm_cvtepu8_epi16(source);
+        //source2 = _mm_cvtepu8_epi16(source2);
+
+        source  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+        source2  = _mm_mullo_epi16(source2,mMullInvAlpha);    // source*invalpha
+        source  = _mm_adds_epu16(source,mColorTimeAlpha);     // t
+        source2  = _mm_adds_epu16(source2,mColorTimeAlpha);     // t
+        source  = _mm_srli_epi16(source,8); 
+        source2  = _mm_srli_epi16(source2,8); 
+
+        source        = _mm_packus_epi16(source,source );// mZero );         // pack
+        source2        = _mm_packus_epi16(source2,source2 );// mZero );         // pack
+
+        *((((long long*)canvas)+x)) =  source.m128i_u64[0];// _mm_cvtsi128_si64(source);
+         *((((long long*)canvas)+x+1)) = source2.m128i_u64[0]; //_mm_cvtsi128_si64(source2);
+
+        x+=2;
+        //canvas += 8;
+        count-=4;
+    }
+
+    if(count > 1)
     {
         __m128i source = _mm_cvtsi64_si128(*(((long long*)canvas)+x));
+
+        //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
+        source = _mm_cvtepu8_epi16(source);
+
+        __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+        tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+
+        tmp1          = _mm_srli_epi16(tmp1,8); 
+
+        source        = _mm_packus_epi16(tmp1,tmp1 );// mZero );         // pack
+
+        *(((long long*)canvas)+x) = source.m128i_u64[0];// _mm_cvtsi128_si64(source);
+    }
+
+}
+
+void Apply2ColorPixelSSE2(unsigned char * canvas,int count,int color, int alpha)
+{
+    int invAlpha = 256 - alpha;
+
+    __m128i mColorTimeAlpha = _mm_set1_epi32(color&0xffffff);
+
+    mColorTimeAlpha = _mm_cvtepu8_epi16(mColorTimeAlpha);
+    __m128i mColorTimeAlphaMull = _mm_set1_epi16((short)alpha);
+    mColorTimeAlpha = _mm_mullo_epi16(mColorTimeAlpha,mColorTimeAlphaMull);
+
+    __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
+
+    mMullInvAlpha.m128i_i16[3] = 256;
+    mMullInvAlpha.m128i_i16[7] = 256;
+
+    //__m128i mZero = _mm_setzero_si128();
+    int x=0;
+    while(count > 1)
+    {
+        __m128i source = _mm_cvtsi64_si128(*((long long*)(canvas+x)));
 
         //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
         source = _mm_cvtepu8_epi16(source);
@@ -259,9 +330,9 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
         //source        = _mm_packus_epi16(source,source );// mZero );         // pack
         source        = _mm_packus_epi16(tmp1,tmp1 );// mZero );         // pack
 
-        *(((long long*)canvas)+x) =  _mm_cvtsi128_si64(source);
+        *((long long*)(canvas+x)) =  _mm_cvtsi128_si64(source);
 
-        x++;//=8;
+        x+=8;
         //canvas += 8;
         count-=2;
     }
@@ -654,7 +725,7 @@ void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int count
 {
     // convert alpha value from range 0-255 to 0-256
 
-    
+
     unsigned char * line = canvas;
 
     if(countPixel < 64)
@@ -1592,6 +1663,108 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * canvas, int canvas
     }
 }
 
+bool FastFunctions::TriangleGetRowIntersect(int y, int * startX, int * endX, 
+        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2)
+{
+    
+            if (py0 > py1)
+            {
+                int tmp;
+                SWAP(tmp, py0, py1);
+                SWAP(tmp, px0, px1);
+            }
+            if (py1 > py2)
+            {
+                int tmp;
+                SWAP(tmp, py1, py2);
+                SWAP(tmp, px1, px2);
+            }
+
+            if (py0 > py1)
+            {
+                int tmp;
+                SWAP(tmp, py0, py1);
+                SWAP(tmp, px0, px1);
+            }
+
+            // test if is out of triangle
+            if (py0 > y || y > py2) return false;
+
+            //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
+
+            int v2x = -(py0 - py2);
+            int v2y = px0 - px2; 
+
+            int v2c = -(v2x * px2 + v2y * py2);
+
+            // process all points
+
+            // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
+            
+            int start = 0;
+            int end = 0;
+
+            if (py0 <= y && py1 > y)
+            {
+                //int v0x = px1 - px0;
+                //int v0y = py1 - py0;
+                //tmp = v0x; v0x = v0y; v0y = tmp;
+                //v0x = -v0x;
+
+                // zkraceny zapis, vypocteni normaloveho vektoru
+                // rozdil->prohozeni->negace
+
+                int v0x = -(py1 - py0);
+                int v0y = px1 - px0;
+                
+                int v0c = -(v0x * px0 + v0y * py0);
+
+                int tmpx0 =  (-v0y * y - v0c) / v0x;
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                start = tmpx0;
+                end = tmpx2;
+            }
+            else if (y == py1 && py1 == py2 )
+            {
+                start = px1;
+                end = px2;
+            }
+            else if (y == py1 && py1 == py0)
+            {
+                start = px1;
+                end = px0;
+            }
+
+            else if (py1 <= y && py2 >= y)
+            {
+                int v1x = -(py2 - py1);
+                int v1y = px2 - px1;
+                int v1c = -(v1x * px1 + v1y * py1);
+
+                int tmpx1 =  (-v1y * y - v1c) / v1x;
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                start = tmpx1;
+                end = tmpx2;
+            }
+            else
+                return false;
+
+            
+            if (start > end)
+            {
+                *startX = end;
+                *endX = start;
+            }
+            else
+            {
+                *startX = start;
+                *endX = end;
+            }
+
+            return true;
+}
+
+
 
 
 
@@ -2188,22 +2361,22 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
     /*while(count > 15)
     {
-        __m128i colors = _mm_loadu_si128((__m128i*)curr);
-        __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
-        _mm_prefetch((char *)curr+16,_MM_HINT_T0);
-        _mm_prefetch((char *)orig+16,_MM_HINT_T0);
-      
-        colors = _mm_and_si128(colors,mMask);
-        colors2 = _mm_and_si128(colors2,mMask);
-        __m128i tmp1 = _mm_sad_epu8(colors,colors2);
-        mResult = _mm_add_epi64(mResult,tmp1);
+    __m128i colors = _mm_loadu_si128((__m128i*)curr);
+    __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+    _mm_prefetch((char *)curr+16,_MM_HINT_T0);
+    _mm_prefetch((char *)orig+16,_MM_HINT_T0);
 
-        count-=16;
-        curr+=16;
-        orig+=16;
+    colors = _mm_and_si128(colors,mMask);
+    colors2 = _mm_and_si128(colors2,mMask);
+    __m128i tmp1 = _mm_sad_epu8(colors,colors2);
+    mResult = _mm_add_epi64(mResult,tmp1);
+
+    count-=16;
+    curr+=16;
+    orig+=16;
 
     }*/
-    
+
     while(count > 31)
     {
         __m128i colors = _mm_loadu_si128((__m128i*)curr);
@@ -2215,8 +2388,8 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
         colors = _mm_and_si128(colors,mMask);
         colors2 = _mm_and_si128(colors2,mMask);
-        
-        
+
+
         colors3 = _mm_and_si128(colors3,mMask);
         colors4 = _mm_and_si128(colors4,mMask);
         __m128i tmp1 = _mm_sad_epu8(colors,colors2);
@@ -2255,75 +2428,75 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
 /*__int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned char* orig, int count )
 {
-    __int64 result = 0;
+__int64 result = 0;
 
-    __m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
-    __m128i mMaskEven = _mm_set1_epi32(0xffff);
-    __m128i mResult = _mm_setzero_si128();
+__m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
+__m128i mMaskEven = _mm_set1_epi32(0xffff);
+__m128i mResult = _mm_setzero_si128();
 
-    int c = 1000;
+int c = 1000;
 
-    while(count > 15)
-    {
+while(count > 15)
+{
 
-        __m128i colors = _mm_loadu_si128((__m128i*)curr);
-        __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
-       
-
-        __m128i tmp1 = _mm_min_epu8(colors,colors2);
-        __m128i tmp2 = _mm_max_epu8(colors,colors2);
-        tmp1 = _mm_subs_epu8(tmp2,tmp1);
-
-        tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
-        tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
-
-        tmp2 =  _mm_srli_epi16(tmp2,8);
-
-        __m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
-        mResult = _mm_add_epi32(tmp3,mResult);
-        tmp1 = _mm_srli_epi32(tmp1,16);
-        mResult = _mm_add_epi32(tmp1,mResult);
-
-        tmp3 = _mm_and_si128(tmp2,mMaskEven);
-        mResult = _mm_add_epi32(tmp3,mResult);
+__m128i colors = _mm_loadu_si128((__m128i*)curr);
+__m128i colors2 = _mm_loadu_si128((__m128i*)orig);
 
 
+__m128i tmp1 = _mm_min_epu8(colors,colors2);
+__m128i tmp2 = _mm_max_epu8(colors,colors2);
+tmp1 = _mm_subs_epu8(tmp2,tmp1);
 
-        c--;
-        if(c == 0)
-        {
-            result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
-            mResult = _mm_setzero_si128();
-            c = 1000;
-        }
-        //      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
-        //         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
+tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
+tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
 
-        count-=16;
-        curr+=16;
-        orig+=16;
+tmp2 =  _mm_srli_epi16(tmp2,8);
 
-    }
+__m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
+mResult = _mm_add_epi32(tmp3,mResult);
+tmp1 = _mm_srli_epi32(tmp1,16);
+mResult = _mm_add_epi32(tmp1,mResult);
 
-    result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+tmp3 = _mm_and_si128(tmp2,mMaskEven);
+mResult = _mm_add_epi32(tmp3,mResult);
 
 
-    while(count > 3)
-    {
-        int br = curr[0] - orig[0];
-        int bg = curr[1] - orig[1];
-        int bb = curr[2] - orig[2];
 
-        result += labs(br)+labs(bg) + labs(bb);
+c--;
+if(c == 0)
+{
+result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+mResult = _mm_setzero_si128();
+c = 1000;
+}
+//      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
+//         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
 
-        count-=4;
-        curr+=4;
-        orig+=4;
-        //  index += 4;
-    }
+count-=16;
+curr+=16;
+orig+=16;
+
+}
+
+result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
 
 
-    return result;
+while(count > 3)
+{
+int br = curr[0] - orig[0];
+int bg = curr[1] - orig[1];
+int bb = curr[2] - orig[2];
+
+result += labs(br)+labs(bg) + labs(bb);
+
+count-=4;
+curr+=4;
+orig+=4;
+//  index += 4;
+}
+
+
+return result;
 
 }*/
 

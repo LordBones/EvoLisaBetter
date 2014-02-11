@@ -4,6 +4,7 @@ using System.Drawing;
 using GenArt.Classes;
 using GenArt.Core.AST;
 using GenArt.Core.Classes;
+using GenArtCoreNative;
 
 namespace GenArt.AST
 {
@@ -621,8 +622,14 @@ namespace GenArt.AST
             if (endY < tmp) endY = tmp;
         }
 
+        private static NativeFunctions _nativeF = new NativeFunctions();
+
         public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
+            
+            /// // // // 
+            /// nenative verze
+
             int px0 = this._Points[0].X;
             int px1 = this._Points[1].X;
             int px2 = this._Points[2].X;
@@ -632,23 +639,35 @@ namespace GenArt.AST
 
             if (py0 > py1)
             {
-                Tools.swap<int>(ref py0, ref py1);
-                Tools.swap<int>(ref px0, ref px1);
+                int tmp;
+                tmp = py0; py0 = py1; py1 = tmp;
+                tmp = px0; px0 = px1; px1 = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
             }
             if (py1 > py2)
             {
-                Tools.swap<int>(ref py1, ref py2);
-                Tools.swap<int>(ref px1, ref px2);
+                int tmp;
+                tmp = py1; py1 = py2; py2 = tmp;
+                tmp = px1; px1 = px2; px2 = tmp;
+
+                //Tools.swap<int>(ref py1, ref py2);
+                //Tools.swap<int>(ref px1, ref px2);
             }
 
             if (py0 > py1)
             {
-                Tools.swap<int>(ref py0, ref py1);
-                Tools.swap<int>(ref px0, ref px1);
+                int tmp;
+                tmp = py0; py0 = py1; py1 = tmp;
+                tmp = px0; px0 = px1; px1 = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
             }
 
             // test if is out of triangle
             if (py0 > y || y > py2) return false;
+
+            
 
             //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
@@ -678,8 +697,12 @@ namespace GenArt.AST
                 int v0y = px1 - px0;
                 
                 int v0c = -(v0x * px0 + v0y * py0);
-
                 int tmpx0 =  (-v0y * y - v0c) / v0x;
+
+                //int v0c = (v0y * py0);
+                //int tmpx0 =  (-v0y * y + v0c) / v0x + px0;
+
+
                 int tmpx2 =  (-v2y * y - v2c) / v2x;
                 start = tmpx0;
                 end = tmpx2;
@@ -689,13 +712,13 @@ namespace GenArt.AST
                 start = px1;
                 end = px2;
             }
-            else if (y == py1 && py1 == py0)
-            {
-                start = px1;
-                end = px0;
-            }
+            //else if (y == py1 && py1 == py0)
+            //{
+            //    start = px1;
+            //    end = px0;
+            //}
 
-            else if (py1 < y && py2 >= y)
+            else if (py1 <= y && py2 >= y)
             {
                 int v1x = -(py2 - py1);
                 int v1y = px2 - px1;

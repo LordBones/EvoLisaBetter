@@ -126,6 +126,20 @@ namespace GenArtCoreNative {
                 px0,py0,px1,py1,px2,py2,color);
         }
 
+        bool TriangleGetRowIntersect(int y, System::Int32% startX, System::Int32%  endX, 
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2)
+        {
+            int start = 0;
+            int end = 0;
+            bool result = FastFunctions::TriangleGetRowIntersect(y,&start,&end,
+                px0,py0,px1,py1,px2,py2);
+
+            startX = start;
+            endX = end;
+            return result;
+        }
+
+
         ///
         /// listRowsForElements => format : [pixelStartIndex][count pixel][color]
         /// first is clear row

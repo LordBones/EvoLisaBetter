@@ -364,14 +364,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 if (partRowCounter == CONST_PART_Batch)
                 {
                     countPartPrimitives = 0;
-
+                    int tmpPartRow = partRow + CONST_PART_Batch;
                     for (int i =0; i < dnaPolygons.Length; i++)
                     {
                         int startY = -1,endY = -1;
                         dnaPolygons[i].GetRangeHighSize(ref startY, ref endY);
 
                         if (!((partRow > startY && partRow > endY) ||
-                            (partRow + CONST_PART_Batch <= startY && partRow + CONST_PART_Batch <= endY)))
+                            (tmpPartRow <= startY && tmpPartRow <= endY)))
                         {
                             partPrimitives[countPartPrimitives] = dnaPolygons[i];
                             computeAlpha[countPartPrimitives] = (((((int)dnaPolygons[i].Brush.ColorAsUInt) >> 24) & 0xff) * 256) / 255;

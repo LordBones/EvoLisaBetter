@@ -40,10 +40,10 @@ namespace GenArt
 
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
-            const int CONST_LoopCount = 10000000;
+            const int CONST_LoopCount = 10000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
 
-            int end = 1000;
+            int end = 1000000;
             NativeFunctions nativeFunc = new NativeFunctions();
 
             int color = Color.FromArgb(135, 128, 100, 230).ToArgb();
