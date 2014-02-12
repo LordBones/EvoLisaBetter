@@ -245,9 +245,9 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
         __m128i source2 = _mm_cvtsi64_si128(*(((long long*)canvas)+x+1));
 
         //__m128i source =  _mm_loadu_si128((__m128i*)(canvas+x*8));
-        //__m128i source2 = _mm_loadu_si128((__m128i*)(canvas+x*8));
+        //__m128i source2 =  _mm_loadu_si128((__m128i*)(canvas+x*8));
         //_mm_ctv
-        //source2  = _mm_srli_epi64(source2,64); 
+        //source2  = _mm_srli_si128(source2,8); 
 
         source = _mm_unpacklo_epi8(source,_mm_setzero_si128());
         source2 = _mm_unpacklo_epi8(source2,_mm_setzero_si128());
@@ -264,9 +264,10 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
 
         source        = _mm_packus_epi16(source,source );// mZero );         // pack
         source2        = _mm_packus_epi16(source2,source2 );// mZero );         // pack
-
+        //_mm_storel_pi((__m64*)(canvas+x*8),(__m128)source);
+        //_mm_storel_epi64((__m64*)(canvas+x*8),(__m128)source
         *((((long long*)canvas)+x)) =  source.m128i_u64[0];// _mm_cvtsi128_si64(source);
-         *((((long long*)canvas)+x+1)) = source2.m128i_u64[0]; //_mm_cvtsi128_si64(source2);
+        *((((long long*)canvas)+x+1)) = source2.m128i_u64[0]; //_mm_cvtsi128_si64(source2);
 
         x+=2;
         //canvas += 8;
@@ -280,12 +281,12 @@ void Apply2ColorPixelSSE(unsigned char * canvas,int count,int color, int alpha)
         //source = _mm_unpacklo_epi8(source, _mm_setzero_si128() );
         source = _mm_cvtepu8_epi16(source);
 
-        __m128i tmp1  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
-        tmp1          = _mm_adds_epu16(tmp1,mColorTimeAlpha);     // t
+        source  = _mm_mullo_epi16(source,mMullInvAlpha);    // source*invalpha
+        source          = _mm_adds_epu16(source,mColorTimeAlpha);     // t
 
-        tmp1          = _mm_srli_epi16(tmp1,8); 
+        source          = _mm_srli_epi16(source,8); 
 
-        source        = _mm_packus_epi16(tmp1,tmp1 );// mZero );         // pack
+        source        = _mm_packus_epi16(source,source );// mZero );         // pack
 
         *(((long long*)canvas)+x) = source.m128i_u64[0];// _mm_cvtsi128_si64(source);
     }
@@ -666,7 +667,7 @@ void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countP
 void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color, int alpha256 )
 {
     // convert alpha value from range 0-255 to 0-256
-
+   
     int alpha = alpha256;// ((((color) >> 24) & 0xff)*256)/255;
 
 
@@ -708,13 +709,6 @@ void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countP
         }
     }
 
-    /*while(len > 0)
-    {
-    ApplyColorPixelSSE(line,r,g,b,alpha);
-
-    len -= 1;
-    line+=4;
-    }*/
 }
 
 void FastFunctions::NewFastRowApplyColorSSE128(unsigned char * canvas, int countPixel, int color )
@@ -1853,10 +1847,13 @@ void FastFunctions::ClearFieldByColor(unsigned char * curr, int lengthPixel, int
 
 void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas)
 {
-    ClearFieldByColor(canvas+listRowsForApply[0]*4,listRowsForApply[1],listRowsForApply[2]);
+    ClearFieldByColor(canvas
+        +listRowsForApply[0]*4
+        ,listRowsForApply[1],listRowsForApply[2]);
 
-    int index = 3;
-    for(int rows = 0;rows < countRows;rows++)
+    int end  = countRows*3+3;
+    //int index = 3;
+    for(int index = 3;index < end;index+=3)
     {
         int color = listRowsForApply[index + 2];
         int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
@@ -1864,7 +1861,7 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
         NewFastRowApplyColorSSE64(canvas+
             listRowsForApply[index] * 4, listRowsForApply[index + 1], color,alpha256);
 
-        index +=3;
+        //index +=3;
     }
 }
 

@@ -261,9 +261,9 @@ Global
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Console test bench debug x64|x86.Build.0 = Console test bench debug x64|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Console test bench debug x64|x86.Deploy.0 = Console test bench debug x64|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Any CPU.ActiveCfg = Debug|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.ActiveCfg = Debug|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.Build.0 = Debug|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.Deploy.0 = Debug|Win32
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.ActiveCfg = Debug|x64
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.Build.0 = Debug|x64
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Mixed Platforms.Deploy.0 = Debug|x64
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Win32.ActiveCfg = Debug|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Win32.Build.0 = Debug|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug x64|Win32.Deploy.0 = Debug|Win32
@@ -294,9 +294,9 @@ Global
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug|x86.Build.0 = Debug|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Debug|x86.Deploy.0 = Debug|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Any CPU.ActiveCfg = Release|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.ActiveCfg = Release|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.Build.0 = Release|Win32
-		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.Deploy.0 = Release|Win32
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.ActiveCfg = Release|x64
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.Build.0 = Release|x64
+		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Mixed Platforms.Deploy.0 = Release|x64
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Win32.ActiveCfg = Release|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Win32.Build.0 = Release|Win32
 		{EAC96A95-B5BF-488F-AC4F-CA7A77FE8FC4}.Release x64|Win32.Deploy.0 = Release|Win32

@@ -38,12 +38,12 @@ namespace GenArt
             dr.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
             CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test2.bmp");
 
-            if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
+            //if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
-            const int CONST_LoopCount = 10000;
+            const int CONST_LoopCount = 1000000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
 
-            int end = 1000000;
+            int end = 100;
             NativeFunctions nativeFunc = new NativeFunctions();
 
             int color = Color.FromArgb(135, 128, 100, 230).ToArgb();
