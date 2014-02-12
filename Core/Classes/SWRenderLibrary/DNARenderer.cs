@@ -338,7 +338,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int polyCount = dnaPolygons.Length;
             int pixelHigh = this._drawCanvas.HeightPixel;
             byte [] destCanvasData =  this._DestCanvas.Data;
-            int [] listRowsForFill = new int[dnaPolygons.Length * 3 + 3];
+            //int [] listRowsForFill = new int[dnaPolygons.Length * 3 + 3];
             int listRowsFFIndex = 3;
 
 
@@ -370,8 +370,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                         int startY = -1,endY = -1;
                         dnaPolygons[i].GetRangeHighSize(ref startY, ref endY);
 
-                        if (!((partRow > startY && partRow > endY) ||
-                            (tmpPartRow <= startY && tmpPartRow <= endY)))
+                        if(!(tmpPartRow < startY || partRow> endY) )
+                        //if (!((partRow > startY && partRow > endY) ||
+                       //     (tmpPartRow <= startY && tmpPartRow <= endY)))
                         {
                             partPrimitives[countPartPrimitives] = dnaPolygons[i];
                             //computeAlpha[countPartPrimitives] = (((((int)dnaPolygons[i].Brush.ColorAsUInt) >> 24) & 0xff) * 256) / 255;

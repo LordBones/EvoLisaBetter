@@ -40,18 +40,34 @@ namespace GenArt
 
             //if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
-            const int CONST_LoopCount = 1000000;
+            const int CONST_LoopCount = 10000000;
             CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
 
-            int end = 100;
+            
+
+            int end = 200;
+            byte [] buffer = new byte[end*4];
+            int color = Color.FromArgb(135, 128, 100, 230).ToArgb();
+            
+            int [] rowList = new int[3 + 100 * 3];
+            int index = 3;
+            for (int i = 0; i < 100; i++)
+            {
+                rowList[index] = 0;
+                rowList[index+1] = end - 1;
+                rowList[index+2] = color;
+                index += 3;
+            }
+
+
             NativeFunctions nativeFunc = new NativeFunctions();
 
-            int color = Color.FromArgb(135, 128, 100, 230).ToArgb();
             PerfStart();
             for (int i = 0; i < CONST_LoopCount; i++)
             {
-                //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                nativeFunc.NewRowApplyColor64(canvas.Data, 0, end, color);
+                //nativeFunc.ClearFieldByColor(buffer, color);
+                //nativeFunc.NewRowApplyColor64(canvas.Data, 0, end-1, color);
+                nativeFunc.RenderOneRow(rowList, 100, canvas.Data);
                 //nativeFunc.NewRowApplyColor(canvas.Data, 0, end, color);
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }

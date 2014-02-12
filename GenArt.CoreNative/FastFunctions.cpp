@@ -662,7 +662,9 @@ void FastFunctions::NewFastRowApplyColorSSE(unsigned char * canvas, int countPix
 
 void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color )
 {
+    
     NewFastRowApplyColorSSE64(canvas,countPixel,color,((((color) >> 24) & 0xff)*256)/255);
+    
 }
 void FastFunctions::NewFastRowApplyColorSSE64(unsigned char * canvas, int countPixel, int color, int alpha256 )
 {
@@ -1803,10 +1805,10 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
         _mm_store_si128((__m128i *)(M+index+4), f);
         _mm_store_si128((__m128i *)(M+index+8), f);
         _mm_store_si128((__m128i *)(M+index+12), f);
-        /*_mm_store_si128((__m128i *)(M+index+16), f);
-        _mm_store_si128((__m128i *)(M+index+20), f);
-        _mm_store_si128((__m128i *)(M+index+24), f);
-        _mm_store_si128((__m128i *)(M+index+28), f);*/
+        //_mm_store_si128((__m128i *)(M+index+16), f);
+        //_mm_store_si128((__m128i *)(M+index+20), f);
+        //_mm_store_si128((__m128i *)(M+index+24), f);
+        //_mm_store_si128((__m128i *)(M+index+28), f);
         //_mm_store_si128((__m128i *)M2, f);
         //_mm_stream_si128((__m128i *)M, f);
         //_mm_stream_si128((__m128i *)(M+4), f);
@@ -1828,6 +1830,20 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
         CountFill -= 4;
     }
 
+    /*while (CountFill >= 4)
+    {
+        M[0] = Fill;
+        M[1] = Fill;
+        M[2] = Fill;
+        M[3] = Fill;
+
+        //_mm_storeu_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        M += 4;
+        CountFill -= 4;
+    }*/
+
+    
     if(CountFill > 0)
     {
         switch (CountFill )
@@ -1839,11 +1855,108 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
     }
 }
 
+void FillSSEInt32test(unsigned long * M, long Fill, unsigned int CountFill)
+{
+    __m128i f;
+
+    // Fix mis-alignment.
+    /*if (((unsigned int)M) & 0xf)
+    {
+    unsigned int tmp = ((unsigned int)M) & 0xf; 
+
+    switch (tmp)
+    {
+    case 0x4: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
+    case 0x8: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
+    case 0xc: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
+    }
+    }*/
+
+    /*int tmpCount = 4-((((unsigned int)M)&0xf)/4);
+    if(tmpCount < 4 && tmpCount < CountFill)
+    {
+        switch (tmpCount)
+        {
+        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
+        case 0x2: {*M = Fill;M[1] = Fill;break;}
+        case 0x1: {*M = Fill;break;}
+        }
+
+        M+=tmpCount;
+        CountFill -= tmpCount;
+    }*/
+
+
+    //f = _mm_set1_epi32(Fill);
+
+    /*int index = 0;
+    while (CountFill >= 16)
+    { 
+        _mm_store_si128((__m128i *)(M+index), f);
+        _mm_store_si128((__m128i *)(M+index+4), f);
+        _mm_store_si128((__m128i *)(M+index+8), f);
+        _mm_store_si128((__m128i *)(M+index+12), f);
+        //_mm_store_si128((__m128i *)(M+index+16), f);
+        //_mm_store_si128((__m128i *)(M+index+20), f);
+        //_mm_store_si128((__m128i *)(M+index+24), f);
+        //_mm_store_si128((__m128i *)(M+index+28), f);
+        //_mm_store_si128((__m128i *)M2, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)(M+4), f);
+        //M += 16;
+
+        index += 16;
+        CountFill -= 16;
+    }
+
+    M += index;*/
+
+
+
+    /*while (CountFill >= 4)
+    {
+        _mm_storeu_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        M += 4;
+        CountFill -= 4;
+    }*/
+
+    while (CountFill >= 4)
+    {
+        M[0] = Fill;
+        M[1] = Fill;
+        M[2] = Fill;
+        M[3] = Fill;
+
+        //_mm_storeu_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        M += 4;
+        CountFill -= 4;
+    }
+
+    
+    if(CountFill > 0)
+    {
+        switch (CountFill )
+        {
+        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
+        case 0x2: {*M = Fill;M[1] = Fill;break;}
+        case 0x1: {*M = Fill;break;}
+        }
+    }
+}
+
+
 void FastFunctions::ClearFieldByColor(unsigned char * curr, int lengthPixel, int color)
 {
-    FillSSEInt32((unsigned long *)curr, color,lengthPixel);
+    //for(int i =0;i<10000;i++)
+    {
+        FillSSEInt32test((unsigned long *)curr, color,lengthPixel);
+    }
     //std::fill((unsigned int *)curr,((unsigned int *)curr)+length/4,  color);
 }
+
+
 
 void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas)
 {

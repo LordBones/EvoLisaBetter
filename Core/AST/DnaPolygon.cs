@@ -11,6 +11,8 @@ namespace GenArt.AST
     public class DnaPolygon : DnaPrimitive
     {
         public DnaPoint [] _Points; // { get; set; }
+        public short _minY;
+        public short _maxY;
 
         public DnaPolygon()
         {
@@ -251,6 +253,7 @@ namespace GenArt.AST
 
             Brush = new DnaBrush(255, 255, 0, 0);
             CreateNewUniqueId();
+            UpdateMinMaxY();
         }
 
         public void InitTestPolygon()
@@ -274,6 +277,9 @@ namespace GenArt.AST
             newPolygon._Points[1] = _Points[1];
             newPolygon._Points[2] = _Points[2];
 
+            newPolygon._maxY = _maxY;
+            newPolygon._minY = _minY;
+
             //Array.Copy(this._Points, newPolygon._Points, _Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
@@ -293,6 +299,9 @@ namespace GenArt.AST
             destPoly._Points[0] = _Points[0];
             destPoly._Points[1] = _Points[1];
             destPoly._Points[2] = _Points[2];
+
+            destPoly._maxY = _maxY;
+            destPoly._minY = _minY;
         }
 
         public override int GetCountPoints()
@@ -464,7 +473,7 @@ namespace GenArt.AST
                 }
             }
 
-
+            UpdateMinMaxY();
 
 
         }
@@ -507,6 +516,7 @@ namespace GenArt.AST
             }
 
             drawing.SetDirty();
+            UpdateMinMaxY();
 
         }
 
@@ -607,11 +617,16 @@ namespace GenArt.AST
                 }
             }
 
+            UpdateMinMaxY();
+
         }
 
         public override void GetRangeHighSize(ref int startY, ref int endY)
         {
-            startY = this._Points[0].Y;
+            startY = _minY;
+            endY = _maxY;
+
+            /*startY = this._Points[0].Y;
             endY = startY;
             int tmp = this._Points[1].Y;
             if (startY > tmp) startY = tmp;
@@ -619,15 +634,21 @@ namespace GenArt.AST
 
             tmp = this._Points[2].Y;
             if (startY > tmp) startY = tmp;
-            if (endY < tmp) endY = tmp;
+            if (endY < tmp) endY = tmp;*/
         }
 
         private static NativeFunctions _nativeF = new NativeFunctions();
 
         public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
+            //return Helper_GetRangeWidthByRow_Correct(y, ref startX, ref endX);
+
+            return Helper_GetRangeWidthByRow_PrecomputeMaxMinY(y, ref startX, ref endX);
+        }
+
+        private bool Helper_GetRangeWidthByRow_Correct(int y, ref int startX, ref int endX)
+        {
             
-            /// // // // 
             /// nenative verze
 
             int px0 = this._Points[0].X;
@@ -667,19 +688,19 @@ namespace GenArt.AST
             // test if is out of triangle
             if (py0 > y || y > py2) return false;
 
-            
+
 
             //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
 
             int v2x = -(py0 - py2);
-            int v2y = px0 - px2; 
+            int v2y = px0 - px2;
 
             int v2c = -(v2x * px2 + v2y * py2);
 
             // process all points
 
             // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
-            
+
             int start = 0;
             int end = 0;
 
@@ -695,7 +716,7 @@ namespace GenArt.AST
 
                 int v0x = -(py1 - py0);
                 int v0y = px1 - px0;
-                
+
                 int v0c = -(v0x * px0 + v0y * py0);
                 int tmpx0 =  (-v0y * y - v0c) / v0x;
 
@@ -707,7 +728,7 @@ namespace GenArt.AST
                 start = tmpx0;
                 end = tmpx2;
             }
-            else if (y == py1 && py1 == py2 )
+            else if (y == py1 && py1 == py2)
             {
                 start = px1;
                 end = px2;
@@ -732,38 +753,125 @@ namespace GenArt.AST
             else
                 return false;
 
-            /*if (isCrossLine0 >= 0)
+           
+
+            if (start > end)
             {
-
-                int isCrossLine1 = (py1 == py2 ||
-                        (y == py1 && py1 > py0 && py1 < py2)
-                        ) ? -1 : (y - py1) * (py2 - y);
-
-                if (isCrossLine1 >= 0)
-                {
-                    int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
-                    int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
-
-                    start = tmpx0;
-                    end = tmpx1;
-                }
-                else
-                {
-                    int tmpx0 = (v0x == 0) ? px0 : (-v0y * y - v0c) / v0x;
-                    int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
-
-                    start = tmpx0;
-                    end = tmpx2;
-
-                }
+                startX = end;
+                endX = start;
             }
             else
             {
-                int tmpx1 = (v1x == 0) ? px2 : (-v1y * y - v1c) / v1x;
-                int tmpx2 = (v2x == 0) ? px2 : (-v2y * y - v2c) / v2x;
+                startX = start;
+                endX = end;
+            }
+
+            return true;
+        }
+
+        private bool Helper_GetRangeWidthByRow_PrecomputeMaxMinY(int y, ref int startX, ref int endX)
+        {
+            if (_minY > y || y > _maxY) return false;
+
+            /// // // // 
+            /// nenative verze
+
+            int px0 = this._Points[0].X;
+            int px1 = this._Points[1].X;
+            int px2 = this._Points[2].X;
+            int py0 = this._Points[0].Y;
+            int py1 = this._Points[1].Y;
+            int py2 = this._Points[2].Y;
+
+            if (py0 > py1)
+            {
+                int tmp;
+                tmp = py0; py0 = py1; py1 = tmp;
+                tmp = px0; px0 = px1; px1 = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
+            }
+            if (py1 > py2)
+            {
+                int tmp;
+                tmp = py1; py1 = py2; py2 = tmp;
+                tmp = px1; px1 = px2; px2 = tmp;
+
+                //Tools.swap<int>(ref py1, ref py2);
+                //Tools.swap<int>(ref px1, ref px2);
+            }
+
+            if (py0 > py1)
+            {
+                int tmp;
+                tmp = py0; py0 = py1; py1 = tmp;
+                tmp = px0; px0 = px1; px1 = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
+            }
+
+            int v2x = -(py0 - py2);
+            int v2y = px0 - px2;
+
+            int v2c = -(v2x * px2 + v2y * py2);
+
+            // process all points
+
+            // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
+
+            int start = 0;
+            int end = 0;
+
+            if (_minY <= y && py1 > y)
+            {
+                //int v0x = px1 - px0;
+                //int v0y = py1 - py0;
+                //tmp = v0x; v0x = v0y; v0y = tmp;
+                //v0x = -v0x;
+
+                // zkraceny zapis, vypocteni normaloveho vektoru
+                // rozdil->prohozeni->negace
+
+                int v0x = -(py1 - py0);
+                int v0y = px1 - px0;
+
+                int v0c = -(v0x * px0 + v0y * py0);
+                int tmpx0 =  (-v0y * y - v0c) / v0x;
+
+                //int v0c = (v0y * py0);
+                //int tmpx0 =  (-v0y * y + v0c) / v0x + px0;
+
+
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                start = tmpx0;
+                end = tmpx2;
+            }
+            else if (y == py1 && py1 == _maxY)
+            {
+                start = px1;
+                end = px2;
+            }
+            //else if (y == py1 && py1 == py0)
+            //{
+            //    start = px1;
+            //    end = px0;
+            //}
+
+            else if (py1 <= y && _maxY >= y)
+            {
+                int v1x = -(py2 - py1);
+                int v1y = px2 - px1;
+                int v1c = -(v1x * px1 + v1y * py1);
+
+                int tmpx1 =  (-v1y * y - v1c) / v1x;
+                int tmpx2 =  (-v2y * y - v2c) / v2x;
                 start = tmpx1;
                 end = tmpx2;
-            }*/
+            }
+            else
+                return false;
+
+
 
             if (start > end)
             {
@@ -1109,6 +1217,20 @@ namespace GenArt.AST
             return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
         }
 
+        private void UpdateMinMaxY()
+        {
+            short startY = this._Points[0].Y;
+            short endY = startY;
+            short tmp = this._Points[1].Y;
+            if (startY > tmp) startY = tmp;
+            if (endY < tmp) endY = tmp;
 
+            tmp = this._Points[2].Y;
+            if (startY > tmp) startY = tmp;
+            if (endY < tmp) endY = tmp;
+
+            _minY = startY;
+            _maxY = endY;
+        }
     }
 }
