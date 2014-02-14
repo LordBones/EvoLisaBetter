@@ -184,8 +184,9 @@ namespace GenArt.Core.AST
             //this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
 
-            DnaBrush backGround = new DnaBrush(255, 0, 0, 0);
-            //ComputeBackgroundColor(this._destCanvas);
+            //DnaBrush backGround = new DnaBrush(255, 0, 0, 0);
+
+            DnaBrush backGround = ComputeBackgroundColor(this._destCanvas);
 
 
             for (int i =0; i < this._population.Length; i++)
@@ -193,6 +194,7 @@ namespace GenArt.Core.AST
                 DnaDrawing dna = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
                 //dna.BackGround.InitRandomWithoutAlpha();
                 dna.BackGround = backGround;
+                //dna.BackGround.InitRandomWithoutAlpha();
 
                 for (int k =0; k < 10; k++)
                 {

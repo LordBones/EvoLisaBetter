@@ -136,13 +136,18 @@ namespace GenArt.AST
 
         public void MutateBetter(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
         {
+            this.IsDirty = false;
+
             /// k mutaci pozadi dochazi pouze jednou 
             //if (Tools.GetRandomNumber(0, 10) == 9)
+            //{
             //    BackGround.MutateRGBOldWithoutAlpha(this);
+            //    SetDirty();
+            //}
 
             do
             {
-                this.IsDirty = false;
+                
                 //int mutateChange = Tools.GetRandomNumber(0, 1001);
 
 
@@ -162,12 +167,14 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
+                        //MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         //else 
-                            //if (tmp == 1) 
-                            //    MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
+                        //    if (tmp == 1) 
+                        //else
+                                MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
                        // else 
                      //           if (tmp == 2) 
+                        
                        //             AddElipse(mutationRate, errorMatrix, null, edgePoints);
                         //else 
                         //    AddRectangle(mutationRate, errorMatrix, destImage, edgePoints);
@@ -212,26 +219,26 @@ namespace GenArt.AST
 
                 if (Polygons.Length > 0)
                 {
-                    if (Tools.GetRandomNumber(0, 1001) < 51)
-                    {
-                        Color nearColor = Color.Black;
+                    //if (Tools.GetRandomNumber(0, 1001) < 51)
+                    //{
+                    //    Color nearColor = Color.Black;
 
-                        int index = Tools.GetRandomNumber(0, Polygons.Length);
-                        if (Polygons[index] is DnaPolygon)
-                        {
-                            nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
-                        }
-                        else if (Polygons[index] is DnaRectangle)
-                        {
-                            nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
-                        }
+                    //    int index = Tools.GetRandomNumber(0, Polygons.Length);
+                    //    if (Polygons[index] is DnaPolygon)
+                    //    {
+                    //        nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(Polygons[index].Points, destImage);
+                    //    }
+                    //    else if (Polygons[index] is DnaRectangle)
+                    //    {
+                    //        nearColor = PolygonColorPredict.GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff((DnaRectangle)Polygons[index], destImage);
+                    //    }
 
-                        byte alpha = Polygons[index].Brush.Alpha;
-                        Polygons[index].Brush.SetByColor(nearColor);
+                    //    byte alpha = Polygons[index].Brush.Alpha;
+                    //    Polygons[index].Brush.SetByColor(nearColor);
 
-                        Polygons[index].Brush.Alpha = alpha;
-                        this.SetDirty();
-                    }
+                    //    Polygons[index].Brush.Alpha = alpha;
+                    //    this.SetDirty();
+                    //}
 
 
                     if (Tools.GetRandomNumber(0, 1001) < 101)

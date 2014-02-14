@@ -107,7 +107,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 dnaPolygons[index] = tmp; 
             }*/
 
-            _nativefunc.ClearFieldByColor(this._drawCanvas.Data, _blackInt);
+            _nativefunc.ClearFieldByColor(this._drawCanvas.Data,(int)dna.BackGround.ColorAsUInt);// _blackInt);
             int polyCount = dnaPolygons.Length;
             for (int i = 0; i < polyCount; i++)
             {

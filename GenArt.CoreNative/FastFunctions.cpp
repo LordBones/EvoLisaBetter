@@ -1480,8 +1480,8 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
     }
 }
 
-void FastFunctions::RenderTriangleNewOptimize(unsigned char * canvas, int canvasWidth,int canvasHeight, 
-                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
+void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int canvasWidth,int canvasHeight, 
+                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, const int color)
 {
 
     //int alpha255 = (color >> 24) & 0xff;
@@ -1520,16 +1520,11 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * canvas, int canvas
     //Tools.swap<int>(ref v01x, ref v01y);
     //Tools.swap<int>(ref v20x, ref v20y);
 
-    v01x = py1 - py0;
+    v01x = -(py1 - py0);
     v01y = px1 - px0;
 
-    v20x = py0 - py2;
+    v20x = -(py0 - py2);
     v20y = px0 - px2;
-
-
-
-    v01x = -v01x;
-    v20x = -v20x;
 
     v01c = -(v01x * px0 + v01y * py0);
     v20c = -(v20x * px2 + v20y * py2);

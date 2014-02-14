@@ -245,7 +245,7 @@ namespace GenArt
 
             for (int i = 0; i < CONST_LOOP; i++)
             {
-                dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
+                dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
 
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
