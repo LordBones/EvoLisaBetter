@@ -1941,8 +1941,69 @@ void FillSSEInt32test(unsigned long * M, long Fill, unsigned int CountFill)
     }
 }
 
+void FillSSEUChar(unsigned char * M, unsigned char Fill, unsigned int CountFill)
+{
+    // Fix mis-alignment.
+   
+    /*int tmpCount = 4-((((unsigned int)M)&0xf)/4);
+    if(tmpCount < 4 && tmpCount < CountFill)
+    {
+        switch (tmpCount)
+        {
+        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
+        case 0x2: {*M = Fill;M[1] = Fill;break;}
+        case 0x1: {*M = Fill;break;}
+        }
 
-void FastFunctions::ClearFieldByColor(unsigned char * curr, int lengthPixel, int color)
+        M+=tmpCount;
+        CountFill -= tmpCount;
+    }*/
+
+    
+    __m128i f = _mm_set1_epi8(Fill);
+
+    int index = 0;
+    while (CountFill >= 64)
+    { 
+        _mm_storeu_si128((__m128i *)(M+index), f);
+        _mm_storeu_si128((__m128i *)(M+index+16), f);
+        _mm_storeu_si128((__m128i *)(M+index+32), f);
+        _mm_storeu_si128((__m128i *)(M+index+48), f);
+        //_mm_store_si128((__m128i *)(M+index+16), f);
+        //_mm_store_si128((__m128i *)(M+index+20), f);
+        //_mm_store_si128((__m128i *)(M+index+24), f);
+        //_mm_store_si128((__m128i *)(M+index+28), f);
+        //_mm_store_si128((__m128i *)M2, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)(M+4), f);
+        //M += 16;
+
+        index += 64;
+        CountFill -= 64;
+    }
+
+    M += index;
+
+
+
+    while (CountFill >= 16)
+    {
+        _mm_storeu_si128((__m128i *)M, f);
+        //_mm_stream_si128((__m128i *)M, f);
+        M += 16;
+        CountFill -= 16;
+    }
+
+    while(CountFill > 0)
+    {
+        *M = Fill;
+        M++;
+        CountFill--;
+    }
+}
+
+
+void FastFunctions::ClearFieldByColorInt(unsigned char * curr, int lengthPixel, int color)
 {
     //for(int i =0;i<10000;i++)
     {
@@ -1951,11 +2012,17 @@ void FastFunctions::ClearFieldByColor(unsigned char * curr, int lengthPixel, int
     //std::fill((unsigned int *)curr,((unsigned int *)curr)+length/4,  color);
 }
 
+void  FastFunctions::ClearFieldByColor(unsigned char * curr, int length, unsigned char value )
+{
+    FillSSEUChar(curr,value, length);
+}
+
+
 
 
 void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas)
 {
-    ClearFieldByColor(canvas
+    ClearFieldByColorInt(canvas
         +listRowsForApply[0]*4
         ,listRowsForApply[1],listRowsForApply[2]);
 
@@ -1973,7 +2040,7 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     }
 }
 
-__int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel)
+__int64 FastFunctions::computeFittnessTile_ARGB(unsigned char * curr, unsigned char * orig, int length, int widthPixel)
 {
     // NativeMedian8Bit medR = NativeMedian8Bit();
     // NativeMedian8Bit medG = NativeMedian8Bit();
@@ -2021,7 +2088,7 @@ __int64 FastFunctions::computeFittnessTile(unsigned char * curr, unsigned char *
     return result;
 }
 
-__int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char * orig, int length, int width)
+__int64 FastFunctions::computeFittness_2d_ARGB(unsigned char * current, unsigned char * orig, int length, int width)
 {
     __int64 result = 0;
     int height = (length / (width));
@@ -2199,7 +2266,7 @@ __int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char
 //}
 
 
-__int64 FastFunctions::computeFittness_2d_2x2(unsigned char * current, unsigned char * orig, int length, int width)
+__int64 FastFunctions::computeFittness_2d_2x2_ARGB(unsigned char * current, unsigned char * orig, int length, int width)
 {
     __int64 result = 0;
     int height = (length / (width));
@@ -2284,7 +2351,7 @@ __int64 FastFunctions::computeFittness_2d_2x2(unsigned char * current, unsigned 
 }
 
 
-__int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length)
+__int64 FastFunctions::computeFittnessWithStdDev_ARGB(unsigned char * curr, unsigned char * orig, int length)
 {
     NativeMedian8Bit medR = NativeMedian8Bit();
     NativeMedian8Bit medG = NativeMedian8Bit();
@@ -2327,7 +2394,7 @@ __int64 FastFunctions::computeFittnessWithStdDev(unsigned char * curr, unsigned 
 
 }
 
-__int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned char * orig, int length)
+__int64 FastFunctions::computeFittnessSumSquare_ARGB(unsigned char * curr, unsigned char * orig, int length)
 {
 
     __int64 result = 0;
@@ -2349,7 +2416,7 @@ __int64 FastFunctions::computeFittnessSumSquare(unsigned char * curr, unsigned c
     return result;
 }
 
-__int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr, unsigned char* orig, int count )
+__int64 FastFunctions::computeFittnessSumSquareASM_ARGB( unsigned char* curr, unsigned char* orig, int count )
 {
     __int64 result = 0;
 
@@ -2427,7 +2494,7 @@ __int64 FastFunctions::computeFittnessSumSquareASM( unsigned char* curr, unsigne
 }
 
 
-__int64 FastFunctions::computeFittnessSumABS(unsigned char * curr, unsigned char * orig, int length)
+__int64 FastFunctions::computeFittnessSumABS_ARGB(unsigned char * curr, unsigned char * orig, int length)
 {
 
     __int64 result = 0;
@@ -2450,7 +2517,7 @@ __int64 FastFunctions::computeFittnessSumABS(unsigned char * curr, unsigned char
     return result;
 }
 
-__int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned char* orig, int count )
+__int64 FastFunctions::computeFittnessSumABSASM_ARGB( unsigned char* curr, unsigned char* orig, int count )
 {
     __int64 result = 0;
 
@@ -2523,6 +2590,55 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
         curr+=4;
         orig+=4;
         //  index += 4;
+    }
+
+
+    return result;
+
+}
+
+__int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned char* orig, int count )
+{
+    __int64 result = 0;
+
+    __m128i mResult = _mm_setzero_si128();
+    __m128i mResult2 = _mm_setzero_si128();
+    
+
+    int c = 1000;
+
+    while(count > 31)
+    {
+        __m128i colors = _mm_loadu_si128((__m128i*)curr);
+        __m128i colors2 = _mm_loadu_si128((__m128i*)orig);
+        __m128i colors3 = _mm_loadu_si128((__m128i*)(curr+16));
+        __m128i colors4 = _mm_loadu_si128((__m128i*)(orig+16));
+        //_mm_prefetch((char *)curr+32,_MM_HINT_T0);
+        //_mm_prefetch((char *)orig+32,_MM_HINT_T0);
+
+        __m128i tmp1 = _mm_sad_epu8(colors,colors2);
+        __m128i tmp2 = _mm_sad_epu8(colors3,colors4);
+        mResult = _mm_add_epi64(mResult,tmp1);
+        mResult2 = _mm_add_epi64(mResult2,tmp2);
+
+        count-=32;
+        curr+=32;
+        orig+=32;
+
+    }
+
+    result += mResult.m128i_u64[0]+mResult.m128i_u64[1];//+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+    result += mResult2.m128i_u64[0]+mResult2.m128i_u64[1];
+
+    while(count > 0)
+    {
+        int b = curr[0] - orig[0];
+        
+        result += labs(b);
+
+        count--;
+        curr++;
+        orig++;
     }
 
 

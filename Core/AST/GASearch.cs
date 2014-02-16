@@ -33,7 +33,8 @@ namespace GenArt.Core.AST
 
 
 
-        private CanvasBGRA _destCanvas = new CanvasBGRA(1, 1);
+        private CanvasARGB _destCanvas = new CanvasARGB(1, 1);
+        private CanvasARGBSplit _destCanvasSplit = new CanvasARGBSplit(1, 1);
 
         private NativeFunctions _nativeFunc = new NativeFunctions();
 
@@ -139,7 +140,7 @@ namespace GenArt.Core.AST
 
         }
 
-        private static ImageEdges CreateEdges(CanvasBGRA destImg, int EdgeThreshold)
+        private static ImageEdges CreateEdges(CanvasARGB destImg, int EdgeThreshold)
         {
             EdgeDetector ed = new EdgeDetector(destImg);
             ed.DetectEdges(EdgeThreshold);
@@ -160,7 +161,7 @@ namespace GenArt.Core.AST
             DnaDrawing.RecycleClear();
 
             this._generation = 0;
-            this._destCanvas = CanvasBGRA.CreateCanvasFromBitmap(destImg);
+            this._destCanvas = CanvasARGB.CreateCanvasFromBitmap(destImg);
             this._destCanvas.ReduceNoiseMedian();
             this._destCanvas.ReduceNoiseMedian(true);
 
@@ -171,7 +172,8 @@ namespace GenArt.Core.AST
             //this._destCanvas.ReduceNoiseMedian();
             //this._destCanvas.ReduceNoiseMedian();
             //this._destCanvas.ReduceNoiseMedian();
-            CanvasBGRA.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
+            this._destCanvasSplit = CanvasARGBSplit.CreateCanvasFromCanvasARGB(this._destCanvas);
 
             this._currentBestFittness = long.MaxValue;
             this._lastBestFittness = long.MaxValue;
@@ -180,6 +182,7 @@ namespace GenArt.Core.AST
 
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
             _dnaRender.DestCanvas = this._destCanvas;
+            _dnaRender.DestCanvasSplit = this._destCanvasSplit;
 
             //this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
@@ -211,7 +214,9 @@ namespace GenArt.Core.AST
             this._fittness[_population.Length - 1] = long.MaxValue;
 
             // nezbytne aby doslo k vypoctu novych fittness
-            ComputeFittness();
+            //ComputeFittness();
+            ComputeFittnessSplit();
+
 
             _crLastMutationRate = 255;
             _crLastGenerationNumber = 0;
@@ -221,7 +226,7 @@ namespace GenArt.Core.AST
             Helper_InitPoluplation_CompressDNA();
         }
 
-        private static DnaBrush ComputeBackgroundColor(CanvasBGRA image)
+        private static DnaBrush ComputeBackgroundColor(CanvasARGB image)
         {
             Median8bit mr = new Median8bit();
             Median8bit mg = new Median8bit();
@@ -244,7 +249,9 @@ namespace GenArt.Core.AST
             GenerateNewPopulationByMutation();
             //GenerateNewPopulationRoulete();
 
-            ComputeFittness();
+            //ComputeFittness();
+            ComputeFittnessSplit();
+
             UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();
@@ -275,29 +282,54 @@ namespace GenArt.Core.AST
             for (int index = 0; index < this._popSize; index++)
             {
                 _dnaRender.RenderDNA(this._population[index], renderType);
-
-                //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
-                //);
-                //long fittness = FitnessCalculator.ComputeFittness_Basic2(_destCanvas.Data, _dnaRender.Canvas.Data);
-                //long fittness = FitnessCalculator.ComputeFittness_2d3(_destCanvas.Data, _dnaRender.Canvas.Data, _destCanvas.Width);
-
-                //long fittness = _nativeFunc.ComputeFittness_2d(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
-                //long fittness = _nativeFunc.ComputeFittness_2d_2x2(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.Width);
-
-                //long fittness = FitnessCalculator.ComputeFittness_BasicAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
-                //long fittness = _nativeFunc.ComputeFittnessTile(_destCanvas.Data, _dnaRender.Canvas.Data, _dnaRender.Canvas.WidthPixel);
-                //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
-
+                
                 long fittness = 0;
                 if (_typeRendering == TypeRendering.softwareByRowWithFitness)
                     fittness = _dnaRender.Fittness;
                 else
-                    fittness = _nativeFunc.ComputeFittnessABSSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    fittness = _nativeFunc.ComputeFittnessABSSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = this._population[index].PointCount;
 
                 _fittness[index] = fittness + bloat ;
+
+                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
+                //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
+                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
+            }
+        }
+
+        private void ComputeFittnessSplit()
+        {
+            DNARenderer.RenderType renderType = DNARenderer.RenderType.Software;
+
+            if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitness) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittness;
+
+
+            for (int index = 0; index < this._popSize; index++)
+            {
+                _dnaRender.RenderDNAPerChanel(this._population[index], renderType);
+
+
+                long fittness = 0;
+                if (_typeRendering == TypeRendering.softwareByRowWithFitness)
+                    fittness = _dnaRender.Fittness;
+                else
+                {
+                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.R, _dnaRender.CanvasSplit.R);
+                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.G, _dnaRender.CanvasSplit.G);
+                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.B, _dnaRender.CanvasSplit.B);
+                    
+                }
+                //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
+
+                long bloat = this._population[index].PointCount;
+
+                _fittness[index] = fittness + bloat;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -940,7 +972,7 @@ namespace GenArt.Core.AST
                 if (_typeRendering == TypeRendering.softwareByRowWithFitness)
                     fittness = _dnaRender.Fittness;
                 else
-                    fittness = _nativeFunc.ComputeFittnessSquareSSE(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    fittness = _nativeFunc.ComputeFittnessSquareSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long bloat = Helper_DnaCountPoints(this._populationCompressDNA[index]);

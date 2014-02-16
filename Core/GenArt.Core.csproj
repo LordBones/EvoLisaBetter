@@ -130,7 +130,8 @@
     <Compile Include="AST\DnaTriangleStrip.cs" />
     <Compile Include="AST\GASearch.cs" />
     <Compile Include="Classes\Array2D.cs" />
-    <Compile Include="Classes\CanvasBGRA.cs" />
+    <Compile Include="Classes\CanvasARGB.cs" />
+    <Compile Include="Classes\CanvasARGBSplit.cs" />
     <Compile Include="Classes\EdgeDetector.cs" />
     <Compile Include="Classes\ErrorMatrix.cs" />
     <Compile Include="Classes\GraphicFunctions.cs" />

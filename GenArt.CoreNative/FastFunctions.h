@@ -42,17 +42,21 @@ public:
     static  void FastRowsApplyColorSSE128_test(unsigned char * canvas, int canvasWidth, short int * ranges, int rlen, int rangeStartY, int r, int g, int b, int a);
 
 
-    static void  ClearFieldByColor(unsigned char * curr, int lengthPixel, int color);
+    static void  ClearFieldByColorInt(unsigned char * curr, int lengthPixel, int color);
+    static void  ClearFieldByColor(unsigned char * curr, int length, unsigned char value );
 
-    static __int64 computeFittnessTile(unsigned char * curr, unsigned char * orig, int length, int widthPixel);
-    static __int64 computeFittness_2d(unsigned char * curr, unsigned char * orig, int length, int width);
-    static __int64 computeFittness_2d_2x2(unsigned char * curr, unsigned char * orig, int length, int width);
 
-    static __int64 computeFittnessWithStdDev(unsigned char * curr, unsigned char * orig, int length);
-    static __int64 computeFittnessSumSquare(unsigned char * curr, unsigned char * orig, int length);
-    static __int64 computeFittnessSumSquareASM( unsigned char* p1, unsigned char* p2, int count );
-    static __int64 computeFittnessSumABS(unsigned char * curr, unsigned char * orig, int length);
+    static __int64 computeFittnessTile_ARGB(unsigned char * curr, unsigned char * orig, int length, int widthPixel);
+    static __int64 computeFittness_2d_ARGB(unsigned char * curr, unsigned char * orig, int length, int width);
+    static __int64 computeFittness_2d_2x2_ARGB(unsigned char * curr, unsigned char * orig, int length, int width);
+
+    static __int64 computeFittnessWithStdDev_ARGB(unsigned char * curr, unsigned char * orig, int length);
+    static __int64 computeFittnessSumSquare_ARGB(unsigned char * curr, unsigned char * orig, int length);
+    static __int64 computeFittnessSumSquareASM_ARGB( unsigned char* p1, unsigned char* p2, int count );
+    static __int64 computeFittnessSumABS_ARGB(unsigned char * curr, unsigned char * orig, int length);
+    static __int64 computeFittnessSumABSASM_ARGB( unsigned char* p1, unsigned char* p2, int count );
     static __int64 computeFittnessSumABSASM( unsigned char* p1, unsigned char* p2, int count );
+    
 
 
 };

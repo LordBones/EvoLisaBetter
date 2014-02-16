@@ -87,7 +87,7 @@ namespace GenArt.Core.Classes
             return this._rouleteTable.Length - 1;
         }
 
-        public void ComputeErrorMatrix(CanvasBGRA origImage, CanvasBGRA newImage)
+        public void ComputeErrorMatrix(CanvasARGB origImage, CanvasARGB newImage)
         {
             if ((origImage.Width != newImage.Width || origImage.Height != newImage.Height) &&
                 this._inputPixelWidth == origImage.WidthPixel && this._inputPixelHeight == origImage.HeightPixel)
@@ -148,7 +148,7 @@ namespace GenArt.Core.Classes
             }
         }
 
-        private int ComputeErrorTile(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
+        private int ComputeErrorTile(CanvasARGB origImage, CanvasARGB newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
             int result = 0;
 
@@ -175,7 +175,7 @@ namespace GenArt.Core.Classes
                 return (int)Math.Sqrt(result/(imageLenX*imageLenY)) + 1;
         }
 
-        private int ComputeErrorTileMax(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
+        private int ComputeErrorTileMax(CanvasARGB origImage, CanvasARGB newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
             int result = 0;
             int maxr = 0;
@@ -204,7 +204,7 @@ namespace GenArt.Core.Classes
             return result / (imageLenX * imageLenY * 3) + 1;
         }
 
-        private int ComputeErrorTile_Median(CanvasBGRA origImage, CanvasBGRA newImage, int imageStartIndex, int imageLenX, int imageLenY)
+        private int ComputeErrorTile_Median(CanvasARGB origImage, CanvasARGB newImage, int imageStartIndex, int imageLenX, int imageLenY)
         {
             _medianr.Clear(); 
             _mediang.Clear(); 

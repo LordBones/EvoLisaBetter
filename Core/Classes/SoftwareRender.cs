@@ -177,7 +177,7 @@ namespace GenArt.Core.Classes
 
         private readonly static Color _black = Color.FromArgb(255, 0, 0, 0); 
         //Render a Drawing
-        public void Render(DnaDrawing drawing, CanvasBGRA drawCanvas, int scale, Color background)
+        public void Render(DnaDrawing drawing, CanvasARGB drawCanvas, int scale, Color background)
         {
             drawCanvas.FastClearColor(_black);
 
@@ -200,7 +200,7 @@ namespace GenArt.Core.Classes
         }
 
         //Render a Drawing
-        public void RenderNative(DnaDrawing drawing, CanvasBGRA drawCanvas, int scale, Color background)
+        public void RenderNative(DnaDrawing drawing, CanvasARGB drawCanvas, int scale, Color background)
         {
             drawCanvas.FastClearColor(_black);
 

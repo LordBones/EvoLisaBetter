@@ -51,7 +51,7 @@ namespace GenArt.Classes
 
 
 
-        public static long GetDrawingFitness2(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
+        public static long GetDrawingFitness2(DnaDrawing newDrawing, CanvasARGB sourceImage, Color background)
         {
             long error = 0;
 
@@ -81,7 +81,7 @@ namespace GenArt.Classes
 
         }
 
-        public static long GetDrawingFitnessWPF(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
+        public static long GetDrawingFitnessWPF(DnaDrawing newDrawing, CanvasARGB sourceImage, Color background)
         {
             long error = 0;
 
@@ -113,17 +113,17 @@ namespace GenArt.Classes
 
         }
 
-        static CanvasBGRA drawCanvas = new CanvasBGRA(1, 1);
+        static CanvasARGB drawCanvas = new CanvasARGB(1, 1);
         static SoftwareRender softwareRender;
         static NativeFunctions nativeFunc = new NativeFunctions();
 
-        public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
+        public static long GetDrawingFitnessSoftware(DnaDrawing newDrawing, CanvasARGB sourceImage, Color background)
         {
 
 
             if (drawCanvas.Data.Length != sourceImage.Data.Length)
             {
-                drawCanvas = new CanvasBGRA(sourceImage.WidthPixel, sourceImage.HeightPixel);
+                drawCanvas = new CanvasARGB(sourceImage.WidthPixel, sourceImage.HeightPixel);
 
                 softwareRender = new SoftwareRender(sourceImage.WidthPixel, sourceImage.HeightPixel);
             }
@@ -134,7 +134,7 @@ namespace GenArt.Classes
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             //error = ComputeFittnessBasic(drawCanvas.Data, sourceImage.Data);
-            error = nativeFunc.ComputeFittnessSquare(drawCanvas.Data, sourceImage.Data);
+            error = nativeFunc.ComputeFittnessSquare_ARGB(drawCanvas.Data, sourceImage.Data);
             //error = ComputeFittnessAdvance(drawCanvas, sourceBitmap);
 
             //double sizeError = GetErrorByPolygonArea(sourceBitmap.Width, sourceBitmap.Height, newDrawing);
@@ -148,12 +148,12 @@ namespace GenArt.Classes
 
         }
 
-        public static long GetDrawingFitnessSoftwareNative(DnaDrawing newDrawing, CanvasBGRA sourceImage, Color background)
+        public static long GetDrawingFitnessSoftwareNative(DnaDrawing newDrawing, CanvasARGB sourceImage, Color background)
         {
 
             if (drawCanvas.Data.Length != sourceImage.Data.Length)
             {
-                drawCanvas = new CanvasBGRA(sourceImage.WidthPixel, sourceImage.HeightPixel);
+                drawCanvas = new CanvasARGB(sourceImage.WidthPixel, sourceImage.HeightPixel);
 
                 softwareRender = new SoftwareRender(sourceImage.WidthPixel, sourceImage.HeightPixel);
             }
@@ -164,7 +164,7 @@ namespace GenArt.Classes
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmapByte);
 
             GenArtCoreNative.NativeFunctions nc = new GenArtCoreNative.NativeFunctions();
-            error = nc.ComputeFittnessSquare(drawCanvas.Data, sourceImage.Data);
+            error = nc.ComputeFittnessSquare_ARGB(drawCanvas.Data, sourceImage.Data);
 
             //error = ComputeFittnessBasic(drawCanvas, sourceBitmap);
             return (int)(error) + ((newDrawing.PointCount + 1) * (newDrawing.PointCount + 1));

@@ -37,7 +37,7 @@ namespace GenArt.Core.Classes
         /// <param name="points"></param>
         /// <param name="_rawDestImage"></param>
         /// <returns></returns>
-        private static int Helper_PolygonMiddlePointIndex(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        private static int Helper_PolygonMiddlePointIndex(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             int middleX = 0, middleY = 0;
 
@@ -65,7 +65,7 @@ namespace GenArt.Core.Classes
         /// <param name="sumRed"></param>
         /// <param name="sumGreen"></param>
         /// <param name="sumBlue"></param>
-        private static void Helper_PolygonMiddleEdgeColorSum(DnaPoint[] points, CanvasBGRA _rawDestImage,
+        private static void Helper_PolygonMiddleEdgeColorSum(DnaPoint[] points, CanvasARGB _rawDestImage,
             bool computeSumDiff, int diffRed, int diffGreen, int diffBlue,
             ref int sumRed, ref int sumGreen, ref int sumBlue)
         {
@@ -125,7 +125,7 @@ namespace GenArt.Core.Classes
         /// <param name="sumRed"></param>
         /// <param name="sumGreen"></param>
         /// <param name="sumBlue"></param>
-        private static void Helper_PolygonPointsColorSum(DnaPoint[] points, CanvasBGRA _rawDestImage,
+        private static void Helper_PolygonPointsColorSum(DnaPoint[] points, CanvasARGB _rawDestImage,
             bool computeSumDiff, int diffRed, int diffGreen, int diffBlue,
             ref int sumRed, ref int sumGreen, ref int sumBlue)
         {
@@ -165,7 +165,7 @@ namespace GenArt.Core.Classes
         /// <param name="sumGreen"></param>
         /// <param name="sumBlue"></param>
         private static void Helper_PolygonMiddlePointsBetweenPointAndMiddle_ColorSum
-            (DnaPoint[] points, CanvasBGRA _rawDestImage, int indexMiddlePoint,
+            (DnaPoint[] points, CanvasARGB _rawDestImage, int indexMiddlePoint,
             bool computeSumDiff, int diffRed, int diffGreen, int diffBlue,
             ref int sumRed, ref int sumGreen, ref int sumBlue)
         {
@@ -209,7 +209,7 @@ namespace GenArt.Core.Classes
         /// <param name="sumRed"></param>
         /// <param name="sumGreen"></param>
         /// <param name="sumBlue"></param>
-        private static void Helper_PolygonMiddlePointColorAdd(int indexPoint, CanvasBGRA _rawDestImage,
+        private static void Helper_PolygonMiddlePointColorAdd(int indexPoint, CanvasARGB _rawDestImage,
             bool computeSumDiff, int diffRed, int diffGreen, int diffBlue,
             ref int sumRed, ref int sumGreen, ref int sumBlue)
         {
@@ -231,7 +231,7 @@ namespace GenArt.Core.Classes
 
 
 
-        public static Color GetColorBy_PointsColor(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PointsColor(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             int sumRed = 0, sumGreen = 0, sumBlue = 0;
 
@@ -240,7 +240,7 @@ namespace GenArt.Core.Classes
             return Color.FromArgb(64, sumRed / points.Length, sumGreen / points.Length, sumBlue / points.Length);
         }
 
-        public static Color GetColorBy_PointsColor_AphaDiff(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PointsColor_AphaDiff(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             int sumRed = 0, sumGreen = 0, sumBlue = 0;
 
@@ -266,7 +266,7 @@ namespace GenArt.Core.Classes
 
 
 
-        public static Color GetColorBy_MiddlePoint(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_MiddlePoint(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             byte [] imageData = _rawDestImage.Data;
             int middleColorIndex = Helper_PolygonMiddlePointIndex(points, _rawDestImage);
@@ -283,7 +283,7 @@ namespace GenArt.Core.Classes
 
 
         public static Color GetColorBy_PointsColor_MiddlePoint_AlphaDiff
-            (DnaPoint[] points, CanvasBGRA _rawDestImage)
+            (DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             byte [] imageData = _rawDestImage.Data;
             int middleColorIndex = Helper_PolygonMiddlePointIndex(points, _rawDestImage);
@@ -311,7 +311,7 @@ namespace GenArt.Core.Classes
             return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
          }
 
-        public static Color GetColorBy_MiddleEdgePoints_MiddlePoint_AlphaDiff(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_MiddleEdgePoints_MiddlePoint_AlphaDiff(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             byte [] destImageData = _rawDestImage.Data;
 
@@ -341,7 +341,7 @@ namespace GenArt.Core.Classes
             return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
         }
 
-        public static Color GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PointsColor_MiddleEdgePoints_MiddlePoint_AlphaDiff(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             byte [] destImageData = _rawDestImage.Data;
 
@@ -374,7 +374,7 @@ namespace GenArt.Core.Classes
             return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
         }
 
-        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaPoint[] points, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaPoint[] points, CanvasARGB _rawDestImage)
         {
             byte [] destImageData = _rawDestImage.Data;
 
@@ -410,7 +410,7 @@ namespace GenArt.Core.Classes
         }
 
 
-        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaRectangle rectangle, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaRectangle rectangle, CanvasARGB _rawDestImage)
         {
             DnaPoint [] points = new DnaPoint[4];
             points[0] = rectangle.StartPoint;
@@ -455,7 +455,7 @@ namespace GenArt.Core.Classes
             return Helper_AvgColorByAlpha(avgSumDiff, sumRed, sumGreen, sumBlue);
         }
 
-        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaElipse elipse, CanvasBGRA _rawDestImage)
+        public static Color GetColorBy_PC_MEP_MEOPAM_MP_AlphaDiff(DnaElipse elipse, CanvasARGB _rawDestImage)
         {
             DnaPoint [] points = new DnaPoint[4];
             points[0] = elipse.StartPoint;

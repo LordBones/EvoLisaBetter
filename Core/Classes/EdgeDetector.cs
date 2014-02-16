@@ -264,7 +264,7 @@ namespace GenArt.Core.Classes
          -0,-1,-2,-1,-0
         };
 
-        private CanvasBGRA _originalImage = null;
+        private CanvasARGB _originalImage = null;
         private Array2D _edgesPoints;
         private Array2D _imageGreyscale = null;
         private int [] _kernelSums = null;
@@ -275,7 +275,7 @@ namespace GenArt.Core.Classes
 
         private int _threshold = 25;
         
-        public EdgeDetector(CanvasBGRA bmp)
+        public EdgeDetector(CanvasARGB bmp)
         {
             _originalImage = bmp;
             _edgesPoints = new Array2D(bmp.WidthPixel , bmp.HeightPixel);
@@ -329,7 +329,7 @@ namespace GenArt.Core.Classes
 
         public void SaveImageEdgeDirectionsAsBitmap(string filename)
         {
-            CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
+            CanvasARGB canvas = new CanvasARGB(_imageGreyscale.Width, _imageGreyscale.Height);
 
             int imageIndex = 0;
             for (int index = 0; index < _imageGreyscale.Length; index++)
@@ -365,7 +365,7 @@ namespace GenArt.Core.Classes
                 imageIndex += 4;
             }
 
-            using (Bitmap bmp = CanvasBGRA.CreateBitmpaFromCanvas(canvas))
+            using (Bitmap bmp = CanvasARGB.CreateBitmpaFromCanvas(canvas))
             {
                 bmp.Save(filename);
             }
@@ -773,7 +773,7 @@ namespace GenArt.Core.Classes
         {
             //ReduceNoiseGausianGreyscale();
             ReduceNoiseMedian();
-            CanvasBGRA canvas = new CanvasBGRA(_imageGreyscale.Width, _imageGreyscale.Height);
+            CanvasARGB canvas = new CanvasARGB(_imageGreyscale.Width, _imageGreyscale.Height);
 
             int imageIndex = 0;
             for (int index = 0; index < _imageGreyscale.Length; index++)
@@ -787,7 +787,7 @@ namespace GenArt.Core.Classes
                 imageIndex += 4;
             }
 
-            using (Bitmap bmp = CanvasBGRA.CreateBitmpaFromCanvas(canvas))
+            using (Bitmap bmp = CanvasARGB.CreateBitmpaFromCanvas(canvas))
             {
                 bmp.Save(filename);
             }

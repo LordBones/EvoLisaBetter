@@ -23,16 +23,25 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-			ClearFieldByColor(pinCanvas, canvas->Length/4, color);
+			ClearFieldByColorInt(pinCanvas, canvas->Length/4, color);
 
 		}
 
-        void ClearFieldByColor(array<System::Byte>^ canvas,int startIndexPixel,  int countPixel, int color)
+        void ClearFieldByColorInt(array<System::Byte>^ canvas,int startIndexPixel,  int countPixel, int color)
 		{
 			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
 			FastFunctions::
-                ClearFieldByColor(pinCanvas+startIndexPixel, countPixel, color);
+                ClearFieldByColorInt(pinCanvas+startIndexPixel, countPixel, color);
+
+		}
+
+        void ClearFieldByColor(array<System::Byte>^ canvas,int startIndex,  int count, System::Byte data)
+		{
+			pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+			FastFunctions::
+                ClearFieldByColor(pinCanvas+startIndex, count, data);
 
 		}
 
@@ -212,42 +221,42 @@ namespace GenArtCoreNative {
 
         }
 
-        __int64 ComputeFittnessAdvance(array<System::Byte>^ current, array<System::Byte>^ orig)
+        __int64 ComputeFittnessAdvance_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
             
-            return  FastFunctions::computeFittnessWithStdDev(pinCurr,pinOrig,orig->Length);
+            return  FastFunctions::computeFittnessWithStdDev_ARGB(pinCurr,pinOrig,orig->Length);
         }
-        __int64 ComputeFittnessTile(array<System::Byte>^ current, array<System::Byte>^ orig, int widthPixel)
+        __int64 ComputeFittnessTile_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig, int widthPixel)
 		{
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
             
-            return  FastFunctions::computeFittnessTile(pinCurr,pinOrig,orig->Length,widthPixel);
+            return  FastFunctions::computeFittnessTile_ARGB(pinCurr,pinOrig,orig->Length,widthPixel);
         }
 
-        __int64 ComputeFittness_2d(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
+        __int64 ComputeFittness_2d_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
 		{
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
             
-            return  FastFunctions::computeFittness_2d(pinCurr,pinOrig,orig->Length,width);
+            return  FastFunctions::computeFittness_2d_ARGB(pinCurr,pinOrig,orig->Length,width);
         }
 
-        __int64 ComputeFittness_2d_2x2(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
+        __int64 ComputeFittness_2d_2x2_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig, int width)
 		{
 			pin_ptr<System::Byte> pinCurr(&current[0]);
 			pin_ptr<System::Byte> pinOrig(&orig[0]);
 
             
-            return  FastFunctions::computeFittness_2d_2x2(pinCurr,pinOrig,orig->Length,width);
+            return  FastFunctions::computeFittness_2d_2x2_ARGB(pinCurr,pinOrig,orig->Length,width);
         }
 
-		__int64 ComputeFittnessSquareSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
+		__int64 ComputeFittnessSquareSSE_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
 
@@ -257,12 +266,12 @@ namespace GenArtCoreNative {
 			
 			
 
-            result = FastFunctions::computeFittnessSumSquareASM(pinCurr,pinOrig,orig->Length);
+            result = FastFunctions::computeFittnessSumSquareASM_ARGB(pinCurr,pinOrig,orig->Length);
             
 			return result;
 		}
 
-        __int64 ComputeFittnessSquare(array<System::Byte>^ current, array<System::Byte>^ orig)
+        __int64 ComputeFittnessSquare_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
 
@@ -272,37 +281,61 @@ namespace GenArtCoreNative {
 			
 			
 
-            result = FastFunctions::computeFittnessSumSquare(pinCurr,pinOrig,orig->Length);
+            result = FastFunctions::computeFittnessSumSquare_ARGB(pinCurr,pinOrig,orig->Length);
             
 			return result;
 		}
 
-        __int64 ComputeFittnessSquareLine(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+        __int64 ComputeFittnessSquareLine_ARGB(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
 		{
 			__int64 result = 0;
 
             pin_ptr<System::Byte> pinLine = &line[0];
 			pin_ptr<System::Byte> pinOrig = &orig[0];
 
-            result = FastFunctions::computeFittnessSumSquare(pinLine,pinOrig+origStartIndex,line->Length);
+            result = FastFunctions::computeFittnessSumSquare_ARGB(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}
 
-        __int64 ComputeFittnessSquareLineSSE(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+        __int64 ComputeFittnessSquareLineSSE_ARGB(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
 		{
 			__int64 result = 0;
 
             pin_ptr<System::Byte> pinLine = &line[0];
 			pin_ptr<System::Byte> pinOrig = &orig[0];
 
-            result = FastFunctions::computeFittnessSumSquareASM(pinLine,pinOrig+origStartIndex,line->Length);
+            result = FastFunctions::computeFittnessSumSquareASM_ARGB(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}
 
         
-        __int64 ComputeFittnessABSSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
+        __int64 ComputeFittnessABSSSE_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig)
+		{
+			__int64 result = 0;
+
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+            result = FastFunctions::computeFittnessSumABSASM_ARGB(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+         __int64 ComputeFittnessABSSSE(array<System::Byte>^ current, array<System::Byte>^ orig)
+		{
+			__int64 result = 0;
+
+			pin_ptr<System::Byte> pinCurr = &current[0];
+			pin_ptr<System::Byte> pinOrig = &orig[0];
+
+			result = FastFunctions::computeFittnessSumABSASM(pinCurr,pinOrig,orig->Length);
+            
+			return result;
+		}
+
+        __int64 ComputeFittnessABS_ARGB(array<System::Byte>^ current, array<System::Byte>^ orig)
 		{
 			__int64 result = 0;
 
@@ -312,46 +345,31 @@ namespace GenArtCoreNative {
 			
 			
 
-            result = FastFunctions::computeFittnessSumABSASM(pinCurr,pinOrig,orig->Length);
+            result = FastFunctions::computeFittnessSumABS_ARGB(pinCurr,pinOrig,orig->Length);
             
 			return result;
 		}
 
-        __int64 ComputeFittnessABS(array<System::Byte>^ current, array<System::Byte>^ orig)
-		{
-			__int64 result = 0;
-
-			pin_ptr<System::Byte> pinCurr = &current[0];
-			pin_ptr<System::Byte> pinOrig = &orig[0];
-
-			
-			
-
-            result = FastFunctions::computeFittnessSumABS(pinCurr,pinOrig,orig->Length);
-            
-			return result;
-		}
-
-        __int64 ComputeFittnessABSLine(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+        __int64 ComputeFittnessABSLine_ARGB(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
 		{
 			__int64 result = 0;
 
             pin_ptr<System::Byte> pinLine = &line[0];
 			pin_ptr<System::Byte> pinOrig = &orig[0];
 
-            result = FastFunctions::computeFittnessSumABS(pinLine,pinOrig+origStartIndex,line->Length);
+            result = FastFunctions::computeFittnessSumABS_ARGB(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}
 
-        __int64 ComputeFittnessABSLineSSE(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
+        __int64 ComputeFittnessABSLineSSE_ARGB(array<System::Byte>^ line, array<System::Byte>^ orig, int origStartIndex)
 		{
 			__int64 result = 0;
 
             pin_ptr<System::Byte> pinLine = &line[0];
 			pin_ptr<System::Byte> pinOrig = &orig[0];
 
-            result = FastFunctions::computeFittnessSumABSASM(pinLine,pinOrig+origStartIndex,line->Length);
+            result = FastFunctions::computeFittnessSumABSASM_ARGB(pinLine,pinOrig+origStartIndex,line->Length);
             
 			return result;
 		}

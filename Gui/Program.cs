@@ -34,14 +34,14 @@ namespace GenArt
             DnaDrawing dna = new DnaDrawing(200, 200);
             dna.AddRectangle(255, null, null, null);
             //dr.RenderDNA(dna, DNARenderer.RenderType.Software);
-            CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dr.Canvas).Save("test.bmp");
             dr.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
-            CanvasBGRA.CreateBitmpaFromCanvas(dr.Canvas).Save("test2.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dr.Canvas).Save("test2.bmp");
 
             //if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
             const int CONST_LoopCount = 10000000;
-            CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
+            CanvasARGB canvas = new CanvasARGB(1000, 1000);
 
             
 
@@ -87,7 +87,7 @@ namespace GenArt
             if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
             const int CONST_LoopCount = 6000;
-            CanvasBGRA canvas = new CanvasBGRA(1000, 1000);
+            CanvasARGB canvas = new CanvasARGB(1000, 1000);
             short [] ranges = new short[2000];
 
             for (int i = 0; i < ranges.Length; i += 2)
@@ -224,7 +224,7 @@ namespace GenArt
 
             //byte [] canvasTest = new byte[CONST_Height * CONST_Width * 4];
 
-            CanvasBGRA canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
+            CanvasARGB canvasTest = new CanvasARGB(CONST_Width, CONST_Height);
 
             SWTriangle triangleTest = new SWTriangle();
             SWRectangle rectangleTest = new SWRectangle();
@@ -280,9 +280,11 @@ namespace GenArt
 
             //DNARenderer dnar = new DNARenderer(CONST_Width, CONST_Height);
             dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
-            CanvasBGRA.CreateBitmpaFromCanvas(dnar.Canvas).Save("Software.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dnar.Canvas).Save("Software.bmp");
+            dnar.RenderDNAPerChanel(dna, DNARenderer.RenderType.Software);
+            CanvasARGBSplit.CreateBitmpaFromCanvas(dnar.CanvasSplit).Save("SoftwareSplit.bmp");
             dnar2.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
-            CanvasBGRA.CreateBitmpaFromCanvas(dnar2.Canvas).Save("SoftwareByRow.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dnar2.Canvas).Save("SoftwareByRow.bmp");
 
 
 
@@ -324,8 +326,8 @@ namespace GenArt
 
             NativeFunctions nativeFunc = new NativeFunctions();
 
-            long origRes = nativeFunc.ComputeFittnessABS(orig, dest);
-            long destRes = nativeFunc.ComputeFittnessABSSSE(orig, dest);
+            long origRes = nativeFunc.ComputeFittnessABS_ARGB(orig, dest);
+            long destRes = nativeFunc.ComputeFittnessABSSSE_ARGB(orig, dest);
 
             Console.WriteLine("Fittness orig: {0} dest: {1}", origRes, destRes);
             if (origRes != destRes)
@@ -339,7 +341,7 @@ namespace GenArt
 
             for (int i = 0; i < CONST_LOOP; i++)
             {
-                nativeFunc.ComputeFittnessABSSSE(orig, dest);
+                nativeFunc.ComputeFittnessABSSSE_ARGB(orig, dest);
                 //nativeFunc.ComputeFittnessABS(orig, dest);
                 //nativeFunc.ComputeFittnessSquare(orig, dest);
                 //nativeFunc.ComputeFittnessSquareSSE(orig, dest);
@@ -368,7 +370,7 @@ namespace GenArt
             Tools.MaxHeight = CONST_Height;
 
             byte [] canvasCorrect = null;
-            CanvasBGRA canvasTest = null;
+            CanvasARGB canvasTest = null;
 
             SWTriangle triangleTest = new SWTriangle();
 
@@ -393,7 +395,7 @@ namespace GenArt
 
 
                 canvasCorrect = new byte[CONST_Height * CONST_Width * 4];
-                canvasTest = new CanvasBGRA(CONST_Width, CONST_Height);
+                canvasTest = new CanvasARGB(CONST_Width, CONST_Height);
 
 
                 //Bitmap rbmp = new Bitmap(Tools.MaxWidth, Tools.MaxHeight, PixelFormat.Format32bppPArgb);

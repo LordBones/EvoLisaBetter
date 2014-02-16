@@ -115,7 +115,7 @@ namespace GenArt.AST
         }
 
 
-        public void Mutate(CanvasBGRA destImage = null)
+        public void Mutate(CanvasARGB destImage = null)
         {
             if (Tools.WillMutate(Settings.ActiveRemovePolygonMutationRate))
                 RemovePolygon(null);
@@ -134,7 +134,7 @@ namespace GenArt.AST
 
         }
 
-        public void MutateBetter(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public void MutateBetter(byte mutationRate, ErrorMatrix errorMatrix, CanvasARGB destImage = null, ImageEdges edgePoints = null)
         {
             this.IsDirty = false;
 
@@ -167,11 +167,11 @@ namespace GenArt.AST
 
                         //int tmp = Tools.GetRandomNumber(0, 2);
                         //if (tmp == 0) 
-                        //MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
+                        MutationAddPolygon(mutationRate, errorMatrix, destImage, edgePoints);
                         //else 
                         //    if (tmp == 1) 
                         //else
-                                MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
+                         //       MutationAddTriangleStrip(mutationRate, errorMatrix, destImage, edgePoints);
                        // else 
                      //           if (tmp == 2) 
                         
@@ -631,7 +631,7 @@ namespace GenArt.AST
             Polygons = polygons;
         }
 
-        public void MutationAddPolygon(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void MutationAddPolygon(byte mutationRate, ErrorMatrix errorMatrix, CanvasARGB _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax )
             {
@@ -681,7 +681,7 @@ namespace GenArt.AST
             }
         }
 
-        public void MutationAddTriangleStrip(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void MutationAddTriangleStrip(byte mutationRate, ErrorMatrix errorMatrix, CanvasARGB _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
@@ -729,7 +729,7 @@ namespace GenArt.AST
             }
         }
 
-        public void AddRectangle(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void AddRectangle(byte mutationRate, ErrorMatrix errorMatrix, CanvasARGB _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {
@@ -776,7 +776,7 @@ namespace GenArt.AST
             }
         }
 
-        public void AddElipse(byte mutationRate, ErrorMatrix errorMatrix, CanvasBGRA _rawDestImage = null, ImageEdges edgePoints = null)
+        public void AddElipse(byte mutationRate, ErrorMatrix errorMatrix, CanvasARGB _rawDestImage = null, ImageEdges edgePoints = null)
         {
             if (Polygons.Length < Settings.ActivePolygonsMax)
             {

@@ -239,7 +239,7 @@ namespace GenArt.Core.AST
             return false;
         }
 
-        public override void Mutate(byte MutationRate, GenArt.AST.DnaDrawing drawing, Classes.CanvasBGRA destImage = null, Classes.ImageEdges edgePoints = null)
+        public override void Mutate(byte MutationRate, GenArt.AST.DnaDrawing drawing, Classes.CanvasARGB destImage = null, Classes.ImageEdges edgePoints = null)
         {
             DnaPoint [] points = this._Points;
 
@@ -399,7 +399,7 @@ namespace GenArt.Core.AST
             }
         }
 
-        public override void MutateTranspozite(GenArt.AST.DnaDrawing drawing, Classes.CanvasBGRA destImage = null)
+        public override void MutateTranspozite(GenArt.AST.DnaDrawing drawing, Classes.CanvasARGB destImage = null)
         {
             
         }

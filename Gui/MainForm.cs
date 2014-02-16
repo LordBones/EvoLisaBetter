@@ -41,7 +41,7 @@ namespace GenArt
         private int selected;
 
         private Bitmap sourceBitmap;
-        private CanvasBGRA sourceBitmapAsCanvas;
+        private CanvasARGB sourceBitmapAsCanvas;
         private ImageEdges SourceBitmapEdges;
 
         DNARenderer _dnaRender;
@@ -398,7 +398,7 @@ namespace GenArt
             Tools.MaxWidth = picPattern.Width;
 
             sourceBitmap = ConvertImageIntoPARGB();
-            sourceBitmapAsCanvas = CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap);
+            sourceBitmapAsCanvas = CanvasARGB.CreateCanvasFromBitmap(sourceBitmap);
             //sourceBitmapAsCanvas.ReduceNoiseMedian();
             UpdateSourceBitmapEdges();
 
@@ -412,7 +412,7 @@ namespace GenArt
 
         private void UpdateSourceBitmapEdges()
         {
-            EdgeDetector edgeDetector = new EdgeDetector(CanvasBGRA.CreateCanvasFromBitmap(sourceBitmap));
+            EdgeDetector edgeDetector = new EdgeDetector(CanvasARGB.CreateCanvasFromBitmap(sourceBitmap));
             edgeDetector.DetectEdges(EdgeThreshold);
             SourceBitmapEdges = edgeDetector.GetAllEdgesPoints();
         }
@@ -446,14 +446,14 @@ namespace GenArt
                 {
                     if (currentDrawing != null)
                     {
-                        SaveDNAAsSVG(currentDrawing, CanvasBGRA.CreateCanvasFromBitmap(this.sourceBitmap), fileName);
+                        SaveDNAAsSVG(currentDrawing, CanvasARGB.CreateCanvasFromBitmap(this.sourceBitmap), fileName);
                     }
                 }
                
             }
         }
 
-        static private void SaveDNAAsSVG(DnaDrawing dna, CanvasBGRA sourceImage, string fileName)
+        static private void SaveDNAAsSVG(DnaDrawing dna, CanvasARGB sourceImage, string fileName)
         {
             DNARenderer _dnaRender = new DNARenderer(dna.Width, dna.Height);
             _dnaRender.RenderDNA(dna, DNARenderer.RenderType.Software);

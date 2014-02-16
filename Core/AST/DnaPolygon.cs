@@ -309,7 +309,7 @@ namespace GenArt.AST
             return this._Points.Length;
         }
 
-        public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasARGB destImage = null, ImageEdges edgePoints = null)
         {
 
             DnaPoint [] points = this._Points;
@@ -478,7 +478,7 @@ namespace GenArt.AST
 
         }
 
-        public override void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
+        public override void MutateTranspozite(DnaDrawing drawing, CanvasARGB destImage = null)
         {
 
             Rectangle polygonArea = DnaPolygon.GetPolygonArea(this._Points);
@@ -529,7 +529,7 @@ namespace GenArt.AST
             return false;
         }
 
-        public void Mutateold(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public void Mutateold(DnaDrawing drawing, CanvasARGB destImage = null, ImageEdges edgePoints = null)
         {
 
             DnaPoint [] points = this._Points;

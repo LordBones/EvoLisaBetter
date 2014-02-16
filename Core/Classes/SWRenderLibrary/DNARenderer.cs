@@ -13,7 +13,14 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 {
     public class DNARenderer
     {
-        private CanvasBGRA _drawCanvas = new CanvasBGRA(0, 0);
+        private const int CONST_MaskShitftLColorR =16;
+        private const int CONST_MaskShitftLColorG =8;
+        private const int CONST_MaskShitftLColorB =0;
+ 
+
+        private CanvasARGB _drawCanvas = new CanvasARGB(0, 0);
+        private CanvasARGBSplit _drawCanvasSplit = new CanvasARGBSplit(0, 0);
+
         private SWTriangle _drawTriangle;
         private SWRectangle _drawRectangle;
         private SWElipse _drawElipse;
@@ -21,7 +28,8 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private List<DnaPrimitive> [] _primitivesOnRows;
         private byte [] _oneRenderRow;
 
-        private CanvasBGRA _DestCanvas = null;
+        private CanvasARGB _DestCanvas = null;
+        private CanvasARGBSplit _DestCanvasSplit = null;
 
 
         public long FillPixels = 0;
@@ -30,14 +38,26 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         NativeFunctions _nativefunc = new NativeFunctions();
 
-        public CanvasBGRA Canvas
+
+
+        public CanvasARGB Canvas
         {
             get { return _drawCanvas; }
         }
 
-        public CanvasBGRA DestCanvas
+        public CanvasARGBSplit CanvasSplit
+        {
+            get { return _drawCanvasSplit; }
+        }
+
+        public CanvasARGB DestCanvas
         {
             set { _DestCanvas = value; }
+        }
+
+        public CanvasARGBSplit DestCanvasSplit
+        {
+            set { _DestCanvasSplit = value; }
         }
 
         public long Fittness;
@@ -46,9 +66,12 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             this._drawTriangle = new SWTriangle();
             this._drawRectangle = new SWRectangle();
-            this._drawCanvas = new CanvasBGRA(width, height);
+            this._drawCanvas = new CanvasARGB(width, height);
+            this._drawCanvasSplit = new CanvasARGBSplit((short)width,(short) height);
+            _nativefunc.ClearFieldByColor(_drawCanvasSplit.A,0,_drawCanvasSplit.A.Length, 255);
+
             this._drawElipse = new SWElipse();
-            this._oneRenderRow = new byte[width * 4];
+            this._oneRenderRow = new byte[width * 4]; 
             _primitivesOnRows = new List<DnaPrimitive>[height];
             for (int i =0; i < height; i++)
             {
@@ -65,6 +88,21 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             else if (typeRender == RenderType.SoftwareByRows) DnaRender_SoftwareByRows(dna);
             else if (typeRender == RenderType.SoftwareByRowsWithFittness)
                 DnaRender_SoftwareByRowsWithFittness_Faster(dna);
+            //DnaRender_SoftwareByRowsWithFittness_Faster(dna);
+
+        }
+
+        public void RenderDNAPerChanel(DnaDrawing dna, RenderType typeRender)
+        {
+            if (typeRender == RenderType.Software)
+            {
+                DnaRenderSplit_Software(dna, _drawCanvasSplit.R, CONST_MaskShitftLColorR);
+                DnaRenderSplit_Software(dna, _drawCanvasSplit.G, CONST_MaskShitftLColorG);
+                DnaRenderSplit_Software(dna, _drawCanvasSplit.B, CONST_MaskShitftLColorB);
+            }
+            /*else if (typeRender == RenderType.SoftwareByRows) DnaRender_SoftwareByRows(dna);
+            else if (typeRender == RenderType.SoftwareByRowsWithFittness)*/
+            //    DnaRender_SoftwareByRowsWithFittness_Faster(dna);
             //DnaRender_SoftwareByRowsWithFittness_Faster(dna);
 
         }
@@ -199,6 +237,46 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
+        private void DnaRenderSplit_Software(DnaDrawing dna, byte [] channel, int maskColorApply)
+        {
+
+            
+            DnaPrimitive [] dnaPolygons = dna.Polygons;
+            
+            byte chanelColor = (byte)((dna.BackGround.ColorAsUInt>>maskColorApply)&0xff);
+
+            _nativefunc.ClearFieldByColor(channel,0,channel.Length, chanelColor);// _blackInt);
+
+            int polyCount = dnaPolygons.Length;
+            for (int i = 0; i < polyCount; i++)
+            {
+                DnaPrimitive polygon = dnaPolygons[i];
+                //FillPixels += polygon.GetPixelSizePolygon();
+                if (polygon is DnaPolygon)
+                {
+                    byte alpha = (byte)((polygon.Brush.ColorAsUInt>>24)&0xff);
+                    byte color = (byte)((polygon.Brush.ColorAsUInt>>maskColorApply)&0xff);
+                    this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvasSplit,channel,color,alpha);
+                }
+                //else if (polygon is DnaTriangleStrip)
+                //{
+                //    this._drawTriangle.RenderTriangleStrip(polygon.Points, _drawCanvas, (int)polygon.Brush.ColorAsUInt);
+                //}
+                //else if (polygon is DnaRectangle)
+                //{
+                //    this._drawRectangle.Render((DnaRectangle)polygon, _drawCanvas);
+                //}
+                //else if (polygon is DnaElipse)
+                //{
+                //    this._drawElipse.Render((DnaElipse)polygon, _drawCanvas);
+                //}
+
+
+            }
+
+        }
+
+
         int [] listRowsForFill = new int[1000 * 3 + 3];
 
         private void DnaRender_SoftwareByRows(DnaDrawing dna)
@@ -287,7 +365,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             for (int y = 0; y < pixelHigh; y += 1)
             {
-                _nativefunc.ClearFieldByColor(tmp, 0, _drawCanvas.WidthPixel, colorBackground);
+                _nativefunc.ClearFieldByColorInt(tmp, 0, _drawCanvas.WidthPixel, colorBackground);
 
                 for (int i = 0; i < polyCount; i++)
                 {
@@ -311,7 +389,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 }
 
                 //Fittness += FitnessCalculator.ComputeFittnessLine_SumSquare(tmp, _DestCanvas.Data, rowIndex);
-                Fittness += _nativefunc.ComputeFittnessSquareLineSSE(tmp, destCanvasData, rowIndex);
+                Fittness += _nativefunc.ComputeFittnessSquareLineSSE_ARGB(tmp, destCanvasData, rowIndex);
                 /*
                 //if ((y & 1) == 1)
                 {
@@ -418,7 +496,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                 //SafeRenderOneRow(listRowsForFill, (listRowsFFIndex / 3) - 1, this._oneRenderRow);
                 listRowsFFIndex = 3;
 
-                Fittness += _nativefunc.ComputeFittnessABSLineSSE(tmp, destCanvasData, rowIndex);
+                Fittness += _nativefunc.ComputeFittnessABSLineSSE_ARGB(tmp, destCanvasData, rowIndex);
 
 
 
@@ -463,7 +541,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
             for (int y = 0; y < pixelHigh; y++)
             {
-                _nativefunc.ClearFieldByColor(this._drawCanvas.Data, canvasIndexRow, _drawCanvas.WidthPixel, colorBackground);
+                _nativefunc.ClearFieldByColorInt(this._drawCanvas.Data, canvasIndexRow, _drawCanvas.WidthPixel, colorBackground);
 
                 List<DnaPrimitive> primitiveList =this._primitivesOnRows[y];
 
@@ -512,7 +590,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //nativefunc.ClearFieldByColor(this._drawCanvas.Data, colorBackground);
             for (int y = 0; y < pixelHigh; y++)
             {
-                _nativefunc.ClearFieldByColor(this._drawCanvas.Data, canvasIndexRow, _drawCanvas.WidthPixel, colorBackground);
+                _nativefunc.ClearFieldByColorInt(this._drawCanvas.Data, canvasIndexRow, _drawCanvas.WidthPixel, colorBackground);
 
                 for (int i = 0; i < polyCount; i++)
                 {
@@ -545,7 +623,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void SafeRenderOneRow(int[] listRowsForApply, int countRows, byte[] canvas)
         {
-            _nativefunc.ClearFieldByColor(canvas,
+            _nativefunc.ClearFieldByColorInt(canvas,
                 listRowsForApply[0] * 4
                 , listRowsForApply[1], listRowsForApply[2]);
 

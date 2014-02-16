@@ -42,17 +42,17 @@ namespace GenArt.Core.Classes
 
         }
 
-        public void ComputeImageMatchStatAvg(CanvasBGRA source, CanvasBGRA dest)
+        public void ComputeImageMatchStatAvg(CanvasARGB source, CanvasARGB dest)
         {
             ComputeStatChanelsAvg(source, dest);
         }
 
-        public void ComputeImageMatchStatMed(CanvasBGRA source, CanvasBGRA dest)
+        public void ComputeImageMatchStatMed(CanvasARGB source, CanvasARGB dest)
         {
             ComputeStatChanelsMedian(source, dest);
         }
 
-        private void ComputeStatChanelsMedian(CanvasBGRA source, CanvasBGRA dest)
+        private void ComputeStatChanelsMedian(CanvasARGB source, CanvasARGB dest)
         {
             Median8bit medR = new Median8bit();
             Median8bit medG = new Median8bit();
@@ -78,7 +78,7 @@ namespace GenArt.Core.Classes
             Diff_MedStdDevR = medR.StdDev;
         }
 
-        private void ComputeStatChanelsAvg(CanvasBGRA source, CanvasBGRA dest)
+        private void ComputeStatChanelsAvg(CanvasARGB source, CanvasARGB dest)
         {
             Median8bit med = new Median8bit();
             

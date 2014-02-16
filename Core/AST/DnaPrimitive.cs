@@ -38,8 +38,8 @@ namespace GenArt.Core.AST
         public abstract bool IsPointInside(DnaPoint point);
         public abstract bool IsLineCrossed(DnaPoint startLine, DnaPoint endLine);
 
-        public abstract void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null);
-        public abstract void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null);
+        public abstract void Mutate(byte MutationRate, DnaDrawing drawing, CanvasARGB destImage = null, ImageEdges edgePoints = null);
+        public abstract void MutateTranspozite(DnaDrawing drawing, CanvasARGB destImage = null);
 
         
     }

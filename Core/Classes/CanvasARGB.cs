@@ -10,11 +10,11 @@ using GenArt.Classes;
 
 namespace GenArt.Core.Classes
 {
-    public class CanvasBGRA : Array2D
+    public class CanvasARGB : Array2D
     {
         public const int CONST_PixelSize = 4; 
 
-        public CanvasBGRA(int pixelWidth, int pixelHeight):
+        public CanvasARGB(int pixelWidth, int pixelHeight):
             base(pixelWidth, pixelHeight,CONST_PixelSize)
 
         {
@@ -41,12 +41,12 @@ namespace GenArt.Core.Classes
         }
 
 
-        public static CanvasBGRA CreateCanvasFromBitmap(Bitmap bmp)
+        public static CanvasARGB CreateCanvasFromBitmap(Bitmap bmp)
         {
             if (bmp.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppPArgb)
                 throw new Exception("Not supported format bitmap;");
 
-            CanvasBGRA canvas = new CanvasBGRA(bmp.Width, bmp.Height);
+            CanvasARGB canvas = new CanvasARGB(bmp.Width, bmp.Height);
 
             BitmapData bmdSRC = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly,
                                         PixelFormat.Format32bppPArgb);
@@ -62,7 +62,7 @@ namespace GenArt.Core.Classes
             return canvas;
         }
 
-        public static Bitmap CreateBitmpaFromCanvas(CanvasBGRA canvas)
+        public static Bitmap CreateBitmpaFromCanvas(CanvasARGB canvas)
         {
             Bitmap result = new Bitmap(canvas.WidthPixel,canvas.HeightPixel,PixelFormat.Format32bppPArgb);
 

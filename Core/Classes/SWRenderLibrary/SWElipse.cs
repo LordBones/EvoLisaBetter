@@ -13,7 +13,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
     {
         private static NativeFunctions nativeFunc = new NativeFunctions();
 
-        public void Render(DnaElipse elipse, CanvasBGRA canvas)
+        public void Render(DnaElipse elipse, CanvasARGB canvas)
         {
             if (elipse.Width <= 0 || elipse.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
@@ -29,7 +29,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private void FillElipseOddFill(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        private void FillElipseOddFill(CanvasARGB canvas, int x, int y, int width, int height, Color color)
         {
             int r = color.R;
             int g = color.G;
@@ -84,7 +84,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
-        private void FillElipseOdd(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        private void FillElipseOdd(CanvasARGB canvas, int x, int y, int width, int height, Color color)
         {
             float hw = width / 2.0f;
             int hh = (height-1) / 2;
@@ -105,7 +105,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
-        private void FillElipseEven(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        private void FillElipseEven(CanvasARGB canvas, int x, int y, int width, int height, Color color)
         {
             float hw = width / 2.0f;
             float hh = height / 2.0f;
@@ -150,9 +150,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         //    }
         //}
 
-        private void TestPoint(CanvasBGRA canvas, int x, int y)
+        private void TestPoint(CanvasARGB canvas, int x, int y)
         {
-            int index = canvas.Width * y + x * CanvasBGRA.CONST_PixelSize;
+            int index = canvas.Width * y + x * CanvasARGB.CONST_PixelSize;
 
             canvas.Data[index] = 255;
             canvas.Data[index+1] = 0;

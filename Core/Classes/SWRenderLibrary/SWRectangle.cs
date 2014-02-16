@@ -19,7 +19,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         }
 
 
-        public void Render(DnaRectangle rectangle, CanvasBGRA canvas)
+        public void Render(DnaRectangle rectangle, CanvasARGB canvas)
         {
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
@@ -35,7 +35,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
                rectangle.Brush.Alpha);
         }
 
-        public void RenderRow(int y, int startIndexRow, int color, DnaRectangle rectangle, CanvasBGRA canvas)
+        public void RenderRow(int y, int startIndexRow, int color, DnaRectangle rectangle, CanvasARGB canvas)
         {
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 throw new Exception("Toto nesmi nastat");
@@ -56,7 +56,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //   rectangle.Brush.BrushColor.A);
         }
 
-        private void FillRowRectangle(int startIndexRow, DnaRectangle rectangle, CanvasBGRA canvas, int color)
+        private void FillRowRectangle(int startIndexRow, DnaRectangle rectangle, CanvasARGB canvas, int color)
         {
             int startIndex = startIndexRow + rectangle.StartPoint.X * 4;
             //nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
@@ -67,7 +67,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         }
 
-        private void FillRectangle(CanvasBGRA canvas, int x, int y, int width, int height, Color color)
+        private void FillRectangle(CanvasARGB canvas, int x, int y, int width, int height, Color color)
         {
             int rowStartIndex = y * canvas.Width + x * 4;
 

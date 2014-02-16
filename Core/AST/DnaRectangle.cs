@@ -159,7 +159,7 @@ namespace GenArt.Core.AST
             CreateNewUniqueId();
         }
 
-        public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
+        public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasARGB destImage = null, ImageEdges edgePoints = null)
         {
 
             DnaPoint point = new DnaPoint();
@@ -213,7 +213,7 @@ namespace GenArt.Core.AST
         //    CreateNewUniqueId();
         //}
 
-        public override void MutateTranspozite(DnaDrawing drawing, CanvasBGRA destImage = null)
+        public override void MutateTranspozite(DnaDrawing drawing, CanvasARGB destImage = null)
         {
 
             Rectangle polygonArea = new Rectangle(this.StartPoint.X, this.StartPoint.Y,
