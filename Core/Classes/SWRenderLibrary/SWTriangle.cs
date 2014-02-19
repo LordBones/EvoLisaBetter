@@ -149,10 +149,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             }
         }
 
-        private static void ApplyColor(byte[] canvas, int index, int count, byte color, byte pAlpha)
+        private static void ApplyColor(byte[] canvas, int index, int count, byte color, int pAlpha256)
         {
             // convert alpha value from range 0-255 to 0-256
-            int alpha = ((pAlpha) * 256) / 255;
+            int alpha = pAlpha256;// ((pAlpha) * 256) / 255;
 
             int invAlpha = 256 - alpha;
 
@@ -456,7 +456,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             //return;
 
 
-
+            int alpha256 = (alpha * 256) / 255;
 
             if (py0 > py1)
             {
@@ -536,8 +536,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 int currIndex = rowIndex + start;
 
-                //nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
-                ApplyColor(channel, currIndex, end - start + 1, color,alpha);
+                //nativeFunc.NewChannelRowApplyColor(channel, currIndex, end - start + 1, color, alpha256);
+                nativeFunc.NewChannelRowApplyColor8SSE(channel, currIndex, end - start + 1, color, alpha256);
+                //ApplyColor(channel, currIndex, end - start + 1, color,alpha256);
 
                 rowIndex += canvas.Width;
             }
@@ -563,9 +564,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 int currIndex = rowIndex + start;
 
-                //nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
-                ApplyColor(channel, currIndex, end - start + 1, color, alpha);
-
+                //ApplyColor(channel, currIndex, end - start + 1, color, alpha256);
+                //nativeFunc.NewChannelRowApplyColor(channel, currIndex, end - start + 1, color, alpha256);
+                nativeFunc.NewChannelRowApplyColor8SSE(channel, currIndex, end - start + 1, color, alpha256);
+             
                 rowIndex += canvas.Width;
 
 
@@ -601,11 +603,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
                 int currIndex = rowIndex + start;
 
-                //nativeFunc.NewRowApplyColor64(canvas.Data, currIndex, end - start + 1, color);
-                ApplyColor(channel, currIndex, end - start + 1, color, alpha);
-
-                //ApplyColor(canvas.Data, currIndex, end - start + 1, color);
-
+                //ApplyColor(channel, currIndex, end - start + 1, color, alpha256);
+                //nativeFunc.NewChannelRowApplyColor(channel, currIndex, end - start + 1, color, alpha256);
+                nativeFunc.NewChannelRowApplyColor8SSE(channel, currIndex, end - start + 1, color, alpha256);
+             
+             
                 rowIndex += canvas.Width;
             }
         }

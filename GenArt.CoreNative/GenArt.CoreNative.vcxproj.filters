@@ -36,6 +36,9 @@
     <ClInclude Include="FastFunctions.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
+    <ClInclude Include="AlphaBlending.h">
+      <Filter>Header Files\Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenArt.CoreNative.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="FastFunctions.cpp">
+      <Filter>Source Files\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="AlphaBlending.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
   </ItemGroup>

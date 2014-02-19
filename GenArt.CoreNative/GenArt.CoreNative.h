@@ -3,6 +3,7 @@
 #pragma once
 #include <vcclr.h>
 #include "FastFunctions.h"
+#include "AlphaBlending.h"
 
 using namespace System;
 //using namespace System::Drawing;
@@ -45,11 +46,14 @@ namespace GenArtCoreNative {
 
 		}
 
+
+
+
         void NewRowApplyColor(array<System::Byte>^ canvas, int startPixelIndex, int countPixel, int color)
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+            AlphaBlending::
             NewFastRowApplyColorSSE(pinCanvas+startPixelIndex,countPixel, color);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
@@ -60,7 +64,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
                 NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color,alpha256);
         }
 
@@ -68,7 +72,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
                 NewFastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel, color);
         }
 
@@ -76,12 +80,30 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
             NewFastRowApplyColorSSE128(pinCanvas+startPixelIndex,countPixel, color);
 
-            // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
-
         }
+
+        void NewChannelRowApplyColor(array<System::Byte>^ canvas, int startIndex, int count, System::Byte color, int alpha256)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+            AlphaBlending::
+                FastChanelRowApplyColor(pinCanvas+startIndex,count, color,alpha256);
+    
+        }
+
+        void NewChannelRowApplyColor8SSE(array<System::Byte>^ canvas, int startIndex, int count, System::Byte color, int alpha256)
+        {
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+
+            AlphaBlending::
+                FastChanelRowApplyColor8SSE(pinCanvas+startIndex,count, color,alpha256);
+    
+        }
+
+
 
          void RenderRectangle(array<System::Byte>^ canvas, 
              int canvasWidth, int x,int y, int width, int height, int color, int alpha)
@@ -166,7 +188,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
                 FastRowApplyColor(pinCanvas+startPixelIndex,countPixel,  r ,  g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
@@ -177,7 +199,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
                 FastRowApplyColorSSE64(pinCanvas+startPixelIndex,countPixel,r,g,b,alpha);
 
     
@@ -187,7 +209,7 @@ namespace GenArtCoreNative {
         {
             pin_ptr<System::Byte> pinCanvas(&canvas[0]);
 
-			FastFunctions::
+			AlphaBlending::
                 FastRowApplyColorSSE128(pinCanvas+from,to-from+1,r,g,b,alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
@@ -201,7 +223,7 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Int16> pinRanges(&ranges[0]);
 
 
-			FastFunctions::
+			AlphaBlending::
                 FastRowsApplyColorSSE128(pinCanvas,canvasWidth,pinRanges,ranges->Length, startY, r, g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
@@ -214,7 +236,7 @@ namespace GenArtCoreNative {
 			pin_ptr<System::Int16> pinRanges(&ranges[0]);
 
             int countPolygonRows = (endY-startY+1)*2;
-			FastFunctions::
+			AlphaBlending::
                 FastRowsApplyColorSSE64(pinCanvas,canvasWidth,pinRanges+startY*2,countPolygonRows, startY, r, g, b, alpha);
 
             // FastFunctions2::FastRowApplyColor(pinCanvas,from,to,colorABRrem,colorAGRrem,colorARRrem,colorRem);
