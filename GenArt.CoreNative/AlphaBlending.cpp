@@ -336,14 +336,14 @@ void Apply2ColorPixelSSE2(unsigned char * canvas,int count,int color, int alpha)
 
 void Apply8ChanelColorSSE(unsigned char * canvas,int count,unsigned char color, int alpha256)
 {
-    int invAlpha = 256 - color;
+    int invAlpha = 256 - alpha256;
 
     __m128i mColorTimeAlpha = _mm_set1_epi16(color*alpha256);
     __m128i mMullInvAlpha = _mm_set1_epi16(invAlpha);
 
     //__m128i mZero = _mm_setzero_si128();
     int x=0;
-   /* while(count > 15)
+    while(count > 15)
     {
         
         __m128i source =  _mm_cvtsi64_si128(*(((long long*)canvas)+x));
@@ -377,7 +377,7 @@ void Apply8ChanelColorSSE(unsigned char * canvas,int count,unsigned char color, 
         x+=2;
         //canvas += 8;
         count-=16;
-    }*/
+    }
 
     while(count > 7)
     {
