@@ -19,9 +19,11 @@ public:
     static  void RenderTriangleNewOptimize(unsigned char * canvas, int canvasWidth, int canvasHeight, 
         short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color);
 
-    static  bool TriangleGetRowIntersect(int y, int * startX, int * endX, 
-        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2);
+    static void RenderOneChannelTriangleNewOptimize(unsigned char * const canvas, int canvasWidth,int canvasHeight, 
+                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, 
+                                              const unsigned char color, int alpha256);
 
+  
 
     static  void RenderOneRow(int * listRowsForApply, int countRows, unsigned char * canvas);
 

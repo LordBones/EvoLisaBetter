@@ -17,6 +17,7 @@ namespace GenArt.Core.AST
     {
         public enum TypeRendering { software, softwareByRow, softwareByRowWithFitness };
 
+
         private DnaDrawing _currentBest;
         private long _currentBestFittness;
         private DnaDrawing _lastBest;
@@ -57,7 +58,7 @@ namespace GenArt.Core.AST
         private int _popSize=  1;
 
         private TypeRendering _typeRendering = TypeRendering.software;
-
+        private bool _enableSplitVersion = false;
 
 
 
@@ -109,6 +110,12 @@ namespace GenArt.Core.AST
         {
             get { return _typeRendering; }
             set { _typeRendering = value; }
+        }
+
+        public bool EnableSplitVersion
+        {
+            get { return _enableSplitVersion; }
+            set { _enableSplitVersion = value; }
         }
 
 
@@ -214,8 +221,10 @@ namespace GenArt.Core.AST
             this._fittness[_population.Length - 1] = long.MaxValue;
 
             // nezbytne aby doslo k vypoctu novych fittness
-            //ComputeFittness();
-            ComputeFittnessSplit();
+            if(_enableSplitVersion)
+                ComputeFittnessSplit();
+            else
+                ComputeFittness();
 
 
             _crLastMutationRate = 255;
@@ -249,9 +258,11 @@ namespace GenArt.Core.AST
             GenerateNewPopulationByMutation();
             //GenerateNewPopulationRoulete();
 
-            //ComputeFittness();
-            ComputeFittnessSplit();
-
+            if (_enableSplitVersion)
+                ComputeFittnessSplit();
+            else
+                ComputeFittness();
+            
             UpdateStatsByFittness();
 
             //GenerateNewPopulationBasic();

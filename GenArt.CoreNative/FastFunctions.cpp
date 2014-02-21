@@ -370,8 +370,13 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int 
         //int tmpx0 =  (-v01y * y - v01c) / v01x;
         //int tmpx2 =  (-v20y * y - v20c) / v20x;
 
-        int tmpx0 =  tmpNominal0 / v01x;
-        int tmpx2 =  tmpNominal2 / v20x;
+        //int tmpx0 =  tmpNominal0 / v01x;
+        //int tmpx2 =  tmpNominal2 / v20x;
+
+        int tmpx0 =  tmpNominal0*2 / v01x ;
+        tmpx0 = tmpx0/2 + (tmpx0&1);
+        int tmpx2 = tmpNominal2*2 / v20x;
+        tmpx2 = tmpx2/2 + (tmpx2&1);
 
         tmpNominal0 += -v01y;
         tmpNominal2 += -v20y;
@@ -451,8 +456,13 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int 
     // fill first half
     for (int y = middleY; y <= py2; y++)
     {
-        int tmpx1 =  tmpNominal1 / v12x;
-        int tmpx2 = tmpNominal2 / v20x;
+        //int tmpx1 =  tmpNominal1 / v12x;
+        //int tmpx2 = tmpNominal2 / v20x;
+
+        int tmpx1 =  tmpNominal1*2 / v12x ;
+        tmpx1 = tmpx1/2 + (tmpx1&1);
+        int tmpx2 = tmpNominal2*2 / v20x;
+        tmpx2 = tmpx2/2 + (tmpx2&1);
 
         tmpNominal1 += -v12y;
         tmpNominal2 += -v20y;
@@ -483,106 +493,197 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int 
     }
 }
 
-bool FastFunctions::TriangleGetRowIntersect(int y, int * startX, int * endX, 
-        short int px0,short int py0,short int px1,short int py1,short int px2,short int py2)
+void FastFunctions::RenderOneChannelTriangleNewOptimize(unsigned char * const canvas, int canvasWidth,int canvasHeight, 
+                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, 
+                                              const unsigned char color, int alpha256)
 {
-    
-            if (py0 > py1)
-            {
-                int tmp;
-                SWAP(tmp, py0, py1);
-                SWAP(tmp, px0, px1);
-            }
-            if (py1 > py2)
-            {
-                int tmp;
-                SWAP(tmp, py1, py2);
-                SWAP(tmp, px1, px2);
-            }
 
-            if (py0 > py1)
-            {
-                int tmp;
-                SWAP(tmp, py0, py1);
-                SWAP(tmp, px0, px1);
-            }
+    //int alpha255 = (color >> 24) & 0xff;
+    //int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
 
-            // test if is out of triangle
-            if (py0 > y || y > py2) return false;
+    if (py0 > py1)
+    {
+        short tmp;
+        SWAP(tmp,py0,py1);
+        SWAP(tmp,px0,px1);
+    }
+    if (py1 > py2)
+    {
 
-            //if ((py0 > y & py1 > y & py2 > y) || (py0 < y & py1 < y & py2 < y)) return false;
+        short tmp;
+        SWAP(tmp,py1,py2);
+        SWAP(tmp,px1,px2);
+    }
 
-            int v2x = -(py0 - py2);
-            int v2y = px0 - px2; 
+    if (py0 > py1)
+    {
+        short tmp;
+        SWAP(tmp,py0,py1);
+        SWAP(tmp,px0,px1);
+    }
 
-            int v2c = -(v2x * px2 + v2y * py2);
+    // compute vector and ax+by+c, compute vector (a,b) a coeficient c
+    int v01x,v20x,v01y,v20y,v01c,v20c;
 
-            // process all points
+    //v01x = px1 - px0;
+    //v01y = py1 - py0;
 
-            // compute ax+by+c =0, v(a,b) , u(k,l)=A-B, u(k,l) => v(l,-k)
-            
-            int start = 0;
-            int end = 0;
+    //v20x = px0 - px2;
+    //v20y = py0 - py2;
 
-            if (py0 <= y && py1 > y)
-            {
-                //int v0x = px1 - px0;
-                //int v0y = py1 - py0;
-                //tmp = v0x; v0x = v0y; v0y = tmp;
-                //v0x = -v0x;
+    //Tools.swap<int>(ref v01x, ref v01y);
+    //Tools.swap<int>(ref v20x, ref v20y);
 
-                // zkraceny zapis, vypocteni normaloveho vektoru
-                // rozdil->prohozeni->negace
+    v01x = -(py1 - py0);
+    v01y = px1 - px0;
 
-                int v0x = -(py1 - py0);
-                int v0y = px1 - px0;
-                
-                int v0c = -(v0x * px0 + v0y * py0);
+    v20x = -(py0 - py2);
+    v20y = px0 - px2;
 
-                int tmpx0 =  (-v0y * y - v0c) / v0x;
-                int tmpx2 =  (-v2y * y - v2c) / v2x;
-                start = tmpx0;
-                end = tmpx2;
-            }
-            else if (y == py1 && py1 == py2 )
-            {
-                start = px1;
-                end = px2;
-            }
-            else if (y == py1 && py1 == py0)
-            {
-                start = px1;
-                end = px0;
-            }
+    v01c = -(v01x * px0 + v01y * py0);
+    v20c = -(v20x * px2 + v20y * py2);
 
-            else if (py1 <= y && py2 >= y)
-            {
-                int v1x = -(py2 - py1);
-                int v1y = px2 - px1;
-                int v1c = -(v1x * px1 + v1y * py1);
+    int middleY = py1;
+    int rowIndex = py0 * canvasWidth;
 
-                int tmpx1 =  (-v1y * y - v1c) / v1x;
-                int tmpx2 =  (-v2y * y - v2c) / v2x;
-                start = tmpx1;
-                end = tmpx2;
-            }
-            else
-                return false;
+    int tmpNominal0 = (-v01y * py0 - v01c);
+    int tmpNominal2 = (-v20y * py0 - v20c);
 
-            
-            if (start > end)
-            {
-                *startX = end;
-                *endX = start;
-            }
-            else
-            {
-                *startX = start;
-                *endX = end;
-            }
+    //int nom = tmpNominal0 % v01x
+    //int xxx = tmpNominal0 / v01x;
+    // fill first half
+    for (int y = py0; y < middleY; y++)
+    {
+        //int tmpx0 =  (-v01y * y - v01c) / v01x;
+        //int tmpx2 =  (-v20y * y - v20c) / v20x;
 
-            return true;
+        int tmpx0 =  tmpNominal0*2 / v01x ;
+        tmpx0 = tmpx0/2 + (tmpx0&1);
+        int tmpx2 = tmpNominal2*2 / v20x;
+        tmpx2 = tmpx2/2 + (tmpx2&1);
+
+        //int tmpx0 =  tmpNominal0 / v01x ;
+        //int tmpx2 =  tmpNominal2 / v20x ;
+
+        tmpNominal0 += -v01y;
+        tmpNominal2 += -v20y;
+
+
+
+        int start = tmpx0;
+
+        int end = tmpx2;
+
+        if (start > end)
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        //if (end >= canvas.WidthPixel)
+        //{
+        //    int kkk = 454;
+        //    throw new Exception();
+        //    continue;
+        //}
+
+
+        int currIndex = rowIndex + start;
+
+        AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
+
+        rowIndex += canvasWidth;
+
+        
+    }
+
+    //int v12x = px2 - px1;
+    //int v12y = py2 - py1;
+    //Tools.swap<int>(ref v12x, ref v12y);
+    int v12x = py2 - py1;
+    int v12y = px2 - px1;
+
+    v12x = -v12x;
+    int v12c = -(v12x * px1 + v12y * py1);
+
+    //rowIndex = middleY * canvasWidth;
+
+    // osetreni specialniho pripadu kdy prostredni bod je v jedne lajne s spodnim
+    if (middleY == py2)
+    {
+        int start = px1;
+        int end = px2;
+
+        if (start > end)
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        int currIndex = rowIndex + start;
+
+       AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
+
+
+        rowIndex += canvasWidth;
+
+        middleY++;
+    }
+
+    int tmpNominal1 = (-v12y * middleY - v12c);
+    tmpNominal2 = (-v20y * middleY - v20c);
+
+    /*int tmp = (-v20y * middleY - v20c) / v20x;
+
+    if (px1 > tmp ) 
+    {
+    int tmp = 0;
+    SWAP(tmp,tmpNominal1,tmpNominal2);
+    SWAP(tmp,v20x,v12x);
+    SWAP(tmp,v20y,v12y);
+
+    }*/
+
+    // fill first half
+    for (int y = middleY; y <= py2; y++)
+    {
+        int tmpx1 =  tmpNominal1*2 / v12x ;
+        tmpx1 = tmpx1/2 + (tmpx1&1);
+        int tmpx2 = tmpNominal2*2 / v20x;
+        tmpx2 = tmpx2/2 + (tmpx2&1);
+        //int tmpx1 =  tmpNominal1 / v12x + (((tmpNominal1 % v12x)*2) / v12x);
+        //int tmpx2 = tmpNominal2 / v20x + (((tmpNominal2 % v20x)*2) / v20x);
+
+        tmpNominal1 += -v12y;
+        tmpNominal2 += -v20y;
+
+
+        int start = tmpx1;
+        int end = tmpx2;
+
+        if (start > end) 
+        {
+            int tmp;
+            SWAP(tmp,start,end);
+        }
+
+        //if (end >= canvas.WidthPixel)
+        //{
+
+        //    int kkk = 454;
+        //    throw new Exception();
+        //    continue;
+        //}
+
+
+        int currIndex = rowIndex + start;
+        AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
+
+
+        rowIndex += canvasWidth;
+    }
 }
+
 
 
 

@@ -875,12 +875,31 @@ void AlphaBlending::FastChanelRowApplyColor(unsigned char * canvas, int count, u
 
     int c = alpha256*color;
     
-    while(count > 3)
+    while(count > 7)
     {
         unsigned int tc = *canvas;
         unsigned int tc2 = canvas[1];
         unsigned int tc3 = canvas[2];
         unsigned int tc4 = canvas[3];
+
+        
+        tc = (c + (tc*invAlpha))>>8;
+        tc2 = (c + (tc2*invAlpha))>>8;
+        tc3 = (c + (tc3*invAlpha))>>8;
+        tc4 = (c + (tc4*invAlpha))>>8;
+        
+        *canvas = (unsigned char)tc;
+        canvas[1] = (unsigned char)tc2;
+        canvas[2] = (unsigned char)tc3;
+        canvas[3] = (unsigned char)tc4;
+        
+        count -=4;
+        canvas+=4;
+
+         tc = *canvas;
+         tc2 = canvas[1];
+         tc3 = canvas[2];
+         tc4 = canvas[3];
 
         
         tc = (c + (tc*invAlpha))>>8;
@@ -921,7 +940,7 @@ void AlphaBlending::FastChanelRowApplyColor8SSE(unsigned char * canvas, int coun
 
     unsigned char * line = canvas;
 
-    if(count < 16)
+    if(count < 32)
     {
         FastChanelRowApplyColor(line,count,color,alpha256);
     }
@@ -929,16 +948,17 @@ void AlphaBlending::FastChanelRowApplyColor8SSE(unsigned char * canvas, int coun
     {
         // fix bad align
         // move if address is 0xc || 0x4
-        /*unsigned int tmp = ((((unsigned int)line) & 0xf)/4)&1; 
+        unsigned int tmp = ((((unsigned int)line) & 0x7)); 
 
         if((tmp != 0) //&& countPixel > 0
             )
         {
-            ApplyColorPixelSSE(line,color,alpha);
+            int moveCount = 8-tmp;
+            FastChanelRowApplyColor(line,moveCount,color,alpha256);
 
-            countPixel -= 1;
-            line+=4;
-        }*/
+            count -= moveCount;
+            line+=moveCount;
+        }
 
         //if(countPixel > 1)
         {

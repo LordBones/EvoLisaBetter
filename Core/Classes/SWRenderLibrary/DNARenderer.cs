@@ -97,6 +97,7 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             if (typeRender == RenderType.Software)
             {
                 DnaRenderSplit_Software(dna, _drawCanvasSplit.R, CONST_MaskShitftLColorR);
+               
                 DnaRenderSplit_Software(dna, _drawCanvasSplit.G, CONST_MaskShitftLColorG);
                 DnaRenderSplit_Software(dna, _drawCanvasSplit.B, CONST_MaskShitftLColorB);
             }
@@ -252,10 +253,11 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             {
                 DnaPrimitive polygon = dnaPolygons[i];
                 //FillPixels += polygon.GetPixelSizePolygon();
-                if (polygon is DnaPolygon)
+                if (polygon as DnaPolygon != null)
                 {
-                    byte alpha = (byte)((polygon.Brush.ColorAsUInt>>24)&0xff);
-                    byte color = (byte)((polygon.Brush.ColorAsUInt>>maskColorApply)&0xff);
+                    uint tmpcolor = polygon.Brush.ColorAsUInt;
+                    byte alpha = (byte)((tmpcolor>>24)&0xff);
+                    byte color = (byte)((tmpcolor>>maskColorApply)&0xff);
                     this._drawTriangle.RenderTriangle(polygon.Points, _drawCanvasSplit,channel,color,alpha);
                 }
                 //else if (polygon is DnaTriangleStrip)

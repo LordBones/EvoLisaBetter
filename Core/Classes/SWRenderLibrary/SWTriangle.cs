@@ -449,15 +449,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         private static void FillTriangleOneColorOptimize(CanvasARGBSplit canvas, byte [] channel,
             short px0, short py0, short px1, short py1, short px2, short py2, byte color, byte alpha)
         {
-
-            //nativeFunc.RenderTriangleNewOptimize(canvas.Data, canvas.Width, canvas.HeightPixel,
-            //   px0, py0, px1, py1, px2, py2, color);
-
-            //return;
-
-
             int alpha256 = (alpha * 256) / 255;
 
+            nativeFunc.RenderOneChannelTriangleNewOptimize(channel, canvas.Width, canvas.Height,
+               px0, py0, px1, py1, px2, py2, color,alpha256);
+
+            return;
+              
+
+            
             if (py0 > py1)
             {
                 Tools.swap<short>(ref py0, ref py1);

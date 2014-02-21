@@ -157,17 +157,13 @@ namespace GenArtCoreNative {
                 px0,py0,px1,py1,px2,py2,color);
         }
 
-        bool TriangleGetRowIntersect(int y, System::Int32% startX, System::Int32%  endX, 
-            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2)
+        void RenderOneChannelTriangleNewOptimize(array<System::Byte>^ canvas,int canvasWidth,int canvasHeight,
+            short int px0,short int py0,short int px1,short int py1,short int px2,short int py2,System::Byte color, int alpha256)
         {
-            int start = 0;
-            int end = 0;
-            bool result = FastFunctions::TriangleGetRowIntersect(y,&start,&end,
-                px0,py0,px1,py1,px2,py2);
-
-            startX = start;
-            endX = end;
-            return result;
+            pin_ptr<System::Byte> pinCanvas(&canvas[0]);
+			
+            FastFunctions::RenderOneChannelTriangleNewOptimize(pinCanvas,canvasWidth,canvasHeight,
+                px0,py0,px1,py1,px2,py2,color,alpha256);
         }
 
 

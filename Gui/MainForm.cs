@@ -60,6 +60,7 @@ namespace GenArt
         private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
         private int MaxPolygons { get { return (int)nudMaxPolygon.Value; } }
         private GASearch.TypeRendering _typeRendering;
+        private bool _EnableSplitVersion;
 
 
 
@@ -109,6 +110,7 @@ namespace GenArt
 
             GASearch gaSearch = new GASearch(InitPopulation);
             gaSearch.TypeRender = _typeRendering;
+            gaSearch.EnableSplitVersion = _EnableSplitVersion;
 
             if (enableMaxGeneration)
             {
@@ -190,6 +192,8 @@ namespace GenArt
             _typeRendering = GASearch.TypeRendering.software;
             if (cbRenderCore.SelectedIndex == 1) _typeRendering = GASearch.TypeRendering.softwareByRow;
             if (cbRenderCore.SelectedIndex == 2) _typeRendering = GASearch.TypeRendering.softwareByRowWithFitness;
+
+            _EnableSplitVersion = chbSplitVersion.Checked;
 
 
             if (thread != null)
