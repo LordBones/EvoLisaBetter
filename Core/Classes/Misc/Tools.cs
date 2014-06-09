@@ -156,21 +156,37 @@ namespace GenArt.Classes
         {
             return Math.Max(minValue, ((mutationRate + 1) * value) / (256));
         }
-        
+       
+        /// <summary>
+        /// point mutation by len and angle
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="maxX"></param>
+        /// <param name="maxY"></param>
+        /// <param name="mutationRate"> 255 linear random len, 0 - maxNelinear random len </param>
+        public static void MutatePointByRadial(ref short x,ref short y, short maxX, short maxY, byte mutationRate )
+        {
+            int maxRadial = (x<y)? y:x;
+            int tmp = (maxX - x < maxY - y) ? maxY - y : maxX - x;
+            maxRadial = (maxRadial > tmp) ? maxRadial : tmp;
 
-        //public static int GetRandomNumber(int min, int max)
-        //{
-        //    return GetRandomNumber2(min, max);
-        //}
+            // polomer nesmi byt 0
+            maxRadial = GetRandomNumberNoLinear_MinMoreOften(maxRadial-1, mutationRate)+1;
 
-        //public static int GetRandomNumber(int min, int max, int ignore)
-        //{
-        //    if (!(min <= ignore && ignore < max)) return GetRandomNumber2(min, max);
+            double radAngle = Math.PI * 2 * GetRandomNumberDouble();
 
-        //    int tmp = GetRandomNumber2(min, max - 1);
-        //    return (tmp >= ignore) ? tmp + 1 : tmp;
-        //}
+            int newX =  (int)(x+ maxRadial * Math.Cos(radAngle));
+            newX = Math.Max(0, Math.Min(maxX, newX));
+            int newY =  (int)(y + maxRadial * Math.Sin(radAngle));
+            newY = Math.Max(0, Math.Min(maxY, newY));
 
+            x = (short)newX;
+            y = (short)newY;
+            //Math.Cos
+        }
+
+       
         public static void swap<T>(ref T p1, ref T p2)
         {
             T tmp =  p1;

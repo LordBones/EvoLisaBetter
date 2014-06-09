@@ -10,6 +10,22 @@ namespace GenArt.Core.Classes
 {
     public class GraphicFunctions
     {
+        public static bool IsTriangleLenThenTaller(short x1, short y1,short x2, short y2,short x3, short y3)
+        {
+            int minX = (x1 < x2) ? x1 : x2;
+            minX = (minX < x3) ? minX : x3;
+            int minY = (y1 < y2) ? y1 : y2;
+            minY = (minY < y3) ? minY : y3;
+
+
+            int maxX = (x1 > x2) ? x1 : x2;
+            maxX = (maxX > x3) ? maxX : x3;
+            int maxY = (y1 > y2) ? y1 : y2;
+            maxY = (maxY > y3) ? maxY : y3;
+
+            return (maxX - minX) >= (maxY - minY);
+        }
+
         public static bool IsPointInTriangle2(DnaPoint p1, DnaPoint p2, DnaPoint p3, DnaPoint p)
         {
             int denominator = ((p2.Y - p3.Y) * (p1.X - p3.X) + (p3.X - p2.X) * (p1.Y - p3.Y));

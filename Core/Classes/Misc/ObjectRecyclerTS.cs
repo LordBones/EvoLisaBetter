@@ -17,21 +17,25 @@ namespace GenArt.Core.Classes.Misc
 
         int _isLock = CONST_UNLOCK;
 
+        FastLock _fastLock = new FastLock();
+
         public T GetNewOrRecycle()
         {
-            Helper_LockSection();
+            //Helper_LockSection();
 
-            try
+            //try
             {
-                if (_objects.Count > 0)
-                    return _objects.Pop();
-
+                using (_fastLock.Lock())
+                {
+                    if (_objects.Count > 0)
+                        return _objects.Pop();
+                }
                 
             }
-            finally
-            {
-                Helper_UnlockSection();
-            }
+            //finally
+            //{
+            //    Helper_UnlockSection();
+            //}
 
             return new T();
         }
@@ -46,32 +50,38 @@ namespace GenArt.Core.Classes.Misc
 
         public void PutForRecycle(T pobject)
         {
-            Helper_LockSection();
+            //Helper_LockSection();
 
-            try
-            {
-                if(_objects.Count < 1500)
-                _objects.Push(pobject);
-            }
-            finally
-            {
-                Helper_UnlockSection();
-            }
+            //try
+            //{
+                using (_fastLock.Lock())
+                {
+                    if (_objects.Count < 1500)
+                        _objects.Push(pobject);
+                }
+            //}
+            //finally
+            //{
+            //    Helper_UnlockSection();
+            //}
 
         }
 
         public void Clear()
         {
-            Helper_LockSection();
+            //Helper_LockSection();
 
-            try
-            {
-                _objects.Clear();
-            }
-            finally
-            {
-                Helper_UnlockSection();
-            }
+            //try
+            //{
+                using (_fastLock.Lock())
+                {
+                    _objects.Clear();
+                }
+            //}
+            //finally
+            //{
+            //    Helper_UnlockSection();
+            //}
 
         }
 

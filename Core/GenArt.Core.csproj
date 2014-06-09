@@ -136,6 +136,7 @@
     <Compile Include="Classes\ErrorMatrix.cs" />
     <Compile Include="Classes\GraphicFunctions.cs" />
     <Compile Include="Classes\Median8bit.cs" />
+    <Compile Include="Classes\Misc\FastLock.cs" />
     <Compile Include="Classes\Misc\FileUtil.cs" />
     <Compile Include="Classes\FitnessCalculator.cs" />
     <Compile Include="Classes\Misc\HSLColor.cs" />

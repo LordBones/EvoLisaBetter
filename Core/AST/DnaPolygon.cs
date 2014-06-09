@@ -56,7 +56,7 @@ namespace GenArt.AST
 
                     for (int i = 0; i < countPoints; i++)
                     {
-                        int mutationMaxy = Math.Max(6, ((mutationRate + 1) * Tools.MaxHeight) / (256));
+                        /*int mutationMaxy = Math.Max(6, ((mutationRate + 1) * Tools.MaxHeight) / (256));
                         int mutationMiddley = mutationMaxy / 2;
 
                         int mutationMaxx = Math.Max(6, ((mutationRate + 1) * Tools.MaxWidth) / (256));
@@ -72,12 +72,15 @@ namespace GenArt.AST
                             tmp = Tools.GetRandomNumber(0, mutationMaxy);
 
                         point.Y = (short)Math.Min(Math.Max(0, lastPoint.Y + tmp - mutationMiddley), Tools.MaxHeight - 1);
+                        */
 
-
+                        var point = new DnaPoint();
+                        point = lastPoint;
+                        Tools.MutatePointByRadial(ref point.X,ref point.Y,(short) (Tools.MaxWidth - 1),(short) (Tools.MaxHeight - 1), mutationRate);
 
 
                         points[i] = point;
-                        lastPoint = point;
+                        //lastPoint = point;
                     }
 
                     int py0 = points[0].Y;
@@ -108,7 +111,11 @@ namespace GenArt.AST
                     //if (!IsNotTriangleLinesTooClose(points[0], points[1], points[2],minDistance)) continue;
 
                     //
-                    if (!IsIntersect(points) &&
+                    if (
+                        //GraphicFunctions.IsTriangleLenThenTaller(points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) &&
+
+
+                        !IsIntersect(points) &&
                         GraphicFunctions.TriangleHasNotSmallAngle(
                         points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) )
                     {
@@ -389,7 +396,7 @@ namespace GenArt.AST
                         //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
 
 
-                        DnaPoint newPoint = new DnaPoint();
+                        /*DnaPoint newPoint = new DnaPoint();
 
                         int newValue = Tools.GetRandomNumberNoLinear_MinMoreOften(oldPoint.X,
                             0, Tools.MaxWidth - 1, MutationRate);
@@ -402,7 +409,12 @@ namespace GenArt.AST
                         newPoint.Y = (short)Math.Min(Math.Max(0, newValue), Tools.MaxHeight - 1);
 
                         if (newPoint.X == oldPoint.X && newPoint.Y == oldPoint.Y)
-                            break;
+                            break;*/
+
+                        var newPoint = new DnaPoint();
+                        newPoint = oldPoint;
+                        Tools.MutatePointByRadial(ref newPoint.X, ref newPoint.Y, (short)(Tools.MaxWidth - 1), (short)(Tools.MaxHeight - 1), MutationRate);
+
 
 
 
@@ -447,7 +459,11 @@ namespace GenArt.AST
 
                         //float minDistance = (lenY > 10 || lenX > 10) ? 3.0f : 0.6f;
 
-                        if (GraphicFunctions.TriangleHasNotSmallAngle(
+                        if (
+                            //GraphicFunctions.IsTriangleLenThenTaller(points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) &&
+
+
+                            GraphicFunctions.TriangleHasNotSmallAngle(
                         points[0].X, points[0].Y, points[1].X, points[1].Y, points[2].X, points[2].Y) &&
                             //IsNotTriangleLinesTooClose(points[0], points[1], points[2], minDistance) && 
                             //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2],edgePoints)&&

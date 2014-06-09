@@ -218,7 +218,7 @@ namespace GenArt.Core.AST
 
             this._lastBest = this._population[_population.Length - 1].Clone();
             this._currentBest = this._lastBest.Clone();
-            this._fittness[_population.Length - 1] = long.MaxValue;
+            this._fittness[_population.Length - 1] = long.MaxValue/2;
 
             // nezbytne aby doslo k vypoctu novych fittness
             if(_enableSplitVersion)
@@ -229,7 +229,7 @@ namespace GenArt.Core.AST
 
             _crLastMutationRate = 255;
             _crLastGenerationNumber = 0;
-            _crLastBestFittness = long.MaxValue;
+            _crLastBestFittness = long.MaxValue/2;
 
             // compress version dna
             Helper_InitPoluplation_CompressDNA();
@@ -526,6 +526,7 @@ namespace GenArt.Core.AST
             //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
             //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
             RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
+            //RankTableFillz(this._fittness, this._rankTable, out maxNormalizeValue);
 
             Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
             
@@ -539,9 +540,10 @@ namespace GenArt.Core.AST
                 //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
                 //indexParent1 = RouletteVheelParrentIndex(indexParent1, this._rouleteTable);
 
-                //int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                //indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
-                int indexParent1 = this._fittness.Length - 1;
+                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
+                
+                //int indexParent1 = this._fittness.Length - 1;
 
 
 
@@ -574,7 +576,7 @@ namespace GenArt.Core.AST
                     dna.MutateBetter(currMutatioRate,
                         null,//this._errorMatrix,
                         this._destCanvas,
-                        _edgePoints
+                        null//_edgePoints
                         );
 
                 
@@ -651,6 +653,38 @@ namespace GenArt.Core.AST
             }
 
             #endregion
+        }
+
+        private static void RankTableFillz(long[] fittness, int[] rankTable, out int MaxValueRankTable)
+        {
+            int maxNormalizeValue = 1000000;
+
+            long sumFittness = 0;
+            for (int index = 0; index < fittness.Length; index++)
+                sumFittness += fittness[index];
+
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                int tmp = (int)((fittness[index] / (float)sumFittness) * maxNormalizeValue);
+                rankTable[index] = tmp+1;
+            }
+
+            int maxValue = 0;
+            for (int index = 0; index < fittness.Length; index++)
+                //if (rankTable[index] > maxValue) 
+                    maxValue += rankTable[index];
+
+            for (int index = 0; index < fittness.Length; index++)
+                rankTable[index] = maxValue / rankTable[index];
+
+            int sum = 0;
+            for (int index = 0; index < fittness.Length; index++)
+            {
+                sum += rankTable[index];
+                rankTable[index] = sum;
+            }
+
+            MaxValueRankTable = rankTable[rankTable.Length - 1];
         }
 
         private static void RankTableFill(long[] fittness, int[] rankTable, out int MaxValueRankTable)
