@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GenArt.Core.Classes;
+using System;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
@@ -7,7 +8,7 @@ namespace GenArt.Classes
     public static class Tools
     {
         private static RandomNumberGenerator rng  = RandomNumberGenerator.Create();
-        private static byte [] buff = new byte[1024];
+        private static byte [] buff = new byte[2048];
         private static int buffIndex = 4500000;
         private static  Random random = new Random(0);
 
@@ -16,8 +17,8 @@ namespace GenArt.Classes
 
         public static void ClearPseudoRandom() { random = new Random(0); random.NextBytes(buff); buffIndex = 0; randomCall = 0; }
 
-        
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetRandomNumber(int min, int max)
         {
             //int dif = max - min;
@@ -73,14 +74,16 @@ namespace GenArt.Classes
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
+       
         public static int GetRandomNumberNoLinear_MinMoreOften(int maxValue, byte mutationRate)
         {
             double rnd = GetRandomNumberDouble();
             double power = 4 - 3*(mutationRate/255.0);
 
-            return (int)(maxValue- Math.Pow(rnd, 1.0 / power) * maxValue); 
+            return (int)(Math.Round(maxValue- Math.Pow(rnd, 1.0 / power) * maxValue)); 
         }
 
+        
         public static int GetRandomNumberNoLinear_MinMoreOften(int value, int leftMinValue, int rightMaxValue, byte mutationRate)
         {
             int leftDiff = value - leftMinValue + 1;
@@ -93,6 +96,7 @@ namespace GenArt.Classes
             return value + tmp;
         }
 
+        
         public static int GetRandomNumber(int min, int max, int ignore)
         {
             if (!(min <= ignore && ignore < max)) return GetRandomNumber(min, max);
@@ -101,6 +105,7 @@ namespace GenArt.Classes
             return (tmp >= ignore) ? tmp + 1 : tmp;
         }
 
+        
         public static int GetRandomChangeValue(int oldValue, int min, int max)
         {
             if (!(oldValue >= min && oldValue <= max))
@@ -114,6 +119,7 @@ namespace GenArt.Classes
             return oldValue + diff - leftDelta;
         }
 
+        
         public static int GetRandomChangeValue(int oldValue, int min, int max, byte mutationRate)
         {
             if (!(oldValue >= min && oldValue <= max))
@@ -132,6 +138,7 @@ namespace GenArt.Classes
             return oldValue + diff - leftDelta;
         }
 
+        
         public static int GetRandomChangeValueGuaranted(int oldValue, int min, int max, byte mutationRate)
         {
             if (!(oldValue >= min && oldValue <= max))
@@ -152,11 +159,41 @@ namespace GenArt.Classes
             return oldValue + diff - leftDelta;
         }
 
-        public static int GetValueByMutationRate(int value, int minValue, byte mutationRate)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetValueByMutationRate(int value, int minValue, byte mutationRate)
         {
             return Math.Max(minValue, ((mutationRate + 1) * value) / (256));
         }
-       
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /// <summary>
+        /// citatel , jmenovatel
+        /// spocita deleni, s zaokrouhlovanim matematickym v pevne radove carce
+        /// 
+        /// </summary>
+        /// <param name="numerator"></param>
+        /// <param name="denominator"></param>
+        /// <returns></returns>
+        public static int DivWithMathRouding(int numerator, int denominator)
+        {
+            int tmp = numerator / denominator;
+            int modulo = numerator % denominator;
+
+            tmp += modulo / ((denominator / 2) + (denominator % 2));
+            /*if(((denominator /2)+(denominator&1) ) < modulo)
+            {
+                tmp++;
+            }*/
+
+            return tmp;
+        }
+
+
+        public static void MutatePointByRadial(ref short x, ref short y, AreaSizeVO<short> area, byte mutationRate, short maxPolomer = short.MaxValue)
+        {
+            MutatePointByRadial(ref x, ref y, (short)(area.Width - 1), (short)(area.Height - 1),maxPolomer, mutationRate);
+        }
+
         /// <summary>
         /// point mutation by len and angle
         /// </summary>
@@ -165,20 +202,29 @@ namespace GenArt.Classes
         /// <param name="maxX"></param>
         /// <param name="maxY"></param>
         /// <param name="mutationRate"> 255 linear random len, 0 - maxNelinear random len </param>
-        public static void MutatePointByRadial(ref short x,ref short y, short maxX, short maxY, byte mutationRate )
+
+        public static void MutatePointByRadial(ref short x, ref short y, short maxX, short maxY, byte mutationRate)
+        {
+            MutatePointByRadial(ref x, ref y, maxX, maxY, short.MaxValue, mutationRate);
+        }
+
+
+
+        public static void MutatePointByRadial(ref short x, ref short y, short maxX, short maxY, short maxPolomer, byte mutationRate)
         {
             int maxRadial = (x<y)? y:x;
             int tmp = (maxX - x < maxY - y) ? maxY - y : maxX - x;
             maxRadial = (maxRadial > tmp) ? maxRadial : tmp;
 
+            maxRadial = (maxRadial < maxPolomer) ? maxRadial : maxPolomer;
             // polomer nesmi byt 0
-            maxRadial = GetRandomNumberNoLinear_MinMoreOften(maxRadial-1, mutationRate)+1;
+            maxRadial = GetRandomNumberNoLinear_MinMoreOften(maxRadial - 1, mutationRate)+1;
 
             double radAngle = Math.PI * 2 * GetRandomNumberDouble();
 
-            int newX =  (int)(x+ maxRadial * Math.Cos(radAngle));
+            int newX =  (int)(Math.Round(x+ maxRadial * Math.Cos(radAngle)));
             newX = Math.Max(0, Math.Min(maxX, newX));
-            int newY =  (int)(y + maxRadial * Math.Sin(radAngle));
+            int newY =  (int)(Math.Round(y + maxRadial * Math.Sin(radAngle)));
             newY = Math.Max(0, Math.Min(maxY, newY));
 
             x = (short)newX;
@@ -205,8 +251,10 @@ namespace GenArt.Classes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int fastAbs(int value)
         {
-            int topbitreplicated = value >> 31;
-            return (value ^ topbitreplicated) - topbitreplicated;
+            //int topbitreplicated = value >> 31;
+            //return (value ^ topbitreplicated) - topbitreplicated;
+            return (value ^ (value >> 31)) - (value >> 31);
+
         }
     }
 }

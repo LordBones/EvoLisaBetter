@@ -22,13 +22,12 @@ namespace GenArt.Core.AST
             get { return _Points; }
         }
 
-        public override object Clone()
+        public override DnaPrimitive Clone()
         {
             var newTrinagleStrip = new DnaTriangleStrip();
             newTrinagleStrip._Points = new DnaPoint[_Points.Length];
             newTrinagleStrip.Brush = Brush;
-            newTrinagleStrip.UniqueId = UniqueId;
-
+         
             Array.Copy(this._Points, newTrinagleStrip._Points, _Points.Length);
             //for (int index = 0; index < Points.Length; index++)
             //    newPolygon.Points[index] = Points[index];
@@ -53,7 +52,7 @@ namespace GenArt.Core.AST
 
                 while (true)
                 {
-                    origin.Init();
+                    origin.Init(Tools.MaxWidth, Tools.MaxHeight);
 
                     Rectangle tile = new Rectangle(0, 0, 1, 1);
                     if (errorMatrix != null)
@@ -110,7 +109,7 @@ namespace GenArt.Core.AST
             this._Points = points;
 
             Brush = new DnaBrush(255, 255, 0, 0);
-            CreateNewUniqueId();
+            
         }
 
         public bool IsIntersect(DnaPoint[] points)
@@ -255,11 +254,13 @@ namespace GenArt.Core.AST
 
             if (action == 0)
             {
+                int maxWidth = Tools.MaxWidth;
+                int maxHeight = Tools.MaxHeight;
                 int count = 10;
                 while (true && count > 0)
                 {
                     DnaPoint newPoint = new DnaPoint();
-                    newPoint.Init();
+                    newPoint.Init(maxWidth,maxHeight);
 
                     List<DnaPoint> newPoints = new List<DnaPoint>(points);
                     //int index = Tools.GetRandomNumber(0, points.Length);
@@ -391,7 +392,6 @@ namespace GenArt.Core.AST
                             points[pointIndex] = newPoint;
 
                             drawing.SetDirty();
-                            CreateNewUniqueId();
                             break;
                         }
                     }

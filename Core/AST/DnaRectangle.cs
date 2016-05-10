@@ -35,6 +35,19 @@ namespace GenArt.Core.AST
             get { return (short)(this.EndPoint.Y - this.StartPoint.Y + 1); }
         }
 
+        // opravi spatne poradi souradnic
+        public void RepairOrderAxis()
+        {
+            if (EndPoint.X < StartPoint.X)
+            {
+                Tools.swap<short>(ref EndPoint.X, ref StartPoint.X);
+            }
+
+            if (EndPoint.Y < StartPoint.Y)
+            {
+                Tools.swap<short>(ref EndPoint.Y, ref StartPoint.Y);
+            }
+        }
 
         public override DnaPoint[] Points
         {
@@ -49,13 +62,13 @@ namespace GenArt.Core.AST
         }
 
 
-        public override object Clone()
+        public override DnaPrimitive Clone()
         {
             DnaRectangle newObject = new DnaRectangle();
             newObject.Brush = this.Brush;
             newObject.EndPoint = this.EndPoint;
             newObject.StartPoint = this.StartPoint;
-            newObject.UniqueId = this.UniqueId;
+           
 
             return newObject;
         }
@@ -64,8 +77,6 @@ namespace GenArt.Core.AST
         {
 
             destRec.Brush = Brush;
-            destRec.UniqueId = UniqueId;
-
 
             destRec.StartPoint = StartPoint;
             destRec.EndPoint = EndPoint;
@@ -79,7 +90,7 @@ namespace GenArt.Core.AST
         public override void Init(byte mutationRate, Classes.ErrorMatrix errorMatrix, Classes.ImageEdges edgePoints = null)
         {
             var origin = new DnaPoint();
-            origin.Init();
+            origin.Init(Tools.MaxWidth, Tools.MaxHeight);
 
             if (edgePoints == null)
             {
@@ -156,7 +167,7 @@ namespace GenArt.Core.AST
             }
 
             Brush = new DnaBrush(255, 255, 0, 0);
-            CreateNewUniqueId();
+         
         }
 
         public override void Mutate(byte MutationRate, DnaDrawing drawing, CanvasARGB destImage = null, ImageEdges edgePoints = null)
@@ -191,7 +202,7 @@ namespace GenArt.Core.AST
             this.StartPoint = point;
 
             drawing.SetDirty();
-            CreateNewUniqueId();
+         
         }
 
         //public override void Mutate(DnaDrawing drawing, CanvasBGRA destImage = null, ImageEdges edgePoints = null)
@@ -259,13 +270,20 @@ namespace GenArt.Core.AST
 
         public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
-            if (y < this.StartPoint.Y || y > this.EndPoint.Y)
+           /* if (y < this.StartPoint.Y || y > this.EndPoint.Y)
                 return false;
 
             startX = this.StartPoint.X;
             endX = this.EndPoint.X;
 
-            return true;
+            return true;*/
+
+            startX = this.StartPoint.X;
+            endX = this.EndPoint.X;
+
+            return !(y < this.StartPoint.Y || y > this.EndPoint.Y);
+            
+            
         }
 
         public override bool IsPointInside(DnaPoint point)

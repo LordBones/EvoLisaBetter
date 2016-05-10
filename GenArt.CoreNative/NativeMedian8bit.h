@@ -45,7 +45,7 @@ public:
         }
    
      double StdDev(){
-         return ComputeMedian()/TotalCount();
+         return ComputeMedian()/(double)TotalCount();
         }
    
 };

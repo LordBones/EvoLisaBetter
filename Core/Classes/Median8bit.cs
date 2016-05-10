@@ -65,10 +65,12 @@ namespace GenArt.Core.Classes
 
         public void Clear()
         {
-            for (int index=0; index < CONST_MedianTableSize; index++)
+            Array.Clear(_medianTable,0,_medianTable.Length);
+
+            /*for (int index=0; index < CONST_MedianTableSize; index++)
             {
                 _medianTable[index] = 0;
-            }
+            }*/
         }
 
         public void InsertData(byte data)

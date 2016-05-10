@@ -68,6 +68,11 @@ namespace GenArt.Core.Classes
             return new DnaPoint((short)pointX, (short)pointY);
         }
 
+        public DnaPoint GetRandomEdgePoint()
+        {
+            return this.EdgePoints[ Tools.GetRandomNumber(0, this.EdgePoints.Length)];
+        }
+
         public DnaPoint GetRandomBorderPoint(int startX, int startY)
         {
             int maxX = this.Width - 1 - startX;
@@ -160,14 +165,16 @@ namespace GenArt.Core.Classes
             int lastPointX = x;
             int lastPointY = y;
 
+            byte[] edgeArray = this.EdgesPoints2D.Data;
+
             for (int i=0; i <= longest; i++)
             {
-                if (y != startY && x != startX)
+                if (!(y == startY && x == startX))
                 {
                     #region test first edge
                     int index = (y * this.Width + x);
 
-                    if (this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                    if (edgeArray[index] == CONST_EdgesPoints2D_Edge)
                         return new Nullable<DnaPoint>(new DnaPoint((short)x, (short)y));
 
                     #region test edge
@@ -175,11 +182,11 @@ namespace GenArt.Core.Classes
                     if (lastPointX != x && lastPointY != y)
                     {
                         index = (y * this.Width + lastPointX);
-                        if(this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                        if (edgeArray[index] == CONST_EdgesPoints2D_Edge)
                             return new Nullable<DnaPoint>(new DnaPoint((short)lastPointX, (short)y));
 
                         index = (lastPointY * this.Width + x);
-                        if (this.EdgesPoints2D.Data[index] == CONST_EdgesPoints2D_Edge)
+                        if (edgeArray[index] == CONST_EdgesPoints2D_Edge)
                             return new Nullable<DnaPoint>(new DnaPoint((short)x, (short)lastPointY));
 
                     }
@@ -298,11 +305,12 @@ namespace GenArt.Core.Classes
                 byte * ll = (byte*)lockBmp2.Scan0.ToPointer();
                 int countPoints = _originalImage.CountPixels;
                 int bmpIndex = 0;
+
+                HSLColor hlsColor = new HSLColor();
                 for (int index = 0; index < countPoints; index++)
                 {
 
-                    HSLColor hlsColor = new HSLColor(
-                        origData[bmpIndex+2],origData[bmpIndex+1],origData[bmpIndex]);
+                    hlsColor.SetRGB(origData[bmpIndex + 2], origData[bmpIndex + 1], origData[bmpIndex]);   
                     
                     if(h)  ll[bmpIndex] = (byte)hlsColor.Hue;
                     else if (s) ll[bmpIndex] = (byte)hlsColor.Saturation;
@@ -416,11 +424,12 @@ namespace GenArt.Core.Classes
             
             //ReduceNoiseGausianGreyscale();
             ReduceNoiseMedian();
-            //NewDetectEdges((byte)threshold);
+            
+            NewDetectEdges((byte)threshold);
 
-            LeftDetectEdgeNew();
-            DetectEdgeByKernelSum();
-            MakeThinEdgesArea();
+            //LeftDetectEdgeNew();
+            //DetectEdgeByKernelSum();
+            //MakeThinEdgesArea();
 
             //MakeThinEdgesMyLeftRight();
             //MakeThinEdgesMyUpDown();
@@ -540,7 +549,7 @@ namespace GenArt.Core.Classes
                     
                 }
 
-                RemoveNoiseEdges();
+                //RemoveNoiseEdges();
 
                 DetectExtractEdges();
                 CopyFinalColorIntoEdges();
@@ -592,6 +601,8 @@ namespace GenArt.Core.Classes
 
             byte [] ca = this._colourArea;
 
+            byte[] _tmpfinalEdges = new byte[_finalEdges.Length];
+            Array.Copy(_finalEdges, _tmpfinalEdges, _tmpfinalEdges.Length);
 
             for (int y = 1; y < this._imageGreyscale.Height - 1; y++)
             {
@@ -612,15 +623,15 @@ namespace GenArt.Core.Classes
                         //    (ca[midIndex-1] == 0 && _finalEdges[midIndex-1] == 0) ||
                         //    (ca[midIndex+1] == 0 && _finalEdges[midIndex+1] == 0) 
                         //    )
-                        if ((ca[upIndex] == 1 && ca[downIndex] == 1 && _finalEdges[midIndex - 1] == 1) ||
-                            (ca[upIndex] == 1 && ca[downIndex] == 1 && _finalEdges[midIndex + 1] == 1) ||
-                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[upIndex] == 1) ||
-                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _finalEdges[downIndex] == 1)
+                        if ((ca[upIndex] == 1 && ca[downIndex] == 1 && _tmpfinalEdges[midIndex - 1] == 1) ||
+                            (ca[upIndex] == 1 && ca[downIndex] == 1 && _tmpfinalEdges[midIndex + 1] == 1) ||
+                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _tmpfinalEdges[upIndex] == 1) ||
+                            (ca[midIndex - 1] == 1 && ca[midIndex + 1] == 1 && _tmpfinalEdges[downIndex] == 1)
 
-                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _finalEdges[midIndex - 1] == 1 && _finalEdges[upIndex] == 1)
-                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _finalEdges[midIndex + 1] == 1 && _finalEdges[downIndex] == 1)
-                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _finalEdges[midIndex + 1] == 1 && _finalEdges[upIndex] == 1)
-                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _finalEdges[midIndex - 1] == 1 && _finalEdges[downIndex] == 1)
+                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _tmpfinalEdges[midIndex - 1] == 1 && _tmpfinalEdges[upIndex] == 1)
+                            || (ca[downIndex - 1] == 1 && ca[upIndex + 1] == 1 && _tmpfinalEdges[midIndex + 1] == 1 && _tmpfinalEdges[downIndex] == 1)
+                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _tmpfinalEdges[midIndex + 1] == 1 && _tmpfinalEdges[upIndex] == 1)
+                            || (ca[downIndex + 1] == 1 && ca[upIndex - 1] == 1 && _tmpfinalEdges[midIndex - 1] == 1 && _tmpfinalEdges[downIndex] == 1)
                             
                             )
                             this._finalEdges[midIndex] = 0;
@@ -744,14 +755,18 @@ namespace GenArt.Core.Classes
         {
             int coefBonus = 32;
             int imageIndex = 0;
+
+            HSLColor hsl = new HSLColor();
+            byte[] data = _originalImage.Data;
+
             for (int index = 0; index < _imageGreyscale.Length; index++)
             {
                 //_imageGreyscale.Data[index] = (byte)((_originalImage.Data[imageIndex] * 8 +
                 //_originalImage.Data[imageIndex + 1] * 71 +
                 //_originalImage.Data[imageIndex + 2] * 21) / 100);
-                int r = _originalImage.Data[imageIndex + 2];
-                int g = _originalImage.Data[imageIndex + 1];
-                int b = _originalImage.Data[imageIndex];
+                int r = data[imageIndex + 2];
+                int g = data[imageIndex + 1];
+                int b = data[imageIndex];
                 //r = (r < 128 ? Math.Max(r - coefBonus, 0) : Math.Min(r + coefBonus, 255));
                 //g = (g < 128 ? Math.Max(g - coefBonus, 0) : Math.Min(g + coefBonus, 255));
                 //b = (b < 128 ? Math.Max(b - coefBonus, 0) : Math.Min(b + coefBonus, 255));
@@ -760,10 +775,86 @@ namespace GenArt.Core.Classes
                 //g = (g < 128 ? Math.Max(g-(128-g ), 0) : Math.Min(g -128 +g, 255));
                 //b = (b < 128 ? Math.Max(b-(128 -b), 0) : Math.Min(b-128+b, 255));
 
+                int max = r;
+                if (max < b) max = b; 
+                if (max < g) max = g;
 
-                _imageGreyscale.Data[index] = (byte)((b * 11 +
-                    g  * 59 +
-               r * 30) / 100);
+                //hsl.SetRGB(r, g, b);
+
+              //  _imageGreyscale.Data[index] = (byte)(((hsl.Luminosity * 255) + ((b * 11 + g * 59 + r * 30) / 100))/2);
+                
+                //int tmp = (int)((max / 255.0) * ((b * 11 + g * 59 + r * 30) / 100));
+                //_imageGreyscale.Data[index] = (byte)(tmp);
+
+                //_imageGreyscale.Data[index] = (byte)((max + ((b * 11 + g * 59 + r * 30) / 100)) / 2);
+
+                //_imageGreyscale.Data[index] = (byte)r;
+                _imageGreyscale.Data[index] = (byte)((b * 11 +  g  * 59 +  r * 30) / 100);
+
+                imageIndex += 4;
+            }
+        }
+
+        private void ConvertToGreyScale2()
+        {
+            
+            int imageIndex = 4;
+
+            HSLColor hsl = new HSLColor();
+            for (int index = 1; index < _imageGreyscale.Length-1; index++)
+            {
+                //_imageGreyscale.Data[index] = (byte)((_originalImage.Data[imageIndex] * 8 +
+                //_originalImage.Data[imageIndex + 1] * 71 +
+                //_originalImage.Data[imageIndex + 2] * 21) / 100);
+                int rR = _originalImage.Data[imageIndex+4 + 2];
+                int gR = _originalImage.Data[imageIndex+4 + 1];
+                int bR = _originalImage.Data[imageIndex+4];
+
+                int rM = _originalImage.Data[imageIndex + 2];
+                int gM = _originalImage.Data[imageIndex + 1];
+                int bM = _originalImage.Data[imageIndex];
+
+                int rL = _originalImage.Data[imageIndex-4 + 2];
+                int gL = _originalImage.Data[imageIndex-4 + 1];
+                int bL = _originalImage.Data[imageIndex-4];
+
+
+                //int max = Tools.fastAbs(rR-rM);
+                //int tmp = Tools.fastAbs(gR - gM);
+                //if (max < tmp) max = tmp;
+                //tmp = Tools.fastAbs(bR - bM);
+                //if (max < tmp) max = tmp;
+                //tmp = Tools.fastAbs(bL - bM);
+                //if (max < tmp) max = tmp;
+                //tmp = Tools.fastAbs(bL - bM);
+                //if (max < tmp) max = tmp;
+                //tmp = Tools.fastAbs(bL - bM);
+                //if (max < tmp) max = tmp;
+
+                int max = Tools.fastAbs(rR - rM);
+                int tmp = Tools.fastAbs(gR - gM);
+                max += tmp;
+                tmp = Tools.fastAbs(bR - bM);
+                max += tmp;
+
+                int max2 = Tools.fastAbs(bL - bM);
+                
+                tmp = Tools.fastAbs(bL - bM);
+                max2 += tmp;
+                tmp = Tools.fastAbs(bL - bM);
+                max2 += tmp; 
+
+                if (max < max2) max = max2;
+
+                if(max <= 5)  max = 0;
+                else max -= 5;
+                //  _imageGreyscale.Data[index] = (byte)(((hsl.Luminosity * 255) + ((b * 11 + g * 59 + r * 30) / 100))/2);
+                //int tmp = (int)((max / 255.0) * ((b * 11 + g * 59 + r * 30) / 100));
+                _imageGreyscale.Data[index] = (byte)(Math.Min(255,(max*256)/30));
+                //_imageGreyscale.Data[index] = (byte)((max + ((b * 11 + g * 59 + r * 30) / 100)) / 2);
+
+
+                //_imageGreyscale.Data[index] = (byte)((b * 11 + g * 59 + r * 30) / 100);
 
                 imageIndex += 4;
             }
@@ -772,7 +863,7 @@ namespace GenArt.Core.Classes
         private void SaveGreyscaleAsBitmap(string filename)
         {
             //ReduceNoiseGausianGreyscale();
-            ReduceNoiseMedian();
+            //ReduceNoiseMedian();
             CanvasARGB canvas = new CanvasARGB(_imageGreyscale.Width, _imageGreyscale.Height);
 
             int imageIndex = 0;
@@ -878,8 +969,8 @@ namespace GenArt.Core.Classes
                 midRowIndex += this._edgesPoints.Width;
             }
 
-            minTrheshold = (int)median.Median ;
-            maxThreshold = (int)(minTrheshold + median.StdDev + median.StdDev/2);
+            minTrheshold = (int)Math.Min(0,(int)(median.Median- median.StdDev));
+            maxThreshold = (int)(minTrheshold + median.StdDev );
         }
 
         private void DetectEdgeByKernelSum()
@@ -892,7 +983,7 @@ namespace GenArt.Core.Classes
             int [] ks = _kernelSums;
 
             int thresholdMin = _threshold;
-            int thresholdMax = _threshold+(_threshold/5);
+            int thresholdMax = _threshold+(_threshold);
 
             ComputeMaxMinThreshold(ref thresholdMax, ref thresholdMin);
 

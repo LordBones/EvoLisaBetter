@@ -146,5 +146,21 @@ namespace GenArt.Core.Classes
 
             return true;
         }
+
+        public static double TriangleAreaSize(int x0, int y0, int x1, int y1, int x2, int y2)
+        {
+            double a = LineLenght(x0, y0, x1, y1);
+            double  b = LineLenght(x0, y0, x2, y2);
+            double c = LineLenght(x1, y1, x2, y2);
+
+            double s = (a + b + c) / 2;
+
+            return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
+        }
+
+        public static double LineLenght(int x0, int y0, int x1, int y1)
+        {
+            return Math.Sqrt((x0 - x1)* (x0 - x1) + (y0 - y1)* (y0 - y1));
+        }
     }
 }

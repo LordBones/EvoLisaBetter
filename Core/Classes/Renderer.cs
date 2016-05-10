@@ -19,33 +19,37 @@ namespace GenArt.Classes
 
             for (int index = 0;index < drawing.Polygons.Length;index++)
             {
+                DnaPrimitive polygon = drawing.Polygons[index];
 
-                using (Brush brush = new SolidBrush(drawing.Polygons[index].Brush.BrushColor))
+                using (Brush brush = new SolidBrush(polygon.Brush.BrushColor))
                 {
-                    if (drawing.Polygons[index] is DnaPolygon)
+                    if (polygon as DnaPolygon != null)
                     {
-                        Point[] points = GetGdiPoints(drawing.Polygons[index].Points, scale);
-                        g.FillPolygon(brush, points);
+                        //if (DnaPolygon.IsNotSmallAngles(polygon.Points))
+                        {
+                            Point[] points = GetGdiPoints(polygon.Points, scale);
+                            g.FillPolygon(brush, points);
+                        }
                     }
-                    else if (drawing.Polygons[index] is DnaTriangleStrip)
+                    else if (polygon is DnaTriangleStrip)
                     {
-                         int count = drawing.Polygons[index].Points.Length-3;
+                         int count = polygon.Points.Length-3;
                          for (int i = 0; i <= count; i++)
                          {
-                             Point[] points = GetGdiPointsTriangle(drawing.Polygons[index].Points,i, scale);
+                             Point[] points = GetGdiPointsTriangle(polygon.Points,i, scale);
                              g.FillPolygon(brush, points);
                          }
                     }
 
-                    else if (drawing.Polygons[index] is DnaRectangle)
+                    else if (polygon is DnaRectangle)
                     {
-                        DnaRectangle rectangle = (DnaRectangle)drawing.Polygons[index];
+                        DnaRectangle rectangle = (DnaRectangle)polygon;
                         g.FillRectangle(brush, rectangle.StartPoint.X * scale, rectangle.StartPoint.Y * scale,
                             rectangle.Width * scale, rectangle.Height * scale);
                     }
-                    else if (drawing.Polygons[index] is DnaElipse)
+                    else if (polygon is DnaElipse)
                     {
-                        DnaElipse elipse = (DnaElipse)drawing.Polygons[index];
+                        DnaElipse elipse = (DnaElipse)polygon;
                         g.FillEllipse(brush, elipse.StartPoint.X * scale, elipse.StartPoint.Y * scale,
                             elipse.Width * scale, elipse.Height * scale);
                     }

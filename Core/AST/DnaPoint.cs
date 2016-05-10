@@ -20,10 +20,14 @@ namespace GenArt.AST
             return p1.X == p2.X && p1.Y == p2.Y;
         }
 
-        public void Init()
+        public void Init(int maxWidth, int maxHeight)
         {
-            X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth);
-            Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight);
+            int tmp = Tools.GetRandomNumber(0, maxWidth * maxHeight);
+
+            X = (short)(tmp % maxWidth);
+            Y = (short)(tmp / maxHeight);
+            //X = (short)Tools.GetRandomNumber(0, Tools.MaxWidth);
+            //Y = (short)Tools.GetRandomNumber(0, Tools.MaxHeight);
         }
 
         //public DnaPoint Clone()

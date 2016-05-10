@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,12 +13,27 @@ namespace GenArt.Core.Classes.Misc
         private const int CONST_LOCK = 1;
         private const int CONST_UNLOCK = 0;
 
-        private Stack<T> _objects = new Stack<T>();
+        private readonly int CONST_MaxElementForRecycle;
+
+        private T [] _objects = new T[0];
+        private int _objIndex = 0;
         SpinWait spinner = new SpinWait();
 
         int _isLock = CONST_UNLOCK;
 
         FastLock _fastLock = new FastLock();
+
+        public ObjectRecyclerTS()
+            :this(10)
+        {
+
+        }
+
+        public ObjectRecyclerTS(int maxElementsForRecycle)
+        {
+            CONST_MaxElementForRecycle = maxElementsForRecycle;
+            _objects = new T[CONST_MaxElementForRecycle];
+        }
 
         public T GetNewOrRecycle()
         {
@@ -27,8 +43,11 @@ namespace GenArt.Core.Classes.Misc
             {
                 using (_fastLock.Lock())
                 {
-                    if (_objects.Count > 0)
-                        return _objects.Pop();
+                    if (_objIndex > 0)
+                    {
+                        _objIndex--;
+                        return _objects[_objIndex];
+                    }
                 }
                 
             }
@@ -37,8 +56,11 @@ namespace GenArt.Core.Classes.Misc
             //    Helper_UnlockSection();
             //}
 
-            return new T();
+            return Instance.Invoke();// new T();
         }
+
+        public static readonly Func<T> Instance =
+     Expression.Lambda<Func<T>>(Expression.New(typeof(T))).Compile();
 
         public void PutForRecycle(T[] objects)
         {
@@ -56,8 +78,11 @@ namespace GenArt.Core.Classes.Misc
             //{
                 using (_fastLock.Lock())
                 {
-                    if (_objects.Count < 1500)
-                        _objects.Push(pobject);
+                if (_objIndex < this.CONST_MaxElementForRecycle)
+                {
+                    _objects[_objIndex] =pobject;
+                    _objIndex++;
+                }
                 }
             //}
             //finally
@@ -75,7 +100,7 @@ namespace GenArt.Core.Classes.Misc
             //{
                 using (_fastLock.Lock())
                 {
-                    _objects.Clear();
+                    _objIndex = 0;
                 }
             //}
             //finally

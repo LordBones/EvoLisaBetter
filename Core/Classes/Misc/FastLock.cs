@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,20 +25,20 @@ namespace GenArt.Core.Classes.Misc
 
             return this;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Helper_LockSection()
         {
             if (Interlocked.CompareExchange(ref _isLock, CONST_LOCK, CONST_UNLOCK) != CONST_UNLOCK)
             {
                 do
                 {
-                    Thread.Sleep(1);
-                    //spinner.SpinOnce();
+                    //Thread.Sleep(1);
+                    spinner.SpinOnce();
                 }
                 while (Interlocked.CompareExchange(ref _isLock, CONST_LOCK, CONST_UNLOCK) != CONST_UNLOCK);
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Helper_UnlockSection()
         {
             if (Interlocked.CompareExchange(ref _isLock, CONST_UNLOCK, CONST_LOCK) != CONST_LOCK)

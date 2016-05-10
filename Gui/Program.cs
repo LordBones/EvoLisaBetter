@@ -22,7 +22,10 @@ namespace GenArt
         private static long PerfEnd()
         {
             sw.Stop();
-            return sw.ElapsedTicks;
+
+            long res =(long) ((TimeSpan.TicksPerSecond * sw.ElapsedTicks) /(double)Stopwatch.Frequency);
+
+            return res;
 
         }
 
@@ -40,7 +43,7 @@ namespace GenArt
 
             //if (!SSEFunctionTester.ApplyRowColor()) { Console.WriteLine("ApplyRowColor SSE not working correctly"); return; }
 
-            const int CONST_LoopCount = 10000000;
+            const int CONST_LoopCount = 1000000;
             CanvasARGB canvas = new CanvasARGB(1000, 1000);
 
             
@@ -102,7 +105,7 @@ namespace GenArt
             for (int i = 0; i < CONST_LoopCount; i++)
             {
                 //nativeFunc.ClearFieldByColor(canvas.Data, Color.FromArgb(255, 0, 0, 0).ToArgb());
-                nativeFunc.RowApplyColorBetter(canvas.Data, canvas.WidthPixel, ranges, 0, 128, 100, 230, 135);
+                
                 //nativeFunc.ComputeFittness(canvas.Data, canvas.Data);
             }
             long ticks = PerfEnd();
@@ -120,7 +123,7 @@ namespace GenArt
         {
             const int CONST_Width = 200;
             const int CONST_Height = 200;
-            const int CONST_LOOP = 10000;
+            const int CONST_LOOP = 2000;
 
             DnaDrawing dna = new DnaDrawing(CONST_Width, CONST_Height);
             dna.Init();
@@ -245,9 +248,9 @@ namespace GenArt
 
             for (int i = 0; i < CONST_LOOP; i++)
             {
-                //dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
-                dnar.RenderDNAPerChanel(dna, DNARenderer.RenderType.Software);
-
+                dnar.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRowsWithFittness);
+              
+                 
                 for (int index =0; index < dna.Polygons.Length; index++)
                 {
 
@@ -281,11 +284,10 @@ namespace GenArt
 
             //DNARenderer dnar = new DNARenderer(CONST_Width, CONST_Height);
             dnar.RenderDNA(dna, DNARenderer.RenderType.Software);
-            CanvasARGB.CreateBitmpaFromCanvas(dnar.Canvas).Save("Software.bmp");
-            dnar.RenderDNAPerChanel(dna, DNARenderer.RenderType.Software);
-            CanvasARGBSplit.CreateBitmpaFromCanvas(dnar.CanvasSplit).Save("SoftwareSplit.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dnar.Canvas).Save("Software.bmp", ImageFormat.Bmp);
+            
             dnar2.RenderDNA(dna, DNARenderer.RenderType.SoftwareByRows);
-            CanvasARGB.CreateBitmpaFromCanvas(dnar2.Canvas).Save("SoftwareByRow.bmp");
+            CanvasARGB.CreateBitmpaFromCanvas(dnar2.Canvas).Save("SoftwareByRow.bmp", ImageFormat.Bmp);
 
 
 
@@ -534,7 +536,7 @@ namespace GenArt
 
                 if (args[0] == "benchfill")
                 {
-                    TestBenchmarkColorFill();
+                    TestBenchmarkColorFill2();
                 }
                 else if (args[0] == "bench")
                 {

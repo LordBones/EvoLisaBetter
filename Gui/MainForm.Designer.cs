@@ -73,7 +73,6 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.chbSplitVersion = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -291,7 +290,6 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.chbSplitVersion);
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.cbRenderCore);
             this.panel1.Controls.Add(this.label7);
@@ -330,12 +328,14 @@
             // 
             // cbRenderCore
             // 
+            this.cbRenderCore.DisplayMember = "2";
             this.cbRenderCore.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbRenderCore.FormattingEnabled = true;
             this.cbRenderCore.Items.AddRange(new object[] {
             "Software",
             "SoftByRows",
-            "SoftByRowsWithFittness"});
+            "SoftByRowsWithFittness",
+            "SoftByRowsWithFittnessParallel"});
             this.cbRenderCore.Location = new System.Drawing.Point(396, 62);
             this.cbRenderCore.Name = "cbRenderCore";
             this.cbRenderCore.Size = new System.Drawing.Size(145, 21);
@@ -626,18 +626,6 @@
             this.toolStripButton2.Text = "Save";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
-            // chbSplitVersion
-            // 
-            this.chbSplitVersion.AutoSize = true;
-            this.chbSplitVersion.Checked = true;
-            this.chbSplitVersion.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbSplitVersion.Location = new System.Drawing.Point(547, 64);
-            this.chbSplitVersion.Name = "chbSplitVersion";
-            this.chbSplitVersion.Size = new System.Drawing.Size(83, 17);
-            this.chbSplitVersion.TabIndex = 44;
-            this.chbSplitVersion.Text = "Split version";
-            this.chbSplitVersion.UseVisualStyleBackColor = true;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -726,7 +714,6 @@
         private System.Windows.Forms.NumericUpDown nudSAthreshold;
         private System.Windows.Forms.ComboBox cbRenderCore;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.CheckBox chbSplitVersion;
     }
 }
 

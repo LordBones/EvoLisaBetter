@@ -35,8 +35,10 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int g = color.G;
             int b = color.B;
             int a = color.A;
+                        
+            int alpha256 = a;
+            if (alpha256 == 0xff) alpha256 += 1;
 
-            int alpha256 = (((a * 256) / 255));
 
 
             float hw = width / 2.0f;
@@ -162,13 +164,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
 
         private void RowApplyColorSafe(byte[] data, int startIndex, int countPixel, int r, int g, int b, int alpha)
         {
-            alpha = (alpha * 256) / 255;
+            int alpha256 = ((alpha) >> 24) & 0xff;
+            if (alpha256 == 0xff) alpha256 += 1;
 
-            int invAlpha = 256 - alpha;
 
-            int cb = b * alpha;
-            int cg = g * alpha;
-            int cr = r * alpha;
+            int invAlpha = 256 - alpha256;
+
+            int cb = b * alpha256;
+            int cg = g * alpha256;
+            int cr = r * alpha256;
 
             while (countPixel > 0)
             {

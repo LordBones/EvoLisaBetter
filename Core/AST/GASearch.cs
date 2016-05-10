@@ -10,13 +10,15 @@ using GenArt.Classes;
 using GenArt.Core.Classes;
 using GenArt.Core.Classes.SWRenderLibrary;
 using GenArtCoreNative;
+using GenArt.Core.Classes.Misc;
 
 namespace GenArt.Core.AST
 {
     public class GASearch : IDisposable
     {
-        public enum TypeRendering { software, softwareByRow, softwareByRowWithFitness };
+        public enum TypeRendering { software, softwareByRow, softwareByRowWithFitness, softwareByRowWithFitnessParallel };
 
+        private const int CONST_CompressDNA_GenSize = 4 + 6 + 1;
 
         private DnaDrawing _currentBest;
         private long _currentBestFittness;
@@ -32,35 +34,40 @@ namespace GenArt.Core.AST
         private byte [] _currentBestCompressDNA;
         private byte [] _lastBestCompressDNA;
 
+        private ObjectRecyclerTS<DnaPolygon> _RecyclePool_Polygon = new ObjectRecyclerTS<DnaPolygon>(100);
+        private ObjectRecyclerTS<DnaRectangle> _RecyclePool_Rectangle = new ObjectRecyclerTS<DnaRectangle>(100);
+
 
 
         private CanvasARGB _destCanvas = new CanvasARGB(1, 1);
-        private CanvasARGBSplit _destCanvasSplit = new CanvasARGBSplit(1, 1);
+        private AreaSizeVO<short> _canvasArea;
 
         private NativeFunctions _nativeFunc = new NativeFunctions();
 
         private ImageEdges _edgePoints = null;
         private ErrorMatrix _errorMatrix = new ErrorMatrix(1, 1);
 
-        private int [] _rouleteTable = new int[0];
+       
         private int [] _rankTable = new int[0];
-        private long [] _diffFittness = new long[0];
-        private long [] _fittness = new long[0];
-        private float [] _similarity = new float[0];
+        private Tuple<int, long>[] _lookupFittness_RankTable = new Tuple<int, long>[0];
+        private Tuple<int, long>[] _lookupFittness_PopSize = new Tuple<int, long>[0];
+        private int _maxRankNormalizeValue = 0;
 
-        public int CONST_DynamicMutationGenInterval = 1000;
-        private const byte CONST_MutationMaxRate = 255; // 255 means big mutation changes
+        private long [] _fittness = new long[0];
+       
+
+        public int CONST_DynamicMutationGenInterval = 256;
+        private const byte CONST_MutationMaxRate = 2; // 255 means big mutation changes
 
         private byte _crLastMutationRate = 255;
         private int _crLastGenerationNumber = 0;
         private long _crLastBestFittness = 0;
 
         private int _popSize=  1;
+        private int _countElite = 2;
 
         private TypeRendering _typeRendering = TypeRendering.software;
-        private bool _enableSplitVersion = false;
-
-
+        private DnaBrush _background;
 
         #region CanvasForRender
 
@@ -112,11 +119,7 @@ namespace GenArt.Core.AST
             set { _typeRendering = value; }
         }
 
-        public bool EnableSplitVersion
-        {
-            get { return _enableSplitVersion; }
-            set { _enableSplitVersion = value; }
-        }
+       
 
 
         #endregion
@@ -125,22 +128,26 @@ namespace GenArt.Core.AST
 
         public GASearch(int popSize)
         {
+
             //if (popSize < 2)
             //    popSize = 2;
 
-            _population = new DnaDrawing[popSize + 1];
-            _lastPopulation = new DnaDrawing[popSize + 1];
+            int elitismAndBestCount = 1 + this._countElite;
 
-            _populationCompressDNA = new byte [popSize + 1][];
-            _lastPopulationCompressDNA = new byte [popSize + 1][];
+            _population = new DnaDrawing[popSize + elitismAndBestCount];
+            _lastPopulation = new DnaDrawing[popSize + elitismAndBestCount];
+
+            _populationCompressDNA = new byte [popSize + elitismAndBestCount][];
+            _lastPopulationCompressDNA = new byte [popSize + elitismAndBestCount][];
 
 
-            _rouleteTable = new int[popSize + 1];
-            _rankTable = new int[popSize + 1];
-            _diffFittness = new long[popSize + 1];
-            _fittness = new long[popSize + 1];
-            _similarity = new float[popSize + 1];
+           
+            _rankTable = new int[popSize + elitismAndBestCount];
+            _fittness = new long[popSize + elitismAndBestCount];
             _popSize = popSize;
+
+            _lookupFittness_PopSize = new Tuple<int, long>[_popSize];
+            _lookupFittness_RankTable = new Tuple<int, long>[_rankTable.Length];
 
 
 
@@ -169,18 +176,12 @@ namespace GenArt.Core.AST
 
             this._generation = 0;
             this._destCanvas = CanvasARGB.CreateCanvasFromBitmap(destImg);
-            this._destCanvas.ReduceNoiseMedian();
-            this._destCanvas.ReduceNoiseMedian(true);
+            this._canvasArea = new AreaSizeVO<short>(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
+            //this._destCanvas.ReduceNoiseMedian();
+            //this._destCanvas.ReduceNoiseMedian(true);
 
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            //this._destCanvas.ReduceNoiseMedian();
-            CanvasARGB.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
-            this._destCanvasSplit = CanvasARGBSplit.CreateCanvasFromCanvasARGB(this._destCanvas);
+            //CanvasARGB.CreateBitmpaFromCanvas(this._destCanvas).Save("ImageMedianNoise.bmp");
+
 
             this._currentBestFittness = long.MaxValue;
             this._lastBestFittness = long.MaxValue;
@@ -189,15 +190,15 @@ namespace GenArt.Core.AST
 
             _dnaRender = new DNARenderer(_destCanvas.WidthPixel, _destCanvas.HeightPixel);
             _dnaRender.DestCanvas = this._destCanvas;
-            _dnaRender.DestCanvasSplit = this._destCanvasSplit;
+            
 
-            //this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
+            this._edgePoints = CreateEdges(this._destCanvas, EdgeTreshold);
             //this._destCanvas.EasyColorReduction();
 
             //DnaBrush backGround = new DnaBrush(255, 0, 0, 0);
 
             DnaBrush backGround = ComputeBackgroundColor(this._destCanvas);
-
+            _background = backGround;
 
             for (int i =0; i < this._population.Length; i++)
             {
@@ -216,14 +217,13 @@ namespace GenArt.Core.AST
                 this._population[i] = dna;
             }
 
-            this._lastBest = this._population[_population.Length - 1].Clone();
+            this._lastBest = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
             this._currentBest = this._lastBest.Clone();
-            this._fittness[_population.Length - 1] = long.MaxValue/2;
 
-            // nezbytne aby doslo k vypoctu novych fittness
-            if(_enableSplitVersion)
-                ComputeFittnessSplit();
-            else
+            for(int i = this._popSize;i < this._population.Length;i++)
+                this._fittness[i] = long.MaxValue;
+
+           
                 ComputeFittness();
 
 
@@ -233,6 +233,10 @@ namespace GenArt.Core.AST
 
             // compress version dna
             Helper_InitPoluplation_CompressDNA();
+
+
+            RankTableFill(this._rankTable, 10000, 1.5, out _maxRankNormalizeValue);
+
         }
 
         private static DnaBrush ComputeBackgroundColor(CanvasARGB image)
@@ -257,10 +261,6 @@ namespace GenArt.Core.AST
         {
             GenerateNewPopulationByMutation();
             //GenerateNewPopulationRoulete();
-
-            if (_enableSplitVersion)
-                ComputeFittnessSplit();
-            else
                 ComputeFittness();
             
             UpdateStatsByFittness();
@@ -298,8 +298,9 @@ namespace GenArt.Core.AST
                 if (_typeRendering == TypeRendering.softwareByRowWithFitness)
                     fittness = _dnaRender.Fittness;
                 else
-                    fittness = _nativeFunc.ComputeFittnessABSSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    //fittness = _nativeFunc.ComputeFittnessABSSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
                 //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
+                fittness = FitnessCalculator.ComputeFittnessLine_SumABSPerRow(_destCanvas.Data, _dnaRender.Canvas.Data,_destCanvas.WidthPixel);
 
                 long bloat = this._population[index].PointCount;
 
@@ -312,42 +313,7 @@ namespace GenArt.Core.AST
             }
         }
 
-        private void ComputeFittnessSplit()
-        {
-            DNARenderer.RenderType renderType = DNARenderer.RenderType.Software;
-
-            if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
-            else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
-            else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitness) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittness;
-
-
-            for (int index = 0; index < this._popSize; index++)
-            {
-                _dnaRender.RenderDNAPerChanel(this._population[index], renderType);
-
-
-                long fittness = 0;
-                if (_typeRendering == TypeRendering.softwareByRowWithFitness)
-                    fittness = _dnaRender.Fittness;
-                else
-                {
-                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.R, _dnaRender.CanvasSplit.R);
-                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.G, _dnaRender.CanvasSplit.G);
-                    fittness += _nativeFunc.ComputeFittnessABSSSE(_destCanvasSplit.B, _dnaRender.CanvasSplit.B);
-                    
-                }
-                //fittness = FitnessCalculator.ComputeFittnessLine_SumABS(_destCanvas.Data, _dnaRender.Canvas.Data);
-
-                long bloat = this._population[index].PointCount;
-
-                _fittness[index] = fittness + bloat;
-
-                //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
-                //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessSoftwareNative(this._population[index], this._destImg, this._destImgByte, Color.Black);
-                //fittness[index] = FitnessCalculator.GetDrawingFitnessWPF(this._population[index], this._destCanvas, Color.Black);    
-            }
-        }
+        
 
         private void UpdateStatsByFittness()
         {
@@ -414,47 +380,7 @@ namespace GenArt.Core.AST
 
         }
 
-        private void ComputeSimilarity()
-        {
-            HashSet<int> allIds = new HashSet<int>();
-            HashSet<int> theSameIds = new HashSet<int>();
-
-            int maxLength = _population.Max(x => x.Polygons.Length);
-
-            for (int index = 0; index < _population.Length; index++)
-            {
-                DnaPrimitive [] polygons = _population[index].Polygons;
-                for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
-                {
-                    bool wasAdd = allIds.Add(polygons[polygonIndex].UniqueId);
-
-                    // if polygon exist safe him
-                    if (!wasAdd)
-                        theSameIds.Add(polygons[polygonIndex].UniqueId);
-                }
-            }
-
-            // compute similarity
-            for (int index = 0; index < _population.Length; index++)
-            {
-                DnaPrimitive [] polygons = _population[index].Polygons;
-                int countSame =0;
-
-                for (int polygonIndex = 0; polygonIndex < polygons.Length; polygonIndex++)
-                {
-                    if (theSameIds.Contains(polygons[polygonIndex].UniqueId))
-                        countSame++;
-                }
-
-                _similarity[index] = countSame / ((float)polygons.Length + 0.1f * (maxLength - polygons.Length));
-            }
-
-            //if (allIds.Count != theSameIds.Count)
-            //{
-            //    int i = 0;
-            //    allIds.Clear();
-            //}
-        }
+       
 
 
         private byte GetCurrentMutationRate()
@@ -521,19 +447,23 @@ namespace GenArt.Core.AST
         private void GenerateNewPopulationByMutation()
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
-            //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            //ComputeSimilarity();
-            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness,  maxNormalizeValue);
-            //RouletteTableNormalizeBetterWithSimilarity2(this._fittness, this._rouleteTable, this._diffFittness, this._similarity, maxNormalizeValue);
-            RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
-            //RankTableFillz(this._fittness, this._rankTable, out maxNormalizeValue);
-
+            RankTableFill(this._rankTable, 10000, 2.0, out maxNormalizeValue);
+            
             Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
             
             this._population[this._population.Length - 1] = null;
 
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
+
+            List<Tuple<int, long>> lookupFittnes = new List<Tuple<int, long>>(_rankTable.Length);
+            for (int i = 0; i < _rankTable.Length; i++)
+            {
+                lookupFittnes.Add(new Tuple<int, long>(i, this._fittness[i]));
+            }
+
+            lookupFittnes = lookupFittnes.OrderByDescending(x => x.Item2).ToList();
+
 
             for (int index = 0; index < _popSize; index++)
             {
@@ -570,13 +500,13 @@ namespace GenArt.Core.AST
                     this._population[index] = null;
                 }
 
-                DnaDrawing dna = this._lastPopulation[indexParent1].Clone();
+                DnaDrawing dna = this._lastPopulation[lookupFittnes[indexParent1].Item1].Clone();
                 //ComputeCurrentBestErrorMatrix(dna);
                 while (!dna.IsDirty)
                     dna.MutateBetter(currMutatioRate,
                         null,//this._errorMatrix,
                         this._destCanvas,
-                        null//_edgePoints
+                        _edgePoints
                         );
 
                 
@@ -592,13 +522,10 @@ namespace GenArt.Core.AST
         private void GenerateNewPopulationRoulete()
         {
             int maxNormalizeValue = this._fittness.Length * 100000;
-            //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
-            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
-            RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
-
-            Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
+            RankTableFill(this._rankTable, 10000,2.0, out maxNormalizeValue);
            
+            Tools.swap<DnaDrawing[]>(ref this._population, ref this._lastPopulation);
+
             byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
              GetCurrentMutationRate();
 
@@ -655,77 +582,21 @@ namespace GenArt.Core.AST
             #endregion
         }
 
-        private static void RankTableFillz(long[] fittness, int[] rankTable, out int MaxValueRankTable)
+       
+
+        /// <summary>
+        /// // implementace vzorce
+        // 2-sp+(2*(sp-1)*((pos-1)/(n-1)  
+        // pos = 1 nejmensi fittness, sp = <1.0,2.0>  1.0 - linearni
+
+        /// </summary>
+        /// <param name="rankTable"></param>
+        /// <param name="rankBaseValue"></param>
+        /// <param name="sp"></param>
+        /// <param name="MaxValueRankTable"></param>
+        private static void RankTableFill( int[] rankTable, int rankBaseValue, double sp, out int MaxValueRankTable)
         {
-            int maxNormalizeValue = 1000000;
-
-            long sumFittness = 0;
-            for (int index = 0; index < fittness.Length; index++)
-                sumFittness += fittness[index];
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                int tmp = (int)((fittness[index] / (float)sumFittness) * maxNormalizeValue);
-                rankTable[index] = tmp+1;
-            }
-
-            int maxValue = 0;
-            for (int index = 0; index < fittness.Length; index++)
-                //if (rankTable[index] > maxValue) 
-                    maxValue += rankTable[index];
-
-            for (int index = 0; index < fittness.Length; index++)
-                rankTable[index] = maxValue / rankTable[index];
-
-            int sum = 0;
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                sum += rankTable[index];
-                rankTable[index] = sum;
-            }
-
-            MaxValueRankTable = rankTable[rankTable.Length - 1];
-        }
-
-        private static void RankTableFill(long[] fittness, int[] rankTable, out int MaxValueRankTable)
-        {
-            int nextRankValue = 100;
-            for (int i = 0; i < rankTable.Length; i++)
-            {
-                rankTable[i] = nextRankValue;
-                nextRankValue += nextRankValue / 2;
-            }
-
-            MaxValueRankTable = nextRankValue;
-        }
-
-        private static void RankTableFill2(long[] fittness, int[] rankTable, out int MaxValueRankTable)
-        {
-            int rankbasevalue = 10000;
-            double sp = 1.9;
-            // implementace vzorce
-            // 2-sp+(2*(sp-1)*((pos-1)/(n-1)  
-            // pos = 1 nejmensi fittness, sp = <1.0,2.0>  1.0 - linearni
-
-            int lastValue = 0;
-            for (int i = 0; i < rankTable.Length; i++)
-            {
-                double rnd = (i) / ((double)rankTable.Length - 1);
-
-                double currentRank = Math.Pow(rnd, 2);
-
-                rankTable[i] = lastValue + (int)(currentRank * rankbasevalue);
-                lastValue = rankTable[i];
-            }
-
-
-            MaxValueRankTable = rankTable[rankTable.Length - 1] + rankbasevalue;
-        }
-
-        private static void RankTableFill3(long[] fittness, int[] rankTable, out int MaxValueRankTable)
-        {
-            int rankbasevalue = 10000;
-            double sp = 1.9;
+            
             // implementace vzorce
             // 2-sp+(2*(sp-1)*((pos-1)/(n-1)  
             // pos = 1 nejmensi fittness, sp = <1.0,2.0>  1.0 - linearni
@@ -735,144 +606,16 @@ namespace GenArt.Core.AST
             {
                 double currentRank = 2.0 - sp + (2 * (sp - 1.0) * ((i) / ((double)rankTable.Length - 1)));
 
-                rankTable[i] = lastValue + (int)(currentRank * rankbasevalue);
+                rankTable[i] = lastValue + (int)(currentRank * rankBaseValue);
                 lastValue = rankTable[i];
             }
 
 
-            MaxValueRankTable = rankTable[rankTable.Length - 1] + rankbasevalue;
+            MaxValueRankTable = rankTable[rankTable.Length - 1] + rankBaseValue;
         }
+             
 
-        private static void RouletteTableNormalize(long[] fittness, int[] rouleteTable, int maxNormalizeValue)
-        {
-
-            long sumFittness = 0;
-            for (int index = 0; index < fittness.Length; index++)
-                sumFittness += fittness[index];
-
-            int lastRouleteValue = 0;
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                int tmp = (int)((fittness[index] / (float)sumFittness) * maxNormalizeValue);
-                rouleteTable[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-        }
-
-        private static void RouletteTableNormalizeBetter(long[] fittness, int[] rouleteTable, long[] diffFittness, int maxNormalizeValue)
-        {
-            long fittnessMax = 0;
-            long fittnessMin = long.MaxValue;
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
-                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
-            }
-
-            long sumFittness = 0;
-            long minDiffFit = fittnessMax - fittnessMin;
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                long diffFit = (fittnessMax - fittness[index] + minDiffFit);
-                sumFittness += diffFit;
-                diffFittness[index] = diffFit;
-            }
-
-
-            int lastRouleteValue = 0;
-            for (int index = 0; index < diffFittness.Length; index++)
-            {
-                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
-                rouleteTable[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-        }
-
-        private static void RouletteTableNormalizeBetterWithSimilarity
-            (long[] fittness, int[] rouleteTable, long[] diffFittness, float[] similarity, int maxNormalizeValue)
-        {
-            long fittnessMax = 0;
-            long fittnessMin = long.MaxValue;
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
-                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
-            }
-
-            long sumFittness = 0;
-            long minDiffFit = 0;//(fittnessMax - fittnessMin)/8;
-            if (minDiffFit == 0) minDiffFit = 1;
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                // similarity 1.0 very similar, 0.0 very different  
-                // koef multiple increase for more different. Min is 1.0;
-
-                float koef = (1.0f - similarity[index]) * 1.5f + 1.0f;
-                long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef);
-                sumFittness += diffFit;
-                diffFittness[index] = diffFit;
-            }
-
-
-            int lastRouleteValue = 0;
-            for (int index = 0; index < diffFittness.Length; index++)
-            {
-                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
-                rouleteTable[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-        }
-
-        private static void RouletteTableNormalizeBetterWithSimilarity2
-            (long[] fittness, int[] rouleteTable, long[] diffFittness, float[] similarity, int maxNormalizeValue)
-        {
-            long fittnessMax = 0;
-            long fittnessMin = long.MaxValue;
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                if (fittnessMax < fittness[index]) fittnessMax = fittness[index];
-                if (fittnessMin > fittness[index]) fittnessMin = fittness[index];
-            }
-
-            long sumFittness = 0;
-            long minDiffFit = 1;//fittnessMin;
-
-            for (int index = 0; index < fittness.Length; index++)
-            {
-                // similarity 1.0 very similar, 0.0 very different  
-                // koef multiple increase for more different. Min is 1.0;
-
-                float koef = (1.0f - similarity[index]) * 1.5f + 1.0f;
-                long diffFit = (long)(((fittnessMax - fittness[index]) + minDiffFit) * koef);
-                sumFittness += diffFit;
-                diffFittness[index] = diffFit;
-            }
-
-            if (sumFittness == 0) minDiffFit = 1;
-
-            int lastRouleteValue = 0;
-            for (int index = 0; index < diffFittness.Length; index++)
-            {
-                int tmp = (int)(((long)diffFittness[index] * maxNormalizeValue) / sumFittness);
-                rouleteTable[index] = lastRouleteValue + tmp;
-                lastRouleteValue = lastRouleteValue + tmp;
-            }
-        }
-
-        private int RouletteVheelParrentIndex(int value, int[] rouletteTable)
-        {
-            for (int index = 0; index < rouletteTable.Length; index++)
-            {
-                if (rouletteTable[index] > value)
-                    return index;
-            }
-
-            return rouletteTable.Length - 1;
-        }
+             
 
         private int RankVheelParrentIndex(int value, int[] rankTable)
         {
@@ -979,6 +722,7 @@ namespace GenArt.Core.AST
             for (int i = 0; i < _populationCompressDNA.Length; i++)
             {
                 byte [] dna = new byte[2048];
+                
                 for (int di = 0; di < dna.Length; di++)
                 {
                     dna[di] = (byte)Tools.GetRandomNumber(0, 256);
@@ -995,11 +739,18 @@ namespace GenArt.Core.AST
             if (_typeRendering == GASearch.TypeRendering.software) renderType = DNARenderer.RenderType.Software;
             else if (_typeRendering == GASearch.TypeRendering.softwareByRow) renderType = DNARenderer.RenderType.SoftwareByRows;
             else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitness) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittness;
+            else if (_typeRendering == GASearch.TypeRendering.softwareByRowWithFitnessParallel) renderType = DNARenderer.RenderType.SoftwareByRowsWithFittnessParallel;
 
 
             for (int index = 0; index < this._popSize; index++)
             {
-                _dnaRender.RenderDNA_CompressDNA(this._populationCompressDNA[index], renderType);
+                DnaDrawing dDrawing= Helper_TranslateDNA(this._populationCompressDNA[index]);
+                int countPoint = dDrawing.PointCount;
+                
+
+                
+                
+                //_dnaRender.RenderDNA_CompressDNA(this._populationCompressDNA[index], renderType);
 
                 //long fittness = FitnessCalculator.ComputeFittness_Basic(_destCanvas.Data, _dnaRender.Canvas.Data,1// this._generation%10+1);
                 //);
@@ -1014,15 +765,49 @@ namespace GenArt.Core.AST
                 //long fittness = _nativeFunc.ComputeFittnessAdvance(_destCanvas.Data, _dnaRender.Canvas.Data);
 
                 long fittness = 0;
-                if (_typeRendering == TypeRendering.softwareByRowWithFitness)
+                if (_typeRendering == TypeRendering.softwareByRowWithFitness || _typeRendering == TypeRendering.softwareByRowWithFitnessParallel)
+                {
+                    _dnaRender.RenderDNA(dDrawing, renderType);
                     fittness = _dnaRender.Fittness;
+                }
                 else
+                {
+                    _dnaRender.RenderDNA(dDrawing, renderType);
+                    //fittness = FitnessCalculator.ComputeFittnessLine_OnlyCorrectHit(_destCanvas.Data, _dnaRender.Canvas.Data);
                     fittness = _nativeFunc.ComputeFittnessSquareSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
-                //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    //fittness = _nativeFunc.ComputeFittnessAdvance_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
 
-                long bloat = Helper_DnaCountPoints(this._populationCompressDNA[index]);
+                    //fittness = _nativeFunc.ComputeFittnessABSSSE_ARGB(_destCanvas.Data, _dnaRender.Canvas.Data);
+                    //fittness = FitnessCalculator.ComputeFittnessLine_SumSquare(_destCanvas.Data, _dnaRender.Canvas.Data);
+                }
 
-                _fittness[index] = fittness + bloat * bloat + this._populationCompressDNA[index].Length;
+                for (int i = 0; i < dDrawing.Polygons.Length; i++)
+                {
+                    DnaPolygon pd = dDrawing.Polygons[i] as DnaPolygon;
+                    if (pd != null)
+                    {
+                        _RecyclePool_Polygon.PutForRecycle(pd);
+                        continue;
+                    }
+
+                    DnaRectangle dr = dDrawing.Polygons[i] as DnaRectangle;
+                    if (dr != null)
+                        _RecyclePool_Rectangle.PutForRecycle(dr);
+                }
+
+                fittness = fittness;//  (long)(Math.Sqrt(fittness)*100.0);
+
+                //double areaSize = Helper_DnaSumAreaTriangles(this._populationCompressDNA[index]) /(double) this._destCanvas.CountPixels;
+
+                //if (areaSize > 2.0) fittness = (long)(fittness * (areaSize-1));// ((long)(fittness*(1.0+(areaSize-1.0)*0.5));
+
+                long bloat = countPoint;
+                if (bloat == 0) bloat = 1;
+
+                double kkkk = (bloat * 0.01 + 1);
+
+                _fittness[index] = (long)(fittness + bloat );
+                    //+ bloat*bloat)  ;
 
                 //fittness[index] = FitnessCalculator.GetDrawingFitness2(this._population[index], this._destImg, Color.Black);
                 //_fittness[index] = FitnessCalculator.GetDrawingFitnessSoftware(this._population[index], this._destCanvas, Color.Black);
@@ -1031,30 +816,44 @@ namespace GenArt.Core.AST
             }
         }
 
-        private int Helper_DnaCountPoints(byte [] dna)
+       
+
+        private long Helper_DnaSumAreaTriangles(byte[] dna)
         {
-            int countPoints = 0;
+            if (dna.Length == 0) return 0;
+            if (Settings.ActivePolygonsMax < dna[0])  return Settings.ActivePolygonsMax;
 
-            int index = 0;
-            while (index < dna.Length)
+
+            long sum = 0;
+            int countTriangles = 0;
+            int index = 1;
+
+            int maxWidth = this._destCanvas.WidthPixel - 1;
+            int maxHeight = this._destCanvas.HeightPixel - 1;
+
+            while (index+CONST_CompressDNA_GenSize < dna.Length && countTriangles < Settings.ActivePolygonsMax )
             {
-                if (//(dna[index] & 3) < 1 &&
-                    //primitives.Count < Settings.ActivePolygonsMax &&
-                    index + 4 + 6 + 1 <= dna.Length)
-                {
-                    countPoints += 3;
+                int x = ((dna[index + 5]) * maxWidth) / 255;
+                int y = ((dna[index + 6]) * maxHeight) / 255;
 
-                    index += 4 + 6 + 1;
-                }
-                else
-                {
-                    index++;
-                }
+                int x2 = ((dna[index + 7]) * maxWidth) / 255;
+                int y2 = ((dna[index + 8]) * maxHeight) / 255;
 
+                int x3 = ((dna[index + 9]) * maxWidth) / 255;
+                int y3 = ((dna[index + 10]) * maxHeight) / 255;
+
+
+                sum += (int) GraphicFunctions.TriangleAreaSize(x, y, x2, y2, x3, y3);
+                
+                countTriangles++;
+                index += CONST_CompressDNA_GenSize;
             }
 
-            return countPoints;
+            return sum;
         }
+
+
+
 
         private void Helper_UpdateStatsByFittness_CompressDNA()
         {
@@ -1063,7 +862,7 @@ namespace GenArt.Core.AST
             long bestFittness = long.MaxValue;
             long WorstFittness = 0;
             int bestIndex = -1;
-            for (int index = 0; index < populationLastIndex; index++)
+            for (int index = 0; index < _popSize; index++)
             {
                 if (_fittness[index] > WorstFittness)
                 {
@@ -1091,17 +890,11 @@ namespace GenArt.Core.AST
 
             //ComputeCurrentBestErrorMatrix(this.LastBest);
 
-            // aplikovani pridani nejlepsiho do kolekce
-            if (_generation % 1 == 5)
-            {
-                _fittness[populationLastIndex] = this._currentBestFittness;
-                _populationCompressDNA[populationLastIndex] = this._currentBestCompressDNA;
-            }
-            else
-            {
-                _fittness[populationLastIndex] = this._lastBestFittness;
-                _populationCompressDNA[populationLastIndex] = this._lastBestCompressDNA; 
-            }
+            // pridani nejlepsiho do kolekce
+            _fittness[_popSize] = this._currentBestFittness;
+            _populationCompressDNA[_popSize] = this._currentBestCompressDNA;
+
+            
 
             _lastWorstFitnessDiff = WorstFittness - this._lastBestFittness;
 
@@ -1110,39 +903,116 @@ namespace GenArt.Core.AST
 
         private void Helper_GenerateNewPopulation_CompressDNA()
         {
-            int maxNormalizeValue = this._fittness.Length * 100000;
-            //int [] rouleteTable = RouletteTableNormalize(fittness,maxNormalizeValue);
-            //RouletteTableNormalize(this._fittness, this._rouleteTable, maxNormalizeValue);
-            //RouletteTableNormalizeBetter(this._fittness, this._rouleteTable, this._diffFittness, maxNormalizeValue);
-            RankTableFill2(this._fittness, this._rankTable, out maxNormalizeValue);
+
+            // add elites
+            Tuple<int, long>[] lookupFittnes2 = _lookupFittness_PopSize;
+            for (int i = 0; i < _popSize; i++)
+            {
+                lookupFittnes2[i] = new Tuple<int, long>(i, this._fittness[i]);
+            }
+
+            lookupFittnes2 = lookupFittnes2.OrderByDescending(x => x.Item2).ToArray();
+            int startIndex = _popSize + 1;
+            for (int i = 0; i < this._countElite; i++)
+            {
+                _lastPopulationCompressDNA[startIndex + i] = _populationCompressDNA[lookupFittnes2[i].Item1];
+                _fittness[startIndex + i] = _fittness[lookupFittnes2[i].Item1];
+            }
 
             Tools.swap<byte [][]>(ref this._populationCompressDNA,ref this._lastPopulationCompressDNA);
-           
-            byte currMutatioRate = //(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
-             GetCurrentMutationRate();
+
+            byte currMutatioRate = 4;//(byte)(((this._generation % CONST_DynamicMutationGenInterval) > CONST_DynamicMutationGenInterval / 2) ? 255 : 64);
+             //GetCurrentMutationRate();
+
+           Tuple<int, long>[] lookupFittnes = _lookupFittness_RankTable;
+            for(int i =0;i<_rankTable.Length;i++)  
+            {
+                lookupFittnes[i] =new Tuple<int, long>(i, this._fittness[i]);
+            }
+
+            lookupFittnes = lookupFittnes.OrderByDescending(x => x.Item2).ToArray();
 
             for (int index = 0; index < _popSize; index++)
             {
-                int indexParent1 = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
+                int indexParent1 = Tools.GetRandomNumber(0, _maxRankNormalizeValue + 1);
                 indexParent1 = RankVheelParrentIndex(indexParent1, this._rankTable);
+                //indexParent1 = lookupFittnes[lookupFittnes.Count()-2].Item1;
+                 
+                DnaDrawing dDrawing = Helper_TranslateDNA(this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1]);
 
 
-                int indexParent2 = indexParent1;
+                /* byte[] dna;
+                 //indexParent1 = 0;
+                 if (Tools.GetRandomNumber(0, 2)==0)
+                 {
+                     //dna = Helper_CrossoverOnePoint_CompressDNA3(this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1], this._lastPopulationCompressDNA[lookupFittnes[indexParent2].Item1]);
+                     dna = Helper_CrossoverOnePoint_CompressDNA3(this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1], this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1]);
+                     //dna = Helper_CrossoverOnePoint_CompressDNA3(dna, dna);
+                     //byte []  dna = Helper_CrossoverUniform_CompressDNA(this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
+                 }
+                 else
+                 {
+                     int count = this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1][0] * CONST_CompressDNA_GenSize + 1;
+                     dna = new byte[this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1].Length];
+                     Buffer.BlockCopy(this._lastPopulationCompressDNA[lookupFittnes[indexParent1].Item1], 0, dna, 0, count);
 
-                while (indexParent1 == indexParent2)
+                 }
+                 */
+
+                if (dDrawing.Polygons.Length > 1)
                 {
-                    int tmp = Tools.GetRandomNumber(0, maxNormalizeValue + 1);
-                    indexParent2 = RankVheelParrentIndex(tmp, this._rankTable);
+
+                    int inde = Tools.GetRandomNumber(0, dDrawing.Polygons.Length - 1);
+
+                    int inde2 = inde + 1;
+
+                    //inde2 = Helper_GetNearestInterleaveIndex(inde, dDrawing.Polygons);
+
+                    DnaPrimitive dp = dDrawing.Polygons[inde];
+                    
+                    DnaPrimitive dp2 = dDrawing.Polygons[inde2];
+                    dDrawing.Polygons[inde] = dp2;
+                    dDrawing.Polygons[inde2] = dp;
+
+
                 }
 
-                byte []  dna = Helper_CrossoverOnePoint_CompressDNA(this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
-                //byte []  dna = Helper_CrossoverUniform_CompressDNA(this._lastPopulationCompressDNA[indexParent1], this._lastPopulationCompressDNA[indexParent2]);
-               
-                if(Tools.GetRandomNumber(0,100) < 10 )
-                    Helper_Mutate_CompressDna(ref dna);
-                
-                this._populationCompressDNA[index] = dna;
 
+
+                if (Tools.GetRandomNumber(0, 2) == 0)
+                {
+                    dDrawing.MutateNew(currMutatioRate, this._destCanvas,
+                        _edgePoints);
+                    //null);
+                }
+                else
+                {
+                    dDrawing.MutateNew(currMutatioRate, this._destCanvas,
+                    null);
+                }
+
+                //if (Tools.GetRandomNumber(0, 3) == 0)
+                //{
+                //    Helper_NoisyMutate(dDrawing, this._canvasArea, 10);
+                //}
+
+                this._populationCompressDNA[index] = Helper_EncodeToDna(dDrawing);
+
+               // Helper_Mutate_CompressDna_old(this._populationCompressDNA[index]);
+
+                for (int i = 0; i < dDrawing.Polygons.Length; i++)
+                {
+                    DnaPolygon pd = dDrawing.Polygons[i] as DnaPolygon;
+                    if (pd != null)
+                    {
+                        _RecyclePool_Polygon.PutForRecycle(pd);
+                        continue;
+                    }
+
+                    DnaRectangle dr = dDrawing.Polygons[i] as DnaRectangle;
+                    if (dr != null)
+                        _RecyclePool_Rectangle.PutForRecycle(dr);
+                }
             }
 
 
@@ -1150,9 +1020,93 @@ namespace GenArt.Core.AST
 
         }
 
+        private static void Helper_NoisyMutate(DnaDrawing dna, AreaSizeVO<short> area, short noiseSize)
+        {
+            for(int i = 0;i < dna.Polygons.Length;i++)
+            {
+
+               //if( Tools.GetRandomNumber(0,5) == 0) continue;
+
+                DnaRectangle rect = dna.Polygons[i] as DnaRectangle;
+                if(rect != null)
+                {
+                    DnaPoint tmp;
+                    tmp = rect.StartPoint;
+                    Tools.MutatePointByRadial(ref tmp.X, ref tmp.Y, area,255,noiseSize);
+                    rect.StartPoint = tmp;
+
+                    tmp = rect.EndPoint;
+                    Tools.MutatePointByRadial(ref tmp.X, ref tmp.Y, area, 255, noiseSize);
+                    rect.EndPoint = tmp;
+
+                    rect.RepairOrderAxis();
+                }
+
+                DnaPolygon poly = dna.Polygons[i] as DnaPolygon;
+                if (poly != null)
+                {
+                    for(int p =0; p < poly.Points.Length;p++)
+                    {
+                        DnaPoint tmp;
+                        tmp = poly.Points[p];
+                        Tools.MutatePointByRadial(ref tmp.X, ref tmp.Y, area, 255, noiseSize);
+                        poly.Points[p] = tmp;
+                    }
+                }
+            }
+        }
+
+        private static int Helper_GetNearestInterleaveIndex(int index, DnaPrimitive [] prims)
+        {
+            int indexBestUp = index ;
+            for (int i = indexBestUp+1; i < prims.Length; i++)
+            {
+                if (DnaDrawing.IsPrimitiveInterleaving(prims[index], prims[i]))
+                {
+                    indexBestUp = i;
+                    break;
+                }
+            }
+            
+            int indexBestDown = index ;
+            for (int i = indexBestDown-1; i > 0; i--)
+            {
+                if (DnaDrawing.IsPrimitiveInterleaving(prims[index], prims[i]))
+                {
+                    indexBestDown = i;
+                    break;
+                }
+            }
+
+            if(indexBestUp == index && indexBestDown == index)
+            {
+                return index;
+            }
+            else if(indexBestUp != index && indexBestDown == index)
+            {
+                return indexBestUp;
+            }
+            else if (indexBestUp == index && indexBestDown != index)
+            {
+                return indexBestDown;
+            }
+            else
+            {
+                if(indexBestUp-index > index - indexBestDown)
+                {
+                    return indexBestDown;
+                }
+                else
+                {
+                    return indexBestUp;
+                }
+            }
+
+        }
+
         private byte [] Helper_CrossoverOnePoint_CompressDNA(byte [] parent1, byte [] parent2)
         {
-            double crossLine = Tools.GetRandomNumber(1,90)*0.01d;
+            double crossLine = Tools.GetRandomNumber(1,900)*0.001d;
             //double crossLine2 = Tools.GetRandomNumber(1, 9) * 0.1d;
 
             //double crossLine = 0.3;
@@ -1183,26 +1137,110 @@ namespace GenArt.Core.AST
             return dnaResult;
         }
 
-        private byte[] Helper_CrossoverUniform_CompressDNA(byte[] parent1, byte[] parent2)
+        private byte[] Helper_CrossoverOnePoint_CompressDNA2(byte[] parent1, byte[] parent2)
         {
-            //double crossLine = Tools.GetRandomNumber(1,9)*0.1d;
+            if (parent1.Length != parent2.Length) throw new NotSupportedException();
 
-            byte [] dnaResult = new byte[parent1.Length];
+            int crossLine = Tools.GetRandomNumber(1, parent1.Length);
+            
+            if (Tools.GetRandomNumber(0, 2) == 0)
+                Tools.swap<byte[]>(ref parent1, ref parent2);
 
-            for (int i = 0; i < parent1.Length; i++)
-            {
-                dnaResult[i] = (Tools.GetRandomNumber(0, 2) == 0) ?
-                    parent1[i] : parent2[i]; 
-            }
+            
+            
+            byte[] dnaResult = new byte[parent1.Length];
+            dnaResult[0] = parent1[0];
+            int length = parent1.Length;
+            
+
+            Buffer.BlockCopy(parent1, 1, dnaResult, length - crossLine, crossLine);
+
+            Buffer.BlockCopy(parent2, crossLine, dnaResult, 1, length - crossLine);
 
             return dnaResult;
         }
 
-        private void Helper_Mutate_CompressDna(ref byte [] dna)
+        /// <summary>
+        /// special
+        /// </summary>
+        /// <param name="parent1"></param>
+        /// <param name="parent2"></param>
+        /// <returns></returns>
+        private byte[] Helper_CrossoverOnePoint_CompressDNA3(byte[] parent1, byte[] parent2)
         {
+            if (parent1.Length != parent2.Length) throw new NotSupportedException();
+
+            int p1Len = parent1[0] * CONST_CompressDNA_GenSize ;
+            int p2Len = parent2[0] * CONST_CompressDNA_GenSize ;
+
+            if (p1Len < p2Len)
+            {
+                Tools.swap<byte[]>(ref parent1, ref parent2);
+                Tools.swap<int>(ref p1Len, ref p2Len);
+            }
+
+
+
+
+
+            int crossLine = 0;
+            if(parent2[0] != 0)
+                crossLine=   Tools.GetRandomNumber(0, parent2[0])*CONST_CompressDNA_GenSize;
+
+
+
+            byte[] dnaResult = new byte[parent1.Length];
+            dnaResult[0] = parent1[0];
+
+
+            int length = parent1.Length;
+
+            int p2partCount = (p2Len - crossLine);
+
+            Buffer.BlockCopy(parent2,1+ crossLine, dnaResult, 1 , p2partCount);
+               
+            Buffer.BlockCopy(parent1, 1, dnaResult, 1+p2partCount, p1Len - (p2partCount));
+
+            
+
+            return dnaResult;
+        }
+
+
+        
+
+        private void Helper_Mutate_CompressDna_old(byte [] dna)
+        {
+            double probability = 0.01;
+
+            double gens = dna.Length * probability;
+
+            int countGens = 0;
+
+            while(gens > 0.0)
+            {
+                if(gens>=1.0)
+                {
+                    countGens += 1;
+                    gens -= 1.0;
+                }
+                else
+                {
+                    if( Tools.GetRandomNumberDouble() < gens)
+                    {
+                        countGens++;
+                        
+                    }
+
+                    break;
+                }
+            }
+
             if (dna.Length > 0)
             {
-                int countGenes = Tools.GetRandomNumber(1, 11);
+
+
+                int countGenes = countGens;// Tools.GetRandomNumber(1, 11);
 
                 for (int i = 0; i < countGenes; i++)
                 {
@@ -1215,57 +1253,172 @@ namespace GenArt.Core.AST
             
         }
 
+
         private DnaDrawing Helper_TranslateDNA(byte [] dna)
         {
             DnaDrawing result = new DnaDrawing(this._destCanvas.WidthPixel, this._destCanvas.HeightPixel);
+            result.BackGround = _background;
 
-            int maxWidht = this._destCanvas.WidthPixel-1;
+            int maxWidth = this._destCanvas.WidthPixel-1;
             int maxHeight = this._destCanvas.HeightPixel-1;
 
-
             List<DnaPrimitive> primitives = new List<DnaPrimitive>();
-            int index = 0;
-            while (index < dna.Length)
+
+            if (dna.Length > 0)
             {
-                if (//(dna[index]&3) < 1 && 
-                    primitives.Count < Settings.ActivePolygonsMax &&
-                    index + 4 + 6 + 1 <= dna.Length)
+                
+                int index = 0;
+
+                while (index < dna.Length)
                 {
-                    DnaPolygon triangle = new DnaPolygon();
-                    triangle.Brush.SetByColor(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
+                    if (primitives.Count >= Settings.ActivePolygonsMax) break;
 
-                    DnaPoint [] points = new DnaPoint[3];
+                    while (index < dna.Length && (dna[index]&3) > 1) index++;
 
-                    int x = (( dna[index + 5]) * maxWidht) / 255;
-                    int y = (( dna[index + 6]) * maxHeight) / 255;
+                    if (index >= dna.Length) break;
 
-                    points[0] = new DnaPoint((short)x, (short)y);
+                    byte typeElement = (byte)(dna[index]&3);
+                    if (typeElement == 0) // triangle
+                    {
+                        if (index + 16 < dna.Length)
+                        {
+                            DnaPolygon newPoly = _RecyclePool_Polygon.GetNewOrRecycle();
+                            newPoly.Brush.SetByColor(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
 
-                    x = (( dna[index + 7]) * maxWidht) / 255;
-                    y = (( dna[index + 8]) * maxHeight) / 255;
+                            index += 5;
 
-                    points[1] = new DnaPoint((short)x, (short)y);
+                            DnaPoint[] points = new DnaPoint[3];
 
-                    x = (( dna[index + 9]) * maxWidht) / 255;
-                    y = (( dna[index + 10]) * maxHeight) / 255;
+                            short x = (short)(ReadShort(dna, index)% maxWidth);
+                            x = (short)Math.Max(Math.Min(x, maxWidth), 0);
+                            short y = (short)(ReadShort(dna, index+2)%maxHeight);
+                            y = (short)Math.Max(Math.Min(y, maxHeight), 0);
+                            points[0] = new DnaPoint(x,y);
+                            index += 4;
 
-                    points[2] = new DnaPoint((short)x, (short)y);
+                             x = (short)(ReadShort(dna, index) % maxWidth);
+                            x = (short)Math.Max(Math.Min(x, maxWidth), 0);
+                             y = (short)(ReadShort(dna, index + 2) % maxHeight);
+                            y = (short)Math.Max(Math.Min(y, maxHeight), 0);
+                            points[1] = new DnaPoint(x, y);
+                            index += 4;
 
-                    triangle._Points = points;
+                             x = (short)(ReadShort(dna, index) % maxWidth);
+                            x = (short)Math.Max(Math.Min(x, maxWidth), 0);
+                             y = (short)(ReadShort(dna, index + 2) % maxHeight);
+                            y = (short)Math.Max(Math.Min(y, maxHeight), 0);
+                            points[2] = new DnaPoint(x, y);
+                            index += 4;
+                            
+                            newPoly._Points = points;
+                            primitives.Add(newPoly);
+                        }
+                        else
+                        {
+                            break; 
+                        }
+                    }
+                    else if (typeElement == 1)
+                    {
+                        if (index + 12 < dna.Length)
+                        {
 
-                    primitives.Add(triangle);
+                            DnaRectangle newRec = _RecyclePool_Rectangle.GetNewOrRecycle();
+                            newRec.Brush.SetByColor(dna[index + 1], dna[index + 2], dna[index + 3], dna[index + 4]);
 
-                    index +=4 + 6 + 1;
-                }
-                else
-                {
-                    index++;
+                            index += 5;
+
+                            short x = (short)(ReadShort(dna, index) % maxWidth);
+                            x = (short)Math.Max(Math.Min(x, maxWidth), 0);
+                            short y = (short)(ReadShort(dna, index + 2) % maxHeight);
+                            y = (short)Math.Max(Math.Min(y, maxHeight), 0);
+                            newRec.StartPoint = new DnaPoint(x, y);
+                            index += 4;
+
+                             x = (short)(ReadShort(dna, index) % maxWidth);
+                            x = (short)Math.Max(Math.Min(x, maxWidth), 0);
+                             y = (short)(ReadShort(dna, index + 2) % maxHeight);
+                            y = (short)Math.Max(Math.Min(y, maxHeight), 0);
+                            newRec.EndPoint = new DnaPoint(x, y);
+                            index += 4;
+
+                            newRec.RepairOrderAxis();
+
+                            primitives.Add(newRec);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                 }
 
             }
 
             result.Polygons = primitives.ToArray();
             return result;
+        }
+
+        private byte[] Helper_EncodeToDna(DnaDrawing dna )
+        {
+            List<byte> result = new List<byte>();
+
+            for(int i = 0;i < dna.Polygons.Length;i++)
+            {
+                DnaPolygon poly = dna.Polygons[i] as DnaPolygon;
+                if(poly != null)
+                {
+                    result.Add(0);
+                    result.Add(poly.Brush.Alpha);
+                    result.Add(poly.Brush.Red);
+                    result.Add(poly.Brush.Green);
+                    result.Add(poly.Brush.Blue);
+
+                    SaveShort_Append(result, poly._Points[0].X);
+                    SaveShort_Append(result, poly._Points[0].Y);
+
+                    SaveShort_Append(result, poly._Points[1].X);
+                    SaveShort_Append(result, poly._Points[1].Y);
+
+                    SaveShort_Append(result, poly._Points[2].X);
+                    SaveShort_Append(result, poly._Points[2].Y);
+                }
+
+                DnaRectangle rec = dna.Polygons[i] as DnaRectangle;
+                if (rec != null)
+                {
+                    result.Add(1);
+                    result.Add(rec.Brush.Alpha);
+                    result.Add(rec.Brush.Red);
+                    result.Add(rec.Brush.Green);
+                    result.Add(rec.Brush.Blue);
+
+                    SaveShort_Append(result, rec.StartPoint.X);
+                    SaveShort_Append(result, rec.StartPoint.Y);
+
+                    SaveShort_Append(result, rec.EndPoint.X);
+                    SaveShort_Append(result, rec.EndPoint.Y);
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        private static short ReadShort(byte [] data, int index)
+        {
+            return (short)((data[index] << 8) | data[index + 1]);
+        }
+
+        private static void SaveShort(byte[] data, int index,  short input)
+        {
+            data[index] = (byte)(input >> 8);
+            data[index+1] = (byte)(input & 0xff );
+        }
+
+        private static void SaveShort_Append(List<byte> data, short input)
+        {
+            data.Add((byte)(input >> 8));
+             data.Add((byte)(input & 0xff));
         }
 
         #endregion

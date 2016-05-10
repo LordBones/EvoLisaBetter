@@ -30,7 +30,7 @@ unsigned short int Fast255div(unsigned short int value)
 
 
 
-void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int x,int y, int width, int height, int color , int alpha)
+void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth,const int x,const int y,const int width,const int height,const int color ,const int alpha)
 {
     int rowStartIndex = y * canvasWidth + x * 4;
 
@@ -45,12 +45,14 @@ void FastFunctions::RenderRectangle(unsigned char * canvas,int canvasWidth, int 
     //}
     //else
     {
-        int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+		int alpha256 = ((color) >> 24) & 0xff;
+		if (alpha256 == 0xff)  alpha256 += 1;
+
         canvas+=rowStartIndex;
 
         for (int iy  = 0; iy < height; iy++)//, indexY += this._canvasWidth)
         {
-            AlphaBlending::NewFastRowApplyColorSSE64(canvas, width, color,alpha256);
+            AlphaBlending::NewFastRowApplyColorSSE256(canvas, width, color,alpha256);
 
             canvas += canvasWidth;
         }
@@ -71,7 +73,9 @@ void FastFunctions::RenderTriangleByRanges(unsigned char * canvas, int canvasWid
     rowStartIndex += canvasWidth;
     }*/
 
-    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+	int alpha256 = ((color) >> 24) & 0xff;
+	if (alpha256 == 0xff)  alpha256 += 1;
+
     canvas += (startY) * canvasWidth;
     //startY *= 2;
     for (int i = 0; i < rlen; i += 2)
@@ -134,14 +138,15 @@ void FastFunctions::RenderTriangle(unsigned char * canvas, int canvasWidth,int c
     v2x = px0 - px2;
     v2y = py0 - py2;
 
+	int alpha256 = ((color) >> 24) & 0xff;
+	if (alpha256 == 0xff)  alpha256 += 1;
 
-    int alpha = (((color>>24)&0xff) * 256) / 255;
+   
+    int invAlpha = 256 - alpha256;
 
-    int invAlpha = 256 - alpha;
-
-    int b = ((color)&0xff) * alpha;
-    int g = ((color>>8)&0xff) * alpha;
-    int r = ((color>>16)&0xff) * alpha;
+    int b = ((color)&0xff) * alpha256;
+    int g = ((color>>8)&0xff) * alpha256;
+    int r = ((color>>16)&0xff) * alpha256;
     // process all points
     int rowIndex = 0;
 
@@ -201,7 +206,9 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
                                       short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, int color)
 {
     int rgba = color;
-    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+	int alpha256 = ((color) >> 24) & 0xff;
+	if (alpha256 == 0xff)  alpha256 += 1;
+
 
     int v0x,v1x,v2x,v0y,v1y,v2y,v0c,v1c,v2c;
 
@@ -309,12 +316,14 @@ void FastFunctions::RenderTriangleNew(unsigned char * canvas, int canvasWidth,in
     }
 }
 
-void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int canvasWidth,int canvasHeight, 
+void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas,const int canvasWidth,const int canvasHeight, 
                                               short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, const int color)
 {
 
     //int alpha255 = (color >> 24) & 0xff;
-    int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+	int alpha256 = ((color) >> 24) & 0xff;
+	if (alpha256 == 0xff)  alpha256 += 1;
+    
 
     if (py0 > py1)
     {
@@ -493,220 +502,14 @@ void FastFunctions::RenderTriangleNewOptimize(unsigned char * const canvas, int 
     }
 }
 
-void FastFunctions::RenderOneChannelTriangleNewOptimize(unsigned char * const canvas, int canvasWidth,int canvasHeight, 
-                                              short int px0,short int py0,short int px1,short int py1,short int px2,short int py2, 
-                                              const unsigned char color, int alpha256)
-{
-
-    //int alpha255 = (color >> 24) & 0xff;
-    //int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
-
-    if (py0 > py1)
-    {
-        short tmp;
-        SWAP(tmp,py0,py1);
-        SWAP(tmp,px0,px1);
-    }
-    if (py1 > py2)
-    {
-
-        short tmp;
-        SWAP(tmp,py1,py2);
-        SWAP(tmp,px1,px2);
-    }
-
-    if (py0 > py1)
-    {
-        short tmp;
-        SWAP(tmp,py0,py1);
-        SWAP(tmp,px0,px1);
-    }
-
-    // compute vector and ax+by+c, compute vector (a,b) a coeficient c
-    int v01x,v20x,v01y,v20y,v01c,v20c;
-
-    //v01x = px1 - px0;
-    //v01y = py1 - py0;
-
-    //v20x = px0 - px2;
-    //v20y = py0 - py2;
-
-    //Tools.swap<int>(ref v01x, ref v01y);
-    //Tools.swap<int>(ref v20x, ref v20y);
-
-    v01x = -(py1 - py0);
-    v01y = px1 - px0;
-
-    v20x = -(py0 - py2);
-    v20y = px0 - px2;
-
-    v01c = -(v01x * px0 + v01y * py0);
-    v20c = -(v20x * px2 + v20y * py2);
-
-    int middleY = py1;
-    int rowIndex = py0 * canvasWidth;
-
-    int tmpNominal0 = (-v01y * py0 - v01c);
-    int tmpNominal2 = (-v20y * py0 - v20c);
-
-    //int nom = tmpNominal0 % v01x
-    //int xxx = tmpNominal0 / v01x;
-    // fill first half
-    for (int y = py0; y < middleY; y++)
-    {
-        //int tmpx0 =  (-v01y * y - v01c) / v01x;
-        //int tmpx2 =  (-v20y * y - v20c) / v20x;
-
-        int tmpx0 =  tmpNominal0*2 / v01x ;
-        tmpx0 = tmpx0/2 + (tmpx0&1);
-        int tmpx2 = tmpNominal2*2 / v20x;
-        tmpx2 = tmpx2/2 + (tmpx2&1);
-
-        //int tmpx0 =  tmpNominal0 / v01x ;
-        //int tmpx2 =  tmpNominal2 / v20x ;
-
-        tmpNominal0 += -v01y;
-        tmpNominal2 += -v20y;
-
-
-
-        int start = tmpx0;
-
-        int end = tmpx2;
-
-        if (start > end)
-        {
-            int tmp;
-            SWAP(tmp,start,end);
-        }
-
-        //if (end >= canvas.WidthPixel)
-        //{
-        //    int kkk = 454;
-        //    throw new Exception();
-        //    continue;
-        //}
-
-
-        int currIndex = rowIndex + start;
-
-        AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
-
-        rowIndex += canvasWidth;
-
-        
-    }
-
-    //int v12x = px2 - px1;
-    //int v12y = py2 - py1;
-    //Tools.swap<int>(ref v12x, ref v12y);
-    int v12x = py2 - py1;
-    int v12y = px2 - px1;
-
-    v12x = -v12x;
-    int v12c = -(v12x * px1 + v12y * py1);
-
-    //rowIndex = middleY * canvasWidth;
-
-    // osetreni specialniho pripadu kdy prostredni bod je v jedne lajne s spodnim
-    if (middleY == py2)
-    {
-        int start = px1;
-        int end = px2;
-
-        if (start > end)
-        {
-            int tmp;
-            SWAP(tmp,start,end);
-        }
-
-        int currIndex = rowIndex + start;
-
-       AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
-
-
-        rowIndex += canvasWidth;
-
-        middleY++;
-    }
-
-    int tmpNominal1 = (-v12y * middleY - v12c);
-    tmpNominal2 = (-v20y * middleY - v20c);
-
-    /*int tmp = (-v20y * middleY - v20c) / v20x;
-
-    if (px1 > tmp ) 
-    {
-    int tmp = 0;
-    SWAP(tmp,tmpNominal1,tmpNominal2);
-    SWAP(tmp,v20x,v12x);
-    SWAP(tmp,v20y,v12y);
-
-    }*/
-
-    // fill first half
-    for (int y = middleY; y <= py2; y++)
-    {
-        int tmpx1 =  tmpNominal1*2 / v12x ;
-        tmpx1 = tmpx1/2 + (tmpx1&1);
-        int tmpx2 = tmpNominal2*2 / v20x;
-        tmpx2 = tmpx2/2 + (tmpx2&1);
-        //int tmpx1 =  tmpNominal1 / v12x + (((tmpNominal1 % v12x)*2) / v12x);
-        //int tmpx2 = tmpNominal2 / v20x + (((tmpNominal2 % v20x)*2) / v20x);
-
-        tmpNominal1 += -v12y;
-        tmpNominal2 += -v20y;
-
-
-        int start = tmpx1;
-        int end = tmpx2;
-
-        if (start > end) 
-        {
-            int tmp;
-            SWAP(tmp,start,end);
-        }
-
-        //if (end >= canvas.WidthPixel)
-        //{
-
-        //    int kkk = 454;
-        //    throw new Exception();
-        //    continue;
-        //}
-
-
-        int currIndex = rowIndex + start;
-        AlphaBlending::FastChanelRowApplyColor8SSE(canvas+currIndex,end- start + 1,color,alpha256);
-
-
-        rowIndex += canvasWidth;
-    }
-}
-
-
-
-
-
 
 void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
 {
     __m128i f;
+	
+	unsigned int index = 0;
 
-    // Fix mis-alignment.
-    /*if (((unsigned int)M) & 0xf)
-    {
-    unsigned int tmp = ((unsigned int)M) & 0xf; 
-
-    switch (tmp)
-    {
-    case 0x4: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
-    case 0x8: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
-    case 0xc: if (CountFill >= 1) { *M++ = Fill; CountFill--; }
-    }
-    }*/
-
-    int tmpCount = 4-((((unsigned int)M)&0xf)/4);
+    unsigned int tmpCount = 4-((((unsigned int)M)&0xf)/4);
     if(tmpCount < 4 && tmpCount < CountFill)
     {
         switch (tmpCount)
@@ -716,14 +519,14 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
         case 0x1: {*M = Fill;break;}
         }
 
-        M+=tmpCount;
+        index+=tmpCount;
         CountFill -= tmpCount;
     }
 
 
     f = _mm_set1_epi32(Fill);
 
-    int index = 0;
+    
     while (CountFill >= 16)
     { 
         _mm_store_si128((__m128i *)(M+index), f);
@@ -743,15 +546,12 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
         CountFill -= 16;
     }
 
-    M += index;
-
-
-
     while (CountFill >= 4)
     {
-        _mm_store_si128((__m128i *)M, f);
+        _mm_store_si128((__m128i *)(M+index), f);
         //_mm_stream_si128((__m128i *)M, f);
-        M += 4;
+        
+		index += 4;
         CountFill -= 4;
     }
 
@@ -773,9 +573,9 @@ void FillSSEInt32(unsigned long * M, long Fill, unsigned int CountFill)
     {
         switch (CountFill )
         {
-        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
-        case 0x2: {*M = Fill;M[1] = Fill;break;}
-        case 0x1: {*M = Fill;break;}
+        case 0x3: {M[index] = Fill;M[index+1] = Fill;M[index+2] = Fill;break;}
+        case 0x2: {M[index] = Fill;M[index+1] = Fill;break;}
+        case 0x1: {M[index] = Fill;break;}
         }
     }
 }
@@ -812,7 +612,7 @@ void FillSSEInt32test(unsigned long * M, long Fill, unsigned int CountFill)
     }*/
 
 
-    //f = _mm_set1_epi32(Fill);
+    f = _mm_set1_epi32(Fill);
 
     /*int index = 0;
     while (CountFill >= 16)
@@ -848,12 +648,12 @@ void FillSSEInt32test(unsigned long * M, long Fill, unsigned int CountFill)
 
     while (CountFill >= 4)
     {
-        M[0] = Fill;
-        M[1] = Fill;
-        M[2] = Fill;
-        M[3] = Fill;
+        //M[0] = Fill;
+        //M[1] = Fill;
+        //M[2] = Fill;
+        //M[3] = Fill;
 
-        //_mm_storeu_si128((__m128i *)M, f);
+        _mm_storeu_si128((__m128i *)M, f);
         //_mm_stream_si128((__m128i *)M, f);
         M += 4;
         CountFill -= 4;
@@ -871,81 +671,17 @@ void FillSSEInt32test(unsigned long * M, long Fill, unsigned int CountFill)
     }
 }
 
-void FillSSEUChar(unsigned char * M, unsigned char Fill, unsigned int CountFill)
-{
-    // Fix mis-alignment.
-   
-    /*int tmpCount = 4-((((unsigned int)M)&0xf)/4);
-    if(tmpCount < 4 && tmpCount < CountFill)
-    {
-        switch (tmpCount)
-        {
-        case 0x3: {*M = Fill;M[1] = Fill;M[2] = Fill;break;}
-        case 0x2: {*M = Fill;M[1] = Fill;break;}
-        case 0x1: {*M = Fill;break;}
-        }
-
-        M+=tmpCount;
-        CountFill -= tmpCount;
-    }*/
-
-    
-    __m128i f = _mm_set1_epi8(Fill);
-
-    int index = 0;
-    while (CountFill >= 64)
-    { 
-        _mm_storeu_si128((__m128i *)(M+index), f);
-        _mm_storeu_si128((__m128i *)(M+index+16), f);
-        _mm_storeu_si128((__m128i *)(M+index+32), f);
-        _mm_storeu_si128((__m128i *)(M+index+48), f);
-        //_mm_store_si128((__m128i *)(M+index+16), f);
-        //_mm_store_si128((__m128i *)(M+index+20), f);
-        //_mm_store_si128((__m128i *)(M+index+24), f);
-        //_mm_store_si128((__m128i *)(M+index+28), f);
-        //_mm_store_si128((__m128i *)M2, f);
-        //_mm_stream_si128((__m128i *)M, f);
-        //_mm_stream_si128((__m128i *)(M+4), f);
-        //M += 16;
-
-        index += 64;
-        CountFill -= 64;
-    }
-
-    M += index;
-
-
-
-    while (CountFill >= 16)
-    {
-        _mm_storeu_si128((__m128i *)M, f);
-        //_mm_stream_si128((__m128i *)M, f);
-        M += 16;
-        CountFill -= 16;
-    }
-
-    while(CountFill > 0)
-    {
-        *M = Fill;
-        M++;
-        CountFill--;
-    }
-}
-
-
 void FastFunctions::ClearFieldByColorInt(unsigned char * curr, int lengthPixel, int color)
 {
     //for(int i =0;i<10000;i++)
     {
-        FillSSEInt32test((unsigned long *)curr, color,lengthPixel);
+        FillSSEInt32((unsigned long *)curr, color,lengthPixel);
+		
     }
     //std::fill((unsigned int *)curr,((unsigned int *)curr)+length/4,  color);
 }
 
-void  FastFunctions::ClearFieldByColor(unsigned char * curr, int length, unsigned char value )
-{
-    FillSSEUChar(curr,value, length);
-}
+
 
 
 
@@ -961,7 +697,9 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     for(int index = 3;index < end;index+=3)
     {
         int color = listRowsForApply[index + 2];
-        int alpha256 = ((((color) >> 24) & 0xff)*256)/255;
+		int alpha256 = ((color) >> 24) & 0xff;
+		if (alpha256 == 0xff)  alpha256 += 1;
+
 
         AlphaBlending::NewFastRowApplyColorSSE64(canvas+
             listRowsForApply[index] * 4, listRowsForApply[index + 1], color,alpha256);
@@ -970,315 +708,7 @@ void FastFunctions::RenderOneRow(int * listRowsForApply, int countRows, unsigned
     }
 }
 
-__int64 FastFunctions::computeFittnessTile_ARGB(unsigned char * curr, unsigned char * orig, int length, int widthPixel)
-{
-    // NativeMedian8Bit medR = NativeMedian8Bit();
-    // NativeMedian8Bit medG = NativeMedian8Bit();
-    NativeMedian8Bit medB = NativeMedian8Bit();
-    widthPixel*=10;
-    __int64 result = 0;
 
-    int pixelOnRow = 0;
-    for(int index = 0;index < length;index+=4)
-    {
-        if(pixelOnRow >= widthPixel)
-        {
-            result += (medB.ValueSum() + medB.SumStdDev());
-            medB.Clear();
-            pixelOnRow = 0;
-        }
-
-        medB.InsertData(labs(curr[index] - orig[index]));
-        medB.InsertData(labs(curr[index + 1] - orig[index + 1]));
-        medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
-
-        pixelOnRow++;
-
-
-        /*  int tmp = (labs(curr[index] - orig[index])>>2) +
-        (labs(curr[index+1] - orig[index+1])>>2) +
-        (labs(curr[index+2] - orig[index+2])>>2) ;
-        medB.InsertData(tmp);*/
-
-
-
-
-        //  index += 4;
-    }
-
-
-    result += (medB.ValueSum() + medB.SumStdDev());
-
-
-    //result += (medB.Median()) + medB.SumStdDev());
-
-    // result += (medG.ValueSum() + medG.SumStdDev());
-    // result += (medR.ValueSum() + medR.SumStdDev());
-
-    return result;
-}
-
-__int64 FastFunctions::computeFittness_2d_ARGB(unsigned char * current, unsigned char * orig, int length, int width)
-{
-    __int64 result = 0;
-    int height = (length / (width));
-
-    int rowIndexUp = 0;
-    int rowIndex = width;
-    int rowIndexDown = width*2;
-
-    for (int y = 1; y < height - 1; y+=2)
-    {
-        int tmpRowIndexUp = rowIndexUp+8;
-        int tmpRowIndex = rowIndex + 8;
-        int tmpRowIndexDown = rowIndexDown + 8;
-
-        int lastBr = current[tmpRowIndex-8] - orig[tmpRowIndex-8];lastBr*=lastBr;
-        int lastBg = current[tmpRowIndex-8+1] - orig[tmpRowIndex-8+1];lastBg*=lastBg;
-        int lastBb = current[tmpRowIndex-8+2] - orig[tmpRowIndex-8+2];lastBb*=lastBb;
-
-        int lastBrDown = current[tmpRowIndexDown-8] - orig[tmpRowIndexDown-8];lastBrDown*=lastBrDown;
-        int lastBgDown = current[tmpRowIndexDown-8+1] - orig[tmpRowIndexDown-8+1];lastBgDown*=lastBgDown;
-        int lastBbDown = current[tmpRowIndexDown-8+2] - orig[tmpRowIndexDown-8+2];lastBbDown*=lastBbDown;
-
-        for (int x = 8; x < width; x += 8)
-        {
-            /*if(x+16<width)
-            {
-            _mm_prefetch((char *)current+tmpRowIndexUp+16,_MM_HINT_T0);
-            _mm_prefetch((char *)orig+tmpRowIndexUp+16,_MM_HINT_T0);
-            _mm_prefetch((char *)current+tmpRowIndex+16,_MM_HINT_T0);
-            _mm_prefetch((char *)orig+tmpRowIndex+16,_MM_HINT_T0);
-            _mm_prefetch((char *)current+tmpRowIndexDown+16,_MM_HINT_T0);
-            _mm_prefetch((char *)orig+tmpRowIndexDown+16,_MM_HINT_T0);
-            }*/
-            // compute 2d fittness
-
-            int br = current[tmpRowIndex] - orig[tmpRowIndex];
-            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
-            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
-            br *= br;
-            bg *= bg;
-            bb *= bb;
-
-            int br2 = current[tmpRowIndex-4] - orig[tmpRowIndex-4];
-            int bg2 = current[tmpRowIndex-4 + 1] - orig[tmpRowIndex-4 + 1];
-            int bb2 = current[tmpRowIndex-4 + 2] - orig[tmpRowIndex-4 + 2];
-            br2 *= br2;
-            bg2 *= bg2;
-            bb2 *= bb2;
-
-            int br3 = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
-            int bg3 = current[tmpRowIndexDown + 1] - orig[tmpRowIndexDown + 1];
-            int bb3 = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
-            br3 *= br3;
-            bg3 *= bg3;
-            bb3 *= bb3;
-
-            int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
-            int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
-            int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
-
-            br4 *= br4;
-            bg4 *= bg4;
-            bb4 *= bb4;
-
-
-
-            const int fixMul = 1;
-            const int fixMul2 = 1;
-            result += (br + bb + bg + 
-                br2 + bb2 + bg2 +
-                br3 + bb3 + bg3 +
-                br4 + bb4 + bg4)*fixMul ;
-
-            result += (labs(br - br4)+labs(bg - bg4)+labs(bb - bb4))*fixMul2;
-            result += (labs(br2 - br3) + labs(bg2 - bg3) + labs(bb2 - bb3))*fixMul2;
-
-            int tmpbr = current[tmpRowIndexUp] - orig[tmpRowIndexUp];
-            int tmpbg = current[tmpRowIndexUp+1] - orig[tmpRowIndexUp+1];
-            int tmpbb = current[tmpRowIndexUp+2] - orig[tmpRowIndexUp+2];
-            result += (labs(br - tmpbr*tmpbr)+labs(bg - tmpbg*tmpbg)+labs(bb - tmpbb*tmpbb))*fixMul2;
-
-            tmpbr = current[tmpRowIndexUp-4] - orig[tmpRowIndexUp-4];
-            tmpbg = current[tmpRowIndexUp-4+1] - orig[tmpRowIndexUp-4+1];
-            tmpbb = current[tmpRowIndexUp-4+2] - orig[tmpRowIndexUp-4+2];
-            result += (labs(br2 - tmpbr*tmpbr)+labs(bg2 - tmpbg*tmpbg)+labs(bb2 - tmpbb*tmpbb))*fixMul2;
-
-            result += (labs(br2 - lastBr)+labs(bg2 - lastBg)+labs(bb2 - lastBb))*fixMul2;
-            result += (labs(br4 - lastBrDown)+labs(bg4 - lastBgDown)+labs(bb4 - lastBbDown))*fixMul2;
-
-            lastBr = br2;
-            lastBg = bg2;
-            lastBb = bb2;
-
-            lastBrDown = br4;
-            lastBgDown = bg4;
-            lastBbDown = bb4;
-
-            tmpRowIndex += 8;
-            tmpRowIndexDown += 8;
-
-        }
-
-        rowIndex += width*2;
-        rowIndexDown += width*2;
-    }
-
-
-    return result;
-
-
-
-}
-
-//__int64 FastFunctions::computeFittness_2d(unsigned char * current, unsigned char * orig, int length, int width)
-//{
-//    __int64 result = 0;
-//    int height = (length / (width));
-//
-//    int rowIndex = 0;
-//    int rowIndexDown = width;
-//
-//    for (int y = 0; y < height - 1; y++)
-//    {
-//        int tmpRowIndex = rowIndex + 4;
-//        int tmpRowIndexDown = rowIndexDown + 4;
-//
-//        int brLast = current[tmpRowIndex - 4] - orig[tmpRowIndex - 4];
-//        int bgLast = current[tmpRowIndex - 4+1] - orig[tmpRowIndex - 4+1];
-//        int bbLast = current[tmpRowIndex - 4+2] - orig[tmpRowIndex - 4+2];
-//        brLast*=brLast;
-//        bgLast *= bgLast;
-//        bbLast *= bbLast;
-//
-//        for (int x = 4; x < width; x += 4)
-//        {
-//            // compute 2d fittness
-//
-//            int br = current[tmpRowIndex] - orig[tmpRowIndex];
-//            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
-//            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
-//            br *= br;
-//            bg *= bg;
-//            bb *= bb;
-//
-//            const int fixMul = 1;
-//            const int fixMul2 = 2;
-//            result += (br + bb + bg)*fixMul;
-//
-//            result += (labs(br - brLast)+labs(bg - bgLast) + labs(bb - bbLast))*fixMul2;
-//           
-//            brLast = br;
-//            bgLast = bg;
-//            bbLast = bb;
-//
-//            int tmp = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
-//            result += labs(br - tmp*tmp)*fixMul2;
-//            tmp = current[tmpRowIndexDown  + 1] - orig[tmpRowIndexDown + 1];
-//            result += labs(bg - tmp*tmp)*fixMul2;
-//            tmp = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
-//            result += labs(bb - tmp*tmp)*fixMul2;
-//
-//            tmpRowIndex += 4;
-//            tmpRowIndexDown += 4;
-//
-//        }
-//
-//        rowIndex += width;
-//        rowIndexDown += width;
-//    }
-//
-//
-//    return result;
-//
-//
-//}
-
-
-__int64 FastFunctions::computeFittness_2d_2x2_ARGB(unsigned char * current, unsigned char * orig, int length, int width)
-{
-    __int64 result = 0;
-    int height = (length / (width));
-
-    int rowIndex = 0;
-    int rowIndexDown = width;
-
-    for (int y = 0; y < height - 1; y+=2)
-    {
-        int tmpRowIndex = rowIndex + 4;
-        int tmpRowIndexDown = rowIndexDown + 4;
-
-        for (int x = 4; x < width; x += 8)
-        {
-            // compute 2d fittness
-
-            int br = current[tmpRowIndex] - orig[tmpRowIndex];
-            int bg = current[tmpRowIndex + 1] - orig[tmpRowIndex + 1];
-            int bb = current[tmpRowIndex + 2] - orig[tmpRowIndex + 2];
-            br *= br;
-            bg *= bg;
-            bb *= bb;
-
-            int br2 = current[tmpRowIndex-4] - orig[tmpRowIndex-4];
-            int bg2 = current[tmpRowIndex-4 + 1] - orig[tmpRowIndex-4 + 1];
-            int bb2 = current[tmpRowIndex-4 + 2] - orig[tmpRowIndex-4 + 2];
-            br2 *= br2;
-            bg2 *= bg2;
-            bb2 *= bb2;
-
-            int br3 = current[tmpRowIndexDown] - orig[tmpRowIndexDown];
-            int bg3 = current[tmpRowIndexDown + 1] - orig[tmpRowIndexDown + 1];
-            int bb3 = current[tmpRowIndexDown + 2] - orig[tmpRowIndexDown + 2];
-            br3 *= br3;
-            bg3 *= bg3;
-            bb3 *= bb3;
-
-            int br4 = current[tmpRowIndexDown - 4] - orig[tmpRowIndexDown - 4];
-            int bg4 = current[tmpRowIndexDown - 4 + 1] - orig[tmpRowIndexDown - 4 + 1];
-            int bb4 = current[tmpRowIndexDown - 4 + 2] - orig[tmpRowIndexDown - 4 + 2];
-            br4 *= br4;
-            bg4 *= bg4;
-            bb4 *= bb4;
-
-            const int fixMul = 1;
-            const int fixMul2 = 2;
-            result += br*fixMul + bb*fixMul + bg*fixMul + 
-                br2*fixMul + bb2*fixMul + bg2*fixMul +
-                br3*fixMul + bb3*fixMul + bg3*fixMul +
-                br4*fixMul + bb4*fixMul + bg4*fixMul ;
-
-            int tmp = labs(br - br2); result += tmp*fixMul2;
-            tmp = labs(bg - bg2); result += tmp*fixMul2;
-            tmp = labs(bb - bb2); result += tmp*fixMul2;
-
-            tmp = labs(br4 - br2);  result += tmp*fixMul2;
-            tmp = labs(bg4 - bg2);  result += tmp*fixMul2;
-            tmp = labs(bb4 - bb2);  result += tmp*fixMul2;
-
-            tmp = labs(br4 - br3);  result += tmp*fixMul2;
-            tmp = labs(bg4 - bg3);  result += tmp*fixMul2;
-            tmp = labs(bb4 - bb3);  result += tmp*fixMul2;
-
-            tmp = labs(br - br3); result += tmp*fixMul2;
-            tmp = labs(bg - bg3); result += tmp*fixMul2;
-            tmp = labs(bb - bb3); result += tmp*fixMul2;
-
-
-            tmpRowIndex += 8;
-            tmpRowIndexDown += 8;
-
-        }
-
-        rowIndex += width*2;
-        rowIndexDown += width*2;
-    }
-
-
-    return result;
-
-
-}
 
 
 __int64 FastFunctions::computeFittnessWithStdDev_ARGB(unsigned char * curr, unsigned char * orig, int length)
@@ -1292,9 +722,9 @@ __int64 FastFunctions::computeFittnessWithStdDev_ARGB(unsigned char * curr, unsi
     //while (index < length)
     for(int index = 0;index < length;index+=4)
     {
-        medR.InsertData(labs(curr[index] - orig[index]));
-        medG.InsertData(labs(curr[index + 1] - orig[index + 1]));
-        medB.InsertData(labs(curr[index + 2] - orig[index + 2]));
+        medR.InsertData((unsigned char)labs(curr[index] - orig[index]));
+        medG.InsertData((unsigned char)labs(curr[index + 1] - orig[index + 1]));
+        medB.InsertData((unsigned char)labs(curr[index + 2] - orig[index + 2]));
 
         /*  int tmp = (labs(curr[index] - orig[index])>>2) +
         (labs(curr[index+1] - orig[index+1])>>2) +
@@ -1388,7 +818,9 @@ __int64 FastFunctions::computeFittnessSumSquareASM_ARGB( unsigned char* curr, un
         c--;
         if(c == 0)
         {
-            result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+            result += _mm_extract_epi32(mResult,0)+ _mm_extract_epi32(mResult,1)+
+				_mm_extract_epi32(mResult,2)+ _mm_extract_epi32(mResult,3);
+			
             mResult = _mm_setzero_si128();
             c = 1000;
         }
@@ -1401,7 +833,10 @@ __int64 FastFunctions::computeFittnessSumSquareASM_ARGB( unsigned char* curr, un
 
     }
 
-    result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
+	result += _mm_extract_epi32(mResult, 0) + _mm_extract_epi32(mResult, 1) +
+		_mm_extract_epi32(mResult, 2) + _mm_extract_epi32(mResult, 3);
+
+    //result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
 
 
     while(count > 3)
@@ -1576,78 +1011,4 @@ __int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned c
 
 }
 
-
-/*__int64 FastFunctions::computeFittnessSumABSASM( unsigned char* curr, unsigned char* orig, int count )
-{
-__int64 result = 0;
-
-__m128i mMaskGAAnd = _mm_set1_epi16(0xff00);
-__m128i mMaskEven = _mm_set1_epi32(0xffff);
-__m128i mResult = _mm_setzero_si128();
-
-int c = 1000;
-
-while(count > 15)
-{
-
-__m128i colors = _mm_loadu_si128((__m128i*)curr);
-__m128i colors2 = _mm_loadu_si128((__m128i*)orig);
-
-
-__m128i tmp1 = _mm_min_epu8(colors,colors2);
-__m128i tmp2 = _mm_max_epu8(colors,colors2);
-tmp1 = _mm_subs_epu8(tmp2,tmp1);
-
-tmp2 = _mm_and_si128(tmp1,mMaskGAAnd);  // masked  xxgxxxgxxxgxxxgx
-tmp1 = _mm_andnot_si128(mMaskGAAnd,tmp1);
-
-tmp2 =  _mm_srli_epi16(tmp2,8);
-
-__m128i tmp3 = _mm_and_si128(tmp1,mMaskEven);
-mResult = _mm_add_epi32(tmp3,mResult);
-tmp1 = _mm_srli_epi32(tmp1,16);
-mResult = _mm_add_epi32(tmp1,mResult);
-
-tmp3 = _mm_and_si128(tmp2,mMaskEven);
-mResult = _mm_add_epi32(tmp3,mResult);
-
-
-
-c--;
-if(c == 0)
-{
-result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
-mResult = _mm_setzero_si128();
-c = 1000;
-}
-//      result += tmp1.m128i_u16[0]+tmp1.m128i_u16[2]+tmp1.m128i_u16[3]+tmp1.m128i_u16[4]+tmp1.m128i_u16[5]+
-//         tmp1.m128i_u16[6]+tmp1.m128i_u16[7]+tmp2.m128i_u16[0]+tmp2.m128i_u16[4];
-
-count-=16;
-curr+=16;
-orig+=16;
-
-}
-
-result += mResult.m128i_u32[0]+mResult.m128i_u32[1]+mResult.m128i_u32[2]+mResult.m128i_u32[3];
-
-
-while(count > 3)
-{
-int br = curr[0] - orig[0];
-int bg = curr[1] - orig[1];
-int bb = curr[2] - orig[2];
-
-result += labs(br)+labs(bg) + labs(bb);
-
-count-=4;
-curr+=4;
-orig+=4;
-//  index += 4;
-}
-
-
-return result;
-
-}*/
 

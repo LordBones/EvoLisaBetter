@@ -412,9 +412,19 @@ void FastRowApplyColor(unsigned char * canvas, int len, int r , int g, int b, in
     }
 }
 
+void test()
+{
+	__m128i tmp = _mm_setr_epi8(1, 0x80, 0x80,  0x80,5, 0x80, 0x80, 0x80,9, 0x80, 0x80,  0x80,13, 0x80, 0x80, 0x80);
+		__m128i tmp2 = _mm_setr_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+		__m128i tmpp = _mm_shuffle_epi8(tmp2, tmp);
+
+	
+}
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	test();
     TestSumABS();
     TestSumSquare();
 

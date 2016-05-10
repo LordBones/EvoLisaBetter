@@ -60,7 +60,9 @@ namespace GenArt.Core.Classes.SWRenderLibrary
         {
             int startIndex = startIndexRow + rectangle.StartPoint.X * 4;
             //nativeFunc.NewRowApplyColor128(canvas.Data, rowStartIndex, width, c, a);
-            int alpha256 = ((((color) >> 24) & 0xff) * 256) / 255;
+            int alpha256 = ((color) >> 24) & 0xff;
+            if (alpha256 == 0xff) alpha256 += 1;
+
 
             nativeFunc.NewRowApplyColor64(canvas.Data, startIndex, rectangle.Width, color,alpha256);
             //RowApplyColorSafe(canvas.Data, startIndex, startIndex+(rectangle.Width-1)*4, color.R, color.G, color.B, color.A);

@@ -21,15 +21,15 @@ namespace GenArt.Core.Classes.SWRenderLibrary
             int r = (byte)((((uint)color) >> 16) & 0xff);
             int g = (byte)((((uint)color) >> 8) & 0xff);
             int b = (byte)((((uint)color)) & 0xff);
-            int alpha = (byte)((((uint)color) >> 24) & 0xff);
 
-            alpha = (alpha * 256) / 255;
+            int alpha256 = (int)(((uint)color) >> 24) & 0xff;
+            if (alpha256 == 0xff) alpha256 += 1;
+            
+            int invAlpha = 256 - alpha256;
 
-            int invAlpha = 256 - alpha;
-
-            int cb = b * alpha;
-            int cg = g * alpha;
-            int cr = r * alpha;
+            int cb = b * alpha256;
+            int cg = g * alpha256;
+            int cr = r * alpha256;
 
             while (startIndex <= endIndex)
             {

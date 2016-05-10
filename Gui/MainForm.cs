@@ -37,7 +37,7 @@ namespace GenArt
         private DateTime lastRepaint = DateTime.MinValue;
         private int lastSelected;
         private TimeSpan repaintIntervall = new TimeSpan(0, 0, 0, 0, 0);
-        private int repaintOnSelectedSteps = 3;
+        
         private int selected;
 
         private Bitmap sourceBitmap;
@@ -60,9 +60,7 @@ namespace GenArt
         private int EdgeThreshold { get { return (int)nudEdgeThreshold.Value; } }
         private int MaxPolygons { get { return (int)nudMaxPolygon.Value; } }
         private GASearch.TypeRendering _typeRendering;
-        private bool _EnableSplitVersion;
-
-
+       
 
         public MainForm()
         {
@@ -82,7 +80,7 @@ namespace GenArt
             Settings = new Settings();
 
             InitImage(Bitmap.FromFile(Path.Combine(Application.StartupPath,GenArt.Properties.Resources.ml1)));
-            cbRenderCore.SelectedIndex = 0;
+            cbRenderCore.SelectedIndex = 2;
 
            
         }
@@ -110,7 +108,7 @@ namespace GenArt
 
             GASearch gaSearch = new GASearch(InitPopulation);
             gaSearch.TypeRender = _typeRendering;
-            gaSearch.EnableSplitVersion = _EnableSplitVersion;
+          
 
             if (enableMaxGeneration)
             {
@@ -119,15 +117,16 @@ namespace GenArt
 
             gaSearch.InitFirstPopulation(sourceBitmap, EdgeThreshold);
 
-            int maxGeneration = Convert.ToInt32(nudMaxGeneration.Value)*1000;
+            int maxGeneration = //2000;
+             Convert.ToInt32(nudMaxGeneration.Value) * 1000;
             
             while (isRunning)
             {
 
                 if (enableMaxGeneration && generation > maxGeneration) break;
 
-                gaSearch.ExecuteGeneration();
-                //gaSearch.ExecuteGenerationPure();
+                //gaSearch.ExecuteGeneration();
+                gaSearch.ExecuteGenerationPure();
 
                 statsFillPixelsCurr = gaSearch.fillPixels;
 
@@ -192,9 +191,9 @@ namespace GenArt
             _typeRendering = GASearch.TypeRendering.software;
             if (cbRenderCore.SelectedIndex == 1) _typeRendering = GASearch.TypeRendering.softwareByRow;
             if (cbRenderCore.SelectedIndex == 2) _typeRendering = GASearch.TypeRendering.softwareByRowWithFitness;
+            if (cbRenderCore.SelectedIndex == 3) _typeRendering = GASearch.TypeRendering.softwareByRowWithFitnessParallel;
 
-            _EnableSplitVersion = chbSplitVersion.Checked;
-
+           
 
             if (thread != null)
                 KillThread();
@@ -274,16 +273,14 @@ namespace GenArt
             
 
 
-            bool shouldRepaint = false;
-            if (repaintIntervall.Ticks > 0)
-                if (lastRepaint < DateTime.Now - repaintIntervall)
-                    shouldRepaint = true;
+            //bool shouldRepaint = false;
+            //if (repaintIntervall.Ticks > 0)
+            //    if (lastRepaint < DateTime.Now - repaintIntervall)
+            //        shouldRepaint = true;
 
-            if (repaintOnSelectedSteps > 0)
-                //if (lastSelected + repaintOnSelectedSteps < selected)
-                    shouldRepaint = true;
+           
 
-            if (shouldRepaint)
+           // if (shouldRepaint)
             {
                 lock (DrawingLock)
                 {

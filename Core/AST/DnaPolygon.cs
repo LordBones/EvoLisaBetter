@@ -8,11 +8,11 @@ using GenArtCoreNative;
 
 namespace GenArt.AST
 {
-    public class DnaPolygon : DnaPrimitive
+    public sealed class DnaPolygon : DnaPrimitive
     {
         public DnaPoint [] _Points; // { get; set; }
         public short _minY;
-        public short _maxY;
+        public short _maxY; 
 
         public DnaPolygon()
         {
@@ -38,7 +38,7 @@ namespace GenArt.AST
 
                 while (true)
                 {
-                    origin.Init();
+                    origin.Init(Tools.MaxWidth,Tools.MaxHeight);
 
                     Rectangle tile = new Rectangle(0, 0, 1, 1);
                     if (errorMatrix != null)
@@ -191,6 +191,7 @@ namespace GenArt.AST
                     int matrixIndex = errorMatrix.GetRNDMatrixRouleteIndex();
                     tile = errorMatrix.GetTileByErrorMatrixIndex(matrixIndex);
                 }
+                bool genRandomEdge = Tools.GetRandomNumber(0, 1000) < 500; 
 
                 while (true)
                 {
@@ -214,8 +215,15 @@ namespace GenArt.AST
 
                     while (!result.HasValue)
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
-                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                            result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        }
                     }
 
                     points[0] = result.Value;
@@ -224,8 +232,16 @@ namespace GenArt.AST
 
                     while (!result.HasValue)
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
-                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                            result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        }
+
                         if (result.HasValue && DnaPoint.Compare(result.Value, points[0]))
                             result = null;
                     }
@@ -235,9 +251,15 @@ namespace GenArt.AST
 
                     while (!result.HasValue)
                     {
-                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
-                        result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
-
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                            result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        }
                         if (result.HasValue && (DnaPoint.Compare(result.Value, points[0]) || DnaPoint.Compare(result.Value, points[1])))
                             result = null;
                     }
@@ -248,7 +270,7 @@ namespace GenArt.AST
 
                     //
                     if (//!IsIntersect(points) &&
-                        !IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2], edgePoints) &&
+                        //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2], edgePoints) &&
                         IsNotSmallAngles(points))
                     {
                         break;
@@ -259,7 +281,126 @@ namespace GenArt.AST
             this._Points = points;
 
             Brush = new DnaBrush(255, 255, 0, 0);
-            CreateNewUniqueId();
+            UpdateMinMaxY();
+        }
+
+        
+
+
+
+        public void InitByEdge(ImageEdges edgePoints, bool enableRandomEndge)
+        {
+
+            int countPoints = 3;// Math.Min(Settings.ActivePointsPerPolygonMax, 3);
+            DnaPoint[] points = new DnaPoint[countPoints];
+
+            {
+
+                bool genRandomEdge = enableRandomEndge;
+
+                while (true)
+                {
+                    int startX = 0;
+                    int startY = 0;
+
+
+                        startX = Tools.GetRandomNumber(1, edgePoints.Width);
+                        startY = Tools.GetRandomNumber(1, edgePoints.Height);
+            
+                    DnaPoint? result = null;
+
+                    //while (!result.HasValue)
+                    {
+
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint;
+                            while (true)
+                            {
+                                endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                                if (endPoint.X != startX || endPoint.Y != startY)
+                                    break;
+                            }
+                            result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        }
+                        
+                    }
+
+                    points[0] = result.Value;
+                    result = null;
+
+
+                    //while (!result.HasValue)
+                    {
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint;
+                            while (true)
+                            {
+                                endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                                if (endPoint.X != startX || endPoint.Y != startY)
+                                    break;
+                            }
+                            result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                        }
+                        
+                        //if (result.HasValue && DnaPoint.Compare(result.Value, points[0]))
+                        //    result = null;
+                    }
+
+                    points[1] = result.Value;
+                    result = null;
+
+                    //while (!result.HasValue)
+                    {
+                        if (genRandomEdge)
+                        {
+                            result = edgePoints.GetRandomEdgePoint();
+                        }
+                        else
+                        {
+                            DnaPoint endPoint;
+                            while (true)
+                            {
+                                endPoint = edgePoints.GetRandomBorderPoint(startX, startY);
+                                if (endPoint.X != startX || endPoint.Y != startY)
+                                    break;
+                            }
+                             result = edgePoints.GetFirstEdgeOnLineDirection(startX, startY, endPoint.X, endPoint.Y);
+                            
+
+                            //if (result == null)
+                            //    result = null;
+                        }
+
+                       
+                        //if (result.HasValue && (DnaPoint.Compare(result.Value, points[0]) || DnaPoint.Compare(result.Value, points[1])))
+                        //    result = null;
+                    }
+
+                    points[2] = result.Value;
+
+                    //
+                    if (//!IsIntersect(points) &&
+                        //!IsTriangleEdgesCrossedSomeEdge(points[0], points[1], points[2], edgePoints) &&
+                        IsNotSmallAngles(points))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            this._Points = points;
+
+            Brush = new DnaBrush(255, 255, 0, 0);
             UpdateMinMaxY();
         }
 
@@ -273,13 +414,12 @@ namespace GenArt.AST
             Brush = new DnaBrush(255, 255, 0, 0);
         }
 
-        public override object Clone()
+        public override DnaPrimitive Clone()
         {
             var newPolygon = new DnaPolygon();
             newPolygon._Points = new DnaPoint[_Points.Length];
             newPolygon.Brush = Brush;
-            newPolygon.UniqueId = UniqueId;
-
+         
             newPolygon._Points[0] = _Points[0];
             newPolygon._Points[1] = _Points[1];
             newPolygon._Points[2] = _Points[2];
@@ -298,8 +438,7 @@ namespace GenArt.AST
         {
             
             destPoly.Brush = Brush;
-            destPoly.UniqueId = UniqueId;
-
+          
             if (destPoly._Points == null)
                 destPoly._Points = new DnaPoint[3];
 
@@ -321,19 +460,30 @@ namespace GenArt.AST
 
             DnaPoint [] points = this._Points;
 
-            if (edgePoints != null && false)
+            if (edgePoints != null )
             {
-                while (true)
+                int count = 5;
+                while (count >= 0)
                 {
+                    count--;
                     int pointIndex = Tools.GetRandomNumber(0, points.Length);
                     DnaPoint oldPoint = points[pointIndex];
 
                     //get random end line on border canvas
+
                     //DnaPoint ? resultPoint = edgePoints.GetRandomCloserEdgePoint(oldPoint, 10);
 
-                    DnaPoint endPoint = edgePoints.GetRandomBorderPoint(oldPoint.X, oldPoint.Y);
+                    DnaPoint? resultPoint = null;
 
-                    DnaPoint ? resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
+                    if (Tools.GetRandomNumber(0, 1000) < 500)
+                    {
+                        DnaPoint endPoint = edgePoints.GetRandomBorderPoint(oldPoint.X, oldPoint.Y);
+                        resultPoint = edgePoints.GetFirstEdgeOnLineDirection(oldPoint.X, oldPoint.Y, endPoint.X, endPoint.Y);
+                    }
+                    else
+                    {
+                        resultPoint = edgePoints.GetRandomEdgePoint();
+                    }
 
                     // zamezeni generovani bodu ktery uz je vrcholem trojuhelniku
                     if (resultPoint.HasValue)
@@ -342,7 +492,7 @@ namespace GenArt.AST
                         bool p2 = DnaPoint.Compare(resultPoint.Value, points[1]);
                         bool p3 = DnaPoint.Compare(resultPoint.Value, points[2]);
 
-                        if ((p1 && pointIndex != 0) || (p2 && pointIndex != 1) || (p2 && pointIndex != 2))
+                        if ((p1 ) || (p2 ) || (p2 ))
                             resultPoint = null;
                     }
 
@@ -365,7 +515,6 @@ namespace GenArt.AST
                             //this.Brush = brush;
 
                             drawing.SetDirty();
-                            CreateNewUniqueId();
                             break;
                         }
                     }
@@ -478,7 +627,6 @@ namespace GenArt.AST
 
 
                             drawing.SetDirty();
-                            CreateNewUniqueId();
                             break;
                         } 
                         else
@@ -657,9 +805,9 @@ namespace GenArt.AST
 
         public override bool GetRangeWidthByRow(int y, ref int startX, ref int endX)
         {
-            //return Helper_GetRangeWidthByRow_Correct(y, ref startX, ref endX);
+            return Helper_GetRangeWidthByRow_Correct(y, ref startX, ref endX);
 
-            return Helper_GetRangeWidthByRow_PrecomputeMaxMinY(y, ref startX, ref endX);
+            //return Helper_GetRangeWidthByRow_PrecomputeMaxMinY(y, ref startX, ref endX);
         }
 
         private bool Helper_GetRangeWidthByRow_Correct(int y, ref int startX, ref int endX)
@@ -734,13 +882,14 @@ namespace GenArt.AST
                 int v0y = px1 - px0;
 
                 int v0c = -(v0x * px0 + v0y * py0);
-                int tmpx0 =  (-v0y * y - v0c) / v0x;
-
+                
+                int tmpx0 =  Tools.DivWithMathRouding((-v0y * y - v0c) , v0x);
+                
                 //int v0c = (v0y * py0);
                 //int tmpx0 =  (-v0y * y + v0c) / v0x + px0;
 
 
-                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                int tmpx2 = Tools.DivWithMathRouding((-v2y * y - v2c) , v2x);
                 start = tmpx0;
                 end = tmpx2;
             }
@@ -761,8 +910,8 @@ namespace GenArt.AST
                 int v1y = px2 - px1;
                 int v1c = -(v1x * px1 + v1y * py1);
 
-                int tmpx1 =  (-v1y * y - v1c) / v1x;
-                int tmpx2 =  (-v2y * y - v2c) / v2x;
+                int tmpx1 = Tools.DivWithMathRouding((-v1y * y - v1c) , v1x);
+                int tmpx2 = Tools.DivWithMathRouding((-v2y * y - v2c) , v2x);
                 start = tmpx1;
                 end = tmpx2;
             }
@@ -799,7 +948,7 @@ namespace GenArt.AST
             int py1 = this._Points[1].Y;
             int py2 = this._Points[2].Y;
 
-            if (py0 > py1)
+            /*if (py0 > py1)
             {
                 int tmp;
                 tmp = py0; py0 = py1; py1 = tmp;
@@ -824,7 +973,7 @@ namespace GenArt.AST
                 tmp = px0; px0 = px1; px1 = tmp;
                 //Tools.swap<int>(ref py0, ref py1);
                 //Tools.swap<int>(ref px0, ref px1);
-            }
+            }*/
 
             int v2x = -(py0 - py2);
             int v2y = px0 - px2;
@@ -1077,11 +1226,11 @@ namespace GenArt.AST
             return true;
         }
 
-        public bool IsNotSmallAngles(List<DnaPoint> points)
+        public static bool IsNotSmallAngles(List<DnaPoint> points)
         {
             return IsNotSmallAngles(points.ToArray());
         }
-        public bool IsNotSmallAngles(DnaPoint[] points)
+        public static bool IsNotSmallAngles(DnaPoint[] points)
         {
             //return true;
             if (points.Length < 3)
@@ -1132,7 +1281,7 @@ namespace GenArt.AST
 
 
 
-        private const double CONST_ANGLE = System.Math.PI * (10 / 180.0);
+        private const double CONST_ANGLE = System.Math.PI * (20 / 180.0);
         private const double CONST_ANGLE_Inverse = System.Math.PI * 2 - CONST_ANGLE;
 
         private static bool LinesHasMinimalAngle(int x1, int y1, int x2, int y2, int middleX, int middleY)
@@ -1235,18 +1384,46 @@ namespace GenArt.AST
 
         private void UpdateMinMaxY()
         {
-            short startY = this._Points[0].Y;
-            short endY = startY;
-            short tmp = this._Points[1].Y;
-            if (startY > tmp) startY = tmp;
-            if (endY < tmp) endY = tmp;
+            if (this._Points[0].Y > this._Points[1].Y)
+            {
+                DnaPoint tmp;
+                tmp = this._Points[0]; this._Points[0] = this._Points[1]; this._Points[1] = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
+            }
+            if (this._Points[1].Y > this._Points[2].Y)
+            {
+                DnaPoint tmp;
+                tmp = this._Points[1]; this._Points[1] = this._Points[2]; this._Points[2] = tmp;
+                
+                //Tools.swap<int>(ref py1, ref py2);
+                //Tools.swap<int>(ref px1, ref px2);
+            }
 
-            tmp = this._Points[2].Y;
-            if (startY > tmp) startY = tmp;
-            if (endY < tmp) endY = tmp;
+            if (this._Points[0].Y > this._Points[1].Y)
+            {
+                DnaPoint tmp;
+                tmp = this._Points[0]; this._Points[0] = this._Points[1]; this._Points[1] = tmp;
+                //Tools.swap<int>(ref py0, ref py1);
+                //Tools.swap<int>(ref px0, ref px1);
+            }
 
-            _minY = startY;
-            _maxY = endY;
+            _minY = this._Points[0].Y;
+            _maxY = this._Points[2].Y;
+            
+
+            //short startY = this._Points[0].Y;
+            //short endY = startY;
+            //short tmp = this._Points[1].Y;
+            //if (startY > tmp) startY = tmp;
+            //if (endY < tmp) endY = tmp;
+
+            //tmp = this._Points[2].Y;
+            //if (startY > tmp) startY = tmp;
+            //if (endY < tmp) endY = tmp;
+
+            //_minY = startY;
+            //_maxY = endY;
         }
     }
 }

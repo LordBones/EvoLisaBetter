@@ -31,14 +31,14 @@ namespace GenArt.Core.AST
             get { return new DnaPoint[0]; }
         }
 
-        public override object Clone()
+        public override DnaPrimitive Clone()
         {
             DnaElipse elipse = new DnaElipse();
             elipse.Width = _width;
             elipse.Height = _height;
             elipse.StartPoint = _startPoint;
             elipse.Brush = Brush;
-            elipse.UniqueId = UniqueId;
+          
 
             return elipse;
         }
@@ -51,7 +51,7 @@ namespace GenArt.Core.AST
         public override void Init(byte mutationRate, Classes.ErrorMatrix errorMatrix, Classes.ImageEdges edgePoints = null)
         {
             var origin = new DnaPoint();
-            origin.Init();
+            origin.Init(Tools.MaxWidth, Tools.MaxHeight);
             if (edgePoints == null)
             {
                 Rectangle tile = new Rectangle(0, 0, 1, 1);
@@ -131,7 +131,7 @@ namespace GenArt.Core.AST
             }
 
             Brush = new DnaBrush(255, 255, 0, 0);
-            CreateNewUniqueId();
+            
         }
 
         public override void GetRangeHighSize(ref int startY, ref int endY)
@@ -220,7 +220,7 @@ namespace GenArt.Core.AST
 
 
             drawing.SetDirty();
-            CreateNewUniqueId();
+           
         }
 
         public override void MutateTranspozite(GenArt.AST.DnaDrawing drawing, Classes.CanvasARGB destImage = null)
